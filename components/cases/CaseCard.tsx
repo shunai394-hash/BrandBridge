@@ -28,6 +28,14 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
       className={`animate-fade-up rounded-lg border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[0_12px_32px_rgba(20,32,51,0.08)] ${delayClass}`}
     >
       <Link href={`/cases/${caseItem.id}`} className="group block">
+        {caseItem.productImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={caseItem.productImageUrl}
+            alt={caseItem.productName}
+            className="mb-3 h-40 w-full rounded-md border border-border object-cover"
+          />
+        ) : null}
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="rounded bg-cream px-2 py-0.5 text-navy">
             {caseItem.category}

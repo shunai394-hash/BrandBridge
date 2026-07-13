@@ -74,6 +74,8 @@ SQL Editor で順に実行（本番手順の詳細は [docs/SUPABASE_PRODUCTION.
 6. `supabase/migrations/006_deal_management.sql`
 7. `supabase/migrations/007_popular_cases.sql`
 8. `supabase/migrations/008_contact_inquiries.sql`
+9. `supabase/migrations/009_maker_registration.sql`
+10. `supabase/migrations/010_partner_profile.sql`
 
 ### 4. デモ用サンプルデータ（任意）
 

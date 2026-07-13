@@ -9,7 +9,7 @@ export function toPublicProfile(profile: Profile): PublicProfile {
   return {
     id: profile.id,
     role: profile.role,
-    companyName: profile.company_name,
+    companyName: profile.display_name?.trim() || profile.company_name,
     contactName: profile.contact_name,
     industry: profile.industry,
     productOverview: profile.product_overview,
@@ -23,6 +23,11 @@ export function toPublicProfile(profile: Profile): PublicProfile {
     employeeRange: profile.employee_range,
     corporateNumber: profile.corporate_number,
     achievements: profile.achievements,
+    displayName: profile.display_name,
+    entityType: profile.entity_type,
+    salesGenres: profile.sales_genres,
+    preferredCategories: profile.preferred_categories,
+    preferredDealTypes: profile.preferred_deal_types,
     createdAt: profile.created_at,
   };
 }
@@ -77,6 +82,12 @@ export async function updateProfile(
     payload.sales_channel = input.salesChannel?.trim() || null;
     payload.area = input.area?.trim() || null;
     payload.strength = input.strength?.trim() || null;
+    payload.display_name = input.displayName?.trim() || null;
+    payload.entity_type = input.entityType || null;
+    payload.sales_genres = input.salesGenres?.trim() || null;
+    payload.preferred_categories = input.preferredCategories?.trim() || null;
+    payload.preferred_deal_types = input.preferredDealTypes?.trim() || null;
+    payload.onboarding_completed = true;
   }
 
   const supabase = await createClient();

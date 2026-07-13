@@ -32,6 +32,11 @@ function toForm(profile: Profile): ProfileUpdateInput {
     employeeRange: profile.employee_range ?? "",
     corporateNumber: profile.corporate_number ?? "",
     achievements: profile.achievements ?? "",
+    displayName: profile.display_name ?? "",
+    entityType: profile.entity_type ?? "",
+    salesGenres: profile.sales_genres ?? "",
+    preferredCategories: profile.preferred_categories ?? "",
+    preferredDealTypes: profile.preferred_deal_types ?? "",
   };
 }
 
@@ -159,8 +164,39 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
       ) : (
         <>
           <Input
+            label="表示名"
+            name="displayName"
+            value={form.displayName}
+            onChange={(e) => update("displayName", e.target.value)}
+          />
+          <label className="flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-navy">個人 / 法人</span>
+            <select
+              className={selectClass}
+              value={form.entityType}
+              onChange={(e) =>
+                update(
+                  "entityType",
+                  e.target.value as ProfileUpdateInput["entityType"],
+                )
+              }
+            >
+              <option value="">未設定</option>
+              <option value="individual">個人</option>
+              <option value="corporate">法人</option>
+            </select>
+          </label>
+          <Input
+            label="販売ジャンル"
+            name="salesGenres"
+            placeholder="例: 美容 / 食品"
+            value={form.salesGenres}
+            onChange={(e) => update("salesGenres", e.target.value)}
+          />
+          <Input
             label="販売チャネル"
             name="salesChannel"
+            placeholder="例: Amazon / 実店舗"
             value={form.salesChannel}
             onChange={(e) => update("salesChannel", e.target.value)}
           />
@@ -169,6 +205,19 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
             name="area"
             value={form.area}
             onChange={(e) => update("area", e.target.value)}
+          />
+          <Input
+            label="希望商品カテゴリ"
+            name="preferredCategories"
+            value={form.preferredCategories}
+            onChange={(e) => update("preferredCategories", e.target.value)}
+          />
+          <Input
+            label="希望取引条件"
+            name="preferredDealTypes"
+            placeholder="例: 卸販売 / 代理店"
+            value={form.preferredDealTypes}
+            onChange={(e) => update("preferredDealTypes", e.target.value)}
           />
           <TextArea
             label="強み"

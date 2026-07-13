@@ -2,6 +2,8 @@ import Link from "next/link";
 
 const serviceLinks = [
   { href: "/cases", label: "案件一覧" },
+  { href: "/for-makers", label: "メーカーの方へ" },
+  { href: "/for-partners", label: "販売パートナーの方へ" },
   { href: "/register/maker", label: "メーカー登録" },
   { href: "/register/partner", label: "パートナー登録" },
   { href: "/login", label: "ログイン" },

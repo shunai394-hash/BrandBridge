@@ -46,6 +46,7 @@ function mapCase(row: CaseWithMaker): Case {
     targetCountry: row.target_country as TargetCountry,
     partnerChannels: row.partner_channels,
     partnerRequirements: row.partner_requirements,
+    productImageUrl: row.product_image_url ?? null,
     reviewStatus: row.review_status,
     reviewNote: row.review_note,
     createdAt: row.created_at,
@@ -214,6 +215,7 @@ export async function createCase(
       target_country: input.targetCountry,
       partner_channels: input.partnerChannels.trim() || null,
       partner_requirements: input.partnerRequirements.trim() || null,
+      product_image_url: input.productImageUrl?.trim() || null,
       status: "open",
       review_status: "pending_review",
     })

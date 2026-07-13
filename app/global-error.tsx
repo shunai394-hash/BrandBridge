@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import {
+  getErrorDiagnostics,
+  reportBoundaryError,
+} from "@/lib/report-error";
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
@@ -8,8 +12,10 @@ type GlobalErrorProps = {
 };
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  const diagnostics = getErrorDiagnostics(error);
+
   useEffect(() => {
-    console.error("[app/global-error]", error);
+    reportBoundaryError("app/global-error", error);
   }, [error]);
 
   return (
@@ -27,7 +33,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           color: "#142033",
         }}
       >
-        <div style={{ maxWidth: 480, padding: 24, textAlign: "center" }}>
+        <div style={{ maxWidth: 520, padding: 24, textAlign: "center" }}>
           <p style={{ color: "#1a8a8a", fontSize: 14, margin: 0 }}>ERROR</p>
           <h1 style={{ fontSize: 28, marginTop: 12, marginBottom: 0 }}>
             重大なエラーが発生しました
@@ -35,11 +41,66 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
           <p style={{ color: "#5a6a7d", lineHeight: 1.7, marginTop: 16 }}>
             ページを再読み込みするか、しばらくしてから再度アクセスしてください。
           </p>
-          {error.digest ? (
-            <p style={{ color: "#5a6a7d", fontSize: 12, marginTop: 12 }}>
-              参考コード: {error.digest}
+
+          <div
+            style={{
+              marginTop: 16,
+              textAlign: "left",
+              background: "#eef3f7",
+              border: "1px solid #d5dee8",
+              borderRadius: 8,
+              padding: 12,
+              fontSize: 12,
+              color: "#5a6a7d",
+              lineHeight: 1.6,
+            }}
+          >
+            <p style={{ margin: 0 }}>
+              <strong style={{ color: "#142033" }}>digest:</strong>{" "}
+              {diagnostics.digest ?? "(なし)"}
             </p>
-          ) : null}
+            <p style={{ margin: "6px 0 0" }}>
+              <strong style={{ color: "#142033" }}>name:</strong>{" "}
+              {diagnostics.name}
+            </p>
+            {diagnostics.showDetails ? (
+              <>
+                <p style={{ margin: "8px 0 0", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                  <strong style={{ color: "#142033" }}>message:</strong>{" "}
+                  {diagnostics.message}
+                </p>
+                {diagnostics.cause ? (
+                  <p style={{ margin: "8px 0 0", wordBreak: "break-word" }}>
+                    <strong style={{ color: "#142033" }}>cause:</strong>{" "}
+                    {diagnostics.cause}
+                  </p>
+                ) : null}
+                {diagnostics.stack ? (
+                  <pre
+                    style={{
+                      marginTop: 12,
+                      maxHeight: 180,
+                      overflow: "auto",
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-word",
+                      background: "rgba(12,21,36,0.06)",
+                      borderRadius: 6,
+                      padding: 8,
+                      fontSize: 11,
+                    }}
+                  >
+                    {diagnostics.stack}
+                  </pre>
+                ) : null}
+              </>
+            ) : (
+              <p style={{ margin: "8px 0 0" }}>
+                詳細表示はオフです。Vercel Runtime Logs で digest を検索するか、
+                NEXT_PUBLIC_SHOW_ERROR_DETAILS=true を設定して再デプロイしてください。
+              </p>
+            )}
+          </div>
+
           <div
             style={{
               display: "flex",

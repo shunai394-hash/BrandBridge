@@ -45,6 +45,7 @@ function mapFavoriteCase(
     targetCountry: row.target_country as TargetCountry,
     partnerChannels: row.partner_channels,
     partnerRequirements: row.partner_requirements,
+    productImageUrl: row.product_image_url ?? null,
     reviewStatus: row.review_status,
     reviewNote: row.review_note,
     createdAt: row.created_at,

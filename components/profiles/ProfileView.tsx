@@ -74,6 +74,22 @@ export function ProfileView({ profile, openCases, isOwner }: ProfileViewProps) {
           </h2>
           <dl className="mt-4 space-y-4">
             <div>
+              <dt className="text-xs font-medium text-muted">区分</dt>
+              <dd className="mt-1 text-sm text-navy">
+                {profile.entityType === "corporate"
+                  ? "法人"
+                  : profile.entityType === "individual"
+                    ? "個人"
+                    : "未登録"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted">販売ジャンル</dt>
+              <dd className="mt-1 text-sm text-navy">
+                {profile.salesGenres || "未登録"}
+              </dd>
+            </div>
+            <div>
               <dt className="text-xs font-medium text-muted">販売チャネル</dt>
               <dd className="mt-1 text-sm text-navy">
                 {profile.salesChannel || "未登録"}
@@ -82,6 +98,18 @@ export function ProfileView({ profile, openCases, isOwner }: ProfileViewProps) {
             <div>
               <dt className="text-xs font-medium text-muted">対応エリア</dt>
               <dd className="mt-1 text-sm text-navy">{profile.area || "未登録"}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted">希望商品カテゴリ</dt>
+              <dd className="mt-1 text-sm text-navy">
+                {profile.preferredCategories || "未登録"}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted">希望取引条件</dt>
+              <dd className="mt-1 text-sm text-navy">
+                {profile.preferredDealTypes || "未登録"}
+              </dd>
             </div>
             <div>
               <dt className="text-xs font-medium text-muted">強み</dt>

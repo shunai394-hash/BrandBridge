@@ -9,8 +9,23 @@ export const siteConfig = {
 } as const;
 
 export function getSiteUrl(): string {
-  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (fromEnv) return fromEnv;
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return "http://localhost:3000";
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+  const fallback = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`
+    : "http://localhost:3000";
+
+  const candidate = raw && raw.length > 0 ? raw : fallback;
+  const withProtocol = /^https?:\/\//i.test(candidate)
+    ? candidate
+    : `https://${candidate}`;
+
+  try {
+    return new URL(withProtocol).origin;
+  } catch {
+    console.error(
+      "[getSiteUrl] invalid NEXT_PUBLIC_SITE_URL, using fallback:",
+      candidate,
+    );
+    return "http://localhost:3000";
+  }
 }

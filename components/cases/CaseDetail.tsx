@@ -121,6 +121,15 @@ export function CaseDetailView({
       </h1>
       <p className="mt-2 text-muted">{caseItem.productName}</p>
 
+      {caseItem.productImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={caseItem.productImageUrl}
+          alt={caseItem.productName}
+          className="mt-5 max-h-80 w-full rounded-lg border border-border object-cover"
+        />
+      ) : null}
+
       <div className="mt-4 rounded-lg border border-border bg-surface p-4">
         <p className="text-xs font-medium text-muted">掲載メーカー</p>
         <Link

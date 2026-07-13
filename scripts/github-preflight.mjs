@@ -49,7 +49,7 @@ for (const rel of required) {
 }
 
 console.log("\nMigrations");
-for (let i = 1; i <= 8; i += 1) {
+for (let i = 1; i <= 10; i += 1) {
   const prefix = String(i).padStart(3, "0");
   const found = fs
     .readdirSync(path.join(root, "supabase/migrations"))

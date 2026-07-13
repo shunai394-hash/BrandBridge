@@ -17,6 +17,7 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | 変数名 | 公開範囲 | 例 | 説明 |
 |--------|----------|------|------|
 | `NEXT_PUBLIC_SITE_URL` | ブラウザに露出 | `https://brandbridge.example.com` | OG・sitemap・canonical の基準 URL。末尾スラッシュなし |
+| `NEXT_PUBLIC_SHOW_ERROR_DETAILS` | ブラウザに露出 | `true` | （任意・調査用）エラー画面に message / stack を表示。調査後は削除 |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。

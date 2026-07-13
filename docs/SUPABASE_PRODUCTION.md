@@ -20,6 +20,8 @@ SQL Editor で **番号順** に実行:
 6. `supabase/migrations/006_deal_management.sql`
 7. `supabase/migrations/007_popular_cases.sql`
 8. `supabase/migrations/008_contact_inquiries.sql`
+9. `supabase/migrations/009_maker_registration.sql`
+10. `supabase/migrations/010_partner_profile.sql`
 
 実行後の確認例:
 
@@ -59,8 +61,10 @@ Authentication → URL Configuration:
 | （ローカル併用時） | `http://localhost:3000/**` |
 
 - [ ] Site URL が Vercel 本番 URL（またはカスタムドメイン）と一致
+- [ ] Redirect URLs に `https://あなたのドメイン/auth/callback` を追加（メーカー登録のメール認証用）
 - [ ] メール確認を使う場合、Confirm email の設定とメールテンプレートを確認
 - [ ] ベータで確認メールを省略する場合は「Confirm email」オフでも可（本番強化時はオン推奨）
+- [ ] （任意）Storage バケット `product-images` が作成されている（009 実行後）
 
 ## 4. API / キー
 

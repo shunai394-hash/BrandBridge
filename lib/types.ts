@@ -115,6 +115,12 @@ export type Profile = {
   employee_range: string | null;
   corporate_number: string | null;
   achievements: string | null;
+  display_name: string | null;
+  entity_type: "individual" | "corporate" | null;
+  sales_genres: string | null;
+  preferred_categories: string | null;
+  preferred_deal_types: string | null;
+  onboarding_completed?: boolean;
   is_active?: boolean;
   created_at: string;
   updated_at: string;
@@ -138,6 +144,11 @@ export type PublicProfile = {
   employeeRange: string | null;
   corporateNumber: string | null;
   achievements: string | null;
+  displayName: string | null;
+  entityType: "individual" | "corporate" | null;
+  salesGenres: string | null;
+  preferredCategories: string | null;
+  preferredDealTypes: string | null;
   createdAt: string;
 };
 
@@ -156,6 +167,11 @@ export type ProfileUpdateInput = {
   employeeRange: string;
   corporateNumber: string;
   achievements: string;
+  displayName?: string;
+  entityType?: "individual" | "corporate" | "";
+  salesGenres?: string;
+  preferredCategories?: string;
+  preferredDealTypes?: string;
 };
 
 export const employeeRanges = ["1-10", "11-50", "51-200", "201+"] as const;
@@ -183,6 +199,7 @@ export type CaseRow = {
   target_country: TargetCountry;
   partner_channels: string | null;
   partner_requirements: string | null;
+  product_image_url: string | null;
   review_status: ReviewStatus;
   reviewed_at: string | null;
   reviewed_by: string | null;
@@ -217,6 +234,7 @@ export type Case = {
   targetCountry: TargetCountry;
   partnerChannels: string | null;
   partnerRequirements: string | null;
+  productImageUrl: string | null;
   reviewStatus: ReviewStatus;
   reviewNote: string | null;
   createdAt: string;
@@ -249,6 +267,71 @@ export type MakerProfileInput = {
   productOverview: string;
 };
 
+/** Multi-step maker registration (account + matching case draft) */
+export type MakerSalesArea = "全国" | "特定地域" | "オンライン中心";
+
+export type MakerDealType =
+  | "卸販売"
+  | "代理店"
+  | "総代理店"
+  | "業務提携"
+  | "その他";
+
+export const makerSalesChannelOptions = [
+  "Amazon",
+  "TikTok Shop",
+  "自社EC",
+  "実店舗",
+  "卸販売",
+  "その他",
+] as const;
+
+export type MakerSalesChannel = (typeof makerSalesChannelOptions)[number];
+
+export const makerSalesAreaOptions: MakerSalesArea[] = [
+  "全国",
+  "特定地域",
+  "オンライン中心",
+];
+
+export const makerDealTypeOptions: MakerDealType[] = [
+  "卸販売",
+  "代理店",
+  "総代理店",
+  "業務提携",
+  "その他",
+];
+
+export type MakerRegistrationInput = {
+  companyName: string;
+  contactName: string;
+  email: string;
+  password: string;
+  industry: string;
+  companyOverview: string;
+  productName: string;
+  productCategory: string;
+  productSummary: string;
+  salesArea: MakerSalesArea;
+  salesChannels: MakerSalesChannel[];
+  dealType: MakerDealType;
+  dealTerms: string;
+  productImageUrl?: string | null;
+};
+
+/** Stored in auth user_metadata when email confirmation is required */
+export type MakerCaseDraftMeta = {
+  productName: string;
+  productCategory: string;
+  productSummary: string;
+  salesArea: MakerSalesArea;
+  salesChannels: MakerSalesChannel[];
+  dealType: MakerDealType;
+  dealTerms: string;
+  companyOverview: string;
+  industry: string;
+};
+
 export type PartnerProfileInput = {
   companyName: string;
   contactName: string;
@@ -257,6 +340,57 @@ export type PartnerProfileInput = {
   salesChannel: string;
   area: string;
   strength: string;
+};
+
+export type PartnerEntityType = "individual" | "corporate";
+
+export const partnerSalesGenreOptions = [
+  "美容",
+  "食品",
+  "健康",
+  "ファッション",
+  "家電",
+  "雑貨",
+  "その他",
+] as const;
+
+export type PartnerSalesGenre = (typeof partnerSalesGenreOptions)[number];
+
+export const partnerDealPreferenceOptions = [
+  "卸販売",
+  "代理店",
+  "総代理店",
+  "独占販売",
+  "その他",
+] as const;
+
+export type PartnerDealPreference =
+  (typeof partnerDealPreferenceOptions)[number];
+
+/** Reuse maker channel options for partners */
+export const partnerChannelOptions = makerSalesChannelOptions;
+
+export type PartnerRegistrationInput = {
+  displayName: string;
+  entityType: PartnerEntityType;
+  companyName: string;
+  contactName: string;
+  email: string;
+  password: string;
+  salesGenres: PartnerSalesGenre[];
+  salesChannels: MakerSalesChannel[];
+  area: string;
+  preferredCategories: PartnerSalesGenre[];
+  preferredDealTypes: PartnerDealPreference[];
+  achievements: string;
+  selfPr: string;
+};
+
+export type PartnerProfileDraftMeta = Omit<
+  PartnerRegistrationInput,
+  "password" | "email"
+> & {
+  email?: string;
 };
 
 export type CaseCreateInput = {
@@ -277,6 +411,7 @@ export type CaseCreateInput = {
   targetCountry: TargetCountry;
   partnerChannels: string;
   partnerRequirements: string;
+  productImageUrl?: string | null;
 };
 
 export type SessionUser = {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import type { Case } from "@/lib/types";
 import { salesFormatLabel, targetCountryLabel } from "@/lib/types";
 
@@ -17,26 +18,21 @@ function formatDate(value: string) {
 
 export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
   const delayClass = index < 3 ? `delay-${index + 1}` : "";
-  const trustBits = [
-    caseItem.makerIndustry,
-    caseItem.makerHeadquarters,
-    caseItem.makerFoundedYear ? `設立 ${caseItem.makerFoundedYear}年` : null,
-  ].filter(Boolean);
 
   return (
     <article
       className={`animate-fade-up rounded-lg border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[0_12px_32px_rgba(20,32,51,0.08)] ${delayClass}`}
     >
       <Link href={`/cases/${caseItem.id}`} className="group block">
-        {caseItem.productImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={caseItem.productImageUrl}
-            alt={caseItem.productName}
-            className="mb-3 h-40 w-full rounded-md border border-border object-cover"
-          />
-        ) : null}
-        <div className="flex flex-wrap gap-2 text-xs">
+        <ProductCaseImage
+          src={caseItem.productImageUrl}
+          alt={caseItem.productName}
+          className="mb-3 h-40 w-full"
+        />
+        <p className="font-mono text-xs font-medium text-teal">
+          {caseItem.caseNumber}
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2 text-xs">
           <span className="rounded bg-cream px-2 py-0.5 text-navy">
             {caseItem.category}
           </span>
@@ -62,19 +58,6 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
         </h3>
         <p className="mt-1 text-sm text-muted">{caseItem.productName}</p>
       </Link>
-
-      <p className="mt-2 text-sm">
-        <Link
-          href={`/profiles/${caseItem.makerId}`}
-          className="font-medium text-navy hover:text-teal hover:underline"
-        >
-          {caseItem.makerName}
-        </Link>
-      </p>
-
-      {trustBits.length > 0 ? (
-        <p className="mt-1 text-xs text-muted">{trustBits.join(" ・ ")}</p>
-      ) : null}
 
       {caseItem.priceBand ? (
         <p className="mt-2 text-xs text-muted">価格帯: {caseItem.priceBand}</p>

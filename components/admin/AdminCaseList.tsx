@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { reviewCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import type { AdminCaseListItem } from "@/lib/admin";
@@ -122,22 +123,11 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                   >
                     <td className={caseNumberClassName()}>{item.caseNumber}</td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/admin/cases/${item.id}`}
-                        className="relative block h-14 w-14 overflow-hidden rounded-md border border-border bg-cream"
-                      >
-                        {item.productImageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.productImageUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center text-[10px] text-muted">
-                            なし
-                          </span>
-                        )}
+                      <Link href={`/admin/cases/${item.id}`} className="inline-block">
+                        <ProductCaseImage
+                          src={item.productImageUrl}
+                          alt={item.productName}
+                        />
                       </Link>
                     </td>
                     <td className="px-4 py-3">

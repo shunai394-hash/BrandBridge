@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
-import { NegotiationForm } from "@/components/forms/NegotiationForm";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
+import { Button } from "@/components/ui/Button";
 import type { Case, SessionUser } from "@/lib/types";
 import {
   reviewStatusLabels,
@@ -59,11 +60,9 @@ export function CaseDetailView({
   isFavorited,
   showPendingBanner = false,
 }: CaseDetailProps) {
-  const trustBits = [
-    caseItem.makerIndustry,
-    caseItem.makerHeadquarters,
-    caseItem.makerFoundedYear ? `設立 ${caseItem.makerFoundedYear}年` : null,
-  ].filter(Boolean);
+  const negotiateHref = `/cases/${caseItem.id}/negotiation`;
+  const canStartNegotiation =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
   return (
     <article className="animate-fade-up">
@@ -82,7 +81,7 @@ export function CaseDetailView({
 
       {caseItem.reviewStatus === "rejected" ? (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          この案件は却下されました。
+          この案件は不承認となりました。
           {caseItem.reviewNote ? ` 理由: ${caseItem.reviewNote}` : null}
         </div>
       ) : null}
@@ -124,30 +123,16 @@ export function CaseDetailView({
       </h1>
       <p className="mt-2 text-muted">{caseItem.productName}</p>
 
-      {caseItem.productImageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+      <div className="mt-5">
+        <ProductCaseImage
           src={caseItem.productImageUrl}
           alt={caseItem.productName}
-          className="mt-5 max-h-80 w-full rounded-lg border border-border object-cover"
+          className="h-64 w-full max-w-xl md:h-80"
+          imageClassName="object-cover"
         />
-      ) : null}
-
-      <div className="mt-4 rounded-lg border border-border bg-surface p-4">
-        <p className="text-xs font-medium text-muted">掲載メーカー</p>
-        <Link
-          href={`/profiles/${caseItem.makerId}`}
-          className="mt-1 inline-block text-lg font-medium text-navy hover:text-teal hover:underline"
-        >
-          {caseItem.makerName}
-        </Link>
-        {trustBits.length > 0 ? (
-          <p className="mt-1 text-sm text-muted">{trustBits.join(" ・ ")}</p>
-        ) : null}
-        <p className="mt-2 text-xs text-muted">
-          掲載日 {formatDate(caseItem.createdAt)}
-        </p>
       </div>
+
+      <p className="mt-3 text-xs text-muted">掲載日 {formatDate(caseItem.createdAt)}</p>
 
       <section className="mt-10 space-y-8 border-t border-border pt-8">
         <DetailBlock title="商品情報">
@@ -178,11 +163,22 @@ export function CaseDetailView({
         </DetailBlock>
       </section>
 
-      <NegotiationForm
-        caseId={caseItem.id}
-        user={user}
-        alreadyApplied={alreadyApplied}
-      />
+      <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
+        {alreadyApplied ? (
+          <Button href="/negotiations" variant="outline">
+            交渉管理を開く
+          </Button>
+        ) : canStartNegotiation ? (
+          <Button href={negotiateHref}>交渉する</Button>
+        ) : (
+          <p className="text-sm text-muted">
+            この案件は現在交渉を受け付けていません。
+          </p>
+        )}
+        <Button href="/cases" variant="ghost">
+          一覧に戻る
+        </Button>
+      </div>
     </article>
   );
 }

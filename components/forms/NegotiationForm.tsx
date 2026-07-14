@@ -36,7 +36,7 @@ export function NegotiationForm({
     setLoading(false);
 
     if (result.error === "LOGIN_REQUIRED") {
-      window.location.href = `/login?next=/cases/${caseId}`;
+      window.location.href = `/login?next=${encodeURIComponent(`/cases/${caseId}/negotiation`)}`;
       return;
     }
 
@@ -58,7 +58,11 @@ export function NegotiationForm({
           交渉を申し込むには、販売パートナーとしてログインしてください。
         </p>
         <div className="mt-4">
-          <Button href={`/login?next=/cases/${caseId}`}>ログインして申し込む</Button>
+          <Button
+            href={`/login?next=${encodeURIComponent(`/cases/${caseId}/negotiation`)}`}
+          >
+            ログインして申し込む
+          </Button>
         </div>
       </div>
     );

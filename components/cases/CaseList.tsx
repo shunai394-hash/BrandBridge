@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CaseFilter } from "@/components/cases/CaseFilter";
 import { EmptyCasesState } from "@/components/cases/EmptyCasesState";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { Button } from "@/components/ui/Button";
 import {
   caseNumberClassName,
@@ -28,7 +29,6 @@ type CaseListProps = {
 export function CaseList({
   cases,
   initialCategory = "すべて",
-  viewerRole = null,
 }: CaseListProps) {
   const startCategory = (caseCategories as readonly string[]).includes(
     initialCategory,
@@ -118,12 +118,7 @@ export function CaseList({
                   status: item.status,
                   reviewStatus: item.reviewStatus,
                 });
-                const canNegotiate =
-                  viewerRole === "partner" &&
-                  item.reviewStatus === "approved" &&
-                  item.status === "open";
-                const showNegotiateCta =
-                  !viewerRole || viewerRole === "partner";
+                const negotiateHref = `/cases/${item.id}/negotiation`;
 
                 return (
                   <tr
@@ -132,22 +127,11 @@ export function CaseList({
                   >
                     <td className={caseNumberClassName()}>{item.caseNumber}</td>
                     <td className="px-4 py-3">
-                      <Link
-                        href={`/cases/${item.id}`}
-                        className="block h-14 w-14 overflow-hidden rounded-md border border-border bg-cream"
-                      >
-                        {item.productImageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={item.productImageUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="flex h-full w-full items-center justify-center text-[10px] text-muted">
-                            なし
-                          </span>
-                        )}
+                      <Link href={`/cases/${item.id}`} className="inline-block">
+                        <ProductCaseImage
+                          src={item.productImageUrl}
+                          alt={item.productName}
+                        />
                       </Link>
                     </td>
                     <td className="px-4 py-3">
@@ -180,20 +164,7 @@ export function CaseList({
                         <Button href={`/cases/${item.id}`} variant="ghost">
                           詳細
                         </Button>
-                        {showNegotiateCta ? (
-                          canNegotiate ? (
-                            <Button href={`/cases/${item.id}#apply`}>
-                              交渉する
-                            </Button>
-                          ) : (
-                            <Button
-                              href={`/login?next=${encodeURIComponent(`/cases/${item.id}`)}`}
-                              variant="outline"
-                            >
-                              交渉する
-                            </Button>
-                          )
-                        ) : null}
+                        <Button href={negotiateHref}>交渉する</Button>
                       </div>
                     </td>
                   </tr>

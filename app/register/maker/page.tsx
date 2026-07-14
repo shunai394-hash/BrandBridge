@@ -1,16 +1,33 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MakerRegisterForm } from "@/components/forms/MakerRegisterForm";
+import { redirect } from "next/navigation";
+import { AuthRegisterForm } from "@/components/forms/AuthRegisterForm";
+import { getSessionUser } from "@/lib/auth";
+import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "メーカー登録",
   description:
-    "BrandBridgeへのメーカー登録。アカウント作成と商品案件情報の入力で、販売パートナーとのマッチングを始められます。",
+    "BrandBridgeへのメーカー登録。メール認証後に会社・商品情報を入力します。",
 };
 
-export default function MakerRegisterPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MakerRegisterPage() {
+  const user = await getSessionUser();
+  if (user) {
+    if (user.role === "maker") {
+      const profile = await getProfileById(user.id);
+      if (profile?.onboarding_completed) {
+        redirect("/maker/registration-complete");
+      }
+      redirect("/maker/setup");
+    }
+    redirect("/cases");
+  }
+
   return (
-    <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
+    <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
       <header className="mb-8">
         <p className="text-xs font-medium tracking-wider text-teal">
           FOR MAKERS
@@ -19,7 +36,7 @@ export default function MakerRegisterPage() {
           メーカー登録
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
-          アカウント作成に加え、マッチング用の商品案件情報を入力します。登録無料・初期費用なし。
+          メールまたは Google でアカウントを作成します。認証後に会社情報・商品情報を入力します（認証前のデータ保存はありません）。
         </p>
         <p className="mt-2 text-sm text-muted">
           まだ検討中の方は{" "}
@@ -29,7 +46,7 @@ export default function MakerRegisterPage() {
           をご覧ください。
         </p>
       </header>
-      <MakerRegisterForm />
+      <AuthRegisterForm role="maker" setupPath="/maker/setup" />
     </div>
   );
 }

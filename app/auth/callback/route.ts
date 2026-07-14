@@ -1,108 +1,115 @@
 import { createClient } from "@/lib/supabase/server";
-import { caseInputFromMakerDraft } from "@/lib/maker-registration";
-import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
-import { createCase } from "@/lib/cases";
-import type { MakerCaseDraftMeta, PartnerProfileDraftMeta } from "@/lib/types";
 import { NextResponse } from "next/server";
+import {
+  isIntentRole,
+  isSafeAppPath,
+  resolveRoleDestination,
+} from "@/lib/auth-flow";
 
 /**
- * Supabase email confirmation redirect.
- * Flushes maker case draft / partner profile draft from user_metadata.
+ * Supabase Auth callback (email confirm / OAuth / password recovery).
+ * No pre-auth drafts. Role + onboarding decide destination.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const origin = url.origin;
+  const requestedNext = url.searchParams.get("next");
+  const intentRole = url.searchParams.get("intent_role");
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const role = user?.user_metadata?.role as string | undefined;
-
-      if (role === "maker") {
-        await flushMakerCaseDraft();
-        const next =
-          url.searchParams.get("next") ?? "/maker/registration-complete";
-        return NextResponse.redirect(`${origin}${next}`);
-      }
-
-      if (role === "partner") {
-        await flushPartnerProfileDraft();
-        const next = url.searchParams.get("next") ?? "/cases?welcome=partner";
-        return NextResponse.redirect(`${origin}${next}`);
-      }
-
-      const next = url.searchParams.get("next") ?? "/cases";
-      return NextResponse.redirect(`${origin}${next}`);
-    }
+  if (!code) {
+    return NextResponse.redirect(`${origin}/login?error=auth_callback`);
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_callback`);
+  const supabase = await createClient();
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    console.error("[auth/callback] exchange failed", error.message);
+    return NextResponse.redirect(
+      `${origin}/login?error=auth_callback&detail=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  // Password recovery → force update-password page
+  if (
+    isSafeAppPath(requestedNext) &&
+    requestedNext.startsWith("/login/update-password")
+  ) {
+    return NextResponse.redirect(`${origin}/login/update-password`);
+  }
+
+  await applyIntentRoleIfNeeded(intentRole);
+
+  const destination = await resolvePostAuthPath(requestedNext);
+  return NextResponse.redirect(`${origin}${destination}`);
 }
 
-async function flushMakerCaseDraft() {
+async function applyIntentRoleIfNeeded(intentRoleRaw: string | null) {
+  if (!isIntentRole(intentRoleRaw)) return;
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.role !== "maker") return;
+  if (!user) return;
 
-  const draft = user.user_metadata?.case_draft as MakerCaseDraftMeta | undefined;
-  if (!draft?.productName) return;
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  const { data: existing } = await supabase
-    .from("cases")
-    .select("id")
-    .eq("maker_id", user.id)
-    .eq("product_name", draft.productName)
-    .limit(1);
+  // Only set role for incomplete / default users — never demote admin
+  if (profile?.role === "admin") return;
+  if (profile?.onboarding_completed === true && profile.role) return;
 
-  if (existing && existing.length > 0) {
-    await supabase.auth.updateUser({
-      data: { case_draft: null, case_draft_flushed: true },
-    });
-    return;
-  }
+  const { error } = await supabase
+    .from("profiles")
+    .update({ role: intentRoleRaw })
+    .eq("id", user.id);
 
-  const input = caseInputFromMakerDraft(draft);
-  await createCase(user.id, input);
-
-  if (draft.companyOverview) {
-    await supabase
-      .from("profiles")
-      .update({
-        description: draft.companyOverview,
-        industry: draft.industry,
-        product_overview: draft.productSummary,
-        onboarding_completed: true,
-      })
-      .eq("id", user.id);
+  if (error) {
+    console.error("[auth/callback] intent_role update failed", error.message);
   }
 
   await supabase.auth.updateUser({
-    data: { case_draft: null, case_draft_flushed: true },
+    data: { role: intentRoleRaw },
   });
 }
 
-async function flushPartnerProfileDraft() {
+async function resolvePostAuthPath(requestedNext: string | null) {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user || user.user_metadata?.role !== "partner") return;
 
-  const draft = user.user_metadata
-    ?.partner_draft as PartnerProfileDraftMeta | undefined;
-  if (!draft?.displayName && !draft?.contactName) return;
+  if (!user) return "/login";
 
-  const payload = partnerProfilePayloadFromDraft(draft);
-  await supabase.from("profiles").update(payload).eq("id", user.id);
+  // Email users must be confirmed (Google OAuth is treated as verified)
+  const providers =
+    user.app_metadata?.providers ??
+    (user.app_metadata?.provider ? [user.app_metadata.provider] : []);
+  const isGoogle = Array.isArray(providers)
+    ? providers.includes("google")
+    : providers === "google";
+  if (!isGoogle && !user.email_confirmed_at) {
+    return "/login?error=email_unconfirmed";
+  }
 
-  await supabase.auth.updateUser({
-    data: { partner_draft: null, partner_draft_flushed: true },
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, onboarding_completed")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const role =
+    (profile?.role as string | undefined) ??
+    (user.user_metadata?.role as string | undefined);
+  const completed = profile?.onboarding_completed === true;
+
+  return resolveRoleDestination({
+    role,
+    onboardingCompleted: completed,
+    requestedNext,
   });
 }

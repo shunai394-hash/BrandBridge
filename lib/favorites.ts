@@ -123,8 +123,6 @@ export async function listFavoriteCases(userId: string): Promise<Case[]> {
       return caseRow;
     })
     .filter((c): c is NonNullable<typeof c> => Boolean(c))
-    .filter(
-      (c) => c.status === "open" && c.review_status === "approved",
-    )
+    .filter((c) => c.status === "open" && c.review_status === "approved")
     .map(mapFavoriteCase);
 }

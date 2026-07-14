@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { AdminCaseList } from "@/components/admin/AdminCaseList";
 import { listAdminCases } from "@/lib/admin";
 import type { ReviewStatus } from "@/lib/types";
@@ -15,23 +16,55 @@ type PageProps = {
 
 export default async function AdminCasesPage({ searchParams }: PageProps) {
   const { status } = await searchParams;
-  const filter =
-    status === "pending_review" ||
-    status === "approved" ||
-    status === "rejected"
-      ? (status as ReviewStatus)
-      : "all";
 
-  const items = await listAdminCases(filter);
+  const filter: ReviewStatus | "all" =
+    status === "all"
+      ? "all"
+      : status === "approved" ||
+          status === "rejected" ||
+          status === "withdrawn"
+        ? status
+        : "pending_review";
+
+  if (!status) {
+    redirect("/admin/cases?status=pending_review");
+  }
+
+  const { items, error, totalUnfiltered } = await listAdminCases(filter);
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
       <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
         案件審査
       </h1>
-      <p className="mt-2 mb-8 text-muted">
-        メーカーから提出された案件を審査し、公開可否を決定します。
+      <p className="mt-2 mb-4 text-muted">
+        審査待ち案件を承認（公開）または却下（非公開・closed）します。
       </p>
+      <p className="mb-8 text-xs text-muted">
+        フィルタ: {filter} / 表示 {items.length} 件 / DB全件 {totalUnfiltered ?? "?"} 件
+        （BETA_AUTO_APPROVE_CASES=true だと新規は approved になり審査待ちに出ません）
+      </p>
+      {error ? (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      ) : null}
+      {items.length === 0 && !error && (totalUnfiltered ?? 0) === 0 ? (
+        <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          cases テーブルにデータがありません（0件）。画面上の「保存成功」でも insert
+          が失敗している可能性があります。メーカーで商品を再登録し、サーバーログの
+          [createCase] insert ok / failed を確認してください。
+        </div>
+      ) : null}
+      {items.length === 0 &&
+      !error &&
+      (totalUnfiltered ?? 0) > 0 &&
+      filter === "pending_review" ? (
+        <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          pending_review は 0 件ですが、DB には {totalUnfiltered}{" "}
+          件あります。「すべて」または「承認済」タブを確認してください。
+        </div>
+      ) : null}
       <AdminCaseList items={items} currentFilter={filter} />
     </div>
   );

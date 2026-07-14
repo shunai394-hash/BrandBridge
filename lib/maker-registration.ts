@@ -113,5 +113,3 @@ export function caseInputFromRegistration(
     input.productImageUrl,
   );
 }
-
-export const MAKER_DRAFT_STORAGE_KEY = "bb_maker_reg_draft_v1";

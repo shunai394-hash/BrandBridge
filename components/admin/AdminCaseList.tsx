@@ -14,10 +14,11 @@ type AdminCaseListProps = {
 };
 
 const filters: { key: string; label: string }[] = [
-  { key: "all", label: "すべて" },
   { key: "pending_review", label: "審査待ち" },
   { key: "approved", label: "承認済" },
   { key: "rejected", label: "却下" },
+  { key: "withdrawn", label: "取り下げ" },
+  { key: "all", label: "すべて" },
 ];
 
 export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
@@ -25,12 +26,15 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState("");
 
-  async function quickApprove(id: string) {
+  async function review(
+    id: string,
+    reviewStatus: Extract<ReviewStatus, "approved" | "rejected">,
+  ) {
     setError("");
     setLoadingId(id);
     const result = await reviewCaseAction({
       caseId: id,
-      reviewStatus: "approved",
+      reviewStatus,
     });
     setLoadingId(null);
     if (result.error) {
@@ -46,7 +50,7 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
         {filters.map((f) => (
           <Link
             key={f.key}
-            href={f.key === "all" ? "/admin/cases" : `/admin/cases?status=${f.key}`}
+            href={`/admin/cases?status=${f.key}`}
             className={[
               "rounded-md px-3.5 py-2 text-sm transition",
               currentFilter === f.key
@@ -79,20 +83,31 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                 </Link>
                 <p className="mt-1 text-xs text-muted">
                   {item.makerName} ・ {item.category} ・{" "}
-                  {reviewStatusLabels[item.reviewStatus as ReviewStatus]}
+                  {reviewStatusLabels[item.reviewStatus as ReviewStatus]} ・
+                  status={item.status}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {item.reviewStatus === "pending_review" ? (
-                  <Button
-                    type="button"
-                    onClick={() => quickApprove(item.id)}
-                    disabled={loadingId === item.id}
-                  >
-                    {loadingId === item.id ? "処理中..." : "承認"}
-                  </Button>
+                  <>
+                    <Button
+                      type="button"
+                      onClick={() => review(item.id, "approved")}
+                      disabled={loadingId === item.id}
+                    >
+                      {loadingId === item.id ? "処理中..." : "承認"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => review(item.id, "rejected")}
+                      disabled={loadingId === item.id}
+                    >
+                      却下
+                    </Button>
+                  </>
                 ) : null}
-                <Button href={`/admin/cases/${item.id}`} variant="outline">
+                <Button href={`/admin/cases/${item.id}`} variant="ghost">
                   詳細
                 </Button>
               </div>

@@ -3,9 +3,22 @@ import type {
   Case,
   CaseCreateInput,
   CaseRow,
+  ReviewStatus,
   SalesFormat,
   TargetCountry,
 } from "@/lib/types";
+
+/** Beta: newly created cases are immediately approved so they appear on /cases. */
+export function isBetaAutoApproveCases(): boolean {
+  return (
+    process.env.BETA_AUTO_APPROVE_CASES === "true" ||
+    process.env.NEXT_PUBLIC_BETA_MODE === "true"
+  );
+}
+
+function betaAutoApproveCases(): boolean {
+  return isBetaAutoApproveCases();
+}
 
 type MakerProfileJoin = {
   company_name: string;
@@ -63,23 +76,158 @@ const caseSelect = `
   )
 `;
 
-export async function listOpenCases(): Promise<Case[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("cases")
-    .select(caseSelect)
-    .eq("status", "open")
-    .eq("review_status", "approved")
-    .order("created_at", { ascending: false });
+const caseSelectPlain = `*`;
 
-  if (error) {
-    console.error("[listOpenCases]", error.message);
-    return [];
+async function fetchCases(
+  build: (
+    select: string,
+  ) => PromiseLike<{ data: unknown; error: { message: string } | null }>,
+): Promise<CaseWithMaker[]> {
+  const withJoin = await build(caseSelect);
+  if (!withJoin.error) {
+    return (withJoin.data ?? []) as CaseWithMaker[];
   }
 
-  return ((data ?? []) as CaseWithMaker[]).map(mapCase);
+  console.error("[fetchCases] join select failed, falling back", withJoin.error.message);
+  const plain = await build(caseSelectPlain);
+  if (plain.error) {
+    console.error("[fetchCases] plain select failed", plain.error.message);
+    return [];
+  }
+  return ((plain.data ?? []) as CaseRow[]).map((row) => ({
+    ...row,
+    profiles: null,
+  }));
 }
 
+/**
+ * /cases listing (no profiles.role check):
+ * - Everyone: status=open AND review_status=approved
+ * - Logged-in: also cases where maker_id = auth.uid() (any review_status, open only for marketplace)
+ */
+export async function listOpenCases(): Promise<Case[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const approvedRows = await fetchCases((select) =>
+    supabase
+      .from("cases")
+      .select(select)
+      .eq("status", "open")
+      .eq("review_status", "approved")
+      .order("created_at", { ascending: false }),
+  );
+
+  let ownRows: CaseWithMaker[] = [];
+  if (user?.id) {
+    // maker_id = auth.uid() only — never profiles.role
+    ownRows = await fetchCases((select) =>
+      supabase
+        .from("cases")
+        .select(select)
+        .eq("maker_id", user.id)
+        .eq("status", "open")
+        .order("created_at", { ascending: false }),
+    );
+  }
+
+  const byId = new Map<string, CaseWithMaker>();
+  for (const row of approvedRows) byId.set(row.id, row);
+  for (const row of ownRows) byId.set(row.id, row);
+
+  const mapped = Array.from(byId.values())
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    )
+    .map(mapCase);
+
+  console.info("[listOpenCases]", {
+    authUid: user?.id ?? null,
+    approvedCount: approvedRows.length,
+    ownOpenCount: ownRows.length,
+    total: mapped.length,
+  });
+
+  return mapped;
+}
+
+/** All cases for maker_id = auth.uid() (any status / review_status). */
+export async function listMyCases(): Promise<Case[]> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return [];
+
+  const rows = await fetchCases((select) =>
+    supabase
+      .from("cases")
+      .select(select)
+      .eq("maker_id", user.id)
+      .order("created_at", { ascending: false }),
+  );
+
+  console.info("[listMyCases]", {
+    authUid: user.id,
+    count: rows.length,
+  });
+
+  return rows.map(mapCase);
+}
+
+/** Debug helper: raw own cases for the logged-in auth user (no review filter). */
+export async function diagnoseOwnCases(): Promise<{
+  authUid: string | null;
+  rows: Array<{
+    id: string;
+    product_name: string;
+    maker_id: string;
+    status: string;
+    review_status: string;
+    created_at: string;
+  }>;
+  error: string | null;
+}> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { authUid: null, rows: [], error: "NO_AUTH_USER" };
+  }
+
+  const { data, error } = await supabase
+    .from("cases")
+    .select("id, product_name, maker_id, status, review_status, created_at")
+    .eq("maker_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    console.error("[diagnoseOwnCases]", error.message);
+    return { authUid: user.id, rows: [], error: error.message };
+  }
+
+  return {
+    authUid: user.id,
+    rows: (data ?? []) as Array<{
+      id: string;
+      product_name: string;
+      maker_id: string;
+      status: string;
+      review_status: string;
+      created_at: string;
+    }>,
+    error: null,
+  };
+}
+
+/** Maker's own open cases (includes pending_review for self-check). */
 export async function listOpenCasesByMaker(
   makerId: string,
   limit = 5,
@@ -89,7 +237,6 @@ export async function listOpenCasesByMaker(
     .from("cases")
     .select(caseSelect)
     .eq("status", "open")
-    .eq("review_status", "approved")
     .eq("maker_id", makerId)
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -192,12 +339,128 @@ export async function countOpenCases(): Promise<number> {
 export async function createCase(
   makerId: string,
   input: CaseCreateInput,
-): Promise<{ id: string } | { error: string }> {
+): Promise<{ id: string; reviewStatus: ReviewStatus } | { error: string }> {
+  const reviewStatus: ReviewStatus = betaAutoApproveCases()
+    ? "approved"
+    : "pending_review";
+
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.error("[createCase] no auth user");
+    return { error: "ログインセッションが無効です" };
+  }
+  if (user.id !== makerId) {
+    console.error("[createCase] maker_id mismatch", {
+      authUid: user.id,
+      makerId,
+    });
+    return { error: "maker_id と auth.uid() が一致しません" };
+  }
+
+  console.info("[createCase] insert start", {
+    table: "cases",
+    makerId,
+    authUid: user.id,
+    product_name: input.productName,
+    reviewStatus,
+    status: "open",
+  });
+
+  const insertPayload = {
+    maker_id: makerId,
+    title: input.title,
+    category: input.category,
+    region: input.region,
+    summary: input.summary,
+    description: input.description,
+    ideal_partner: input.idealPartner,
+    offer: input.offer,
+    product_name: input.productName,
+    product_features: input.productFeatures.trim() || null,
+    price_band: input.priceBand.trim() || null,
+    sales_format: input.salesFormat,
+    sales_terms: input.salesTerms.trim() || null,
+    min_order: input.minOrder.trim() || null,
+    is_exclusive: input.isExclusive,
+    target_country: input.targetCountry,
+    partner_channels: input.partnerChannels.trim() || null,
+    partner_requirements: input.partnerRequirements.trim() || null,
+    product_image_url: input.productImageUrl?.trim() || null,
+    status: "open" as const,
+    review_status: reviewStatus,
+  };
+
+  let { data, error } = await supabase
+    .from("cases")
+    .insert(insertPayload)
+    .select("id, product_name, maker_id, status, review_status, created_at")
+    .single();
+
+  // Retry without product_image_url if column missing on older DBs
+  if (
+    error &&
+    /product_image_url/i.test(error.message + (error.details ?? ""))
+  ) {
+    console.warn("[createCase] retry without product_image_url");
+    const { product_image_url: _omit, ...withoutImage } = insertPayload;
+    const retry = await supabase
+      .from("cases")
+      .insert(withoutImage)
+      .select("id, product_name, maker_id, status, review_status, created_at")
+      .single();
+    data = retry.data;
+    error = retry.error;
+  }
+
+  if (error || !data) {
+    console.error("[createCase] insert failed", {
+      table: "cases",
+      makerId,
+      authUid: user.id,
+      error: error?.message ?? "no data",
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint,
+    });
+    return {
+      error: `案件の登録に失敗しました: ${error?.message ?? "no data"}`,
+    };
+  }
+
+  console.info("[createCase] insert ok", {
+    table: "cases",
+    caseId: data.id,
+    product_name: data.product_name,
+    maker_id: data.maker_id,
+    status: data.status,
+    review_status: data.review_status,
+    created_at: data.created_at,
+    maker_matches_auth: data.maker_id === user.id,
+  });
+
+  return {
+    id: data.id as string,
+    reviewStatus: data.review_status as ReviewStatus,
+  };
+}
+
+export async function updateCase(
+  caseId: string,
+  input: CaseCreateInput,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "ログインが必要です" };
+
   const { data, error } = await supabase
     .from("cases")
-    .insert({
-      maker_id: makerId,
+    .update({
       title: input.title,
       category: input.category,
       region: input.region,
@@ -216,15 +479,56 @@ export async function createCase(
       partner_channels: input.partnerChannels.trim() || null,
       partner_requirements: input.partnerRequirements.trim() || null,
       product_image_url: input.productImageUrl?.trim() || null,
-      status: "open",
-      review_status: "pending_review",
     })
+    .eq("id", caseId)
+    .eq("maker_id", user.id)
     .select("id")
-    .single();
+    .maybeSingle();
 
-  if (error || !data) {
-    return { error: error?.message ?? "案件の登録に失敗しました" };
+  if (error) {
+    console.error("[updateCase]", error.message);
+    return { error: error.message };
+  }
+  if (!data) {
+    return { error: "案件を更新できません（本人の案件のみ編集可）" };
+  }
+  return {};
+}
+
+/** Withdraw: status=closed, review_status=withdrawn. Requires maker_id = auth.uid(). */
+export async function withdrawCase(
+  caseId: string,
+): Promise<{ error?: string }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "ログインが必要です" };
+
+  const { data, error } = await supabase
+    .from("cases")
+    .update({
+      status: "closed",
+      review_status: "withdrawn",
+    })
+    .eq("id", caseId)
+    .eq("maker_id", user.id)
+    .select("id, status, review_status")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[withdrawCase]", error.message);
+    return { error: error.message };
+  }
+  if (!data) {
+    return { error: "案件を取り下げできません（本人の案件のみ）" };
   }
 
-  return { id: data.id as string };
+  console.info("[withdrawCase] ok", {
+    caseId: data.id,
+    status: data.status,
+    review_status: data.review_status,
+    authUid: user.id,
+  });
+  return {};
 }

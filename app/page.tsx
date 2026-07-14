@@ -85,42 +85,50 @@ export default async function HomePage() {
             BrandBridge
           </p>
 
-          <h1 className="animate-fade-up delay-1 mt-6 max-w-2xl font-[family-name:var(--font-shippori)] text-[1.65rem] leading-[1.35] text-white drop-shadow-sm sm:text-3xl md:mt-8 md:text-4xl lg:text-[2.75rem]">
-            メーカーの製品と、
-            <br className="sm:hidden" />
-            販売パートナーをつなぐ
+          <h1 className="animate-fade-up delay-1 mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.35] text-white drop-shadow-sm sm:text-3xl md:mt-8 md:text-4xl lg:text-[2.6rem]">
+            販路を広げたいメーカーと、売れる商材を探すパートナーをつなぐ。
           </h1>
 
-          <p className="animate-fade-up delay-2 mt-5 max-w-lg text-[0.95rem] leading-relaxed text-white/90 sm:text-base md:mt-6 md:text-lg">
-            案件を掲載する。商材を探す。交渉から成約まで。
-            <br className="hidden sm:block" />
-            BtoBマッチングを、いますぐ始められます。
+          <p className="animate-fade-up delay-2 mt-5 max-w-xl text-[0.95rem] leading-relaxed text-white/90 sm:text-base md:mt-6 md:text-lg">
+            条件が見えるBtoBマッチング。
+            <br />
+            掲載、商材探し、交渉、成約までを一つの流れで。
           </p>
 
-          {/* Priority CTA: one primary, secondary as lighter actions */}
-          <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:items-center sm:gap-4">
+          <p className="animate-fade-up delay-2 mt-4 max-w-xl text-sm leading-relaxed text-teal sm:text-[0.95rem]">
+            ベータ先行登録受付中。
+            <br className="sm:hidden" />
+            初期掲載メーカー・販売パートナーを優先募集しています。
+          </p>
+
+          {/* Priority CTAs: browse first, then role-based registration */}
+          <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
             <Button
               href="/cases"
-              className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto sm:min-w-[200px]"
+              className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto sm:min-w-[160px]"
             >
-              案件を探す
+              案件を見る
             </Button>
-            <Link
-              href="#for-you"
-              className="inline-flex w-full items-center justify-center rounded-md border border-white/40 bg-white/10 px-6 py-3.5 text-base font-medium text-white backdrop-blur-sm transition hover:border-white hover:bg-white/15 sm:w-auto"
+            <Button
+              href="/register/maker"
+              variant="outline"
+              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              自分に合う始め方を見る
-            </Link>
+              メーカーとして先行登録
+            </Button>
+            <Button
+              href="/register/partner"
+              variant="outline"
+              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
+            >
+              販売パートナー登録
+            </Button>
           </div>
 
           <p className="animate-fade-in delay-3 mt-5 text-sm text-white/70">
-            無料登録 · ベータ公開中 ·{" "}
-            <Link href="/register/maker" className="underline-offset-2 hover:text-white hover:underline">
-              メーカー
-            </Link>
-            {" / "}
-            <Link href="/register/partner" className="underline-offset-2 hover:text-white hover:underline">
-              パートナー
+            まずは案件を確認してから登録できます ·{" "}
+            <Link href="#for-you" className="underline-offset-2 hover:text-white hover:underline">
+              自分に合う始め方
             </Link>
           </p>
         </div>

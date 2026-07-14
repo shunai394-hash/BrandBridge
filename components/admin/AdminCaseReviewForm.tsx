@@ -52,6 +52,11 @@ export function AdminCaseReviewForm({ caseItem }: AdminCaseReviewFormProps) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
       />
+      <p className="text-xs text-muted">
+        承認: review_status=approved / status=open（一覧に公開）
+        <br />
+        却下: review_status=rejected / status=closed（非公開）
+      </p>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex flex-wrap gap-3">
         <Button

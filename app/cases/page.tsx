@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CaseList } from "@/components/cases/CaseList";
-import { listOpenCases } from "@/lib/cases";
+import {
+  diagnoseOwnCases,
+  isBetaAutoApproveCases,
+  listOpenCases,
+} from "@/lib/cases";
 
 export const metadata: Metadata = {
   title: "案件一覧",
@@ -11,12 +15,34 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type CasesPageProps = {
-  searchParams: Promise<{ category?: string; welcome?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    welcome?: string;
+    created?: string;
+  }>;
 };
 
 export default async function CasesPage({ searchParams }: CasesPageProps) {
   const params = await searchParams;
-  const cases = await listOpenCases();
+  const [cases, ownDiag] = await Promise.all([
+    listOpenCases(),
+    diagnoseOwnCases(),
+  ]);
+  const betaAutoApprove = isBetaAutoApproveCases();
+  const ownPending = cases.filter(
+    (c) =>
+      ownDiag.authUid &&
+      c.makerId === ownDiag.authUid &&
+      c.reviewStatus === "pending_review",
+  );
+  const createdVisible = params.created
+    ? cases.some((c) => c.id === params.created) ||
+      ownDiag.rows.some((r) => r.id === params.created)
+    : false;
+  const createdLabel =
+    cases.find((c) => c.id === params.created)?.productName ??
+    ownDiag.rows.find((r) => r.id === params.created)?.product_name ??
+    null;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:py-16">
@@ -24,21 +50,76 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
         <div className="mb-8 rounded-xl border border-teal/30 bg-cream px-5 py-4">
           <p className="font-medium text-navy">パートナー登録ありがとうございます</p>
           <p className="mt-1 text-sm text-muted">
-            プロフィールを元に案件を探せます。気になる商品があれば詳細から交渉を申し込んでください。
-          </p>
-          <p className="mt-2 text-sm">
-            <Link href="/profile/edit" className="text-teal hover:underline">
-              プロフィールを充実させる
-            </Link>
+            公開中（approved）の案件から探せます。
           </p>
         </div>
       ) : null}
+
+      {params.created ? (
+        <div
+          className={[
+            "mb-8 rounded-xl border px-5 py-4",
+            createdVisible
+              ? "border-teal/40 bg-cream"
+              : "border-amber-200 bg-amber-50",
+          ].join(" ")}
+        >
+          {createdVisible ? (
+            <>
+              <p className="font-medium text-navy">商品登録が完了しました</p>
+              <p className="mt-1 text-sm text-muted">
+                案件ID:{" "}
+                <Link
+                  href={`/cases/${params.created}`}
+                  className="font-mono text-teal hover:underline"
+                >
+                  {params.created}
+                </Link>
+                {createdLabel ? ` / ${createdLabel}` : ""}
+                {" ・ "}
+                <Link href="/maker/cases" className="text-teal hover:underline">
+                  マイ案件で管理
+                </Link>
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted">
+              登録ID {params.created} が一覧に見つかりません。マイ案件またはDBを確認してください。
+              {ownDiag.error ? `（${ownDiag.error}）` : ""}
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      {betaAutoApprove ? (
+        <div className="mb-8 rounded-xl border border-teal/30 bg-cream px-5 py-4">
+          <p className="font-medium text-navy">ベータ公開中</p>
+          <p className="mt-1 text-sm text-muted">
+            新規案件は自動承認される場合があります。一般公開は approved + open のみです。
+          </p>
+        </div>
+      ) : null}
+
+      {ownPending.length > 0 ? (
+        <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <p className="font-medium text-navy">
+            あなたの審査待ち案件が {ownPending.length} 件あります
+          </p>
+          <p className="mt-1 text-sm text-muted">
+            本人には表示されます。パートナーへの公開は管理者承認後です。
+          </p>
+        </div>
+      ) : null}
+
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           案件一覧
         </h1>
         <p className="mt-3 max-w-2xl text-muted">
-          カテゴリ・国・販売形式で、あなたに合う販売案件を探せます。
+          公開案件（approved）を表示します。
+          {ownDiag.authUid
+            ? ` ログイン中は自分の open 案件も追加表示（${ownDiag.rows.filter((r) => r.status === "open").length} 件）。`
+            : null}
         </p>
       </header>
       <CaseList

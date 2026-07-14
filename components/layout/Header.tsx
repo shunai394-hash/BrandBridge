@@ -31,6 +31,7 @@ function userLinks(user: SessionUser) {
     { href: "/profile/edit", label: "マイプロフィール" },
   ];
   if (user.role === "maker") {
+    links.push({ href: "/maker/cases", label: "マイ案件" });
     links.push({ href: "/maker/cases/new", label: "案件を登録" });
   }
   return links;

@@ -51,6 +51,11 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
               独占可
             </span>
           ) : null}
+          {caseItem.reviewStatus === "pending_review" ? (
+            <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-amber-800">
+              審査待ち（自分の案件）
+            </span>
+          ) : null}
         </div>
         <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-lg leading-snug text-navy transition group-hover:text-teal">
           {caseItem.title}

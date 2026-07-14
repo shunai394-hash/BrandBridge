@@ -84,12 +84,23 @@ export async function getAdminStats(): Promise<AdminStats> {
 
 export async function listAdminCases(
   reviewStatus?: ReviewStatus | "all",
-): Promise<AdminCaseListItem[]> {
+): Promise<{ items: AdminCaseListItem[]; error?: string; totalUnfiltered?: number }> {
   const supabase = await createClient();
-  let query = supabase
+
+  const { count: totalUnfiltered, error: countError } = await supabase
     .from("cases")
-    .select(
-      `
+    .select("id", { count: "exact", head: true });
+
+  if (countError) {
+    console.error("[listAdminCases] count failed", countError.message);
+    return {
+      items: [],
+      error: `RLS/取得エラー(count): ${countError.message}`,
+      totalUnfiltered: 0,
+    };
+  }
+
+  const selectWithJoin = `
       id,
       title,
       category,
@@ -98,26 +109,67 @@ export async function listAdminCases(
       status,
       created_at,
       review_note,
+      product_name,
       profiles!maker_id ( company_name )
-    `,
-    )
+    `;
+  const selectPlain = `
+      id,
+      title,
+      category,
+      maker_id,
+      review_status,
+      status,
+      created_at,
+      review_note,
+      product_name
+    `;
+
+  let query = supabase
+    .from("cases")
+    .select(selectWithJoin)
     .order("created_at", { ascending: false });
 
   if (reviewStatus && reviewStatus !== "all") {
     query = query.eq("review_status", reviewStatus);
   }
 
-  const { data, error } = await query;
-  if (error) {
-    console.error("[listAdminCases]", error.message);
-    return [];
+  let data: Array<Record<string, unknown>> | null = null;
+  let error: { message: string } | null = null;
+
+  {
+    const first = await query;
+    data = (first.data as Array<Record<string, unknown>> | null) ?? null;
+    error = first.error;
   }
 
-  return (data ?? []).map((row) => {
-    const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  if (error) {
+    console.error("[listAdminCases] join select failed", error.message);
+    let plain = supabase
+      .from("cases")
+      .select(selectPlain)
+      .order("created_at", { ascending: false });
+    if (reviewStatus && reviewStatus !== "all") {
+      plain = plain.eq("review_status", reviewStatus);
+    }
+    const retry = await plain;
+    if (retry.error) {
+      console.error("[listAdminCases] plain select failed", retry.error.message);
+      return {
+        items: [],
+        error: `RLS/取得エラー: ${retry.error.message}`,
+        totalUnfiltered: totalUnfiltered ?? 0,
+      };
+    }
+    data = (retry.data as Array<Record<string, unknown>> | null) ?? null;
+    error = null;
+  }
+
+  const items = (data ?? []).map((row) => {
+    const rawProfiles = row.profiles;
+    const profile = Array.isArray(rawProfiles) ? rawProfiles[0] : rawProfiles;
     return {
       id: row.id as string,
-      title: row.title as string,
+      title: (row.title as string) || (row.product_name as string) || "(無題)",
       category: row.category as string,
       makerId: row.maker_id as string,
       makerName:
@@ -128,7 +180,16 @@ export async function listAdminCases(
       reviewNote: (row.review_note as string | null) ?? null,
     };
   });
+
+  console.info("[listAdminCases]", {
+    filter: reviewStatus ?? "all",
+    count: items.length,
+    totalUnfiltered: totalUnfiltered ?? 0,
+  });
+
+  return { items, totalUnfiltered: totalUnfiltered ?? 0 };
 }
+
 
 export async function reviewCase(input: {
   caseId: string;
@@ -137,19 +198,38 @@ export async function reviewCase(input: {
   reviewNote?: string;
 }): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { error } = await supabase
+
+  // Approve → public listing; reject → close case (not listed)
+  const status = input.reviewStatus === "approved" ? "open" : "closed";
+
+  const { data, error } = await supabase
     .from("cases")
     .update({
       review_status: input.reviewStatus,
+      status,
       reviewed_at: new Date().toISOString(),
       reviewed_by: input.adminId,
       review_note: input.reviewNote?.trim() || null,
     })
-    .eq("id", input.caseId);
+    .eq("id", input.caseId)
+    .select("id, review_status, status")
+    .maybeSingle();
 
   if (error) {
+    console.error("[reviewCase] failed", error.message);
     return { error: error.message };
   }
+  if (!data) {
+    return { error: "案件の更新に失敗しました（権限またはIDを確認してください）" };
+  }
+
+  console.info("[reviewCase] ok", {
+    caseId: data.id,
+    reviewStatus: data.review_status,
+    status: data.status,
+    adminId: input.adminId,
+  });
+
   return {};
 }
 

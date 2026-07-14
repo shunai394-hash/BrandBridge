@@ -2,7 +2,11 @@ export type UserRole = "maker" | "partner" | "admin";
 
 export type CaseStatus = "open" | "closed";
 
-export type ReviewStatus = "pending_review" | "approved" | "rejected";
+export type ReviewStatus =
+  | "pending_review"
+  | "approved"
+  | "rejected"
+  | "withdrawn";
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected";
 
@@ -427,6 +431,7 @@ export const reviewStatusLabels: Record<ReviewStatus, string> = {
   pending_review: "審査待ち",
   approved: "承認済",
   rejected: "却下",
+  withdrawn: "取り下げ",
 };
 
 export type SalesFormat =

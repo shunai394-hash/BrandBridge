@@ -47,5 +47,3 @@ export function partnerProfilePayloadFromDraft(draft: PartnerProfileDraftMeta) {
     onboarding_completed: true,
   };
 }
-
-export const PARTNER_DRAFT_STORAGE_KEY = "bb_partner_reg_draft_v1";

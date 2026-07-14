@@ -10,7 +10,7 @@ import {
   requirePartner,
 } from "@/lib/auth";
 import { reviewCase, setUserActive } from "@/lib/admin";
-import { createCase } from "@/lib/cases";
+import { createCase, updateCase, withdrawCase } from "@/lib/cases";
 import { toggleFavorite } from "@/lib/favorites";
 import { sendMessage } from "@/lib/messages";
 import {
@@ -36,9 +36,135 @@ import {
   createContactInquiry,
 } from "@/lib/contact";
 import type { ContactInput } from "@/lib/contact-types";
+import { caseInputFromRegistration } from "@/lib/maker-registration";
+import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
+import type {
+  MakerRegistrationInput,
+  PartnerRegistrationInput,
+} from "@/lib/types";
 
 function authErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : "";
+}
+
+/** Auth-only setup save. Never calls signUp / signIn. */
+export async function completeMakerSetupAction(
+  input: Omit<MakerRegistrationInput, "email" | "password">,
+): Promise<{ error: string } | void> {
+  let maker;
+  try {
+    maker = await requireMaker();
+  } catch (e) {
+    const message = authErrorMessage(e);
+    if (message === "UNAUTHORIZED") {
+      redirect("/login?next=/maker/setup");
+    }
+    if (message === "ACCOUNT_INACTIVE") {
+      return { error: "アカウントが停止されています" };
+    }
+    return { error: "メーカーアカウントでのみ登録できます" };
+  }
+
+  const caseInput = caseInputFromRegistration({
+    ...input,
+    email: maker.email,
+    password: "",
+  });
+
+  const supabase = await createClient();
+  const { data: updated, error: profileError } = await supabase
+    .from("profiles")
+    .update({
+      company_name: input.companyName.trim(),
+      contact_name: input.contactName.trim(),
+      industry: input.industry,
+      description: input.companyOverview.trim(),
+      product_overview: input.productSummary.trim(),
+      onboarding_completed: true,
+    })
+    .eq("id", maker.id)
+    .select("id")
+    .maybeSingle();
+
+  if (profileError || !updated) {
+    return {
+      error:
+        profileError?.message ??
+        "プロフィールの保存に失敗しました。ログインし直してから再度お試しください。",
+    };
+  }
+
+  console.info("[completeMakerSetupAction] profile saved", {
+    table: "profiles",
+    makerId: maker.id,
+  });
+
+  const result = await createCase(maker.id, caseInput);
+  if ("error" in result) {
+    console.error("[completeMakerSetupAction] case insert failed", {
+      table: "cases",
+      makerId: maker.id,
+      error: result.error,
+    });
+    return { error: result.error };
+  }
+
+  const completePath = `/cases?created=${encodeURIComponent(result.id)}`;
+  console.info("[completeMakerSetupAction] success", {
+    table: "cases",
+    caseId: result.id,
+    makerId: maker.id,
+    product_name: caseInput.productName,
+    status: "open",
+    reviewStatus: result.reviewStatus,
+    betaAutoApproveCreates: process.env.BETA_AUTO_APPROVE_CASES === "true",
+    redirect: completePath,
+  });
+
+  revalidatePath("/maker/setup");
+  revalidatePath("/maker/registration-complete");
+  revalidatePath("/cases");
+  redirect(completePath);
+}
+
+/** Auth-only setup save. Never calls signUp / signIn. */
+export async function completePartnerSetupAction(
+  input: Omit<PartnerRegistrationInput, "email" | "password">,
+): Promise<{ error: string } | void> {
+  let partner;
+  try {
+    partner = await requirePartner();
+  } catch (e) {
+    const message = authErrorMessage(e);
+    if (message === "UNAUTHORIZED") {
+      redirect("/login?next=/partner/setup");
+    }
+    if (message === "ACCOUNT_INACTIVE") {
+      return { error: "アカウントが停止されています" };
+    }
+    return { error: "パートナーアカウントでのみ登録できます" };
+  }
+
+  const payload = partnerProfilePayloadFromDraft(input);
+  const supabase = await createClient();
+  const { data: updated, error: updateError } = await supabase
+    .from("profiles")
+    .update(payload)
+    .eq("id", partner.id)
+    .select("id")
+    .maybeSingle();
+
+  if (updateError || !updated) {
+    return {
+      error:
+        updateError?.message ??
+        "プロフィールの保存に失敗しました。ログインし直してから再度お試しください。",
+    };
+  }
+
+  revalidatePath("/partner/setup");
+  revalidatePath("/cases");
+  redirect("/cases?welcome=partner");
 }
 
 export async function createCaseAction(
@@ -61,7 +187,45 @@ export async function createCaseAction(
     return { error: result.error };
   }
 
-  redirect(`/cases/${result.id}?pending=1`);
+  revalidatePath("/cases");
+  revalidatePath("/maker/cases");
+  redirect(`/cases?created=${encodeURIComponent(result.id)}`);
+}
+
+export async function updateCaseAction(
+  caseId: string,
+  input: CaseCreateInput,
+): Promise<{ error: string } | void> {
+  const {
+    data: { user },
+  } = await (await createClient()).auth.getUser();
+  if (!user) redirect("/login");
+
+  const result = await updateCase(caseId, input);
+  if (result.error) return { error: result.error };
+
+  revalidatePath("/cases");
+  revalidatePath("/maker/cases");
+  revalidatePath(`/maker/cases/${caseId}/edit`);
+  revalidatePath(`/cases/${caseId}`);
+  redirect("/maker/cases");
+}
+
+export async function withdrawCaseAction(
+  caseId: string,
+): Promise<{ error?: string }> {
+  const {
+    data: { user },
+  } = await (await createClient()).auth.getUser();
+  if (!user) return { error: "LOGIN_REQUIRED" };
+
+  const result = await withdrawCase(caseId);
+  if (result.error) return { error: result.error };
+
+  revalidatePath("/cases");
+  revalidatePath("/maker/cases");
+  revalidatePath(`/cases/${caseId}`);
+  return {};
 }
 
 export async function createNegotiationAction(input: {

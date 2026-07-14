@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { getSessionUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { salesFormatLabel } from "@/lib/types";
+import { reviewStatusLabels, salesFormatLabel } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "商品登録内容の確認",
@@ -13,7 +13,13 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function MakerRegistrationCompletePage() {
+type PageProps = {
+  searchParams: Promise<{ created?: string }>;
+};
+
+export default async function MakerRegistrationCompletePage({
+  searchParams,
+}: PageProps) {
   const user = await getSessionUser();
   if (!user) {
     redirect("/login?next=/maker/registration-complete");
@@ -22,26 +28,43 @@ export default async function MakerRegistrationCompletePage() {
     redirect("/cases");
   }
 
+  const { created } = await searchParams;
   const supabase = await createClient();
-  const [{ data: profile }, { data: cases }] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select(
-        "company_name, contact_name, industry, description, product_overview",
-      )
-      .eq("id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("cases")
-      .select(
-        "id, title, product_name, product_image_url, category, summary, region, partner_channels, sales_format, sales_terms, offer, is_exclusive, review_status, created_at",
-      )
-      .eq("maker_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(5),
-  ]);
+  const [{ data: profile }, { data: cases, error: casesError }] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select(
+          "company_name, contact_name, industry, description, product_overview",
+        )
+        .eq("id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("cases")
+        .select(
+          "id, title, product_name, product_image_url, category, summary, region, partner_channels, sales_format, sales_terms, offer, is_exclusive, review_status, created_at",
+        )
+        .eq("maker_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
 
-  const latest = cases?.[0] ?? null;
+  const latest =
+    (created
+      ? cases?.find((c) => c.id === created)
+      : undefined) ??
+    cases?.[0] ??
+    null;
+
+  console.info("[MakerRegistrationComplete] page render", {
+    userId: user.id,
+    createdParam: created ?? null,
+    latestCaseId: latest?.id ?? null,
+    reviewStatus: latest?.review_status ?? null,
+    caseCount: cases?.length ?? 0,
+    casesError: casesError?.message ?? null,
+    saveSuccess: Boolean(latest),
+  });
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
@@ -53,9 +76,37 @@ export default async function MakerRegistrationCompletePage() {
           登録内容を確認しました
         </h1>
         <p className="mt-3 text-muted">
-          メーカー情報と商品案件は保存済みです。案件は運営審査後に公開されます。
+          メーカー情報と商品案件は保存済みです。案件一覧で内容を確認できます（自動承認が無効の場合、他ユーザーへの公開は運営承認後です）。
         </p>
       </header>
+
+      {latest ? (
+        <div className="mb-6 rounded-xl border border-teal/40 bg-cream px-5 py-4">
+          <p className="font-medium text-navy">保存に成功しました</p>
+          <p className="mt-1 text-sm text-muted">
+            作成された案件ID:{" "}
+            <Link
+              href={`/cases/${latest.id}`}
+              className="font-mono text-teal hover:underline"
+            >
+              {latest.id}
+            </Link>
+          </p>
+          <p className="mt-1 text-sm text-muted">
+            審査ステータス:{" "}
+            {reviewStatusLabels[latest.review_status as keyof typeof reviewStatusLabels] ??
+              latest.review_status}
+          </p>
+        </div>
+      ) : (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4">
+          <p className="font-medium text-red-800">案件データが見つかりません</p>
+          <p className="mt-1 text-sm text-red-700">
+            保存に失敗した可能性があります。もう一度商品登録をお試しください。
+            {created ? `（指定ID: ${created}）` : null}
+          </p>
+        </div>
+      )}
 
       <ol className="mb-8 space-y-2 rounded-xl border border-border bg-cream/70 px-5 py-4 text-sm text-navy">
         <li>1. 登録・メール認証</li>
@@ -117,7 +168,12 @@ export default async function MakerRegistrationCompletePage() {
                   }`,
                 ],
                 ["希望条件", latest.sales_terms || latest.offer],
-                ["審査ステータス", latest.review_status],
+                [
+                  "審査ステータス",
+                  reviewStatusLabels[
+                    latest.review_status as keyof typeof reviewStatusLabels
+                  ] ?? latest.review_status,
+                ],
               ].map(([label, value]) => (
                 <div
                   key={label as string}
@@ -134,22 +190,21 @@ export default async function MakerRegistrationCompletePage() {
               案件ID:{" "}
               <Link
                 href={`/cases/${latest.id}`}
-                className="text-teal hover:underline"
+                className="font-mono text-teal hover:underline"
               >
                 {latest.id}
               </Link>
-              （審査中は一般公開されない場合があります）
             </p>
           </div>
         )}
       </section>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button href="/maker/cases/new" className="w-full sm:w-auto">
-          別の商品を追加登録
+        <Button href="/cases" className="w-full sm:w-auto">
+          案件一覧で確認する
         </Button>
-        <Button href="/cases" variant="outline" className="w-full sm:w-auto">
-          案件一覧を見る
+        <Button href="/maker/cases/new" variant="outline" className="w-full sm:w-auto">
+          別の商品を追加登録
         </Button>
         <Button href="/profile/edit" variant="ghost" className="w-full sm:w-auto">
           プロフィール編集

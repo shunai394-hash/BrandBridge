@@ -18,9 +18,20 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 |--------|----------|------|------|
 | `NEXT_PUBLIC_SITE_URL` | ブラウザに露出 | `https://brandbridge.example.com` | OG・sitemap・canonical の基準 URL。末尾スラッシュなし |
 | `NEXT_PUBLIC_SHOW_ERROR_DETAILS` | ブラウザに露出 | `true` | （任意・調査用）エラー画面に message / stack を表示。調査後は削除 |
+| `BETA_AUTO_APPROVE_CASES` | サーバーのみ | `true` | ベータ: **新規**案件を `review_status=approved` で作成。一覧の公開条件は常に `approved`（メーカー本人は `pending_review` も表示） |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。
+
+### 案件公開ルール（ベータ）
+
+| 対象 | 表示条件 |
+|------|----------|
+| 一般・パートナー | `status=open` かつ `review_status=approved` |
+| メーカー本人 | 上記に加え、自分の `pending_review` / `rejected` |
+| 新規 insert | `BETA_AUTO_APPROVE_CASES=true` なら `approved`、未設定なら `pending_review`（管理者審査向け） |
+
+Supabase で migration `012_restore_case_review_select.sql` を実行し、RLS を「公開=approved / 本人=own」に戻してください。
 
 ## 自動（設定不要）
 
@@ -39,19 +50,32 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+BETA_AUTO_APPROVE_CASES=true
 ```
 
-## Vercel 設定例（Production）
+## Vercel 設定例（Production / Preview）
 
-Project → Settings → Environment Variables に以下を追加（Environment: Production）:
+Project → Settings → Environment Variables に以下を追加:
 
 | Key | Value |
 |-----|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | 本番 Supabase の Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 本番の `anon` key |
 | `NEXT_PUBLIC_SITE_URL` | `https://あなたの本番ドメイン` |
+| `BETA_AUTO_APPROVE_CASES` | `true`（ベータ中） |
 
-Preview 環境を使う場合は、Preview 用に同じキーを入れ、`NEXT_PUBLIC_SITE_URL` は Preview URL に合わせるか省略（`VERCEL_URL` 利用）します。
+## Auth 運用メモ（ダッシュボード側）
+
+アプリコード以外に、Supabase Dashboard で次を揃えてください。
+
+| 項目 | 推奨 |
+|------|------|
+| Authentication → Providers → Email | 有効 + **Confirm email ON** |
+| Authentication → Providers → Google | 有効（OAuth Client 設定） |
+| Redirect URLs | `{SITE_URL}/auth/callback` と `{SITE_URL}/**` |
+| パスワードリセット | メールテンプレートのリンクが `/auth/callback` 経由になること |
+
+role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/auth/callback` とログイン後リダイレクトで行います。
 
 ## やってはいけないこと
 
@@ -59,5 +83,6 @@ Preview 環境を使う場合は、Preview 用に同じキーを入れ、`NEXT_P
 - `service_role` を `NEXT_PUBLIC_*` に入れる
 - 開発用プロジェクトのキーを本番 Vercel に誤設定したまま公開する
 - Auth の Redirect URL と `NEXT_PUBLIC_SITE_URL` が食い違ったまま運用する
+- Confirm email をオフのまま本番運用する（要件: メール認証必須）
 
 詳細手順は [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) / [SUPABASE_PRODUCTION.md](./SUPABASE_PRODUCTION.md) を参照してください。

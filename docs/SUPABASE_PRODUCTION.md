@@ -51,6 +51,8 @@ order by tablename;
 Authentication → Providers:
 
 - [ ] **Email** が有効
+- [ ] **Google** が有効（Client ID / Secret を設定）
+- [ ] **Confirm email = ON**（メール認証必須。アプリ側でも未確認ログインを拒否）
 
 Authentication → URL Configuration:
 
@@ -61,9 +63,11 @@ Authentication → URL Configuration:
 | （ローカル併用時） | `http://localhost:3000/**` |
 
 - [ ] Site URL が Vercel 本番 URL（またはカスタムドメイン）と一致
-- [ ] Redirect URLs に `https://あなたのドメイン/auth/callback` を追加（メーカー登録のメール認証用）
-- [ ] メール確認を使う場合、Confirm email の設定とメールテンプレートを確認
-- [ ] ベータで確認メールを省略する場合は「Confirm email」オフでも可（本番強化時はオン推奨）
+- [ ] Redirect URLs に `https://あなたのドメイン/auth/callback` を追加
+- [ ] 登録フロー: メール+パスワード or Google → コールバック → 初回は `/maker/setup` または `/partner/setup`
+- [ ] 会社・商品などの詳細は **認証後の setup のみ** で保存（認証前保存・旧5STEP登録は廃止）
+- [ ] パスワードリセット: Redirect で `/auth/callback?next=/login/update-password` が通ること
+- [ ] Google の Authorized redirect URI に Supabase の callback（`https://<project>.supabase.co/auth/v1/callback`）を設定
 - [ ] （任意）Storage バケット `product-images` が作成されている（009 実行後）
 
 ## 4. API / キー

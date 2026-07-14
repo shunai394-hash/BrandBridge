@@ -1,63 +1,72 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useState, type ReactNode } from "react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { updateCaseAction } from "@/lib/actions";
+import { createCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
-import { caseToFormInput } from "@/lib/case-field-normalize";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
   caseRegions,
   salesFormatOptions,
   targetCountryOptions,
-  type Case,
   type CaseCreateInput,
+  type Case,
 } from "@/lib/types";
 
-const categoryOptions = caseCategories.filter((c) => c !== "縺吶∋縺ｦ");
-const regionOptions = caseRegions.filter((r) => r !== "縺吶∋縺ｦ");
+const initial: CaseCreateInput = {
+  title: "",
+  category: "美容・コスメ",
+  region: "全国",
+  summary: "",
+  description: "",
+  idealPartner: "",
+  offer: "",
+  productName: "",
+  productFeatures: "",
+  priceBand: "",
+  salesFormat: "wholesale",
+  salesTerms: "",
+  minOrder: "",
+  isExclusive: false,
+  targetCountry: "JP",
+  partnerChannels: "",
+  partnerRequirements: "",
+  productImageUrl: null,
+};
+
+const categoryOptions = caseCategories.filter((c) => c !== "すべて");
+const regionOptions = caseRegions.filter((r) => r !== "すべて");
 
 const selectClass =
   "w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20";
 
 function Section({
   title,
-  hint,
   children,
 }: {
   title: string;
-  hint?: string;
   children: ReactNode;
 }) {
   return (
     <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <div>
-        <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-          {title}
-        </h2>
-        {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
-      </div>
+      <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+        {title}
+      </h2>
       {children}
     </section>
   );
 }
-
-function FieldHint({ children }: { children: ReactNode }) {
-  return <p className="-mt-2 text-xs text-muted">{children}</p>;
-}
-
 type CaseEditFormProps = {
   caseItem: Case;
 };
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
-  const [form, setForm] = useState<CaseCreateInput>(() =>
-    caseToFormInput(caseItem),
-  );
+  const [form, setForm] = useState<CaseCreateInput>(initial);
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState("");
 
   function update<K extends keyof CaseCreateInput>(
@@ -69,10 +78,15 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (imageUploading) {
+      setError("画像のアップロード完了を待ってから保存してください");
+      return;
+    }
     setError("");
     setLoading(true);
+
     try {
-      const result = await updateCaseAction(caseItem.id, {
+      const result = await createCaseAction({
         ...form,
         productImageUrl: form.productImageUrl?.trim() || null,
       });
@@ -82,7 +96,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     } catch (err) {
       if (isRedirectError(err)) throw err;
       setError(
-        `譖ｴ譁ｰ蜃ｦ逅・〒繧ｨ繝ｩ繝ｼ縺檎匱逕溘＠縺ｾ縺励◆: ${
+        `登録処理でエラーが発生しました: ${
           err instanceof Error ? err.message : String(err)
         }`,
       );
@@ -93,16 +107,17 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="animate-fade-up space-y-6">
-      <Section title="蝓ｺ譛ｬ諠・ｱ">
+      <Section title="基本情報">
         <Input
-          label="譯井ｻｶ繧ｿ繧､繝医Ν"
+          label="案件タイトル"
           name="title"
           required
+          maxLength={CASE_TEXT_LIMITS.title}
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
         />
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">繧ｫ繝・ざ繝ｪ</span>
+          <span className="font-medium text-navy">カテゴリ</span>
           <select
             className={selectClass}
             value={form.category}
@@ -117,15 +132,12 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">蟇ｾ雎｡蝗ｽ繝ｻ蟶ょｴ</span>
+          <span className="font-medium text-navy">対象国・市場</span>
           <select
             className={selectClass}
             value={form.targetCountry}
             onChange={(e) =>
-              update(
-                "targetCountry",
-                e.target.value as CaseCreateInput["targetCountry"],
-              )
+              update("targetCountry", e.target.value as CaseCreateInput["targetCountry"])
             }
             required
           >
@@ -137,7 +149,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">蜍滄寔繧ｨ繝ｪ繧｢・郁｣懆ｶｳ・・/span>
+          <span className="font-medium text-navy">募集エリア（補足）</span>
           <select
             className={selectClass}
             value={form.region}
@@ -153,78 +165,79 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         </label>
       </Section>
 
-      <Section
-        title="蝠・刀諠・ｱ"
-        hint="DB縺ｮ蛟､繧偵◎縺ｮ縺ｾ縺ｾ陦ｨ遉ｺ縺励※縺・∪縺呻ｼ郁・蜍輔さ繝斐・繝ｻ閾ｪ蜍戊｣懷ｮ後↑縺暦ｼ峨ょ推谺・・蛻･蜀・ｮｹ縺ｧ蜈･蜉帙＠縺ｦ縺上□縺輔＞縲・
-      >
+      <Section title="商品情報">
+        <p className="text-xs text-muted">
+          サマリー・特徴・説明は役割が異なります。同じ文章を3箇所に入れないでください。
+        </p>
         <Input
-          label="蝠・刀繝ｻ繝悶Λ繝ｳ繝牙錐"
+          label="商品・ブランド名"
           name="productName"
           required
+          maxLength={CASE_TEXT_LIMITS.productName}
           value={form.productName}
           onChange={(e) => update("productName", e.target.value)}
         />
+        <ProductImageField
+          label="商品画像"
+          value={form.productImageUrl ?? null}
+          onChange={(url) => update("productImageUrl", url)}
+          onUploadingChange={setImageUploading}
+          disabled={loading}
+        />
         <TextArea
-          label="荳隕ｧ逕ｨ繧ｵ繝槭Μ繝ｼ"
+          label="一覧用サマリー（短文）"
           name="summary"
           required
           rows={2}
           maxLength={CASE_TEXT_LIMITS.summary}
           value={form.summary}
           onChange={(e) => update("summary", e.target.value)}
-          placeholder="荳隕ｧ縺ｫ蜃ｺ縺咏洒縺・ｪｬ譏弱・縺ｿ"
+          placeholder="一覧に出す1〜2文"
         />
-        <FieldHint>
-          summary・井ｸ隕ｧ逕ｨ遏ｭ譁・・縺ｿ・峨りｩｳ邏ｰ隱ｬ譏弱ｒ縺薙％縺ｫ蜈･繧後↑縺・〒縺上□縺輔＞縲・          ・・form.summary.length}/{CASE_TEXT_LIMITS.summary}・・        </FieldHint>
-
+        <p className="text-xs text-muted">
+          一覧表示用の短文。（{form.summary.length}/{CASE_TEXT_LIMITS.summary}）
+        </p>
         <TextArea
-          label="蝠・刀迚ｹ蠕ｴ"
+          label="商品の特徴・差別化ポイント"
           name="productFeatures"
-          rows={4}
+          rows={3}
           maxLength={CASE_TEXT_LIMITS.productFeatures}
           value={form.productFeatures}
           onChange={(e) => update("productFeatures", e.target.value)}
-          placeholder="product_features: 蟾ｮ蛻･蛹悶・繧､繝ｳ繝医・迚ｹ蠕ｴ"
+          placeholder="競合との違い・独自性"
         />
-        <FieldHint>
-          product_features縲らｩｺ谺・・蝣ｴ蜷医・縺薙％縺ｫ迚ｹ蠕ｴ繧貞・蜉帙＠縺ｦ菫晏ｭ倥＠縺ｦ縺上□縺輔＞縲・        </FieldHint>
-
         <TextArea
-          label="蝠・刀隱ｬ譏・
+          label="商品説明（詳細）"
           name="description"
           required
           rows={6}
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          placeholder="description: 隧ｳ邏ｰ隱ｬ譏弱・縺ｿ"
+          placeholder="詳細な商品説明"
         />
-        <FieldHint>
-          description・郁ｩｳ邏ｰ隱ｬ譏弱・縺ｿ・峨ゆｸ隕ｧ逕ｨ繧ｵ繝槭Μ繝ｼ縺ｨ縺ｯ蛻･蜀・ｮｹ縺ｫ縺励※縺上□縺輔＞縲・          ・・form.description.length}/{CASE_TEXT_LIMITS.description}・・        </FieldHint>
-
+        <p className="text-xs text-muted">
+          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
+        </p>
         <Input
-          label="諠ｳ螳壻ｾ｡譬ｼ蟶ｯ"
+          label="想定価格帯"
           name="priceBand"
+          placeholder="例: 小売 3,000〜5,000円"
+          maxLength={CASE_TEXT_LIMITS.priceBand}
           value={form.priceBand}
           onChange={(e) => update("priceBand", e.target.value)}
-          placeholder="萓・ 蟆丞｣ｲ 3,000縲・,000蜀・
         />
       </Section>
 
-      <Section
-        title="雋ｩ螢ｲ譚｡莉ｶ"
-        hint="蜷・・岼繧貞句挨縺ｫ蜈･蜉帙＠縺ｾ縺吶ゅ∪縺ｨ繧√※1谺・↓譖ｸ縺九↑縺・〒縺上□縺輔＞縲・
-      >
+      <Section title="販売条件">
+        <p className="text-xs text-muted">各項目を個別に入力してください。</p>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">雋ｩ螢ｲ蠖｢蠑・/span>
+          <span className="font-medium text-navy">販売形式</span>
           <select
             className={selectClass}
             value={form.salesFormat}
             onChange={(e) =>
-              update(
-                "salesFormat",
-                e.target.value as CaseCreateInput["salesFormat"],
-              )
+              update("salesFormat", e.target.value as CaseCreateInput["salesFormat"])
             }
             required
           >
@@ -235,9 +248,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
             ))}
           </select>
         </label>
-
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-navy">迢ｬ蜊蜿ｯ蜷ｦ</legend>
+          <legend className="text-sm font-medium text-navy">独占可否</legend>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
@@ -245,7 +257,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
               checked={form.isExclusive}
               onChange={() => update("isExclusive", true)}
             />
-            迢ｬ蜊蜿ｯ
+            独占可
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -254,56 +266,57 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
               checked={!form.isExclusive}
               onChange={() => update("isExclusive", false)}
             />
-            髱樒峡蜊・郁､・焚繝代・繝医リ繝ｼ蜿ｯ・・          </label>
+            非独占（複数パートナー可）
+          </label>
         </fieldset>
-
         <Input
-          label="譛蟆冗匱豕ｨ謨ｰ驥・
+          label="最小発注数量"
           name="minOrder"
+          maxLength={CASE_TEXT_LIMITS.minOrder}
           value={form.minOrder}
           onChange={(e) => update("minOrder", e.target.value)}
-          placeholder="萓・ 蛻晏屓 100蛟九・/ MOQ 1繧ｫ繝ｼ繝医Φ"
+          placeholder="例: 初回 100個〜"
         />
-
         <Input
-          label="雋ｩ螢ｲ繝√Ε繝阪Ν"
+          label="販売チャネル"
           name="partnerChannels"
+          placeholder="例: 実店舗 / EC / 卸"
+          maxLength={CASE_TEXT_LIMITS.partnerChannels}
           value={form.partnerChannels}
           onChange={(e) => update("partnerChannels", e.target.value)}
-          placeholder="萓・ 螳溷ｺ苓・ / EC / Amazon / 蜊ｸ"
         />
-
         <TextArea
-          label="縺昴・莉悶・蜿門ｼ墓擅莉ｶ・井ｻｻ諢擾ｼ・
+          label="その他の取引条件（任意）"
           name="salesTerms"
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.salesTerms}
           value={form.salesTerms}
           onChange={(e) => update("salesTerms", e.target.value)}
-          placeholder="繝槭・繧ｸ繝ｳ繝ｻ螂醍ｴ・悄髢薙・謾ｯ謇墓擅莉ｶ縺ｪ縺ｩ荳願ｨ倅ｻ･螟・
         />
-
         <TextArea
-          label="繝｡繝ｼ繧ｫ繝ｼ謠蝉ｾ帶擅莉ｶ"
+          label="メーカー提供条件"
           name="offer"
           required
+          maxLength={CASE_TEXT_LIMITS.offer}
           value={form.offer}
           onChange={(e) => update("offer", e.target.value)}
-          placeholder="繧ｵ繝ｳ繝励Ν謠蝉ｾ帙・雋ｩ菫・髪謠ｴ繝ｻ遐比ｿｮ縺ｪ縺ｩ"
         />
       </Section>
 
-      <Section title="蟶梧悍繝代・繝医リ繝ｼ譚｡莉ｶ">
+      <Section title="希望パートナー条件">
         <TextArea
-          label="蠢・亥ｮ溽ｸｾ繝ｻ雉・ｼ繝ｻ菴灘宛"
+          label="必須実績・資格・体制"
           name="partnerRequirements"
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.partnerRequirements}
           value={form.partnerRequirements}
           onChange={(e) => update("partnerRequirements", e.target.value)}
         />
         <TextArea
-          label="豎ゅａ繧九ヱ繝ｼ繝医リ繝ｼ蜒・
+          label="求めるパートナー像"
           name="idealPartner"
           required
+          maxLength={CASE_TEXT_LIMITS.idealPartner}
           value={form.idealPartner}
           onChange={(e) => update("idealPartner", e.target.value)}
         />
@@ -317,11 +330,9 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           {error}
         </p>
       ) : null}
-      <Button type="submit" disabled={loading}>
-        {loading ? "菫晏ｭ倅ｸｭ..." : "螟画峩繧剃ｿ晏ｭ・}
+      <Button type="submit" disabled={loading || imageUploading}>
+        {loading ? "提出中..." : "審査に提出する"}
       </Button>
     </form>
   );
 }
-
-

@@ -1,0 +1,228 @@
+"use client";
+
+import { useEffect, useId, useRef, useState } from "react";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
+import { uploadProductImageFile } from "@/lib/product-image-upload";
+import { updateCaseProductImageAction } from "@/lib/actions";
+import { Button } from "@/components/ui/Button";
+
+type CaseImageUploaderProps = {
+  /** Current saved / selected public URL */
+  value: string | null;
+  onChange: (url: string | null) => void;
+  label?: string;
+  disabled?: boolean;
+  /** Notify parent while Storage upload is in progress (block form submit) */
+  onUploadingChange?: (uploading: boolean) => void;
+  /**
+   * When set, successful upload (or clear) can persist immediately to
+   * cases.product_image_url — useful when starting from NULL.
+   */
+  caseId?: string;
+  /** Persist to DB right after Storage upload (requires caseId) */
+  saveImmediately?: boolean;
+  /** Called after a successful immediate DB save */
+  onSaved?: (url: string | null) => void;
+};
+
+/**
+ * Always shows an upload control (even when product_image_url is NULL).
+ * Optional immediate DB save via caseId + saveImmediately.
+ */
+type CaseImageFieldProps = CaseImageUploaderProps;
+export function CaseImageUploader({
+  value,
+  onChange,
+  label = "商品画像",
+  disabled = false,
+  onUploadingChange,
+  caseId,
+  saveImmediately = false,
+  onSaved,
+}: CaseImageFieldProps) {
+  const inputId = useId();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [preview, setPreview] = useState<string | null>(value?.trim() || null);
+
+  useEffect(() => {
+    setPreview(value?.trim() || null);
+  }, [value]);
+
+  const hasImage = Boolean(preview?.trim());
+
+  function setBusy(next: boolean) {
+    setUploading(next);
+    onUploadingChange?.(next);
+  }
+
+  async function persistUrl(url: string | null): Promise<boolean> {
+    if (!caseId || !saveImmediately) return true;
+    setSaving(true);
+    setSuccess("");
+    const result = await updateCaseProductImageAction({
+      caseId,
+      productImageUrl: url,
+    });
+    setSaving(false);
+    if (result.error) {
+      setError(result.error);
+      return false;
+    }
+    setSuccess(url ? "商品画像を保存しました" : "商品画像をクリアしました");
+    onSaved?.(url);
+    return true;
+  }
+
+  async function handleFileChange(file: File | null) {
+    setError("");
+    setSuccess("");
+    if (!file) return;
+
+    setBusy(true);
+    try {
+      const result = await uploadProductImageFile(file);
+      if (!result.ok) {
+        setError(result.error);
+        if (fileRef.current) fileRef.current.value = "";
+        return;
+      }
+
+      onChange(result.url);
+      setPreview(result.url);
+
+      const ok = await persistUrl(result.url);
+      if (!ok) {
+        // URL is in form state; user can still hit form save
+        setError((prev) =>
+          prev
+            ? prev
+            : "アップロードは成功しましたがDB保存に失敗しました。画面下部の保存を押してください。",
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(`画像アップロードに失敗しました: ${message}`);
+      if (fileRef.current) fileRef.current.value = "";
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleClear() {
+    setError("");
+    setSuccess("");
+    onChange(null);
+    setPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+    await persistUrl(null);
+  }
+
+  return (
+    <div className="space-y-3 rounded-lg border border-border bg-cream/30 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-sm font-medium text-navy">{label}</p>
+        <p className="text-xs text-muted">
+          {hasImage ? "登録済み · 差し替え可能" : "未登録 · ここから追加できます"}
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <div className="shrink-0">
+          {hasImage ? (
+            <ProductCaseImage
+              src={preview}
+              alt="商品画像プレビュー"
+              size="detail"
+              className="!max-w-[200px]"
+            />
+          ) : (
+            <div className="flex h-32 w-32 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface text-center">
+              <ProductCaseImage src={null} size="tiny" />
+              <p className="mt-2 px-2 text-[11px] text-muted">画像未登録</p>
+            </div>
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1 space-y-2">
+          <label htmlFor={inputId} className="block text-xs font-medium text-navy">
+            {hasImage ? "画像を差し替え" : "画像をアップロード"}
+          </label>
+          <input
+            id={inputId}
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+            disabled={disabled || uploading || saving}
+            className="block w-full text-sm text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-teal file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-teal-dark disabled:opacity-60"
+            onChange={(e) => {
+              void handleFileChange(e.target.files?.[0] ?? null);
+            }}
+          />
+          <p className="text-xs text-muted">
+            JPEG / PNG / WebP / GIF（最大5MB）。選択すると Storage
+            へアップロードされます。
+            {saveImmediately && caseId
+              ? " 成功後に cases.product_image_url へ自動保存します。"
+              : " フォームの「保存」で DB に反映されます。"}
+          </p>
+
+          {uploading || saving ? (
+            <p className="text-sm text-navy">
+              {uploading ? "アップロード中…" : "保存中…"}
+            </p>
+          ) : null}
+
+          {hasImage ? (
+            <p className="break-all text-xs text-muted">
+              URL: <span className="font-mono text-navy">{preview}</span>
+            </p>
+          ) : null}
+
+          {hasImage ? (
+            <button
+              type="button"
+              className="text-xs text-teal hover:underline disabled:opacity-50"
+              disabled={disabled || uploading || saving}
+              onClick={() => {
+                void handleClear();
+              }}
+            >
+              画像をクリア
+            </button>
+          ) : null}
+
+          {!saveImmediately && caseId && hasImage ? (
+            <div className="pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                className="!px-3 !py-1.5 text-xs"
+                disabled={disabled || uploading || saving}
+                onClick={() => {
+                  void persistUrl(preview);
+                }}
+              >
+                画像だけ今すぐ保存
+              </Button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      {error ? (
+        <p className="text-sm text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {success ? (
+        <p className="text-sm text-teal" role="status">
+          {success}
+        </p>
+      ) : null}
+    </div>
+  );
+}

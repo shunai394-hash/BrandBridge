@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { signOutAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
+import { negotiationsListPath } from "@/lib/negotiation-paths";
+import { countNegotiationsForUser } from "@/lib/negotiations";
 import type { SessionUser } from "@/lib/types";
 
 function guestLinks() {
@@ -12,7 +14,7 @@ function guestLinks() {
   ];
 }
 
-function userLinks(user: SessionUser) {
+async function userLinks(user: SessionUser) {
   if (user.role === "admin") {
     return [
       { href: "/admin", label: "管理画面" },
@@ -23,9 +25,18 @@ function userLinks(user: SessionUser) {
     ];
   }
 
+  const negoPath = negotiationsListPath(user.role);
+  const { total, unread } = await countNegotiationsForUser(user);
+  const negoLabel =
+    unread > 0
+      ? `交渉 (${total}/${unread})`
+      : total > 0
+        ? `交渉 (${total})`
+        : "交渉";
+
   const links = [
     { href: "/cases", label: "案件一覧" },
-    { href: "/negotiations", label: "交渉管理" },
+    { href: negoPath, label: negoLabel },
     { href: "/deals", label: "成約一覧" },
     { href: "/favorites", label: "お気に入り" },
     { href: "/profile/edit", label: "マイプロフィール" },
@@ -39,6 +50,7 @@ function userLinks(user: SessionUser) {
 
 export async function Header() {
   const user = await getSessionUser();
+  const links = user ? await userLinks(user) : guestLinks();
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-navy-deep/90 text-white backdrop-blur-md">
@@ -50,7 +62,7 @@ export async function Header() {
           BrandBridge
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          {(user ? userLinks(user) : guestLinks()).map((item) => (
+          {links.map((item) => (
             <Link
               key={item.href}
               href={item.href}

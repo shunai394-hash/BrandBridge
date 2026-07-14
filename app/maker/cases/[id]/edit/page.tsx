@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CaseEditForm } from "@/components/forms/CaseEditForm";
+import { CaseImageUploader } from "@/components/forms/CaseImageUploader";
 import { getCaseById } from "@/lib/cases";
 import { createClient } from "@/lib/supabase/server";
 
@@ -33,7 +34,6 @@ export default async function MakerCaseEditPage({ params }: PageProps) {
   const caseItem = await getCaseById(id);
   if (!caseItem) notFound();
 
-  // Ownership: maker_id = auth.uid() only
   if (caseItem.makerId !== user.id) {
     redirect("/maker/cases");
   }
@@ -47,13 +47,22 @@ export default async function MakerCaseEditPage({ params }: PageProps) {
       <Link href="/maker/cases" className="text-sm text-teal hover:underline">
         ← マイ案件
       </Link>
-      <header className="mb-8 mt-4">
+      <header className="mb-6 mt-4">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           案件を編集
         </h1>
-        <p className="mt-2 text-sm text-muted font-mono">{caseItem.id}</p>
+        <p className="mt-2 font-mono text-sm text-teal">
+          {caseItem.caseNumber}
+        </p>
       </header>
-      <CaseEditForm caseItem={caseItem} />
+
+      {/* 最上部に必ず表示（フォームの外） */}
+      <CaseImageUploader
+        caseId={caseItem.id}
+        productImageUrl={caseItem.productImageUrl}
+      />
+
+      <CaseEditForm key={caseItem.id} caseItem={caseItem} />
     </div>
   );
 }

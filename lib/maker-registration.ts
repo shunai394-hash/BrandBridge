@@ -67,12 +67,12 @@ export function caseInputFromMakerDraft(
   const area = mapSalesArea(draft.salesArea);
   const channels = draft.salesChannels.join(" / ");
   const productDescription = draft.productSummary.trim();
+  // Short listing blurb only — do not copy full text into features
   const summarySource =
     productDescription || `${draft.productName}の販売パートナー募集`;
-  // Listing summary stays short; full text goes to description.
   const summary =
-    summarySource.length > 280
-      ? `${summarySource.slice(0, 277)}...`
+    summarySource.length > 120
+      ? `${summarySource.slice(0, 117)}...`
       : summarySource;
 
   return {
@@ -89,23 +89,21 @@ export function caseInputFromMakerDraft(
     ]
       .filter(Boolean)
       .join("\n\n"),
-    idealPartner: `希望販売チャネル: ${channels || "応相談"}`,
-    offer: [
-      `取引形式: ${deal.label}`,
-      draft.dealTerms.trim() ? `希望条件:\n${draft.dealTerms.trim()}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n"),
+    idealPartner: "応相談",
+    offer: draft.dealTerms.trim()
+      ? draft.dealTerms.trim()
+      : `取引形式: ${deal.label}`,
     productName: draft.productName,
-    productFeatures: productDescription,
+    // Differentiation is filled later on the edit screen
+    productFeatures: "",
     priceBand: "",
     salesFormat: deal.salesFormat,
-    salesTerms: draft.dealTerms,
+    salesTerms: "",
     minOrder: "",
     isExclusive: deal.isExclusive,
     targetCountry: "JP",
     partnerChannels: channels,
-    partnerRequirements: draft.dealTerms,
+    partnerRequirements: "",
     productImageUrl: productImageUrl ?? null,
   };
 }

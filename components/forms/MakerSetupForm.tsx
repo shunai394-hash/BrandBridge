@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { ProductImageField } from "@/components/forms/ProductImageField";
 import { completeMakerSetupAction } from "@/lib/actions";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import { createClient } from "@/lib/supabase/client";
@@ -58,8 +59,8 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [form, setForm] = useState<
     Omit<MakerRegistrationInput, "email" | "password">
   >({
@@ -128,22 +129,6 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
     setStep((s) => Math.min(4, s + 1));
   }
 
-  async function uploadProductImage(): Promise<string | null> {
-    if (!imageFile) return null;
-    const supabase = createClient();
-    const ext = imageFile.name.split(".").pop()?.toLowerCase() || "jpg";
-    const path = `${userId}/${Date.now()}.${ext}`;
-    const { error: uploadError } = await supabase.storage
-      .from("product-images")
-      .upload(path, imageFile, { upsert: true, contentType: imageFile.type });
-    if (uploadError) {
-      console.error("[uploadProductImage]", uploadError.message);
-      return null;
-    }
-    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    return data.publicUrl;
-  }
-
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     for (const s of [1, 2, 3]) {
@@ -153,6 +138,11 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
         setStep(s);
         return;
       }
+    }
+
+    if (imageUploading) {
+      setError("画像のアップロード完了を待ってから保存してください");
+      return;
     }
 
     setError("");
@@ -170,16 +160,23 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
         return;
       }
 
-      const imageUrl = await uploadProductImage();
-      if (imageFile && !imageUrl) {
-        setError(
-          "商品画像のアップロードに失敗しました。形式（JPEG/PNG/WebP/GIF）を確認して再試行してください。",
-        );
-        return;
-      }
-
+      const imageUrl = form.productImageUrl?.trim() || null;
+      console.info("[MakerSetupForm] submit", {
+        has_product_image_url: Boolean(imageUrl),
+        product_image_url_len: imageUrl?.length ?? 0,
+      });
       const result = await completeMakerSetupAction({
-        ...form,
+        companyName: form.companyName,
+        contactName: form.contactName,
+        industry: form.industry,
+        companyOverview: form.companyOverview,
+        productName: form.productName,
+        productCategory: form.productCategory,
+        productSummary: form.productSummary,
+        salesArea: form.salesArea,
+        salesChannels: form.salesChannels,
+        dealType: form.dealType,
+        dealTerms: form.dealTerms,
         productImageUrl: imageUrl,
       });
 
@@ -271,15 +268,13 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               value={form.productName}
               onChange={(e) => update("productName", e.target.value)}
             />
-            <label className="flex flex-col gap-1.5 text-sm">
-              <FieldLabel>商品画像</FieldLabel>
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                className={selectClass}
-                onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
+            <ProductImageField
+              label="商品画像（任意）"
+              value={form.productImageUrl ?? null}
+              onChange={(url) => update("productImageUrl", url)}
+              onUploadingChange={setImageUploading}
+              disabled={loading}
+            />
             <label className="flex flex-col gap-1.5 text-sm">
               <FieldLabel required>商品カテゴリ</FieldLabel>
               <select
@@ -420,7 +415,7 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               ["チャネル", form.salesChannels.join(" / ")],
               ["取引形式", form.dealType],
               ["希望条件", form.dealTerms || "—"],
-              ["画像", imageFile?.name || "未選択"],
+              ["画像", form.productImageUrl ? "設定済み" : "未選択"],
             ].map(([label, value]) => (
               <div key={label as string} className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                 <dt className="text-muted">{label}</dt>
@@ -461,8 +456,16 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               次へ
             </Button>
           ) : (
-            <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
-              {loading ? "保存中..." : "保存して完了"}
+            <Button
+              type="submit"
+              className="w-full sm:w-auto"
+              disabled={loading || imageUploading}
+            >
+              {loading
+                ? "保存中..."
+                : imageUploading
+                  ? "画像アップロード中..."
+                  : "保存して完了"}
             </Button>
           )}
         </div>

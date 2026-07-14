@@ -418,11 +418,15 @@ export async function createCase(
       return { error: "maker_id と auth.uid() が一致しません" };
     }
 
+    const imageUrl = normalized.productImageUrl?.trim() || null;
+
     console.info("[createCase] insert start", {
       table: "cases",
       makerId,
       authUid: user.id,
       product_name: normalized.productName,
+      has_product_image_url: Boolean(imageUrl),
+      product_image_url_len: imageUrl?.length ?? 0,
       description_len: normalized.description.length,
       summary_len: normalized.summary.length,
       reviewStatus,
@@ -448,7 +452,7 @@ export async function createCase(
       target_country: normalized.targetCountry,
       partner_channels: normalized.partnerChannels.trim() || null,
       partner_requirements: normalized.partnerRequirements.trim() || null,
-      product_image_url: normalized.productImageUrl,
+      product_image_url: imageUrl,
       status: "open" as const,
       review_status: reviewStatus,
     };
@@ -456,22 +460,28 @@ export async function createCase(
     let { data, error } = await supabase
       .from("cases")
       .insert(insertPayload)
-      .select("id, product_name, maker_id, status, review_status, created_at")
+      .select(
+        "id, product_name, maker_id, status, review_status, created_at, product_image_url",
+      )
       .single();
 
-    // Retry without product_image_url if column missing on older DBs
-    if (
+    // Only retry without the column when schema cache truly lacks it
+    const missingColumn =
       error &&
-      /product_image_url/i.test(error.message + (error.details ?? ""))
-    ) {
-      console.warn("[createCase] retry without product_image_url");
+      /Could not find the 'product_image_url' column/i.test(
+        `${error.message} ${error.details ?? ""}`,
+      );
+    if (missingColumn) {
+      console.warn("[createCase] retry without product_image_url (column missing)");
       const { product_image_url: _omit, ...withoutImage } = insertPayload;
       const retry = await supabase
         .from("cases")
         .insert(withoutImage)
         .select("id, product_name, maker_id, status, review_status, created_at")
         .single();
-      data = retry.data;
+      data = retry.data
+        ? { ...retry.data, product_image_url: null }
+        : retry.data;
       error = retry.error;
     }
 
@@ -493,6 +503,50 @@ export async function createCase(
       };
     }
 
+    // Always force-write Storage URL after insert (schema-cache / select quirks)
+    let savedImageUrl =
+      (data.product_image_url as string | null | undefined)?.trim() || null;
+
+    if (imageUrl) {
+      const { data: patched, error: patchError } = await supabase
+        .from("cases")
+        .update({ product_image_url: imageUrl })
+        .eq("id", data.id)
+        .eq("maker_id", user.id)
+        .select("product_image_url")
+        .maybeSingle();
+
+      if (patchError) {
+        console.error("[createCase] product_image_url patch failed", {
+          caseId: data.id,
+          error: patchError.message,
+          code: patchError.code,
+        });
+        return {
+          error: formatSupabaseError(
+            "案件は作成されましたが商品画像URLの保存に失敗しました",
+            patchError,
+          ),
+        };
+      }
+
+      savedImageUrl =
+        (patched?.product_image_url as string | null | undefined)?.trim() ||
+        null;
+
+      if (savedImageUrl !== imageUrl) {
+        console.error("[createCase] product_image_url mismatch after patch", {
+          caseId: data.id,
+          expected: imageUrl,
+          saved: savedImageUrl,
+        });
+        return {
+          error:
+            "案件は作成されましたが商品画像URLがDBに反映されませんでした。管理画面から画像を再設定してください。",
+        };
+      }
+    }
+
     console.info("[createCase] insert ok", {
       table: "cases",
       caseId: data.id,
@@ -500,6 +554,7 @@ export async function createCase(
       maker_id: data.maker_id,
       status: data.status,
       review_status: data.review_status,
+      product_image_url: savedImageUrl,
       created_at: data.created_at,
       maker_matches_auth: data.maker_id === user.id,
     });
@@ -513,6 +568,29 @@ export async function createCase(
     console.error("[createCase] unexpected", message);
     return { error: `案件の登録に失敗しました: ${message}` };
   }
+}
+
+/** Text/content fields only. product_image_url is managed by CaseImageUploader. */
+function caseUpdatePayload(normalized: CaseCreateInput) {
+  return {
+    title: normalized.title.trim(),
+    category: normalized.category.trim(),
+    region: normalized.region.trim(),
+    summary: normalized.summary.trim(),
+    description: normalized.description.trim(),
+    ideal_partner: normalized.idealPartner.trim(),
+    offer: normalized.offer.trim(),
+    product_name: normalized.productName.trim(),
+    product_features: normalized.productFeatures.trim() || null,
+    price_band: normalized.priceBand.trim() || null,
+    sales_format: normalized.salesFormat,
+    sales_terms: normalized.salesTerms.trim() || null,
+    min_order: normalized.minOrder.trim() || null,
+    is_exclusive: normalized.isExclusive,
+    target_country: normalized.targetCountry,
+    partner_channels: normalized.partnerChannels.trim() || null,
+    partner_requirements: normalized.partnerRequirements.trim() || null,
+  };
 }
 
 export async function updateCase(
@@ -532,29 +610,10 @@ export async function updateCase(
 
     const { data, error } = await supabase
       .from("cases")
-      .update({
-        title: normalized.title.trim(),
-        category: normalized.category.trim(),
-        region: normalized.region.trim(),
-        summary: normalized.summary.trim(),
-        description: normalized.description.trim(),
-        ideal_partner: normalized.idealPartner.trim(),
-        offer: normalized.offer.trim(),
-        product_name: normalized.productName.trim(),
-        product_features: normalized.productFeatures.trim() || null,
-        price_band: normalized.priceBand.trim() || null,
-        sales_format: normalized.salesFormat,
-        sales_terms: normalized.salesTerms.trim() || null,
-        min_order: normalized.minOrder.trim() || null,
-        is_exclusive: normalized.isExclusive,
-        target_country: normalized.targetCountry,
-        partner_channels: normalized.partnerChannels.trim() || null,
-        partner_requirements: normalized.partnerRequirements.trim() || null,
-        product_image_url: normalized.productImageUrl,
-      })
+      .update(caseUpdatePayload(normalized))
       .eq("id", caseId)
       .eq("maker_id", user.id)
-      .select("id")
+      .select("id, product_image_url")
       .maybeSingle();
 
     if (error) {
@@ -564,6 +623,51 @@ export async function updateCase(
     if (!data) {
       return { error: "案件を更新できません（本人の案件のみ編集可）" };
     }
+
+    console.info("[updateCase] ok", {
+      caseId: data.id,
+      product_image_url: data.product_image_url,
+    });
+    return {};
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return { error: `案件の更新に失敗しました: ${message}` };
+  }
+}
+
+/** Admin update: no maker_id filter (RLS allows is_admin()). */
+export async function adminUpdateCase(
+  caseId: string,
+  input: CaseCreateInput,
+): Promise<{ error?: string }> {
+  try {
+    const normalized = normalizeCaseCreateInput(input);
+    const validationError = validateCaseCreateInput(normalized);
+    if (validationError) return { error: validationError };
+
+    const supabase = await createClient();
+    const payload = caseUpdatePayload(normalized);
+
+    const { data, error } = await supabase
+      .from("cases")
+      .update(payload)
+      .eq("id", caseId)
+      .select("id, product_name, product_image_url")
+      .maybeSingle();
+
+    if (error) {
+      console.error("[adminUpdateCase]", error.message);
+      return { error: formatSupabaseError("案件の更新に失敗しました", error) };
+    }
+    if (!data) {
+      return { error: "案件を更新できません（権限またはIDを確認してください）" };
+    }
+
+    console.info("[adminUpdateCase] ok", {
+      caseId: data.id,
+      product_name: data.product_name,
+      product_image_url: data.product_image_url,
+    });
     return {};
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);

@@ -14,6 +14,7 @@ import {
   PipelineStatusBadge,
 } from "@/components/negotiations/NegotiationStatusBadge";
 import { Button } from "@/components/ui/Button";
+import { negotiationsListPath } from "@/lib/negotiation-paths";
 import type {
   MessageView,
   NegotiationListItem,
@@ -41,6 +42,7 @@ export function NegotiationDetail({
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const listHref = negotiationsListPath(user.role);
   const canModerate =
     user.role === "maker" && item.applicationStatus === "pending";
   const canEditPipeline =
@@ -48,6 +50,7 @@ export function NegotiationDetail({
     (user.role === "maker" ||
       user.role === "partner" ||
       user.role === "admin");
+  const canReply = item.applicationStatus === "accepted";
 
   async function handleAccept() {
     setError("");
@@ -98,53 +101,64 @@ export function NegotiationDetail({
   return (
     <article className="animate-fade-up">
       <div className="mb-6">
-        <Link href="/negotiations" className="text-sm text-teal hover:underline">
+        <Link href={listHref} className="text-sm text-teal hover:underline">
           ← 交渉一覧に戻る
         </Link>
       </div>
 
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="rounded bg-cream px-2.5 py-1 text-navy">
-              {item.caseCategory}
-            </span>
-            <span className="rounded bg-cream px-2.5 py-1 text-navy">
-              {item.caseRegion}
-            </span>
-          </div>
-          <h1 className="mt-3 font-[family-name:var(--font-shippori)] text-3xl leading-tight text-navy md:text-4xl">
-            {item.caseTitle}
-          </h1>
-          <p className="mt-3 text-muted">
-            相手:{" "}
-            <Link
-              href={`/profiles/${counterpartHref}`}
-              className="text-navy hover:text-teal hover:underline"
-            >
-              {item.counterpartName}
-            </Link>
-          </p>
-        </div>
-        <div className="flex flex-col items-end gap-2">
-          <NegotiationStatusBadge status={item.applicationStatus} />
-          <PipelineStatusBadge status={item.pipelineStatus} />
-        </div>
-      </div>
+      {/* Email-style header — 件名を最上部 */}
+      <header className="rounded-lg border border-border bg-surface p-5 md:p-6">
+        <p className="text-xs font-medium tracking-wide text-muted">件名</p>
+        <h1 className="mt-1 font-[family-name:var(--font-shippori)] text-2xl leading-tight text-navy md:text-3xl">
+          {item.topic}
+        </h1>
 
-      <section className="mt-8 rounded-lg border border-border bg-surface p-5">
-        <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-          申込メッセージ
-        </h2>
-        <p className="mt-3 whitespace-pre-wrap leading-relaxed text-foreground/90">
-          {item.initialMessage?.trim() || "（メッセージなし）"}
-        </p>
-        <p className="mt-4 text-xs text-muted">
-          <Link href={`/cases/${item.caseId}`} className="text-teal hover:underline">
-            案件詳細を見る
-          </Link>
-        </p>
-      </section>
+        <div className="mt-4 flex flex-wrap items-start justify-between gap-3 border-t border-border pt-4">
+          <div className="min-w-0">
+            <p className="font-mono text-sm font-medium text-teal">
+              {item.caseNumber}
+            </p>
+            <p className="mt-1 text-base font-medium text-navy">
+              {item.productName}
+            </p>
+            <p className="mt-0.5 text-sm text-muted">{item.caseTitle}</p>
+          </div>
+          <div className="flex flex-col items-end gap-2">
+            <NegotiationStatusBadge status={item.applicationStatus} />
+            <PipelineStatusBadge status={item.pipelineStatus} />
+          </div>
+        </div>
+
+        <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
+          <div className="grid gap-1 sm:grid-cols-[5.5rem_1fr]">
+            <dt className="text-muted">相手</dt>
+            <dd>
+              <Link
+                href={`/profiles/${counterpartHref}`}
+                className="text-navy hover:text-teal hover:underline"
+              >
+                {item.counterpartName}
+              </Link>
+            </dd>
+          </div>
+          <div className="grid gap-1 sm:grid-cols-[5.5rem_1fr]">
+            <dt className="text-muted">案件</dt>
+            <dd>
+              <Link
+                href={`/cases/${item.caseId}`}
+                className="text-teal hover:underline"
+              >
+                案件詳細を開く
+              </Link>
+              <span className="mx-2 text-muted">·</span>
+              <span className="text-muted">
+                {item.caseCategory}
+                {item.caseRegion ? ` / ${item.caseRegion}` : ""}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </header>
 
       {canModerate ? (
         <section className="mt-6 rounded-lg border border-teal/25 bg-cream/70 p-5">
@@ -152,7 +166,7 @@ export function NegotiationDetail({
             交渉の審査
           </h2>
           <p className="mt-2 text-sm text-muted">
-            承認すると、メッセージと成約プロセス（パイプライン）が開始します。
+            承認すると、双方がこのスレッドでメッセージと添付ファイルをやり取りできます。
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button
@@ -207,35 +221,43 @@ export function NegotiationDetail({
               </Link>
             </p>
           ) : null}
-          {user.role === "admin" && !item.hasDeal ? (
-            <p className="mt-3 text-sm text-muted">
-              成約金額の登録は{" "}
-              <Link href="/admin/negotiations" className="text-teal underline">
-                管理画面の交渉一覧
-              </Link>
-              から行えます。
-            </p>
-          ) : null}
         </section>
       ) : null}
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
       {item.applicationStatus === "pending" && user.role === "partner" ? (
-        <p className="mt-8 rounded-lg border border-border bg-surface px-5 py-4 text-sm text-muted">
-          メーカーの審査をお待ちください。承認されるとメッセージ機能が利用できます。
+        <p className="mt-6 rounded-lg border border-border bg-surface px-5 py-4 text-sm text-muted">
+          メーカーの審査をお待ちください。承認されると返信・添付が可能になります。
         </p>
       ) : null}
 
       {item.applicationStatus === "rejected" ? (
-        <p className="mt-8 rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        <p className="mt-6 rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
           この交渉は却下されました。メッセージのやり取りはできません。
         </p>
       ) : null}
 
-      {item.applicationStatus === "accepted" ? (
-        <MessageThread negotiationId={item.id} messages={messages} />
-      ) : null}
+      {item.applicationStatus === "pending" ||
+      item.applicationStatus === "accepted" ? (
+        <MessageThread
+          negotiationId={item.id}
+          messages={messages}
+          initialMessage={item.initialMessage}
+          initialFrom={item.partnerCompanyName}
+          initialAt={item.createdAt}
+          canReply={canReply}
+        />
+      ) : (
+        <MessageThread
+          negotiationId={item.id}
+          messages={[]}
+          initialMessage={item.initialMessage}
+          initialFrom={item.partnerCompanyName}
+          initialAt={item.createdAt}
+          canReply={false}
+        />
+      )}
     </article>
   );
 }

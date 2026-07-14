@@ -24,11 +24,13 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
       className={`animate-fade-up rounded-lg border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[0_12px_32px_rgba(20,32,51,0.08)] ${delayClass}`}
     >
       <Link href={`/cases/${caseItem.id}`} className="group block">
-        <ProductCaseImage
-          src={caseItem.productImageUrl}
-          alt={caseItem.productName}
-          className="mb-3 h-40 w-full"
-        />
+        <div className="mb-3">
+          <ProductCaseImage
+            src={caseItem.productImageUrl}
+            alt={caseItem.productName}
+            size="card"
+          />
+        </div>
         <p className="font-mono text-xs font-medium text-teal">
           {caseItem.caseNumber}
         </p>

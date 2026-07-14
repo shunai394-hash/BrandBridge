@@ -22,7 +22,7 @@ SQL Editor で **番号順** に実行:
 8. `supabase/migrations/008_contact_inquiries.sql`
 9. `supabase/migrations/009_maker_registration.sql`
 10. `supabase/migrations/010_partner_profile.sql`
-11. （以降番号順）`011`〜`017` まで適用。`016`/`017` で表示用案件番号 `BB-000001` を採番・既存行へ再付番
+11. （以降番号順）`011`〜`021` まで適用。`020` 件名、`021` 案件テキスト項目の重複解消（summary / features / description）
 
 実行後の確認例:
 
@@ -69,7 +69,10 @@ Authentication → URL Configuration:
 - [ ] 会社・商品などの詳細は **認証後の setup のみ** で保存（認証前保存・旧5STEP登録は廃止）
 - [ ] パスワードリセット: Redirect で `/auth/callback?next=/login/update-password` が通ること
 - [ ] Google の Authorized redirect URI に Supabase の callback（`https://<project>.supabase.co/auth/v1/callback`）を設定
-- [ ] （任意）Storage バケット `product-images` が作成されている（009 実行後）
+- [ ] Storage バケット `product-images` が作成されている（009 実行後）
+- [ ] Storage バケット `negotiation-attachments`（private）が作成されている（018 実行後）
+- [ ] 022: 交渉開始時の添付アップロード用に storage insert RLS を更新（pending でも party 可）
+- [ ] Google OAuth 失敗時: ログイン画面に日本語エラーが出ること（Provider 未設定 / Redirect 不一致を想定）
 
 ## 4. API / キー
 

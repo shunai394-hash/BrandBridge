@@ -8,25 +8,52 @@ import {
 
 /**
  * Supabase Auth callback (email confirm / OAuth / password recovery).
- * No pre-auth drafts. Role + onboarding decide destination.
+ * Handles Google OAuth errors from the provider query string.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
   const origin = url.origin;
+  const code = url.searchParams.get("code");
+  const oauthError = url.searchParams.get("error");
+  const oauthDescription =
+    url.searchParams.get("error_description") ??
+    url.searchParams.get("error_code");
   const requestedNext = url.searchParams.get("next");
   const intentRole = url.searchParams.get("intent_role");
 
+  // Provider / user cancelled / misconfigured Google OAuth
+  if (oauthError) {
+    console.error("[auth/callback] oauth provider error", {
+      oauthError,
+      oauthDescription,
+    });
+    const params = new URLSearchParams({
+      error: "oauth",
+      provider: "google",
+    });
+    if (oauthDescription) {
+      params.set("detail", oauthDescription.replace(/\+/g, " "));
+    } else {
+      params.set("detail", oauthError);
+    }
+    return NextResponse.redirect(`${origin}/login?${params.toString()}`);
+  }
+
   if (!code) {
-    return NextResponse.redirect(`${origin}/login?error=auth_callback`);
+    return NextResponse.redirect(
+      `${origin}/login?error=oauth&provider=google&detail=${encodeURIComponent(
+        "認証コードがありません。Googleログインをやり直してください。",
+      )}`,
+    );
   }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error("[auth/callback] exchange failed", error.message);
+    const hint = mapExchangeError(error.message);
     return NextResponse.redirect(
-      `${origin}/login?error=auth_callback&detail=${encodeURIComponent(error.message)}`,
+      `${origin}/login?error=oauth&provider=google&detail=${encodeURIComponent(hint)}`,
     );
   }
 
@@ -42,6 +69,33 @@ export async function GET(request: Request) {
 
   const destination = await resolvePostAuthPath(requestedNext);
   return NextResponse.redirect(`${origin}${destination}`);
+}
+
+function mapExchangeError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("provider is not enabled") || lower.includes("unsupported provider")) {
+    return "Googleプロバイダが有効ではありません。Supabase Authentication → Providers → Google を有効にしてください。";
+  }
+  if (lower.includes("redirect") || lower.includes("redirect_uri")) {
+    return "リダイレクトURLが一致しません。Supabase の Redirect URLs に /auth/callback を追加してください。";
+  }
+  if (lower.includes("invalid flow state") || lower.includes("pkce")) {
+    return "認証セッションが無効です。もう一度 Google でログインしてください。";
+  }
+  return message;
+}
+
+function isGoogleUser(user: {
+  app_metadata?: { provider?: string; providers?: string[] | string };
+  identities?: Array<{ provider?: string }>;
+}): boolean {
+  const providers =
+    user.app_metadata?.providers ??
+    (user.app_metadata?.provider ? [user.app_metadata.provider] : []);
+  if (Array.isArray(providers) && providers.includes("google")) return true;
+  if (providers === "google") return true;
+  if (user.app_metadata?.provider === "google") return true;
+  return Boolean(user.identities?.some((i) => i.provider === "google"));
 }
 
 async function applyIntentRoleIfNeeded(intentRoleRaw: string | null) {
@@ -83,24 +137,22 @@ async function resolvePostAuthPath(requestedNext: string | null) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) return "/login";
+  if (!user) return "/login?error=oauth&detail=セッション取得に失敗しました";
 
-  // Email users must be confirmed (Google OAuth is treated as verified)
-  const providers =
-    user.app_metadata?.providers ??
-    (user.app_metadata?.provider ? [user.app_metadata.provider] : []);
-  const isGoogle = Array.isArray(providers)
-    ? providers.includes("google")
-    : providers === "google";
-  if (!isGoogle && !user.email_confirmed_at) {
+  // Email/password users must be confirmed; Google OAuth is treated as verified
+  if (!isGoogleUser(user) && !user.email_confirmed_at) {
     return "/login?error=email_unconfirmed";
   }
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, onboarding_completed")
+    .select("role, onboarding_completed, is_active")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (profile?.is_active === false) {
+    return "/login?error=ACCOUNT_INACTIVE";
+  }
 
   const role =
     (profile?.role as string | undefined) ??

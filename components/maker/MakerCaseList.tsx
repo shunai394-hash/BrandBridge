@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { withdrawCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import {
@@ -63,7 +62,6 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
           <thead className="border-b border-border bg-cream/50 text-xs text-muted">
             <tr>
               <th className={caseNumberHeaderClassName()}>案件番号</th>
-              <th className="px-4 py-3 font-medium">商品画像</th>
               <th className="px-4 py-3 font-medium">商品名</th>
               <th className="px-4 py-3 font-medium">状態</th>
               <th className="px-4 py-3 font-medium">応募件数</th>
@@ -87,12 +85,6 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
                   className="border-b border-border last:border-0"
                 >
                   <td className={caseNumberClassName()}>{item.caseNumber}</td>
-                  <td className="px-4 py-3">
-                    <ProductCaseImage
-                      src={item.productImageUrl}
-                      alt={item.productName}
-                    />
-                  </td>
                   <td className="px-4 py-3 font-medium text-navy">
                     {item.productName}
                   </td>

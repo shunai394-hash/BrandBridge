@@ -127,6 +127,7 @@ export function CaseList({
                   >
                     <td className={caseNumberClassName()}>{item.caseNumber}</td>
                     <td className="px-4 py-3">
+                      {/* 商品名のみ詳細へ（行全体のクリック遷移はしない） */}
                       <Link
                         href={`/cases/${item.id}`}
                         className="font-medium text-navy hover:text-teal hover:underline"
@@ -152,10 +153,13 @@ export function CaseList({
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Button href={`/cases/${item.id}`} variant="ghost">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Link
+                          href={`/cases/${item.id}`}
+                          className="text-sm font-medium text-teal hover:underline"
+                        >
                           詳細
-                        </Button>
+                        </Link>
                         <Button href={negotiateHref}>交渉する</Button>
                       </div>
                     </td>

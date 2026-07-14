@@ -1,98 +1,70 @@
 "use client";
 
-import { FormEvent, useState, type ReactNode } from "react";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { createCaseAction } from "@/lib/actions";
+import { adminUpdateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
-import { ProductImageField } from "@/components/forms/ProductImageField";
+import { caseToFormInput } from "@/lib/case-field-normalize";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
-  caseRegions,
   salesFormatOptions,
   targetCountryOptions,
+  type Case,
   type CaseCreateInput,
+  type SalesFormat,
+  type TargetCountry,
 } from "@/lib/types";
 
-const initial: CaseCreateInput = {
-  title: "",
-  category: "美容・コスメ",
-  region: "全国",
-  summary: "",
-  description: "",
-  idealPartner: "",
-  offer: "",
-  productName: "",
-  productFeatures: "",
-  priceBand: "",
-  salesFormat: "wholesale",
-  salesTerms: "",
-  minOrder: "",
-  isExclusive: false,
-  targetCountry: "JP",
-  partnerChannels: "",
-  partnerRequirements: "",
-  productImageUrl: null,
-};
-
 const categoryOptions = caseCategories.filter((c) => c !== "すべて");
-const regionOptions = caseRegions.filter((r) => r !== "すべて");
-
 const selectClass =
   "w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20";
 
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-}
+type AdminCaseEditFormProps = {
+  caseItem: Case;
+};
 
-export function CaseCreateForm() {
-  const [form, setForm] = useState<CaseCreateInput>(initial);
+export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
+  const router = useRouter();
+  const [form, setForm] = useState<CaseCreateInput>(() =>
+    caseToFormInput(caseItem),
+  );
   const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
 
   function update<K extends keyof CaseCreateInput>(
     key: K,
     value: CaseCreateInput[K],
   ) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setSaved(false);
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (imageUploading) {
-      setError("画像のアップロード完了を待ってから保存してください");
-      return;
-    }
     setError("");
+    setSaved(false);
     setLoading(true);
 
     try {
-      const result = await createCaseAction({
+      const result = await adminUpdateCaseAction(caseItem.id, {
         ...form,
+        productName: form.productName.trim(),
         productImageUrl: form.productImageUrl?.trim() || null,
       });
       if (result?.error) {
         setError(result.error);
+        return;
       }
+      setSaved(true);
+      router.refresh();
     } catch (err) {
       if (isRedirectError(err)) throw err;
       setError(
-        `登録処理でエラーが発生しました: ${
+        `保存に失敗しました: ${
           err instanceof Error ? err.message : String(err)
         }`,
       );
@@ -103,15 +75,26 @@ export function CaseCreateForm() {
 
   return (
     <form onSubmit={handleSubmit} className="animate-fade-up space-y-6">
-      <Section title="基本情報">
+      <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
+        <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+          商品情報
+        </h2>
+        <p className="text-xs text-muted">
+          案件番号{" "}
+          <span className="font-mono text-teal">{caseItem.caseNumber}</span>
+          {" ・ "}
+          DBの値をそのまま表示（自動コピー・自動補完なし）。
+        </p>
+
         <Input
-          label="案件タイトル"
-          name="title"
+          label="商品名"
+          name="productName"
           required
-          maxLength={CASE_TEXT_LIMITS.title}
-          value={form.title}
-          onChange={(e) => update("title", e.target.value)}
+          maxLength={CASE_TEXT_LIMITS.productName}
+          value={form.productName}
+          onChange={(e) => update("productName", e.target.value)}
         />
+
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">カテゴリ</span>
           <select
@@ -127,13 +110,14 @@ export function CaseCreateForm() {
             ))}
           </select>
         </label>
+
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">対象国・市場</span>
+          <span className="font-medium text-navy">原産国</span>
           <select
             className={selectClass}
             value={form.targetCountry}
             onChange={(e) =>
-              update("targetCountry", e.target.value as CaseCreateInput["targetCountry"])
+              update("targetCountry", e.target.value as TargetCountry)
             }
             required
           >
@@ -144,96 +128,63 @@ export function CaseCreateForm() {
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">募集エリア（補足）</span>
-          <select
-            className={selectClass}
-            value={form.region}
-            onChange={(e) => update("region", e.target.value)}
-            required
-          >
-            {regionOptions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </label>
-      </Section>
 
-      <Section title="商品情報">
-        <p className="text-xs text-muted">
-          サマリー・特徴・説明は役割が異なります。同じ文章を3箇所に入れないでください。
-        </p>
-        <Input
-          label="商品・ブランド名"
-          name="productName"
-          required
-          maxLength={CASE_TEXT_LIMITS.productName}
-          value={form.productName}
-          onChange={(e) => update("productName", e.target.value)}
-        />
-        <ProductImageField
-          label="商品画像"
-          value={form.productImageUrl ?? null}
-          onChange={(url) => update("productImageUrl", url)}
-          onUploadingChange={setImageUploading}
-          disabled={loading}
-        />
         <TextArea
-          label="一覧用サマリー（短文）"
+          label="一覧用サマリー"
           name="summary"
           required
           rows={2}
           maxLength={CASE_TEXT_LIMITS.summary}
           value={form.summary}
           onChange={(e) => update("summary", e.target.value)}
-          placeholder="一覧に出す1〜2文"
+          placeholder="summary: 一覧用短文のみ"
         />
         <p className="text-xs text-muted">
-          一覧表示用の短文。（{form.summary.length}/{CASE_TEXT_LIMITS.summary}）
+          summary（一覧用短文）。詳細説明を入れない。（{form.summary.length}/
+          {CASE_TEXT_LIMITS.summary}）
         </p>
+
         <TextArea
-          label="商品の特徴・差別化ポイント"
+          label="商品特徴"
           name="productFeatures"
-          rows={3}
+          rows={4}
           maxLength={CASE_TEXT_LIMITS.productFeatures}
           value={form.productFeatures}
           onChange={(e) => update("productFeatures", e.target.value)}
-          placeholder="競合との違い・独自性"
+          placeholder="product_features: 商品の特徴"
         />
+        <p className="text-xs text-muted">
+          product_features。空欄なら特徴を入力して保存してください。
+        </p>
+
         <TextArea
-          label="商品説明（詳細）"
+          label="商品説明"
           name="description"
           required
-          rows={6}
+          rows={5}
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          placeholder="詳細な商品説明"
+          placeholder="description: 詳細説明のみ"
         />
         <p className="text-xs text-muted">
-          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
+          description（詳細説明のみ）。一覧用サマリーとは別内容に。
         </p>
-        <Input
-          label="想定価格帯"
-          name="priceBand"
-          placeholder="例: 小売 3,000〜5,000円"
-          maxLength={CASE_TEXT_LIMITS.priceBand}
-          value={form.priceBand}
-          onChange={(e) => update("priceBand", e.target.value)}
-        />
-      </Section>
+      </section>
 
-      <Section title="販売条件">
-        <p className="text-xs text-muted">各項目を個別に入力してください。</p>
+      <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
+        <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+          販売条件
+        </h2>
+        <p className="text-xs text-muted">各項目を個別に管理します。</p>
+
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">販売形式</span>
           <select
             className={selectClass}
             value={form.salesFormat}
             onChange={(e) =>
-              update("salesFormat", e.target.value as CaseCreateInput["salesFormat"])
+              update("salesFormat", e.target.value as SalesFormat)
             }
             required
           >
@@ -244,6 +195,7 @@ export function CaseCreateForm() {
             ))}
           </select>
         </label>
+
         <fieldset className="space-y-2">
           <legend className="text-sm font-medium text-navy">独占可否</legend>
           <label className="flex items-center gap-2 text-sm">
@@ -262,73 +214,74 @@ export function CaseCreateForm() {
               checked={!form.isExclusive}
               onChange={() => update("isExclusive", false)}
             />
-            非独占（複数パートナー可）
+            非独占
           </label>
         </fieldset>
+
         <Input
           label="最小発注数量"
           name="minOrder"
-          maxLength={CASE_TEXT_LIMITS.minOrder}
           value={form.minOrder}
           onChange={(e) => update("minOrder", e.target.value)}
           placeholder="例: 初回 100個〜"
         />
+
         <Input
           label="販売チャネル"
           name="partnerChannels"
-          placeholder="例: 実店舗 / EC / 卸"
-          maxLength={CASE_TEXT_LIMITS.partnerChannels}
           value={form.partnerChannels}
           onChange={(e) => update("partnerChannels", e.target.value)}
+          placeholder="例: 実店舗 / EC / 卸"
         />
+
         <TextArea
           label="その他の取引条件（任意）"
           name="salesTerms"
           rows={3}
-          maxLength={CASE_TEXT_LIMITS.salesTerms}
           value={form.salesTerms}
           onChange={(e) => update("salesTerms", e.target.value)}
         />
+
+        <Input
+          label="想定価格帯"
+          name="priceBand"
+          value={form.priceBand}
+          onChange={(e) => update("priceBand", e.target.value)}
+        />
+
         <TextArea
           label="メーカー提供条件"
           name="offer"
           required
-          maxLength={CASE_TEXT_LIMITS.offer}
+          rows={3}
           value={form.offer}
           onChange={(e) => update("offer", e.target.value)}
         />
-      </Section>
-
-      <Section title="希望パートナー条件">
-        <TextArea
-          label="必須実績・資格・体制"
-          name="partnerRequirements"
-          rows={3}
-          maxLength={CASE_TEXT_LIMITS.partnerRequirements}
-          value={form.partnerRequirements}
-          onChange={(e) => update("partnerRequirements", e.target.value)}
-        />
-        <TextArea
-          label="求めるパートナー像"
-          name="idealPartner"
-          required
-          maxLength={CASE_TEXT_LIMITS.idealPartner}
-          value={form.idealPartner}
-          onChange={(e) => update("idealPartner", e.target.value)}
-        />
-      </Section>
+      </section>
 
       {error ? (
         <p
-          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
           role="alert"
         >
           {error}
         </p>
       ) : null}
-      <Button type="submit" disabled={loading || imageUploading}>
-        {loading ? "提出中..." : "審査に提出する"}
-      </Button>
+      {saved ? (
+        <p className="text-sm text-teal">保存しました。</p>
+      ) : null}
+
+      <div className="flex flex-wrap gap-3">
+        <Button type="submit" disabled={loading}>
+          {loading ? "保存中..." : "保存する"}
+        </Button>
+        <Button href={`/admin/cases/${caseItem.id}`} variant="outline">
+          審査画面へ
+        </Button>
+        <Button href="/admin/cases" variant="ghost">
+          一覧へ
+        </Button>
+      </div>
     </form>
   );
 }

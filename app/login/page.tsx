@@ -55,6 +55,13 @@ function messageFromParams(params: {
           ? `認証コールバックに失敗しました: ${params.detail}`
           : "認証コールバックに失敗しました。もう一度お試しください。",
       };
+    case "oauth":
+      return {
+        kind: "login",
+        text: params.detail
+          ? `Googleログインに失敗しました: ${params.detail}`
+          : "Googleログインに失敗しました。Supabase で Google Provider が有効か、Redirect URLs に /auth/callback があるかを確認してください。",
+      };
     default:
       return { kind: "", text: "" };
   }

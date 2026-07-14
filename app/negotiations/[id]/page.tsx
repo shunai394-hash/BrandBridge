@@ -3,7 +3,10 @@ import { notFound, redirect } from "next/navigation";
 import { NegotiationDetail } from "@/components/negotiations/NegotiationDetail";
 import { getSessionUser } from "@/lib/auth";
 import { listMessages } from "@/lib/messages";
-import { getNegotiationById } from "@/lib/negotiations";
+import {
+  getNegotiationById,
+  markNegotiationRead,
+} from "@/lib/negotiations";
 
 type NegotiationDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -17,12 +20,13 @@ export async function generateMetadata({
   const { id } = await params;
   const user = await getSessionUser();
   if (!user) {
-    return { title: "交渉詳細" };
+    return { title: "交渉スレッド" };
   }
 
   const item = await getNegotiationById(id, user);
+  if (!item) return { title: "交渉スレッド" };
   return {
-    title: item ? item.caseTitle : "交渉詳細",
+    title: item.topic,
   };
 }
 
@@ -41,10 +45,9 @@ export default async function NegotiationDetailPage({
     notFound();
   }
 
-  const messages =
-    item.applicationStatus === "accepted"
-      ? await listMessages(item.id, user.id)
-      : [];
+  await markNegotiationRead(item.id, user.id);
+
+  const messages = await listMessages(item.id, user.id);
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">

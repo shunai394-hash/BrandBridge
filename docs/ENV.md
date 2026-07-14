@@ -73,7 +73,11 @@ Project → Settings → Environment Variables に以下を追加:
 | Authentication → Providers → Email | 有効 + **Confirm email ON** |
 | Authentication → Providers → Google | 有効（OAuth Client 設定） |
 | Redirect URLs | `{SITE_URL}/auth/callback` と `{SITE_URL}/**` |
+| Google Cloud OAuth | Authorized redirect URI に `https://<project>.supabase.co/auth/v1/callback` |
 | パスワードリセット | メールテンプレートのリンクが `/auth/callback` 経由になること |
+| Storage | `product-images`（公開） / `negotiation-attachments`（非公開・018） |
+
+Google ログイン失敗時は `/login?error=oauth` に日本語メッセージを出します（Provider 未有効・Redirect 不一致など）。
 
 role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/auth/callback` とログイン後リダイレクトで行います。
 

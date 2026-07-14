@@ -127,6 +127,7 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                         <ProductCaseImage
                           src={item.productImageUrl}
                           alt={item.productName}
+                          size="thumb"
                         />
                       </Link>
                     </td>
@@ -158,32 +159,40 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      {canReview ? (
-                        <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-2">
+                        {canReview ? (
+                          <>
+                            <Button
+                              type="button"
+                              onClick={() => review(item.id, "approved")}
+                              disabled={busy}
+                            >
+                              {busy ? "..." : "承認"}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => review(item.id, "rejected")}
+                              disabled={busy}
+                            >
+                              {busy ? "..." : "不承認"}
+                            </Button>
+                          </>
+                        ) : (
                           <Button
-                            type="button"
-                            onClick={() => review(item.id, "approved")}
-                            disabled={busy}
+                            href={`/admin/cases/${item.id}`}
+                            variant="ghost"
                           >
-                            {busy ? "..." : "承認"}
+                            詳細
                           </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => review(item.id, "rejected")}
-                            disabled={busy}
-                          >
-                            {busy ? "..." : "不承認"}
-                          </Button>
-                        </div>
-                      ) : (
+                        )}
                         <Button
-                          href={`/admin/cases/${item.id}`}
-                          variant="ghost"
+                          href={`/admin/cases/${item.id}/edit`}
+                          variant="outline"
                         >
-                          詳細
+                          編集
                         </Button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 );

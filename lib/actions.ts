@@ -10,12 +10,17 @@ import {
   requirePartner,
 } from "@/lib/auth";
 import { reviewCase, setUserActive } from "@/lib/admin";
-import { createCase, updateCase, withdrawCase } from "@/lib/cases";
+import {
+  adminUpdateCase,
+  createCase,
+  updateCase,
+  withdrawCase,
+} from "@/lib/cases";
 import { toggleFavorite } from "@/lib/favorites";
 import { sendMessage } from "@/lib/messages";
 import {
-  createNegotiation,
   getNegotiationById,
+  markNegotiationRead,
   updateNegotiationStatus,
   updatePipelineStatus,
 } from "@/lib/negotiations";
@@ -65,11 +70,24 @@ export async function completeMakerSetupAction(
     return { error: "メーカーアカウントでのみ登録できます" };
   }
 
+  const imageUrl = input.productImageUrl?.trim() || null;
+  console.info("[completeMakerSetupAction] start", {
+    makerId: maker.id,
+    productName: input.productName,
+    has_product_image_url: Boolean(imageUrl),
+    product_image_url_len: imageUrl?.length ?? 0,
+  });
+
   const caseInput = caseInputFromRegistration({
     ...input,
     email: maker.email,
     password: "",
+    productImageUrl: imageUrl,
   });
+
+  if (imageUrl && caseInput.productImageUrl !== imageUrl) {
+    caseInput.productImageUrl = imageUrl;
+  }
 
   const supabase = await createClient();
 
@@ -106,14 +124,42 @@ export async function completeMakerSetupAction(
     makerId: maker.id,
   });
 
+  // Pass image URL explicitly — do not rely on nested draft mapping alone
+  caseInput.productImageUrl = imageUrl;
+
   const result = await createCase(maker.id, caseInput);
   if ("error" in result) {
     console.error("[completeMakerSetupAction] case insert failed", {
       table: "cases",
       makerId: maker.id,
       error: result.error,
+      had_image_url: Boolean(imageUrl),
     });
     return { error: result.error };
+  }
+
+  // Belt-and-suspenders: dedicated column update after create
+  if (imageUrl && result.id) {
+    const { data: imgRow, error: imgError } = await supabase
+      .from("cases")
+      .update({ product_image_url: imageUrl })
+      .eq("id", result.id)
+      .eq("maker_id", maker.id)
+      .select("product_image_url")
+      .maybeSingle();
+
+    if (imgError || imgRow?.product_image_url !== imageUrl) {
+      console.error("[completeMakerSetupAction] image url verify failed", {
+        caseId: result.id,
+        error: imgError?.message,
+        saved: imgRow?.product_image_url,
+      });
+      return {
+        error:
+          imgError?.message ??
+          "商品画像URLの保存に失敗しました。案件は作成済みのため編集画面から画像を再設定してください。",
+      };
+    }
   }
 
   const { error: onboardError } = await supabase
@@ -202,7 +248,10 @@ export async function createCaseAction(
     return { error: "メーカーアカウントでのみ案件を登録できます" };
   }
 
-  const result = await createCase(maker.id, input);
+  const result = await createCase(maker.id, {
+    ...input,
+    productImageUrl: input.productImageUrl?.trim() || null,
+  });
   if ("error" in result) {
     return { error: result.error };
   }
@@ -221,7 +270,10 @@ export async function updateCaseAction(
   } = await (await createClient()).auth.getUser();
   if (!user) redirect("/login");
 
-  const result = await updateCase(caseId, input);
+  const result = await updateCase(caseId, {
+    ...input,
+    productImageUrl: input.productImageUrl?.trim() || null,
+  });
   if (result.error) return { error: result.error };
 
   revalidatePath("/cases");
@@ -229,6 +281,99 @@ export async function updateCaseAction(
   revalidatePath(`/maker/cases/${caseId}/edit`);
   revalidatePath(`/cases/${caseId}`);
   redirect("/maker/cases");
+}
+
+/** Admin: full case content edit (incl. product_image_url) */
+export async function adminUpdateCaseAction(
+  caseId: string,
+  input: CaseCreateInput,
+): Promise<{ error?: string }> {
+  try {
+    await requireAdmin();
+  } catch (e) {
+    const message = authErrorMessage(e);
+    if (message === "UNAUTHORIZED") return { error: "ログインが必要です" };
+    return { error: "管理者のみ編集できます" };
+  }
+
+  const result = await adminUpdateCase(caseId, {
+    ...input,
+    productImageUrl: input.productImageUrl?.trim() || null,
+  });
+  if (result.error) return { error: result.error };
+
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath("/admin/cases");
+  revalidatePath(`/admin/cases/${caseId}`);
+  revalidatePath(`/admin/cases/${caseId}/edit`);
+  revalidatePath("/maker/cases");
+  return {};
+}
+
+/** Admin or owning maker: set cases.product_image_url only (works from NULL). */
+export async function updateCaseProductImageAction(input: {
+  caseId: string;
+  productImageUrl: string | null;
+}): Promise<{ error?: string }> {
+  const session = await getSessionUser();
+  if (!session) return { error: "ログインが必要です" };
+  if (!session.isActive) return { error: "アカウントが停止されています" };
+
+  const imageUrl = input.productImageUrl?.trim() || null;
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("cases")
+    .update({ product_image_url: imageUrl })
+    .eq("id", input.caseId);
+
+  // Makers may only update their own cases; admin may update any
+  if (session.role !== "admin") {
+    query = query.eq("maker_id", session.id);
+  }
+
+  const { data, error } = await query
+    .select("id, product_image_url, maker_id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[updateCaseProductImageAction]", error.message);
+    return { error: `画像URLの保存に失敗しました: ${error.message}` };
+  }
+  if (!data) {
+    return {
+      error:
+        "案件を更新できません。権限がないか、案件IDが不正です。",
+    };
+  }
+
+  // Verify write landed (including first-time NULL → URL)
+  const savedUrl =
+    (data.product_image_url as string | null | undefined)?.trim() || null;
+  if (savedUrl !== imageUrl) {
+    console.error("[updateCaseProductImageAction] mismatch", {
+      expected: imageUrl,
+      saved: data.product_image_url,
+    });
+    return { error: "画像URLがDBに反映されませんでした。再試行してください。" };
+  }
+
+  console.info("[updateCaseProductImageAction] ok", {
+    caseId: data.id,
+    product_image_url: data.product_image_url,
+    by: session.id,
+    role: session.role,
+  });
+
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${input.caseId}`);
+  revalidatePath("/maker/cases");
+  revalidatePath(`/maker/cases/${input.caseId}/edit`);
+  revalidatePath("/admin/cases");
+  revalidatePath(`/admin/cases/${input.caseId}`);
+  revalidatePath(`/admin/cases/${input.caseId}/edit`);
+  return {};
 }
 
 export async function withdrawCaseAction(
@@ -248,35 +393,6 @@ export async function withdrawCaseAction(
   return {};
 }
 
-export async function createNegotiationAction(input: {
-  caseId: string;
-  message?: string;
-}): Promise<{ error?: string; success?: boolean }> {
-  let partner;
-  try {
-    partner = await requirePartner();
-  } catch (e) {
-    const message = authErrorMessage(e);
-    if (message === "UNAUTHORIZED") return { error: "LOGIN_REQUIRED" };
-    if (message === "ACCOUNT_INACTIVE") {
-      return { error: "アカウントが停止されています" };
-    }
-    return { error: "販売パートナーのみ交渉を申し込めます" };
-  }
-
-  const result = await createNegotiation({
-    caseId: input.caseId,
-    partnerId: partner.id,
-    message: input.message,
-  });
-
-  if ("error" in result) {
-    return { error: result.error };
-  }
-
-  return { success: true };
-}
-
 export async function acceptNegotiationAction(
   negotiationId: string,
 ): Promise<{ error?: string }> {
@@ -292,6 +408,8 @@ export async function acceptNegotiationAction(
   if (result.error) return { error: result.error };
 
   revalidatePath("/negotiations");
+  revalidatePath("/maker/negotiations");
+  revalidatePath("/partner/negotiations");
   revalidatePath(`/negotiations/${negotiationId}`);
   return {};
 }
@@ -311,6 +429,8 @@ export async function rejectNegotiationAction(
   if (result.error) return { error: result.error };
 
   revalidatePath("/negotiations");
+  revalidatePath("/maker/negotiations");
+  revalidatePath("/partner/negotiations");
   revalidatePath(`/negotiations/${negotiationId}`);
   return {};
 }
@@ -318,6 +438,12 @@ export async function rejectNegotiationAction(
 export async function sendMessageAction(input: {
   negotiationId: string;
   body: string;
+  attachment?: {
+    path: string;
+    name: string;
+    mime: string;
+    size: number;
+  } | null;
 }): Promise<{ error?: string }> {
   let user;
   try {
@@ -339,13 +465,19 @@ export async function sendMessageAction(input: {
     negotiationId: input.negotiationId,
     senderId: user.id,
     body: input.body,
+    attachment: input.attachment ?? null,
   });
 
   if ("error" in result) {
     return { error: result.error };
   }
 
+  await markNegotiationRead(input.negotiationId, user.id);
+
   revalidatePath(`/negotiations/${input.negotiationId}`);
+  revalidatePath("/maker/negotiations");
+  revalidatePath("/partner/negotiations");
+  revalidatePath("/negotiations");
   return {};
 }
 

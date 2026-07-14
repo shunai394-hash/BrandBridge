@@ -39,40 +39,19 @@ export function CaseDetailView({
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
-  const ingredients =
-    caseItem.productFeatures?.trim() || "成分情報はまだ登録されていません。";
   const description =
     caseItem.description?.trim() || "商品説明はまだ登録されていません。";
-
-  const salesTermsLines = [
-    `販売形式: ${salesFormatLabel(caseItem.salesFormat)}`,
-    `独占可否: ${caseItem.isExclusive ? "独占可" : "非独占（複数パートナー可）"}`,
-    caseItem.salesTerms?.trim()
-      ? `取引条件:\n${caseItem.salesTerms.trim()}`
-      : null,
-    caseItem.minOrder?.trim()
-      ? `最小発注・初期ロット: ${caseItem.minOrder.trim()}`
-      : null,
-    caseItem.offer?.trim() ? `メーカー提供条件:\n${caseItem.offer.trim()}` : null,
-    caseItem.partnerChannels?.trim()
-      ? `希望チャネル: ${caseItem.partnerChannels.trim()}`
-      : null,
-    caseItem.partnerRequirements?.trim()
-      ? `必須実績・体制:\n${caseItem.partnerRequirements.trim()}`
-      : null,
-    caseItem.idealPartner?.trim()
-      ? `求めるパートナー像:\n${caseItem.idealPartner.trim()}`
-      : null,
-    caseItem.priceBand?.trim()
-      ? `想定価格帯: ${caseItem.priceBand.trim()}`
-      : null,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const features = caseItem.productFeatures?.trim() || "";
+  const hasImage = Boolean(caseItem.productImageUrl?.trim());
 
   return (
     <article className="animate-fade-up">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      {/* 最上部: 案件番号 */}
+      <p className="font-mono text-sm font-medium tracking-wide text-teal md:text-base">
+        {caseItem.caseNumber}
+      </p>
+
+      <div className="mt-4 mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link href="/cases" className="text-sm text-teal hover:underline">
           ← 案件一覧に戻る
         </Link>
@@ -97,49 +76,91 @@ export function CaseDetailView({
         </div>
       ) : null}
 
-      <p className="text-xs font-medium tracking-wide text-muted">案件番号</p>
-      <p className="mt-1 font-mono text-lg font-medium text-teal">
-        {caseItem.caseNumber}
-      </p>
+      {/* 表示順: 画像 → 商品情報 */}
+      <header className="space-y-5">
+        <div>
+          <p className="mb-2 text-xs font-medium tracking-wide text-muted">
+            商品画像
+          </p>
+          <ProductCaseImage
+            src={caseItem.productImageUrl}
+            alt={caseItem.productName}
+            size="detail"
+          />
+          {!hasImage ? (
+            <p className="mt-1.5 text-xs text-muted">画像未登録</p>
+          ) : null}
+        </div>
 
-      <div className="mt-6">
-        <p className="mb-2 text-xs font-medium tracking-wide text-muted">
-          商品画像
-        </p>
-        <ProductCaseImage
-          src={caseItem.productImageUrl}
-          alt={caseItem.productName}
-          className="aspect-[4/3] h-auto w-full max-w-3xl md:aspect-[16/10]"
-          imageClassName="object-cover"
-        />
-      </div>
+        <dl>
+          <InfoRow label="商品名" value={caseItem.productName} />
+          <InfoRow label="カテゴリ" value={caseItem.category} />
+          <InfoRow
+            label="原産国"
+            value={targetCountryLabel(caseItem.targetCountry)}
+          />
+        </dl>
+      </header>
 
-      <dl className="mt-8">
-        <InfoRow label="商品名" value={caseItem.productName} />
-        <InfoRow label="カテゴリ" value={caseItem.category} />
-        <InfoRow
-          label="原産国"
-          value={targetCountryLabel(caseItem.targetCountry)}
-        />
+      <dl className="mt-2">
+        {caseItem.summary?.trim() ? (
+          <InfoRow label="一覧用サマリー" value={caseItem.summary.trim()} />
+        ) : null}
+        {features ? (
+          <InfoRow label="差別化ポイント" value={features} />
+        ) : null}
+        <InfoRow label="商品説明" value={description} />
         <InfoRow
           label="販売形式"
           value={salesFormatLabel(caseItem.salesFormat)}
         />
-        <InfoRow label="商品説明" value={description} />
-        <InfoRow label="成分情報" value={ingredients} />
         <InfoRow
-          label="販売条件"
-          value={salesTermsLines || "販売条件はまだ登録されていません。"}
+          label="独占可否"
+          value={
+            caseItem.isExclusive ? "独占可" : "非独占（複数パートナー可）"
+          }
         />
+        {caseItem.minOrder?.trim() ? (
+          <InfoRow label="最小発注数量" value={caseItem.minOrder.trim()} />
+        ) : null}
+        {caseItem.partnerChannels?.trim() ? (
+          <InfoRow label="販売チャネル" value={caseItem.partnerChannels.trim()} />
+        ) : null}
+        {caseItem.salesTerms?.trim() ? (
+          <InfoRow label="その他の取引条件" value={caseItem.salesTerms.trim()} />
+        ) : null}
+        {caseItem.priceBand?.trim() ? (
+          <InfoRow label="想定価格帯" value={caseItem.priceBand.trim()} />
+        ) : null}
+        {caseItem.offer?.trim() ? (
+          <InfoRow label="メーカー提供条件" value={caseItem.offer.trim()} />
+        ) : null}
+        {caseItem.partnerRequirements?.trim() ? (
+          <InfoRow
+            label="必須実績・体制"
+            value={caseItem.partnerRequirements.trim()}
+          />
+        ) : null}
+        {caseItem.idealPartner?.trim() ? (
+          <InfoRow
+            label="求めるパートナー像"
+            value={caseItem.idealPartner.trim()}
+          />
+        ) : null}
       </dl>
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
-        {alreadyApplied ? (
-          <Button href="/negotiations" variant="outline">
-            交渉管理を開く
-          </Button>
-        ) : canStartNegotiation ? (
-          <Button href={negotiateHref}>交渉する</Button>
+        {canStartNegotiation ? (
+          <>
+            <Button href={negotiateHref}>
+              {alreadyApplied ? "新しいテーマで交渉" : "交渉を開始"}
+            </Button>
+            {alreadyApplied ? (
+              <Button href="/partner/negotiations" variant="outline">
+                交渉一覧を開く
+              </Button>
+            ) : null}
+          </>
         ) : (
           <p className="text-sm text-muted">
             この案件は現在交渉を受け付けていません。

@@ -4,7 +4,8 @@ import { salesFormatOptions, targetCountryOptions } from "@/lib/types";
 /** Soft app-level limits (DB columns are unbounded `text`). */
 export const CASE_TEXT_LIMITS = {
   title: 200,
-  summary: 2000,
+  /** Listing card / table blurb — keep short */
+  summary: 280,
   description: 10000,
   productName: 200,
   productFeatures: 5000,
@@ -80,7 +81,7 @@ export function validateCaseCreateInput(
     return `案件タイトルは${CASE_TEXT_LIMITS.title}文字以内にしてください`;
   }
   if (n.summary.length > CASE_TEXT_LIMITS.summary) {
-    return `一覧用サマリーは${CASE_TEXT_LIMITS.summary}文字以内にしてください`;
+    return `一覧用サマリーは${CASE_TEXT_LIMITS.summary}文字以内の短文にしてください`;
   }
   if (n.description.length > CASE_TEXT_LIMITS.description) {
     return `商品説明は${CASE_TEXT_LIMITS.description}文字以内にしてください`;

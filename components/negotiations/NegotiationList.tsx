@@ -75,9 +75,14 @@ export function NegotiationList({ items }: NegotiationListProps) {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                      {item.caseTitle}
+                      {item.topic}
                     </p>
                     <p className="mt-1 text-sm text-muted">
+                      <span className="font-mono text-teal">{item.caseNumber}</span>
+                      {" · "}
+                      {item.productName}
+                    </p>
+                    <p className="mt-0.5 text-sm text-muted">
                       相手: {item.counterpartName}
                     </p>
                   </div>

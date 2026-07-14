@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminCaseReviewForm } from "@/components/admin/AdminCaseReviewForm";
+import { CaseImageUploader } from "@/components/forms/CaseImageUploader";
+import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/lib/cases";
 import {
   salesFormatLabel,
@@ -45,7 +47,15 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
         {salesFormatLabel(caseItem.salesFormat)}
       </p>
 
-      <section className="mt-8 space-y-4 rounded-lg border border-border bg-surface p-5 text-sm">
+      {/* 画像UIを詳細でも最上部に表示 */}
+      <div className="mt-8">
+        <CaseImageUploader
+          caseId={caseItem.id}
+          productImageUrl={caseItem.productImageUrl}
+        />
+      </div>
+
+      <section className="mt-6 space-y-4 rounded-lg border border-border bg-surface p-5 text-sm">
         <p>
           <span className="text-muted">商品名:</span> {caseItem.productName}
         </p>
@@ -57,6 +67,9 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
           <span className="text-muted">求めるパートナー:</span>{" "}
           {caseItem.idealPartner}
         </p>
+        <Button href={`/admin/cases/${caseItem.id}/edit`} className="mt-2">
+          商品情報を編集
+        </Button>
       </section>
 
       <AdminCaseReviewForm caseItem={caseItem} />

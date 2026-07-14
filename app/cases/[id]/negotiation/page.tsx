@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { NegotiationForm } from "@/components/forms/NegotiationForm";
 import { getSessionUser } from "@/lib/auth";
 import { getCaseById } from "@/lib/cases";
-import { hasAppliedToCase } from "@/lib/negotiations";
+import { listPartnerThreadsForCase } from "@/lib/negotiations";
 import {
   salesFormatLabel,
   targetCountryLabel,
@@ -36,20 +35,19 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
 
   const user = await getSessionUser();
 
-  // Guests → login, then return here
   if (!user) {
     redirect(
       `/login?next=${encodeURIComponent(`/cases/${id}/negotiation`)}`,
     );
   }
 
-  const alreadyApplied =
+  const existingThreads =
     user.role === "partner"
-      ? await hasAppliedToCase(caseItem.id, user.id)
-      : false;
+      ? await listPartnerThreadsForCase(caseItem.id, user.id)
+      : [];
 
   return (
-    <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
+    <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
       <Link
         href={`/cases/${caseItem.id}`}
         className="text-sm text-teal hover:underline"
@@ -57,32 +55,34 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
         ← 案件詳細に戻る
       </Link>
 
-      <header className="mt-6 flex gap-4">
-        <ProductCaseImage
-          src={caseItem.productImageUrl}
-          alt={caseItem.productName}
-          className="h-20 w-20 shrink-0"
-        />
-        <div>
-          <p className="font-mono text-sm font-medium text-teal">
-            {caseItem.caseNumber}
-          </p>
-          <h1 className="mt-1 font-[family-name:var(--font-shippori)] text-2xl text-navy">
-            交渉を開始
-          </h1>
-          <p className="mt-1 text-sm text-muted">{caseItem.productName}</p>
-          <p className="mt-2 text-xs text-muted">
-            {caseItem.category} ・{" "}
-            {targetCountryLabel(caseItem.targetCountry)} ・{" "}
-            {salesFormatLabel(caseItem.salesFormat)}
-          </p>
-        </div>
+      <header className="mt-6 mb-8">
+        <p className="font-mono text-sm font-medium text-teal">
+          {caseItem.caseNumber}
+        </p>
+        <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
+          交渉を開始
+        </h1>
+        <p className="mt-2 text-base font-medium text-navy">
+          {caseItem.productName}
+        </p>
+        <p className="mt-1 text-sm text-muted">
+          {caseItem.category} ・{" "}
+          {targetCountryLabel(caseItem.targetCountry)} ・{" "}
+          {salesFormatLabel(caseItem.salesFormat)}
+        </p>
+        <p className="mt-3 text-sm text-muted">
+          下のメール形式フォームで件名（必須）・本文・添付を送信します。
+        </p>
       </header>
 
+      {/* Email compose form: 件名 / 本文 / 添付 → startNegotiationAction */}
       <NegotiationForm
+        key={`email-form-${caseItem.id}`}
         caseId={caseItem.id}
+        caseNumber={caseItem.caseNumber}
+        productName={caseItem.productName}
         user={user}
-        alreadyApplied={alreadyApplied}
+        existingThreads={existingThreads}
       />
     </div>
   );

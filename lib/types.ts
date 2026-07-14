@@ -25,6 +25,7 @@ export type Negotiation = {
   case_id: string;
   partner_id: string;
   message: string | null;
+  topic: string | null;
   application_status: ApplicationStatus;
   pipeline_status: PipelineStatus | null;
   created_at: string;
@@ -38,11 +39,15 @@ export type NegotiationListItem = {
   pipelineStatus: PipelineStatus | null;
   /** @deprecated alias of applicationStatus */
   status: ApplicationStatus;
+  /** Thread subject (件名) */
+  topic: string;
   initialMessage: string | null;
   createdAt: string;
   updatedAt: string;
   caseId: string;
+  caseNumber: string;
   caseTitle: string;
+  productName: string;
   caseCategory: string;
   caseRegion: string;
   partnerId: string;
@@ -51,6 +56,11 @@ export type NegotiationListItem = {
   makerCompanyName: string;
   counterpartName: string;
   hasDeal?: boolean;
+  /** Unread messages (and pending attention for makers) */
+  unreadCount?: number;
+  messageCount?: number;
+  lastMessagePreview?: string | null;
+  lastMessageAt?: string | null;
 };
 
 export type Deal = {
@@ -260,14 +270,25 @@ export type Message = {
   created_at: string;
 };
 
+export type MessageAttachmentView = {
+  path: string;
+  name: string;
+  mime: string | null;
+  size: number | null;
+  /** Short-lived signed URL for download (private bucket) */
+  url: string | null;
+};
+
 export type MessageView = {
   id: string;
   negotiationId: string;
   senderId: string;
   senderName: string;
   body: string;
+  topic?: string | null;
   createdAt: string;
   isMine: boolean;
+  attachment?: MessageAttachmentView | null;
 };
 
 export type MakerProfileInput = {

@@ -185,6 +185,8 @@ export type EmployeeRange = (typeof employeeRanges)[number];
 export type CaseRow = {
   id: string;
   maker_id: string;
+  /** Display id e.g. BB-000001 (UUID remains internal PK) */
+  case_number: string;
   title: string;
   category: string;
   region: string;
@@ -215,6 +217,8 @@ export type CaseRow = {
 /** UI-facing case with maker display name and trust summary */
 export type Case = {
   id: string;
+  /** Display id e.g. BB-000001 */
+  caseNumber: string;
   makerId: string;
   title: string;
   makerName: string;
@@ -242,6 +246,10 @@ export type Case = {
   reviewStatus: ReviewStatus;
   reviewNote: string | null;
   createdAt: string;
+  /** Count of partner applications (negotiations) */
+  applicationCount?: number;
+  /** Count of negotiations in active pipeline (accepted+) */
+  negotiationCount?: number;
 };
 
 export type Message = {
@@ -430,7 +438,7 @@ export type SessionUser = {
 export const reviewStatusLabels: Record<ReviewStatus, string> = {
   pending_review: "審査待ち",
   approved: "承認済",
-  rejected: "却下",
+  rejected: "不承認",
   withdrawn: "取り下げ",
 };
 

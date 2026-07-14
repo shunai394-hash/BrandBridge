@@ -5,8 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { withdrawCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
+import {
+  caseNumberClassName,
+  caseNumberHeaderClassName,
+  casePublicStatusLabel,
+} from "@/lib/case-display";
 import type { Case } from "@/lib/types";
-import { reviewStatusLabels } from "@/lib/types";
 
 type MakerCaseListProps = {
   items: Case[];
@@ -45,52 +49,107 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
 
   return (
     <div className="space-y-4">
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <ul className="space-y-3">
-        {items.map((item) => {
-          const canEdit = item.reviewStatus !== "withdrawn";
-          const canWithdraw =
-            item.status === "open" && item.reviewStatus !== "withdrawn";
+      {error ? (
+        <p
+          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
+      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-border bg-cream/50 text-xs text-muted">
+            <tr>
+              <th className={caseNumberHeaderClassName()}>案件番号</th>
+              <th className="px-4 py-3 font-medium">商品画像</th>
+              <th className="px-4 py-3 font-medium">商品名</th>
+              <th className="px-4 py-3 font-medium">状態</th>
+              <th className="px-4 py-3 font-medium">応募件数</th>
+              <th className="px-4 py-3 font-medium">交渉件数</th>
+              <th className="px-4 py-3 font-medium">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => {
+              const canEdit = item.reviewStatus !== "withdrawn";
+              const canWithdraw =
+                item.status === "open" && item.reviewStatus !== "withdrawn";
+              const status = casePublicStatusLabel({
+                status: item.status,
+                reviewStatus: item.reviewStatus,
+              });
 
-          return (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4"
-            >
-              <div>
-                <Link
-                  href={`/cases/${item.id}`}
-                  className="font-medium text-navy hover:text-teal hover:underline"
+              return (
+                <tr
+                  key={item.id}
+                  className="border-b border-border last:border-0"
                 >
-                  {item.title}
-                </Link>
-                <p className="mt-1 text-xs text-muted">
-                  {item.productName} ・ {reviewStatusLabels[item.reviewStatus]} ・
-                  status={item.status}
-                </p>
-                <p className="mt-0.5 font-mono text-[11px] text-muted">{item.id}</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {canEdit ? (
-                  <Button href={`/maker/cases/${item.id}/edit`} variant="outline">
-                    編集
-                  </Button>
-                ) : null}
-                {canWithdraw ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    disabled={loadingId === item.id}
-                    onClick={() => withdraw(item.id)}
-                  >
-                    {loadingId === item.id ? "処理中..." : "取り下げ"}
-                  </Button>
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+                  <td className={caseNumberClassName()}>{item.caseNumber}</td>
+                  <td className="px-4 py-3">
+                    <div className="h-14 w-14 overflow-hidden rounded-md border border-border bg-cream">
+                      {item.productImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.productImageUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-[10px] text-muted">
+                          なし
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 font-medium text-navy">
+                    {item.productName}
+                  </td>
+                  <td className="px-4 py-3">
+                    {item.reviewStatus === "approved" &&
+                    item.status === "open" ? (
+                      <span className="text-teal">{status}</span>
+                    ) : item.reviewStatus === "rejected" ? (
+                      <span className="text-red-600">{status}</span>
+                    ) : (
+                      <span className="text-navy">{status}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">{item.applicationCount ?? 0}件</td>
+                  <td className="px-4 py-3">{item.negotiationCount ?? 0}件</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-2">
+                      {canEdit ? (
+                        <Button
+                          href={`/maker/cases/${item.id}/edit`}
+                          variant="outline"
+                        >
+                          編集
+                        </Button>
+                      ) : null}
+                      {canWithdraw ? (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          disabled={loadingId === item.id}
+                          onClick={() => withdraw(item.id)}
+                        >
+                          {loadingId === item.id ? "処理中..." : "取り下げ"}
+                        </Button>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-xs text-muted">
+        <Link href="/cases" className="text-teal hover:underline">
+          公開案件一覧へ
+        </Link>
+      </p>
     </div>
   );
 }

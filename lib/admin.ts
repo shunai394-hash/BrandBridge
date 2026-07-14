@@ -5,6 +5,7 @@ import type {
   PipelineStatus,
   Profile,
   ReviewStatus,
+  SalesFormat,
   UserRole,
 } from "@/lib/types";
 
@@ -20,8 +21,13 @@ export type AdminStats = {
 
 export type AdminCaseListItem = {
   id: string;
+  caseNumber: string;
   title: string;
+  productName: string;
+  productImageUrl: string | null;
   category: string;
+  salesFormat: SalesFormat | null;
+  targetCountry: string | null;
   makerName: string;
   makerId: string;
   reviewStatus: ReviewStatus;
@@ -102,6 +108,7 @@ export async function listAdminCases(
 
   const selectWithJoin = `
       id,
+      case_number,
       title,
       category,
       maker_id,
@@ -110,10 +117,14 @@ export async function listAdminCases(
       created_at,
       review_note,
       product_name,
+      product_image_url,
+      sales_format,
+      target_country,
       profiles!maker_id ( company_name )
     `;
   const selectPlain = `
       id,
+      case_number,
       title,
       category,
       maker_id,
@@ -121,7 +132,10 @@ export async function listAdminCases(
       status,
       created_at,
       review_note,
-      product_name
+      product_name,
+      product_image_url,
+      sales_format,
+      target_country
     `;
 
   let query = supabase
@@ -167,10 +181,19 @@ export async function listAdminCases(
   const items = (data ?? []).map((row) => {
     const rawProfiles = row.profiles;
     const profile = Array.isArray(rawProfiles) ? rawProfiles[0] : rawProfiles;
+    const productName =
+      (row.product_name as string | null)?.trim() ||
+      (row.title as string | null)?.trim() ||
+      "(無題)";
     return {
       id: row.id as string,
-      title: (row.title as string) || (row.product_name as string) || "(無題)",
+      caseNumber: (row.case_number as string | null) || "—",
+      title: (row.title as string) || productName,
+      productName,
+      productImageUrl: (row.product_image_url as string | null) ?? null,
       category: row.category as string,
+      salesFormat: (row.sales_format as SalesFormat | null) ?? null,
+      targetCountry: (row.target_country as string | null) ?? null,
       makerId: row.maker_id as string,
       makerName:
         (profile as { company_name?: string } | null)?.company_name ?? "メーカー",

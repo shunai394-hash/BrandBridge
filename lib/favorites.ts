@@ -22,6 +22,7 @@ function mapFavoriteCase(
   const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
   return {
     id: row.id,
+    caseNumber: row.case_number || "—",
     makerId: row.maker_id,
     title: row.title,
     makerName: profile?.company_name ?? "メーカー",

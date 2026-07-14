@@ -1,9 +1,11 @@
 "use client";
 
 import { FormEvent, useState, type ReactNode } from "react";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { updateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
   caseRegions,
@@ -79,10 +81,20 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await updateCaseAction(caseItem.id, form);
-    setLoading(false);
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await updateCaseAction(caseItem.id, form);
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError(
+        `更新処理でエラーが発生しました: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -178,12 +190,17 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           onChange={(e) => update("priceBand", e.target.value)}
         />
         <TextArea
-          label="案件概要"
+          label="商品説明（案件概要）"
           name="description"
           required
+          rows={6}
+          maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
         />
+        <p className="text-xs text-muted">
+          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
+        </p>
       </Section>
 
       <Section title="販売条件">
@@ -273,7 +290,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
         />
       </Section>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p
+          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
       <Button type="submit" disabled={loading}>
         {loading ? "保存中..." : "変更を保存"}
       </Button>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CaseList } from "@/components/cases/CaseList";
+import { getSessionUser } from "@/lib/auth";
 import {
   diagnoseOwnCases,
   isBetaAutoApproveCases,
@@ -24,9 +25,10 @@ type CasesPageProps = {
 
 export default async function CasesPage({ searchParams }: CasesPageProps) {
   const params = await searchParams;
-  const [cases, ownDiag] = await Promise.all([
+  const [cases, ownDiag, sessionUser] = await Promise.all([
     listOpenCases(),
     diagnoseOwnCases(),
+    getSessionUser(),
   ]);
   const betaAutoApprove = isBetaAutoApproveCases();
   const ownPending = cases.filter(
@@ -39,10 +41,9 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
     ? cases.some((c) => c.id === params.created) ||
       ownDiag.rows.some((r) => r.id === params.created)
     : false;
-  const createdLabel =
-    cases.find((c) => c.id === params.created)?.productName ??
-    ownDiag.rows.find((r) => r.id === params.created)?.product_name ??
-    null;
+  const createdCase = cases.find((c) => c.id === params.created);
+  const createdLabel = createdCase?.productName ?? null;
+  const createdNumber = createdCase?.caseNumber ?? null;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12 md:py-16">
@@ -68,12 +69,12 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
             <>
               <p className="font-medium text-navy">商品登録が完了しました</p>
               <p className="mt-1 text-sm text-muted">
-                案件ID:{" "}
+                案件番号:{" "}
                 <Link
                   href={`/cases/${params.created}`}
                   className="font-mono text-teal hover:underline"
                 >
-                  {params.created}
+                  {createdNumber ?? params.created}
                 </Link>
                 {createdLabel ? ` / ${createdLabel}` : ""}
                 {" ・ "}
@@ -126,6 +127,7 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
         key={params.category ?? "すべて"}
         cases={cases}
         initialCategory={params.category}
+        viewerRole={sessionUser?.role ?? null}
       />
     </div>
   );

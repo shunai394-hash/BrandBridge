@@ -33,7 +33,10 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
       <Link href="/admin/cases" className="text-sm text-teal hover:underline">
         ← 案件審査一覧
       </Link>
-      <h1 className="mt-4 font-[family-name:var(--font-shippori)] text-3xl text-navy">
+      <p className="mt-4 font-mono text-sm font-medium text-teal">
+        案件番号 {caseItem.caseNumber}
+      </p>
+      <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
         {caseItem.title}
       </h1>
       <p className="mt-2 text-sm text-muted">

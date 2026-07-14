@@ -50,7 +50,10 @@ export function NegotiationForm({
 
   if (!user) {
     return (
-      <div className="mt-10 rounded-lg border border-teal/25 bg-cream/70 p-6">
+      <div
+        id="apply"
+        className="mt-10 rounded-lg border border-teal/25 bg-cream/70 p-6"
+      >
         <p className="text-sm leading-relaxed text-muted">
           交渉を申し込むには、販売パートナーとしてログインしてください。
         </p>
@@ -63,7 +66,10 @@ export function NegotiationForm({
 
   if (user.role === "maker") {
     return (
-      <div className="mt-10 rounded-lg border border-border bg-surface p-6">
+      <div
+        id="apply"
+        className="mt-10 rounded-lg border border-border bg-surface p-6"
+      >
         <p className="text-sm text-muted">
           メーカーアカウントでは交渉申込はできません。販売パートナーとして登録・ログインしてください。
         </p>
@@ -73,7 +79,7 @@ export function NegotiationForm({
 
   if (success) {
     return (
-      <div className="mt-10 rounded-lg border border-teal/30 bg-cream p-6">
+      <div id="apply" className="mt-10 rounded-lg border border-teal/30 bg-cream p-6">
         <h3 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           交渉を申し込みました
         </h3>
@@ -91,7 +97,10 @@ export function NegotiationForm({
   }
 
   return (
-    <div className="mt-10 rounded-lg border border-teal/25 bg-cream/70 p-6">
+    <div
+      id="apply"
+      className="mt-10 rounded-lg border border-teal/25 bg-cream/70 p-6"
+    >
       <h3 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
         交渉を申し込む
       </h3>

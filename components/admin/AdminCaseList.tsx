@@ -6,7 +6,17 @@ import { useState } from "react";
 import { reviewCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import type { AdminCaseListItem } from "@/lib/admin";
-import { reviewStatusLabels, type ReviewStatus } from "@/lib/types";
+import {
+  caseNumberClassName,
+  caseNumberHeaderClassName,
+  formatCaseDate,
+} from "@/lib/case-display";
+import {
+  reviewStatusLabels,
+  targetCountryLabel,
+  type ReviewStatus,
+  type TargetCountry,
+} from "@/lib/types";
 
 type AdminCaseListProps = {
   items: AdminCaseListItem[];
@@ -16,10 +26,21 @@ type AdminCaseListProps = {
 const filters: { key: string; label: string }[] = [
   { key: "pending_review", label: "審査待ち" },
   { key: "approved", label: "承認済" },
-  { key: "rejected", label: "却下" },
+  { key: "rejected", label: "不承認" },
   { key: "withdrawn", label: "取り下げ" },
   { key: "all", label: "すべて" },
 ];
+
+function statusLabel(item: AdminCaseListItem): string {
+  if (item.reviewStatus === "pending_review") return "審査待ち";
+  if (item.reviewStatus === "approved" && item.status === "open") {
+    return "承認（公開）";
+  }
+  if (item.reviewStatus === "rejected") return "不承認";
+  return (
+    reviewStatusLabels[item.reviewStatus as ReviewStatus] ?? item.reviewStatus
+  );
+}
 
 export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
   const router = useRouter();
@@ -45,7 +66,7 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-wrap gap-2">
         {filters.map((f) => (
           <Link
@@ -62,58 +83,124 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
           </Link>
         ))}
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+      {error ? (
+        <p
+          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
+
       {items.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-muted">
           該当する案件がありません。
         </p>
       ) : (
-        <ul className="space-y-3">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-4"
-            >
-              <div>
-                <Link
-                  href={`/admin/cases/${item.id}`}
-                  className="font-medium text-navy hover:text-teal hover:underline"
-                >
-                  {item.title}
-                </Link>
-                <p className="mt-1 text-xs text-muted">
-                  {item.makerName} ・ {item.category} ・{" "}
-                  {reviewStatusLabels[item.reviewStatus as ReviewStatus]} ・
-                  status={item.status}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {item.reviewStatus === "pending_review" ? (
-                  <>
-                    <Button
-                      type="button"
-                      onClick={() => review(item.id, "approved")}
-                      disabled={loadingId === item.id}
-                    >
-                      {loadingId === item.id ? "処理中..." : "承認"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => review(item.id, "rejected")}
-                      disabled={loadingId === item.id}
-                    >
-                      却下
-                    </Button>
-                  </>
-                ) : null}
-                <Button href={`/admin/cases/${item.id}`} variant="ghost">
-                  詳細
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-border bg-cream/50 text-xs text-muted">
+              <tr>
+                <th className={caseNumberHeaderClassName()}>案件番号</th>
+                <th className="px-4 py-3 font-medium">商品画像</th>
+                <th className="px-4 py-3 font-medium">商品名</th>
+                <th className="px-4 py-3 font-medium">原産国</th>
+                <th className="px-4 py-3 font-medium">登録日</th>
+                <th className="px-4 py-3 font-medium">状態</th>
+                <th className="px-4 py-3 font-medium">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => {
+                const busy = loadingId === item.id;
+                const canReview = item.reviewStatus === "pending_review";
+                return (
+                  <tr
+                    key={item.id}
+                    className="border-b border-border last:border-0"
+                  >
+                    <td className={caseNumberClassName()}>{item.caseNumber}</td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/cases/${item.id}`}
+                        className="relative block h-14 w-14 overflow-hidden rounded-md border border-border bg-cream"
+                      >
+                        {item.productImageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={item.productImageUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-full w-full items-center justify-center text-[10px] text-muted">
+                            なし
+                          </span>
+                        )}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/cases/${item.id}`}
+                        className="font-medium text-navy hover:text-teal hover:underline"
+                      >
+                        {item.productName}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.targetCountry
+                        ? targetCountryLabel(
+                            item.targetCountry as TargetCountry,
+                          )
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {formatCaseDate(item.createdAt)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {item.reviewStatus === "approved" ? (
+                        <span className="text-teal">{statusLabel(item)}</span>
+                      ) : item.reviewStatus === "rejected" ? (
+                        <span className="text-red-600">{statusLabel(item)}</span>
+                      ) : (
+                        <span className="text-navy">{statusLabel(item)}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {canReview ? (
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => review(item.id, "approved")}
+                            disabled={busy}
+                          >
+                            {busy ? "..." : "承認"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => review(item.id, "rejected")}
+                            disabled={busy}
+                          >
+                            {busy ? "..." : "不承認"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          href={`/admin/cases/${item.id}`}
+                          variant="ghost"
+                        >
+                          詳細
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

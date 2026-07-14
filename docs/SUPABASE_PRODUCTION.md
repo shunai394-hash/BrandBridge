@@ -22,6 +22,7 @@ SQL Editor で **番号順** に実行:
 8. `supabase/migrations/008_contact_inquiries.sql`
 9. `supabase/migrations/009_maker_registration.sql`
 10. `supabase/migrations/010_partner_profile.sql`
+11. （以降番号順）`011`〜`016_case_number.sql` まで適用。`016` で表示用案件番号 `BB-000001` を採番
 
 実行後の確認例:
 

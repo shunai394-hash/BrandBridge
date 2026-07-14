@@ -1,9 +1,11 @@
 "use client";
 
 import { FormEvent, useState, type ReactNode } from "react";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { createCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
   caseRegions,
@@ -30,6 +32,7 @@ const initial: CaseCreateInput = {
   targetCountry: "JP",
   partnerChannels: "",
   partnerRequirements: "",
+  productImageUrl: null,
 };
 
 const categoryOptions = caseCategories.filter((c) => c !== "すべて");
@@ -72,11 +75,20 @@ export function CaseCreateForm() {
     setError("");
     setLoading(true);
 
-    const result = await createCaseAction(form);
-    setLoading(false);
-
-    if (result?.error) {
-      setError(result.error);
+    try {
+      const result = await createCaseAction(form);
+      if (result?.error) {
+        setError(result.error);
+      }
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError(
+        `登録処理でエラーが発生しました: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -87,6 +99,7 @@ export function CaseCreateForm() {
           label="案件タイトル"
           name="title"
           required
+          maxLength={CASE_TEXT_LIMITS.title}
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
         />
@@ -142,6 +155,7 @@ export function CaseCreateForm() {
           name="summary"
           required
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.summary}
           value={form.summary}
           onChange={(e) => update("summary", e.target.value)}
         />
@@ -152,6 +166,7 @@ export function CaseCreateForm() {
           label="商品・ブランド名"
           name="productName"
           required
+          maxLength={CASE_TEXT_LIMITS.productName}
           value={form.productName}
           onChange={(e) => update("productName", e.target.value)}
         />
@@ -159,6 +174,7 @@ export function CaseCreateForm() {
           label="商品の特徴・差別化ポイント"
           name="productFeatures"
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.productFeatures}
           value={form.productFeatures}
           onChange={(e) => update("productFeatures", e.target.value)}
         />
@@ -166,16 +182,22 @@ export function CaseCreateForm() {
           label="想定価格帯"
           name="priceBand"
           placeholder="例: 小売 3,000〜5,000円"
+          maxLength={CASE_TEXT_LIMITS.priceBand}
           value={form.priceBand}
           onChange={(e) => update("priceBand", e.target.value)}
         />
         <TextArea
-          label="案件概要"
+          label="商品説明（案件概要）"
           name="description"
           required
+          rows={6}
+          maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
         />
+        <p className="text-xs text-muted">
+          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
+        </p>
       </Section>
 
       <Section title="販売条件">
@@ -221,12 +243,14 @@ export function CaseCreateForm() {
           label="取引条件（卸条件・マージン・契約期間など）"
           name="salesTerms"
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.salesTerms}
           value={form.salesTerms}
           onChange={(e) => update("salesTerms", e.target.value)}
         />
         <Input
           label="最小発注・初期ロット"
           name="minOrder"
+          maxLength={CASE_TEXT_LIMITS.minOrder}
           value={form.minOrder}
           onChange={(e) => update("minOrder", e.target.value)}
         />
@@ -234,6 +258,7 @@ export function CaseCreateForm() {
           label="メーカー提供条件"
           name="offer"
           required
+          maxLength={CASE_TEXT_LIMITS.offer}
           value={form.offer}
           onChange={(e) => update("offer", e.target.value)}
         />
@@ -244,6 +269,7 @@ export function CaseCreateForm() {
           label="希望チャネル"
           name="partnerChannels"
           placeholder="例: 実店舗 / EC / 卸"
+          maxLength={CASE_TEXT_LIMITS.partnerChannels}
           value={form.partnerChannels}
           onChange={(e) => update("partnerChannels", e.target.value)}
         />
@@ -251,6 +277,7 @@ export function CaseCreateForm() {
           label="必須実績・資格・体制"
           name="partnerRequirements"
           rows={3}
+          maxLength={CASE_TEXT_LIMITS.partnerRequirements}
           value={form.partnerRequirements}
           onChange={(e) => update("partnerRequirements", e.target.value)}
         />
@@ -258,12 +285,20 @@ export function CaseCreateForm() {
           label="求めるパートナー像"
           name="idealPartner"
           required
+          maxLength={CASE_TEXT_LIMITS.idealPartner}
           value={form.idealPartner}
           onChange={(e) => update("idealPartner", e.target.value)}
         />
       </Section>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <p
+          className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
       <Button type="submit" disabled={loading}>
         {loading ? "提出中..." : "審査に提出する"}
       </Button>

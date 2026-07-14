@@ -55,7 +55,7 @@ export function AdminCaseReviewForm({ caseItem }: AdminCaseReviewFormProps) {
       <p className="text-xs text-muted">
         承認: review_status=approved / status=open（一覧に公開）
         <br />
-        却下: review_status=rejected / status=closed（非公開）
+        不承認: review_status=rejected / status=closed（非公開）
       </p>
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex flex-wrap gap-3">
@@ -64,7 +64,7 @@ export function AdminCaseReviewForm({ caseItem }: AdminCaseReviewFormProps) {
           onClick={() => submit("approved")}
           disabled={loading !== null}
         >
-          {loading === "approved" ? "処理中..." : "承認する"}
+          {loading === "approved" ? "処理中..." : "承認"}
         </Button>
         <Button
           type="button"
@@ -72,7 +72,7 @@ export function AdminCaseReviewForm({ caseItem }: AdminCaseReviewFormProps) {
           onClick={() => submit("rejected")}
           disabled={loading !== null}
         >
-          {loading === "rejected" ? "処理中..." : "却下する"}
+          {loading === "rejected" ? "処理中..." : "不承認"}
         </Button>
       </div>
     </form>

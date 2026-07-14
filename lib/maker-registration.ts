@@ -66,9 +66,14 @@ export function caseInputFromMakerDraft(
   const deal = mapDealType(draft.dealType);
   const area = mapSalesArea(draft.salesArea);
   const channels = draft.salesChannels.join(" / ");
+  const productDescription = draft.productSummary.trim();
+  const summarySource =
+    productDescription || `${draft.productName}の販売パートナー募集`;
+  // Listing summary stays short; full text goes to description.
   const summary =
-    draft.productSummary.trim() ||
-    `${draft.productName}の販売パートナー募集`;
+    summarySource.length > 280
+      ? `${summarySource.slice(0, 277)}...`
+      : summarySource;
 
   return {
     title: `${draft.productName}の販売パートナー募集`,
@@ -76,7 +81,7 @@ export function caseInputFromMakerDraft(
     region: area.region,
     summary,
     description: [
-      draft.productSummary.trim(),
+      productDescription,
       area.targetNote,
       draft.companyOverview.trim()
         ? `【会社概要】\n${draft.companyOverview.trim()}`
@@ -92,7 +97,7 @@ export function caseInputFromMakerDraft(
       .filter(Boolean)
       .join("\n\n"),
     productName: draft.productName,
-    productFeatures: draft.productSummary,
+    productFeatures: productDescription,
     priceBand: "",
     salesFormat: deal.salesFormat,
     salesTerms: draft.dealTerms,

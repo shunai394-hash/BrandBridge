@@ -2,9 +2,11 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { completeMakerSetupAction } from "@/lib/actions";
+import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import { createClient } from "@/lib/supabase/client";
 import {
   caseCategories,
@@ -101,13 +103,16 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
     if (current === 2) {
       if (!form.productName.trim()) return "商品名を入力してください";
       if (!form.productCategory) return "商品カテゴリを選択してください";
-      if (!form.productSummary.trim()) return "商品概要を入力してください";
+      if (!form.productSummary.trim()) return "商品説明を入力してください";
+      if (form.productSummary.length > CASE_TEXT_LIMITS.description) {
+        return `商品説明は${CASE_TEXT_LIMITS.description}文字以内にしてください`;
+      }
+    }
+    if (current === 3) {
       if (!form.salesArea) return "希望販売エリアを選択してください";
       if (form.salesChannels.length === 0) {
         return "販売希望チャネルを1つ以上選択してください";
       }
-    }
-    if (current === 3) {
       if (!form.dealType) return "希望する取引形式を選択してください";
     }
     return null;
@@ -153,29 +158,45 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
     setError("");
     setLoading(true);
 
-    // Setup must never call signUp / signIn — only authenticated writes.
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user || user.id !== userId) {
-      setLoading(false);
-      setError("ログインセッションが無効です。ログインし直してください。");
-      router.push("/login?next=/maker/setup");
-      return;
-    }
+    try {
+      // Setup must never call signUp / signIn — only authenticated writes.
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user || user.id !== userId) {
+        setError("ログインセッションが無効です。ログインし直してください。");
+        router.push("/login?next=/maker/setup");
+        return;
+      }
 
-    const imageUrl = await uploadProductImage();
-    const result = await completeMakerSetupAction({
-      ...form,
-      productImageUrl: imageUrl,
-    });
+      const imageUrl = await uploadProductImage();
+      if (imageFile && !imageUrl) {
+        setError(
+          "商品画像のアップロードに失敗しました。形式（JPEG/PNG/WebP/GIF）を確認して再試行してください。",
+        );
+        return;
+      }
 
-    if (result?.error) {
+      const result = await completeMakerSetupAction({
+        ...form,
+        productImageUrl: imageUrl,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      }
+      // Success: server action redirects
+    } catch (err) {
+      if (isRedirectError(err)) throw err;
+      setError(
+        `保存処理でエラーが発生しました: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    } finally {
       setLoading(false);
-      setError(result.error);
     }
-    // Success: server action redirects to /maker/registration-complete
   }
 
   const progress = useMemo(() => (step / STEPS.length) * 100, [step]);
@@ -274,13 +295,22 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               </select>
             </label>
             <TextArea
-              label="商品概要（必須）"
+              label="商品説明（必須）"
               name="productSummary"
               required
-              rows={4}
+              rows={6}
+              maxLength={CASE_TEXT_LIMITS.description}
               value={form.productSummary}
               onChange={(e) => update("productSummary", e.target.value)}
             />
+            <p className="text-xs text-muted">
+              {form.productSummary.length} / {CASE_TEXT_LIMITS.description} 文字
+            </p>
+          </>
+        ) : null}
+
+        {step === 3 ? (
+          <>
             <fieldset>
               <legend className="mb-2 text-sm">
                 <FieldLabel required>希望販売エリア</FieldLabel>
@@ -336,11 +366,6 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
                 ))}
               </div>
             </fieldset>
-          </>
-        ) : null}
-
-        {step === 3 ? (
-          <>
             <fieldset>
               <legend className="mb-2 text-sm">
                 <FieldLabel required>希望する取引形式</FieldLabel>
@@ -387,7 +412,7 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               ["会社概要", form.companyOverview],
               ["商品名", form.productName],
               ["カテゴリ", form.productCategory],
-              ["商品概要", form.productSummary],
+              ["商品説明", form.productSummary],
               [
                 "販売エリア",
                 form.salesArea === "全国" ? "日本全国" : form.salesArea,
@@ -405,7 +430,14 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
           </dl>
         ) : null}
 
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? (
+          <p
+            className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
           {step > 1 ? (

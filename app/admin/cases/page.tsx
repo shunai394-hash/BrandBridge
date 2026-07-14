@@ -38,7 +38,7 @@ export default async function AdminCasesPage({ searchParams }: PageProps) {
         案件審査
       </h1>
       <p className="mt-2 mb-4 text-muted">
-        審査待ち案件を承認（公開）または却下（非公開・closed）します。
+        審査待ち案件を承認（approved + open）または不承認（rejected + closed）します。
       </p>
       <p className="mb-8 text-xs text-muted">
         フィルタ: {filter} / 表示 {items.length} 件 / DB全件 {totalUnfiltered ?? "?"} 件

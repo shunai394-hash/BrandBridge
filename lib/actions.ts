@@ -72,6 +72,9 @@ export async function completeMakerSetupAction(
   });
 
   const supabase = await createClient();
+
+  // Save profile fields first, but do NOT mark onboarding complete until case insert succeeds.
+  // Otherwise a failed createCase leaves the user locked out of /maker/setup.
   const { data: updated, error: profileError } = await supabase
     .from("profiles")
     .update({
@@ -80,7 +83,6 @@ export async function completeMakerSetupAction(
       industry: input.industry,
       description: input.companyOverview.trim(),
       product_overview: input.productSummary.trim(),
-      onboarding_completed: true,
     })
     .eq("id", maker.id)
     .select("id")
@@ -88,9 +90,14 @@ export async function completeMakerSetupAction(
 
   if (profileError || !updated) {
     return {
-      error:
-        profileError?.message ??
-        "プロフィールの保存に失敗しました。ログインし直してから再度お試しください。",
+      error: [
+        "プロフィールの保存に失敗しました",
+        profileError?.message,
+        profileError?.code ? `code=${profileError.code}` : null,
+        profileError?.details,
+      ]
+        .filter(Boolean)
+        .join(" / "),
     };
   }
 
@@ -107,6 +114,19 @@ export async function completeMakerSetupAction(
       error: result.error,
     });
     return { error: result.error };
+  }
+
+  const { error: onboardError } = await supabase
+    .from("profiles")
+    .update({ onboarding_completed: true })
+    .eq("id", maker.id);
+
+  if (onboardError) {
+    console.error("[completeMakerSetupAction] onboarding flag failed", {
+      makerId: maker.id,
+      error: onboardError.message,
+    });
+    // Case already created — surface warning but still redirect
   }
 
   const completePath = `/cases?created=${encodeURIComponent(result.id)}`;

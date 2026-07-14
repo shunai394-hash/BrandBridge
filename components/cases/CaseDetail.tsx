@@ -116,7 +116,10 @@ export function CaseDetailView({
         />
       </div>
 
-      <h1 className="mt-4 font-[family-name:var(--font-shippori)] text-3xl leading-tight text-navy md:text-4xl">
+      <p className="mt-4 font-mono text-sm font-medium text-teal">
+        案件番号 {caseItem.caseNumber}
+      </p>
+      <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl leading-tight text-navy md:text-4xl">
         {caseItem.title}
       </h1>
       <p className="mt-2 text-muted">{caseItem.productName}</p>

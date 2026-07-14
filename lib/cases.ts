@@ -1,3 +1,8 @@
+import {
+  formatSupabaseError,
+  normalizeCaseCreateInput,
+  validateCaseCreateInput,
+} from "@/lib/case-validation";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Case,
@@ -36,6 +41,7 @@ function mapCase(row: CaseWithMaker): Case {
 
   return {
     id: row.id,
+    caseNumber: row.case_number || "—",
     makerId: row.maker_id,
     title: row.title,
     makerName: profile?.company_name ?? "メーカー",
@@ -64,6 +70,48 @@ function mapCase(row: CaseWithMaker): Case {
     reviewNote: row.review_note,
     createdAt: row.created_at,
   };
+}
+
+/** applicationCount = all negotiations; negotiationCount = accepted / in pipeline */
+export async function attachNegotiationCounts(
+  cases: Case[],
+): Promise<Case[]> {
+  if (cases.length === 0) return cases;
+
+  const supabase = await createClient();
+  const ids = cases.map((c) => c.id);
+  const { data, error } = await supabase
+    .from("negotiations")
+    .select("case_id, application_status, pipeline_status")
+    .in("case_id", ids);
+
+  if (error) {
+    console.error("[attachNegotiationCounts]", error.message);
+    return cases.map((c) => ({
+      ...c,
+      applicationCount: c.applicationCount ?? 0,
+      negotiationCount: c.negotiationCount ?? 0,
+    }));
+  }
+
+  const application = new Map<string, number>();
+  const negotiation = new Map<string, number>();
+  for (const row of data ?? []) {
+    const caseId = row.case_id as string;
+    application.set(caseId, (application.get(caseId) ?? 0) + 1);
+    const inPipeline =
+      row.application_status === "accepted" ||
+      Boolean(row.pipeline_status);
+    if (inPipeline) {
+      negotiation.set(caseId, (negotiation.get(caseId) ?? 0) + 1);
+    }
+  }
+
+  return cases.map((c) => ({
+    ...c,
+    applicationCount: application.get(c.id) ?? 0,
+    negotiationCount: negotiation.get(c.id) ?? 0,
+  }));
 }
 
 const caseSelect = `
@@ -144,14 +192,16 @@ export async function listOpenCases(): Promise<Case[]> {
     )
     .map(mapCase);
 
+  const withCounts = await attachNegotiationCounts(mapped);
+
   console.info("[listOpenCases]", {
     authUid: user?.id ?? null,
     approvedCount: approvedRows.length,
     ownOpenCount: ownRows.length,
-    total: mapped.length,
+    total: withCounts.length,
   });
 
-  return mapped;
+  return withCounts;
 }
 
 /** All cases for maker_id = auth.uid() (any status / review_status). */
@@ -176,7 +226,7 @@ export async function listMyCases(): Promise<Case[]> {
     count: rows.length,
   });
 
-  return rows.map(mapCase);
+  return attachNegotiationCounts(rows.map(mapCase));
 }
 
 /** Debug helper: raw own cases for the logged-in auth user (no review filter). */
@@ -340,159 +390,185 @@ export async function createCase(
   makerId: string,
   input: CaseCreateInput,
 ): Promise<{ id: string; reviewStatus: ReviewStatus } | { error: string }> {
-  const reviewStatus: ReviewStatus = betaAutoApproveCases()
-    ? "approved"
-    : "pending_review";
+  try {
+    const normalized = normalizeCaseCreateInput(input);
+    const validationError = validateCaseCreateInput(normalized);
+    if (validationError) {
+      return { error: validationError };
+    }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const reviewStatus: ReviewStatus = betaAutoApproveCases()
+      ? "approved"
+      : "pending_review";
 
-  if (!user) {
-    console.error("[createCase] no auth user");
-    return { error: "ログインセッションが無効です" };
-  }
-  if (user.id !== makerId) {
-    console.error("[createCase] maker_id mismatch", {
-      authUid: user.id,
-      makerId,
-    });
-    return { error: "maker_id と auth.uid() が一致しません" };
-  }
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  console.info("[createCase] insert start", {
-    table: "cases",
-    makerId,
-    authUid: user.id,
-    product_name: input.productName,
-    reviewStatus,
-    status: "open",
-  });
+    if (!user) {
+      console.error("[createCase] no auth user");
+      return { error: "ログインセッションが無効です" };
+    }
+    if (user.id !== makerId) {
+      console.error("[createCase] maker_id mismatch", {
+        authUid: user.id,
+        makerId,
+      });
+      return { error: "maker_id と auth.uid() が一致しません" };
+    }
 
-  const insertPayload = {
-    maker_id: makerId,
-    title: input.title,
-    category: input.category,
-    region: input.region,
-    summary: input.summary,
-    description: input.description,
-    ideal_partner: input.idealPartner,
-    offer: input.offer,
-    product_name: input.productName,
-    product_features: input.productFeatures.trim() || null,
-    price_band: input.priceBand.trim() || null,
-    sales_format: input.salesFormat,
-    sales_terms: input.salesTerms.trim() || null,
-    min_order: input.minOrder.trim() || null,
-    is_exclusive: input.isExclusive,
-    target_country: input.targetCountry,
-    partner_channels: input.partnerChannels.trim() || null,
-    partner_requirements: input.partnerRequirements.trim() || null,
-    product_image_url: input.productImageUrl?.trim() || null,
-    status: "open" as const,
-    review_status: reviewStatus,
-  };
-
-  let { data, error } = await supabase
-    .from("cases")
-    .insert(insertPayload)
-    .select("id, product_name, maker_id, status, review_status, created_at")
-    .single();
-
-  // Retry without product_image_url if column missing on older DBs
-  if (
-    error &&
-    /product_image_url/i.test(error.message + (error.details ?? ""))
-  ) {
-    console.warn("[createCase] retry without product_image_url");
-    const { product_image_url: _omit, ...withoutImage } = insertPayload;
-    const retry = await supabase
-      .from("cases")
-      .insert(withoutImage)
-      .select("id, product_name, maker_id, status, review_status, created_at")
-      .single();
-    data = retry.data;
-    error = retry.error;
-  }
-
-  if (error || !data) {
-    console.error("[createCase] insert failed", {
+    console.info("[createCase] insert start", {
       table: "cases",
       makerId,
       authUid: user.id,
-      error: error?.message ?? "no data",
-      code: error?.code,
-      details: error?.details,
-      hint: error?.hint,
+      product_name: normalized.productName,
+      description_len: normalized.description.length,
+      summary_len: normalized.summary.length,
+      reviewStatus,
+      status: "open",
     });
-    return {
-      error: `案件の登録に失敗しました: ${error?.message ?? "no data"}`,
+
+    const insertPayload = {
+      maker_id: makerId,
+      title: normalized.title.trim(),
+      category: normalized.category.trim(),
+      region: normalized.region.trim(),
+      summary: normalized.summary.trim(),
+      description: normalized.description.trim(),
+      ideal_partner: normalized.idealPartner.trim(),
+      offer: normalized.offer.trim(),
+      product_name: normalized.productName.trim(),
+      product_features: normalized.productFeatures.trim() || null,
+      price_band: normalized.priceBand.trim() || null,
+      sales_format: normalized.salesFormat,
+      sales_terms: normalized.salesTerms.trim() || null,
+      min_order: normalized.minOrder.trim() || null,
+      is_exclusive: normalized.isExclusive,
+      target_country: normalized.targetCountry,
+      partner_channels: normalized.partnerChannels.trim() || null,
+      partner_requirements: normalized.partnerRequirements.trim() || null,
+      product_image_url: normalized.productImageUrl,
+      status: "open" as const,
+      review_status: reviewStatus,
     };
+
+    let { data, error } = await supabase
+      .from("cases")
+      .insert(insertPayload)
+      .select("id, product_name, maker_id, status, review_status, created_at")
+      .single();
+
+    // Retry without product_image_url if column missing on older DBs
+    if (
+      error &&
+      /product_image_url/i.test(error.message + (error.details ?? ""))
+    ) {
+      console.warn("[createCase] retry without product_image_url");
+      const { product_image_url: _omit, ...withoutImage } = insertPayload;
+      const retry = await supabase
+        .from("cases")
+        .insert(withoutImage)
+        .select("id, product_name, maker_id, status, review_status, created_at")
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
+
+    if (error || !data) {
+      console.error("[createCase] insert failed", {
+        table: "cases",
+        makerId,
+        authUid: user.id,
+        error: error?.message ?? "no data",
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+      });
+      return {
+        error: formatSupabaseError(
+          "案件の登録に失敗しました",
+          error ?? { message: "no data returned after insert" },
+        ),
+      };
+    }
+
+    console.info("[createCase] insert ok", {
+      table: "cases",
+      caseId: data.id,
+      product_name: data.product_name,
+      maker_id: data.maker_id,
+      status: data.status,
+      review_status: data.review_status,
+      created_at: data.created_at,
+      maker_matches_auth: data.maker_id === user.id,
+    });
+
+    return {
+      id: data.id as string,
+      reviewStatus: data.review_status as ReviewStatus,
+    };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.error("[createCase] unexpected", message);
+    return { error: `案件の登録に失敗しました: ${message}` };
   }
-
-  console.info("[createCase] insert ok", {
-    table: "cases",
-    caseId: data.id,
-    product_name: data.product_name,
-    maker_id: data.maker_id,
-    status: data.status,
-    review_status: data.review_status,
-    created_at: data.created_at,
-    maker_matches_auth: data.maker_id === user.id,
-  });
-
-  return {
-    id: data.id as string,
-    reviewStatus: data.review_status as ReviewStatus,
-  };
 }
 
 export async function updateCase(
   caseId: string,
   input: CaseCreateInput,
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "ログインが必要です" };
+  try {
+    const normalized = normalizeCaseCreateInput(input);
+    const validationError = validateCaseCreateInput(normalized);
+    if (validationError) return { error: validationError };
 
-  const { data, error } = await supabase
-    .from("cases")
-    .update({
-      title: input.title,
-      category: input.category,
-      region: input.region,
-      summary: input.summary,
-      description: input.description,
-      ideal_partner: input.idealPartner,
-      offer: input.offer,
-      product_name: input.productName,
-      product_features: input.productFeatures.trim() || null,
-      price_band: input.priceBand.trim() || null,
-      sales_format: input.salesFormat,
-      sales_terms: input.salesTerms.trim() || null,
-      min_order: input.minOrder.trim() || null,
-      is_exclusive: input.isExclusive,
-      target_country: input.targetCountry,
-      partner_channels: input.partnerChannels.trim() || null,
-      partner_requirements: input.partnerRequirements.trim() || null,
-      product_image_url: input.productImageUrl?.trim() || null,
-    })
-    .eq("id", caseId)
-    .eq("maker_id", user.id)
-    .select("id")
-    .maybeSingle();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "ログインが必要です" };
 
-  if (error) {
-    console.error("[updateCase]", error.message);
-    return { error: error.message };
+    const { data, error } = await supabase
+      .from("cases")
+      .update({
+        title: normalized.title.trim(),
+        category: normalized.category.trim(),
+        region: normalized.region.trim(),
+        summary: normalized.summary.trim(),
+        description: normalized.description.trim(),
+        ideal_partner: normalized.idealPartner.trim(),
+        offer: normalized.offer.trim(),
+        product_name: normalized.productName.trim(),
+        product_features: normalized.productFeatures.trim() || null,
+        price_band: normalized.priceBand.trim() || null,
+        sales_format: normalized.salesFormat,
+        sales_terms: normalized.salesTerms.trim() || null,
+        min_order: normalized.minOrder.trim() || null,
+        is_exclusive: normalized.isExclusive,
+        target_country: normalized.targetCountry,
+        partner_channels: normalized.partnerChannels.trim() || null,
+        partner_requirements: normalized.partnerRequirements.trim() || null,
+        product_image_url: normalized.productImageUrl,
+      })
+      .eq("id", caseId)
+      .eq("maker_id", user.id)
+      .select("id")
+      .maybeSingle();
+
+    if (error) {
+      console.error("[updateCase]", error.message);
+      return { error: formatSupabaseError("案件の更新に失敗しました", error) };
+    }
+    if (!data) {
+      return { error: "案件を更新できません（本人の案件のみ編集可）" };
+    }
+    return {};
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    return { error: `案件の更新に失敗しました: ${message}` };
   }
-  if (!data) {
-    return { error: "案件を更新できません（本人の案件のみ編集可）" };
-  }
-  return {};
 }
 
 /** Withdraw: status=closed, review_status=withdrawn. Requires maker_id = auth.uid(). */

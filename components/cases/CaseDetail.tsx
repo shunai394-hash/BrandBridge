@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
@@ -18,37 +17,13 @@ type CaseDetailProps = {
   showPendingBanner?: boolean;
 };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date(value));
-}
-
-function DetailBlock({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-        {title}
-      </h2>
-      <div className="mt-3 space-y-3 text-foreground/90">{children}</div>
-    </div>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string | null }) {
-  if (!value?.trim()) return null;
-  return (
-    <div>
-      <p className="text-xs font-medium text-muted">{label}</p>
-      <p className="mt-1 whitespace-pre-wrap leading-relaxed">{value}</p>
+    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[8rem_1fr] sm:gap-4">
+      <dt className="text-sm font-medium text-muted">{label}</dt>
+      <dd className="whitespace-pre-wrap text-sm leading-relaxed text-navy">
+        {value}
+      </dd>
     </div>
   );
 }
@@ -64,12 +39,48 @@ export function CaseDetailView({
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
+  const ingredients =
+    caseItem.productFeatures?.trim() || "成分情報はまだ登録されていません。";
+  const description =
+    caseItem.description?.trim() || "商品説明はまだ登録されていません。";
+
+  const salesTermsLines = [
+    `販売形式: ${salesFormatLabel(caseItem.salesFormat)}`,
+    `独占可否: ${caseItem.isExclusive ? "独占可" : "非独占（複数パートナー可）"}`,
+    caseItem.salesTerms?.trim()
+      ? `取引条件:\n${caseItem.salesTerms.trim()}`
+      : null,
+    caseItem.minOrder?.trim()
+      ? `最小発注・初期ロット: ${caseItem.minOrder.trim()}`
+      : null,
+    caseItem.offer?.trim() ? `メーカー提供条件:\n${caseItem.offer.trim()}` : null,
+    caseItem.partnerChannels?.trim()
+      ? `希望チャネル: ${caseItem.partnerChannels.trim()}`
+      : null,
+    caseItem.partnerRequirements?.trim()
+      ? `必須実績・体制:\n${caseItem.partnerRequirements.trim()}`
+      : null,
+    caseItem.idealPartner?.trim()
+      ? `求めるパートナー像:\n${caseItem.idealPartner.trim()}`
+      : null,
+    caseItem.priceBand?.trim()
+      ? `想定価格帯: ${caseItem.priceBand.trim()}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
   return (
     <article className="animate-fade-up">
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Link href="/cases" className="text-sm text-teal hover:underline">
           ← 案件一覧に戻る
         </Link>
+        <FavoriteButton
+          caseId={caseItem.id}
+          initialFavorited={isFavorited}
+          isLoggedIn={Boolean(user)}
+        />
       </div>
 
       {showPendingBanner || caseItem.reviewStatus === "pending_review" ? (
@@ -86,82 +97,41 @@ export function CaseDetailView({
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="rounded bg-cream px-2.5 py-1 text-navy">
-            {caseItem.category}
-          </span>
-          <span className="rounded bg-cream px-2.5 py-1 text-navy">
-            {targetCountryLabel(caseItem.targetCountry)}
-          </span>
-          <span className="rounded bg-cream px-2.5 py-1 text-navy">
-            {salesFormatLabel(caseItem.salesFormat)}
-          </span>
-          {caseItem.isExclusive ? (
-            <span className="rounded border border-teal/30 bg-teal/10 px-2.5 py-1 text-teal-dark">
-              独占可
-            </span>
-          ) : (
-            <span className="rounded bg-cream px-2.5 py-1 text-navy">非独占</span>
-          )}
-          <span className="rounded bg-cream px-2.5 py-1 text-navy">
-            エリア: {caseItem.region}
-          </span>
-        </div>
-        <FavoriteButton
-          caseId={caseItem.id}
-          initialFavorited={isFavorited}
-          isLoggedIn={Boolean(user)}
-        />
-      </div>
-
-      <p className="mt-4 font-mono text-sm font-medium text-teal">
-        案件番号 {caseItem.caseNumber}
+      <p className="text-xs font-medium tracking-wide text-muted">案件番号</p>
+      <p className="mt-1 font-mono text-lg font-medium text-teal">
+        {caseItem.caseNumber}
       </p>
-      <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl leading-tight text-navy md:text-4xl">
-        {caseItem.title}
-      </h1>
-      <p className="mt-2 text-muted">{caseItem.productName}</p>
 
-      <div className="mt-5">
+      <div className="mt-6">
+        <p className="mb-2 text-xs font-medium tracking-wide text-muted">
+          商品画像
+        </p>
         <ProductCaseImage
           src={caseItem.productImageUrl}
           alt={caseItem.productName}
-          className="h-64 w-full max-w-xl md:h-80"
+          className="aspect-[4/3] h-auto w-full max-w-3xl md:aspect-[16/10]"
           imageClassName="object-cover"
         />
       </div>
 
-      <p className="mt-3 text-xs text-muted">掲載日 {formatDate(caseItem.createdAt)}</p>
-
-      <section className="mt-10 space-y-8 border-t border-border pt-8">
-        <DetailBlock title="商品情報">
-          <Field label="商品・ブランド名" value={caseItem.productName} />
-          <Field label="特徴・差別化" value={caseItem.productFeatures} />
-          <Field label="想定価格帯" value={caseItem.priceBand} />
-          <Field label="案件概要" value={caseItem.description} />
-        </DetailBlock>
-
-        <DetailBlock title="販売条件">
-          <Field
-            label="販売形式"
-            value={salesFormatLabel(caseItem.salesFormat)}
-          />
-          <Field
-            label="独占可否"
-            value={caseItem.isExclusive ? "独占可" : "非独占（複数パートナー可）"}
-          />
-          <Field label="取引条件" value={caseItem.salesTerms} />
-          <Field label="最小発注・初期ロット" value={caseItem.minOrder} />
-          <Field label="メーカー提供条件" value={caseItem.offer} />
-        </DetailBlock>
-
-        <DetailBlock title="希望パートナー条件">
-          <Field label="希望チャネル" value={caseItem.partnerChannels} />
-          <Field label="必須実績・体制" value={caseItem.partnerRequirements} />
-          <Field label="求めるパートナー像" value={caseItem.idealPartner} />
-        </DetailBlock>
-      </section>
+      <dl className="mt-8">
+        <InfoRow label="商品名" value={caseItem.productName} />
+        <InfoRow label="カテゴリ" value={caseItem.category} />
+        <InfoRow
+          label="原産国"
+          value={targetCountryLabel(caseItem.targetCountry)}
+        />
+        <InfoRow
+          label="販売形式"
+          value={salesFormatLabel(caseItem.salesFormat)}
+        />
+        <InfoRow label="商品説明" value={description} />
+        <InfoRow label="成分情報" value={ingredients} />
+        <InfoRow
+          label="販売条件"
+          value={salesTermsLines || "販売条件はまだ登録されていません。"}
+        />
+      </dl>
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
         {alreadyApplied ? (

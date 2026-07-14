@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CaseFilter } from "@/components/cases/CaseFilter";
 import { EmptyCasesState } from "@/components/cases/EmptyCasesState";
-import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { Button } from "@/components/ui/Button";
 import {
   caseNumberClassName,
@@ -97,19 +96,20 @@ export function CaseList({
       {filtered.length === 0 ? (
         <EmptyCasesState variant="filtered" />
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-          <table className="min-w-full text-left text-sm">
+        <div className="w-full overflow-x-auto rounded-lg border border-border bg-surface">
+          <table className="w-full min-w-[56rem] table-fixed text-left text-sm">
             <thead className="border-b border-border bg-cream/50 text-xs text-muted">
               <tr>
-                <th className={caseNumberHeaderClassName()}>案件番号</th>
-                <th className="px-4 py-3 font-medium">商品画像</th>
+                <th className={`${caseNumberHeaderClassName()} w-[7.5rem]`}>
+                  案件番号
+                </th>
                 <th className="px-4 py-3 font-medium">商品名</th>
-                <th className="px-4 py-3 font-medium">カテゴリ</th>
-                <th className="px-4 py-3 font-medium">原産国</th>
-                <th className="px-4 py-3 font-medium">販売形式</th>
-                <th className="px-4 py-3 font-medium">応募件数</th>
-                <th className="px-4 py-3 font-medium">状態</th>
-                <th className="px-4 py-3 font-medium">操作</th>
+                <th className="w-36 px-4 py-3 font-medium">カテゴリ</th>
+                <th className="w-28 px-4 py-3 font-medium">原産国</th>
+                <th className="w-28 px-4 py-3 font-medium">販売形式</th>
+                <th className="w-24 px-4 py-3 font-medium">応募件数</th>
+                <th className="w-24 px-4 py-3 font-medium">状態</th>
+                <th className="w-44 px-4 py-3 font-medium">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -126,14 +126,6 @@ export function CaseList({
                     className="border-b border-border last:border-0"
                   >
                     <td className={caseNumberClassName()}>{item.caseNumber}</td>
-                    <td className="px-4 py-3">
-                      <Link href={`/cases/${item.id}`} className="inline-block">
-                        <ProductCaseImage
-                          src={item.productImageUrl}
-                          alt={item.productName}
-                        />
-                      </Link>
-                    </td>
                     <td className="px-4 py-3">
                       <Link
                         href={`/cases/${item.id}`}

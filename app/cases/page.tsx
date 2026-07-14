@@ -46,7 +46,7 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
   const createdNumber = createdCase?.caseNumber ?? null;
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-12 md:py-16">
+    <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
       {params.welcome === "partner" ? (
         <div className="mb-8 rounded-xl border border-teal/30 bg-cream px-5 py-4">
           <p className="font-medium text-navy">パートナー登録ありがとうございます</p>
@@ -116,8 +116,8 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           案件一覧
         </h1>
-        <p className="mt-3 max-w-2xl text-muted">
-          公開案件（approved）を表示します。
+        <p className="mt-3 max-w-3xl text-muted">
+          案件を比較して候補を絞り込み、詳細で商品画像・説明を確認してから交渉を開始できます。
           {ownDiag.authUid
             ? ` ログイン中は自分の open 案件も追加表示（${ownDiag.rows.filter((r) => r.status === "open").length} 件）。`
             : null}

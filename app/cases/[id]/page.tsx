@@ -49,7 +49,7 @@ export default async function CaseDetailPage({
   const favorited = user ? await isFavorite(user.id, caseItem.id) : false;
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
+    <div className="mx-auto max-w-4xl px-5 py-12 md:py-16">
       <CaseDetailView
         caseItem={caseItem}
         user={user}

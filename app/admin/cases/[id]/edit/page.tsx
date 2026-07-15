@@ -45,9 +45,9 @@ export default async function AdminCaseEditPage({ params }: PageProps) {
         </p>
       </header>
 
-      {/* 最上部に必ず表示（フォームの外） */}
       <CaseImageUploader
         caseId={caseItem.id}
+        images={caseItem.images}
         productImageUrl={caseItem.productImageUrl}
       />
 

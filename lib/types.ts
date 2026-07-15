@@ -253,6 +253,8 @@ export type Case = {
   partnerChannels: string | null;
   partnerRequirements: string | null;
   productImageUrl: string | null;
+  /** Gallery images (case_images), ordered by sort_order. Primary = [0]. */
+  images?: CaseImage[];
   reviewStatus: ReviewStatus;
   reviewNote: string | null;
   createdAt: string;
@@ -260,6 +262,16 @@ export type Case = {
   applicationCount?: number;
   /** Count of negotiations in active pipeline (accepted+) */
   negotiationCount?: number;
+};
+
+/** Row from public.case_images */
+export type CaseImage = {
+  id: string;
+  caseId: string;
+  imageUrl: string;
+  storagePath: string | null;
+  sortOrder: number;
+  createdAt: string;
 };
 
 export type Message = {

@@ -2,40 +2,19 @@
 
 import { FormEvent, useState, type ReactNode } from "react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { createCaseAction } from "@/lib/actions";
+import { updateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
-import { ProductImageField } from "@/components/forms/ProductImageField";
+import { caseToFormInput } from "@/lib/case-field-normalize";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
   caseRegions,
   salesFormatOptions,
   targetCountryOptions,
-  type CaseCreateInput,
   type Case,
+  type CaseCreateInput,
 } from "@/lib/types";
-
-const initial: CaseCreateInput = {
-  title: "",
-  category: "美容・コスメ",
-  region: "全国",
-  summary: "",
-  description: "",
-  idealPartner: "",
-  offer: "",
-  productName: "",
-  productFeatures: "",
-  priceBand: "",
-  salesFormat: "wholesale",
-  salesTerms: "",
-  minOrder: "",
-  isExclusive: false,
-  targetCountry: "JP",
-  partnerChannels: "",
-  partnerRequirements: "",
-  productImageUrl: null,
-};
 
 const categoryOptions = caseCategories.filter((c) => c !== "すべて");
 const regionOptions = caseRegions.filter((r) => r !== "すべて");
@@ -59,14 +38,16 @@ function Section({
     </section>
   );
 }
+
 type CaseEditFormProps = {
   caseItem: Case;
 };
 
 export function CaseEditForm({ caseItem }: CaseEditFormProps) {
-  const [form, setForm] = useState<CaseCreateInput>(initial);
+  const [form, setForm] = useState<CaseCreateInput>(() =>
+    caseToFormInput(caseItem),
+  );
   const [loading, setLoading] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState("");
 
   function update<K extends keyof CaseCreateInput>(
@@ -78,17 +59,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (imageUploading) {
-      setError("画像のアップロード完了を待ってから保存してください");
-      return;
-    }
     setError("");
     setLoading(true);
 
     try {
-      const result = await createCaseAction({
+      // product images are managed by CaseImageUploader (case_images)
+      const result = await updateCaseAction(caseItem.id, {
         ...form,
-        productImageUrl: form.productImageUrl?.trim() || null,
+        productImageUrl: caseItem.productImageUrl?.trim() || null,
       });
       if (result?.error) {
         setError(result.error);
@@ -96,7 +74,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
     } catch (err) {
       if (isRedirectError(err)) throw err;
       setError(
-        `登録処理でエラーが発生しました: ${
+        `更新処理でエラーが発生しました: ${
           err instanceof Error ? err.message : String(err)
         }`,
       );
@@ -137,7 +115,10 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
             className={selectClass}
             value={form.targetCountry}
             onChange={(e) =>
-              update("targetCountry", e.target.value as CaseCreateInput["targetCountry"])
+              update(
+                "targetCountry",
+                e.target.value as CaseCreateInput["targetCountry"],
+              )
             }
             required
           >
@@ -167,7 +148,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Section title="商品情報">
         <p className="text-xs text-muted">
-          サマリー・特徴・説明は役割が異なります。同じ文章を3箇所に入れないでください。
+          画像は上部の「商品画像管理」から登録します（最大4枚）。
         </p>
         <Input
           label="商品・ブランド名"
@@ -176,13 +157,6 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           maxLength={CASE_TEXT_LIMITS.productName}
           value={form.productName}
           onChange={(e) => update("productName", e.target.value)}
-        />
-        <ProductImageField
-          label="商品画像"
-          value={form.productImageUrl ?? null}
-          onChange={(url) => update("productImageUrl", url)}
-          onUploadingChange={setImageUploading}
-          disabled={loading}
         />
         <TextArea
           label="一覧用サマリー（短文）"
@@ -194,9 +168,6 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           onChange={(e) => update("summary", e.target.value)}
           placeholder="一覧に出す1〜2文"
         />
-        <p className="text-xs text-muted">
-          一覧表示用の短文。（{form.summary.length}/{CASE_TEXT_LIMITS.summary}）
-        </p>
         <TextArea
           label="商品の特徴・差別化ポイント"
           name="productFeatures"
@@ -216,9 +187,6 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           onChange={(e) => update("description", e.target.value)}
           placeholder="詳細な商品説明"
         />
-        <p className="text-xs text-muted">
-          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
-        </p>
         <Input
           label="想定価格帯"
           name="priceBand"
@@ -230,14 +198,16 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       </Section>
 
       <Section title="販売条件">
-        <p className="text-xs text-muted">各項目を個別に入力してください。</p>
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">販売形式</span>
           <select
             className={selectClass}
             value={form.salesFormat}
             onChange={(e) =>
-              update("salesFormat", e.target.value as CaseCreateInput["salesFormat"])
+              update(
+                "salesFormat",
+                e.target.value as CaseCreateInput["salesFormat"],
+              )
             }
             required
           >
@@ -330,8 +300,8 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           {error}
         </p>
       ) : null}
-      <Button type="submit" disabled={loading || imageUploading}>
-        {loading ? "提出中..." : "審査に提出する"}
+      <Button type="submit" disabled={loading}>
+        {loading ? "保存中..." : "変更を保存"}
       </Button>
     </form>
   );

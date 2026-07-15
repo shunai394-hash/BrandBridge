@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
-import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { Button } from "@/components/ui/Button";
 import type { Case, SessionUser } from "@/lib/types";
 import {
@@ -42,7 +42,6 @@ export function CaseDetailView({
   const description =
     caseItem.description?.trim() || "商品説明はまだ登録されていません。";
   const features = caseItem.productFeatures?.trim() || "";
-  const hasImage = Boolean(caseItem.productImageUrl?.trim());
 
   return (
     <article className="animate-fade-up">
@@ -76,21 +75,13 @@ export function CaseDetailView({
         </div>
       ) : null}
 
-      {/* 表示順: 画像 → 商品情報 */}
+      {/* 表示順: 画像ギャラリー → 商品情報 */}
       <header className="space-y-5">
-        <div>
-          <p className="mb-2 text-xs font-medium tracking-wide text-muted">
-            商品画像
-          </p>
-          <ProductCaseImage
-            src={caseItem.productImageUrl}
-            alt={caseItem.productName}
-            size="detail"
-          />
-          {!hasImage ? (
-            <p className="mt-1.5 text-xs text-muted">画像未登録</p>
-          ) : null}
-        </div>
+        <CaseImageGallery
+          images={caseItem.images}
+          productImageUrl={caseItem.productImageUrl}
+          alt={caseItem.productName}
+        />
 
         <dl>
           <InfoRow label="商品名" value={caseItem.productName} />

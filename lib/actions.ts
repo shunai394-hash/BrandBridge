@@ -19,6 +19,11 @@ import {
 import { toggleFavorite } from "@/lib/favorites";
 import { sendMessage } from "@/lib/messages";
 import {
+  addCaseImage,
+  deleteCaseImage,
+  reorderCaseImages,
+} from "@/lib/case-images";
+import {
   getNegotiationById,
   markNegotiationRead,
   updateNegotiationStatus,
@@ -311,7 +316,90 @@ export async function adminUpdateCaseAction(
   return {};
 }
 
-/** Admin or owning maker: set cases.product_image_url only (works from NULL). */
+function revalidateCaseImagePaths(caseId: string) {
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${caseId}`);
+  revalidatePath("/maker/cases");
+  revalidatePath(`/maker/cases/${caseId}/edit`);
+  revalidatePath("/admin/cases");
+  revalidatePath(`/admin/cases/${caseId}`);
+  revalidatePath(`/admin/cases/${caseId}/edit`);
+}
+
+async function assertCanManageCaseImages(
+  caseId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const session = await getSessionUser();
+  if (!session) return { ok: false, error: "ログインが必要です" };
+  if (!session.isActive) {
+    return { ok: false, error: "アカウントが停止されています" };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("cases")
+    .select("id, maker_id")
+    .eq("id", caseId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { ok: false, error: "案件が見つかりません" };
+  }
+  if (session.role !== "admin" && data.maker_id !== session.id) {
+    return { ok: false, error: "この案件の画像を更新する権限がありません" };
+  }
+  return { ok: true };
+}
+
+/** Add a gallery image (case_images). Syncs cases.product_image_url via trigger. */
+export async function addCaseImageAction(input: {
+  caseId: string;
+  imageUrl: string;
+  storagePath?: string | null;
+}): Promise<{ error?: string; imageId?: string }> {
+  const access = await assertCanManageCaseImages(input.caseId);
+  if (!access.ok) return { error: access.error };
+
+  const result = await addCaseImage({
+    caseId: input.caseId,
+    imageUrl: input.imageUrl,
+    storagePath: input.storagePath,
+  });
+  if (result.error) return { error: result.error };
+
+  revalidateCaseImagePaths(input.caseId);
+  return { imageId: result.image?.id };
+}
+
+export async function deleteCaseImageAction(input: {
+  caseId: string;
+  imageId: string;
+}): Promise<{ error?: string }> {
+  const access = await assertCanManageCaseImages(input.caseId);
+  if (!access.ok) return { error: access.error };
+
+  const result = await deleteCaseImage(input.imageId);
+  if (result.error) return { error: result.error };
+
+  revalidateCaseImagePaths(input.caseId);
+  return {};
+}
+
+export async function reorderCaseImagesAction(input: {
+  caseId: string;
+  orderedIds: string[];
+}): Promise<{ error?: string }> {
+  const access = await assertCanManageCaseImages(input.caseId);
+  if (!access.ok) return { error: access.error };
+
+  const result = await reorderCaseImages(input);
+  if (result.error) return { error: result.error };
+
+  revalidateCaseImagePaths(input.caseId);
+  return {};
+}
+
+/** Legacy single-URL setter (kept for create/registration flows). */
 export async function updateCaseProductImageAction(input: {
   caseId: string;
   productImageUrl: string | null;
@@ -328,7 +416,6 @@ export async function updateCaseProductImageAction(input: {
     .update({ product_image_url: imageUrl })
     .eq("id", input.caseId);
 
-  // Makers may only update their own cases; admin may update any
   if (session.role !== "admin") {
     query = query.eq("maker_id", session.id);
   }
@@ -348,31 +435,13 @@ export async function updateCaseProductImageAction(input: {
     };
   }
 
-  // Verify write landed (including first-time NULL → URL)
   const savedUrl =
     (data.product_image_url as string | null | undefined)?.trim() || null;
   if (savedUrl !== imageUrl) {
-    console.error("[updateCaseProductImageAction] mismatch", {
-      expected: imageUrl,
-      saved: data.product_image_url,
-    });
     return { error: "画像URLがDBに反映されませんでした。再試行してください。" };
   }
 
-  console.info("[updateCaseProductImageAction] ok", {
-    caseId: data.id,
-    product_image_url: data.product_image_url,
-    by: session.id,
-    role: session.role,
-  });
-
-  revalidatePath("/cases");
-  revalidatePath(`/cases/${input.caseId}`);
-  revalidatePath("/maker/cases");
-  revalidatePath(`/maker/cases/${input.caseId}/edit`);
-  revalidatePath("/admin/cases");
-  revalidatePath(`/admin/cases/${input.caseId}`);
-  revalidatePath(`/admin/cases/${input.caseId}/edit`);
+  revalidateCaseImagePaths(input.caseId);
   return {};
 }
 

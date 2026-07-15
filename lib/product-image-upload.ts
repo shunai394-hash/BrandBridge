@@ -3,14 +3,14 @@
 import { createClient } from "@/lib/supabase/client";
 
 const BUCKET = "product-images";
-const MAX_BYTES = 5 * 1024 * 1024;
+/** Spec: max 10MB for product gallery uploads */
+const MAX_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
-  "image/gif",
 ]);
-const ALLOWED_EXT = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
+const ALLOWED_EXT = new Set(["jpg", "jpeg", "png", "webp"]);
 
 export type ProductImageUploadResult =
   | { ok: true; url: string; path: string }
@@ -23,7 +23,6 @@ function extensionFor(file: File): string | null {
   }
   if (file.type === "image/png") return "png";
   if (file.type === "image/webp") return "webp";
-  if (file.type === "image/gif") return "gif";
   if (file.type === "image/jpeg") return "jpg";
   return null;
 }
@@ -31,7 +30,6 @@ function extensionFor(file: File): string | null {
 function mimeForExt(ext: string): string {
   if (ext === "png") return "image/png";
   if (ext === "webp") return "image/webp";
-  if (ext === "gif") return "image/gif";
   return "image/jpeg";
 }
 
@@ -56,14 +54,13 @@ export async function uploadProductImageFile(
   if (!typeOk || !ext) {
     return {
       ok: false,
-      error:
-        "画像形式は JPEG / PNG / WebP / GIF のみ対応しています",
+      error: "画像形式は JPEG / PNG / WebP のみ対応しています",
     };
   }
   if (file.size > MAX_BYTES) {
     return {
       ok: false,
-      error: "画像サイズは5MB以下にしてください",
+      error: "画像サイズは10MB以下にしてください",
     };
   }
 

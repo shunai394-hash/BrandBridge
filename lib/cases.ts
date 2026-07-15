@@ -3,6 +3,7 @@ import {
   normalizeCaseCreateInput,
   validateCaseCreateInput,
 } from "@/lib/case-validation";
+import { listCaseImages } from "@/lib/case-images";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Case,
@@ -312,7 +313,35 @@ export async function getCaseById(id: string): Promise<Case | null> {
     return null;
   }
 
-  return mapCase(data as CaseWithMaker);
+  const mapped = mapCase(data as CaseWithMaker);
+  const images = await listCaseImages(id);
+
+  // Prefer gallery; fall back to legacy product_image_url as single image
+  if (images.length > 0) {
+    return {
+      ...mapped,
+      images,
+      productImageUrl: images[0].imageUrl || mapped.productImageUrl,
+    };
+  }
+
+  if (mapped.productImageUrl?.trim()) {
+    return {
+      ...mapped,
+      images: [
+        {
+          id: `legacy-${mapped.id}`,
+          caseId: mapped.id,
+          imageUrl: mapped.productImageUrl,
+          storagePath: null,
+          sortOrder: 0,
+          createdAt: mapped.createdAt,
+        },
+      ],
+    };
+  }
+
+  return { ...mapped, images: [] };
 }
 
 export async function getLatestCases(limit = 6): Promise<Case[]> {

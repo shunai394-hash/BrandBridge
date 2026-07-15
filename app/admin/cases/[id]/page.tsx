@@ -47,10 +47,10 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
         {salesFormatLabel(caseItem.salesFormat)}
       </p>
 
-      {/* 画像UIを詳細でも最上部に表示 */}
       <div className="mt-8">
         <CaseImageUploader
           caseId={caseItem.id}
+          images={caseItem.images}
           productImageUrl={caseItem.productImageUrl}
         />
       </div>

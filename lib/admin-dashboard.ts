@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getDealStats } from "@/lib/deals";
 
-import type { CommissionPaymentStatus } from "@/lib/types";
-
-export type { CommissionPaymentStatus };
 
 /** Stable keys for metrics — safe to wire to APIs / billing later. */
 export type AdminDashboardMetricKey =

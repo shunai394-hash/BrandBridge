@@ -143,7 +143,7 @@ export function NegotiationForm({
       if (!result.ok || !result.id || !result.messageId) {
         setError(
           result.error ||
-            "messages 縺御ｽ懈・縺輔ｌ縺ｾ縺帙ｓ縺ｧ縺励◆縲る・遘ｻ繧剃ｸｭ豁｢縺励∪縺励◆縲・,
+             "メッセージが作成されませんでした。送信を中止しました。",
         );
         return;
       }

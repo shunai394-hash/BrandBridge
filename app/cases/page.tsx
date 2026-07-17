@@ -104,7 +104,7 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
       {ownPending.length > 0 ? (
         <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
           <p className="font-medium text-navy">
-            あなたの審査待ち案件が {ownPending.length} 件あります
+            あなたの審査待ち商品が {ownPending.length} 件あります
           </p>
           <p className="mt-1 text-sm text-muted">
             本人には表示されます。パートナーへの公開は管理者承認後です。

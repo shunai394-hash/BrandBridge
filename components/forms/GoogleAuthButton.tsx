@@ -62,10 +62,8 @@ export function GoogleAuthButton({
         provider: "google",
         options: {
           redirectTo: callback.toString(),
-          queryParams: {
-            // Account picker; avoids forcing consent every login
-            prompt: "select_account",
-          },
+          // Do not force prompt=select_account: BrandBridge session cookies
+          // keep the user signed in; Google UI only appears when needed.
         },
       });
 

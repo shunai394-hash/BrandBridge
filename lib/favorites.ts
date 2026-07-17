@@ -37,6 +37,7 @@ function mapFavoriteCase(
     offer: row.offer,
     status: row.status,
     productName: row.product_name,
+    sku: row.sku?.trim() || null,
     productFeatures: row.product_features,
     priceBand: row.price_band,
     salesFormat: row.sales_format as SalesFormat,

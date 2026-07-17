@@ -58,7 +58,10 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
         <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-lg leading-snug text-navy transition group-hover:text-teal">
           {caseItem.title}
         </h3>
-        <p className="mt-1 text-sm text-muted">{caseItem.productName}</p>
+        <p className="mt-1 font-mono text-xs tracking-wide text-teal">
+          {caseItem.sku?.trim() || "—"}
+        </p>
+        <p className="mt-0.5 text-sm text-muted">{caseItem.productName}</p>
       </Link>
 
       {caseItem.priceBand ? (

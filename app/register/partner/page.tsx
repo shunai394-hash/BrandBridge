@@ -41,7 +41,7 @@ export default async function PartnerRegisterPage() {
         <p className="mt-2 text-sm text-muted">
           まだ検討中の方は{" "}
           <Link href="/for-partners" className="text-teal hover:underline">
-            バイヤー向けページ
+            販売パートナー向けページ
           </Link>
           をご覧ください。
         </p>

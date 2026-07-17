@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "BrandBridge — メーカーと販売パートナーをつなぐ";
+export const alt =
+  "BrandBridge — 販路開拓と商材探しを最短でつなぐ";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -51,7 +52,7 @@ export default function OpenGraphImage() {
               lineHeight: 1.35,
             }}
           >
-            メーカーと販売パートナーをつなぐ
+            販路開拓と商材探しを最短でつなぐ
           </div>
         </div>
         <div
@@ -61,7 +62,7 @@ export default function OpenGraphImage() {
             color: "rgba(255,255,255,0.65)",
           }}
         >
-          案件掲載・交渉・成約までをサポート
+          条件が見えるBtoBマッチング · ベータ先行登録受付中
         </div>
       </div>
     ),

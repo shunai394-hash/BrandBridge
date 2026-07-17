@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
 
 export function createClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -10,5 +11,15 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient(url, key);
+  // Singleton + cookie storage: one in-memory client, durable cookies for restarts
+  return createBrowserClient(url, key, {
+    isSingleton: true,
+    cookieOptions: AUTH_COOKIE_OPTIONS,
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: "pkce",
+    },
+  });
 }

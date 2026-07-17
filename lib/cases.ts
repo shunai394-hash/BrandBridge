@@ -1,6 +1,7 @@
 import {
   formatSupabaseError,
   normalizeCaseCreateInput,
+  skuForDb,
   validateCaseCreateInput,
 } from "@/lib/case-validation";
 import { listCaseImages } from "@/lib/case-images";
@@ -57,6 +58,7 @@ function mapCase(row: CaseWithMaker): Case {
     offer: row.offer,
     status: row.status,
     productName: row.product_name,
+    sku: row.sku?.trim() || null,
     productFeatures: row.product_features,
     priceBand: row.price_band,
     salesFormat: row.sales_format as SalesFormat,
@@ -472,6 +474,7 @@ export async function createCase(
       ideal_partner: normalized.idealPartner.trim(),
       offer: normalized.offer.trim(),
       product_name: normalized.productName.trim(),
+      sku: skuForDb(normalized.sku),
       product_features: normalized.productFeatures.trim() || null,
       price_band: normalized.priceBand.trim() || null,
       sales_format: normalized.salesFormat,
@@ -494,6 +497,24 @@ export async function createCase(
       )
       .single();
 
+    const errText = `${error?.message ?? ""} ${error?.details ?? ""}`;
+    // Retry without sku when migration 028 is not applied yet
+    const missingSku =
+      error && /Could not find the 'sku' column/i.test(errText);
+    if (missingSku) {
+      console.warn("[createCase] retry without sku (column missing)");
+      const { sku: _omitSku, ...withoutSku } = insertPayload;
+      const retrySku = await supabase
+        .from("cases")
+        .insert(withoutSku)
+        .select(
+          "id, product_name, maker_id, status, review_status, created_at, product_image_url",
+        )
+        .single();
+      data = retrySku.data;
+      error = retrySku.error;
+    }
+
     // Only retry without the column when schema cache truly lacks it
     const missingColumn =
       error &&
@@ -502,7 +523,8 @@ export async function createCase(
       );
     if (missingColumn) {
       console.warn("[createCase] retry without product_image_url (column missing)");
-      const { product_image_url: _omit, ...withoutImage } = insertPayload;
+      const { product_image_url: _omit, sku: _omitSku2, ...withoutImage } =
+        insertPayload;
       const retry = await supabase
         .from("cases")
         .insert(withoutImage)
@@ -610,6 +632,7 @@ function caseUpdatePayload(normalized: CaseCreateInput) {
     ideal_partner: normalized.idealPartner.trim(),
     offer: normalized.offer.trim(),
     product_name: normalized.productName.trim(),
+    sku: skuForDb(normalized.sku),
     product_features: normalized.productFeatures.trim() || null,
     price_band: normalized.priceBand.trim() || null,
     sales_format: normalized.salesFormat,
@@ -637,13 +660,33 @@ export async function updateCase(
     } = await supabase.auth.getUser();
     if (!user) return { error: "ログインが必要です" };
 
-    const { data, error } = await supabase
+    const payload = caseUpdatePayload(normalized);
+    let { data, error } = await supabase
       .from("cases")
-      .update(caseUpdatePayload(normalized))
+      .update(payload)
       .eq("id", caseId)
       .eq("maker_id", user.id)
       .select("id, product_image_url")
       .maybeSingle();
+
+    if (
+      error &&
+      /Could not find the 'sku' column/i.test(
+        `${error.message} ${error.details ?? ""}`,
+      )
+    ) {
+      console.warn("[updateCase] retry without sku (column missing)");
+      const { sku: _omit, ...withoutSku } = payload;
+      const retry = await supabase
+        .from("cases")
+        .update(withoutSku)
+        .eq("id", caseId)
+        .eq("maker_id", user.id)
+        .select("id, product_image_url")
+        .maybeSingle();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error("[updateCase]", error.message);
@@ -677,12 +720,30 @@ export async function adminUpdateCase(
     const supabase = await createClient();
     const payload = caseUpdatePayload(normalized);
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from("cases")
       .update(payload)
       .eq("id", caseId)
       .select("id, product_name, product_image_url")
       .maybeSingle();
+
+    if (
+      error &&
+      /Could not find the 'sku' column/i.test(
+        `${error.message} ${error.details ?? ""}`,
+      )
+    ) {
+      console.warn("[adminUpdateCase] retry without sku (column missing)");
+      const { sku: _omit, ...withoutSku } = payload;
+      const retry = await supabase
+        .from("cases")
+        .update(withoutSku)
+        .eq("id", caseId)
+        .select("id, product_name, product_image_url")
+        .maybeSingle();
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error("[adminUpdateCase]", error.message);

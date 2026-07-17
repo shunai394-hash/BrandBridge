@@ -122,7 +122,9 @@ export async function startNegotiationAction(input: {
     partner_id: partner.id,
     topic,
     message: body,
-    application_status: "pending" as const,
+    // Open chat immediately — no maker approval gate
+    application_status: "accepted" as const,
+    pipeline_status: "in_negotiation" as const,
   };
 
   log("negotiation insert payload:", negotiationPayload);
@@ -341,7 +343,8 @@ export async function startNegotiationDraftAction(input: {
       partner_id: partner.id,
       message: body,
       topic,
-      application_status: "pending",
+      application_status: "accepted",
+      pipeline_status: "in_negotiation",
     })
     .select("id, topic")
     .single();

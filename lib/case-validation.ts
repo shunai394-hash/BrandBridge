@@ -7,6 +7,8 @@ export const CASE_TEXT_LIMITS = {
   /** Listing card / table blurb — keep short */
   summary: 280,
   description: 10000,
+  /** Maker-managed SKU (not a platform product ID) */
+  sku: 50,
   productName: 200,
   productFeatures: 5000,
   idealPartner: 5000,
@@ -18,6 +20,9 @@ export const CASE_TEXT_LIMITS = {
   minOrder: 200,
 } as const;
 
+/** Allowed: ASCII letters, digits, hyphen, underscore */
+const SKU_PATTERN = /^[A-Za-z0-9_-]+$/;
+
 const salesFormats = new Set(salesFormatOptions.map((o) => o.value));
 const targetCountries = new Set(targetCountryOptions.map((o) => o.value));
 
@@ -25,6 +30,17 @@ function asText(value: unknown): string {
   if (typeof value === "string") return value;
   if (value == null) return "";
   return String(value);
+}
+
+/** Trim SKU; empty → "" for form state. */
+export function normalizeSkuInput(value: unknown): string {
+  return asText(value).trim();
+}
+
+/** Empty string → null for DB storage. */
+export function skuForDb(value: string): string | null {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 /** Coerce server-action payload so .trim() never throws. */
@@ -39,6 +55,7 @@ export function normalizeCaseCreateInput(
     description: asText(input.description),
     idealPartner: asText(input.idealPartner),
     offer: asText(input.offer),
+    sku: normalizeSkuInput(input.sku),
     productName: asText(input.productName),
     productFeatures: asText(input.productFeatures),
     priceBand: asText(input.priceBand),
@@ -75,6 +92,13 @@ export function validateCaseCreateInput(
   }
   if (!targetCountries.has(n.targetCountry)) {
     return `対象国が不正です: ${n.targetCountry}`;
+  }
+
+  if (n.sku.length > CASE_TEXT_LIMITS.sku) {
+    return `商品コード（SKU）は${CASE_TEXT_LIMITS.sku}文字以内にしてください`;
+  }
+  if (n.sku && !SKU_PATTERN.test(n.sku)) {
+    return "商品コード（SKU）は英数字・ハイフン・アンダースコアのみ使用できます";
   }
 
   if (n.title.length > CASE_TEXT_LIMITS.title) {

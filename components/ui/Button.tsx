@@ -7,6 +7,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   href?: string;
   children: ReactNode;
+  /** Passed through for E2E / diagnostics */
+  "data-testid"?: string;
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -26,7 +28,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classes = [
-    "inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-200",
+    "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-medium tracking-wide transition-all duration-200",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal",
     "disabled:cursor-not-allowed disabled:opacity-60",
     variantClasses[variant],
@@ -42,7 +44,7 @@ export function Button({
   }
 
   return (
-    <button type={type} className={classes} {...props}>
+    <button className={classes} {...props} type={type}>
       {children}
     </button>
   );

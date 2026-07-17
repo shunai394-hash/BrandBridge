@@ -59,6 +59,7 @@ export function CaseList({
         item.caseNumber.toLowerCase().includes(q) ||
         item.title.toLowerCase().includes(q) ||
         item.productName.toLowerCase().includes(q) ||
+        (item.sku?.toLowerCase().includes(q) ?? false) ||
         item.summary.toLowerCase().includes(q);
 
       return (
@@ -128,6 +129,9 @@ export function CaseList({
                     <td className={caseNumberClassName()}>{item.caseNumber}</td>
                     <td className="px-4 py-3">
                       {/* 商品名のみ詳細へ（行全体のクリック遷移はしない） */}
+                      <p className="mb-0.5 font-mono text-xs text-teal">
+                        {item.sku?.trim() || "—"}
+                      </p>
                       <Link
                         href={`/cases/${item.id}`}
                         className="font-medium text-navy hover:text-teal hover:underline"

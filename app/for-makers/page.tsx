@@ -18,7 +18,7 @@ const pains = [
 const capabilities = [
   {
     step: "STEP1",
-    title: "商品・ブランドを登録",
+    title: "商品を登録",
     body: "商品画像、カテゴリ、価格、販売条件などを登録できます。",
   },
   {

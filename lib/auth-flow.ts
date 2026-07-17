@@ -6,6 +6,14 @@ export function isSafeAppPath(path: string | null | undefined): path is string {
   return Boolean(path && path.startsWith("/") && !path.startsWith("//"));
 }
 
+/** Legacy /admin/dashboard → /admin（管理画面は /admin のみ） */
+export function normalizeAdminPath(path: string): string {
+  if (path === "/admin/dashboard" || path.startsWith("/admin/dashboard?")) {
+    return path.replace(/^\/admin\/dashboard/, "/admin");
+  }
+  return path;
+}
+
 export function setupPathForRole(role: IntentRole): string {
   return role === "maker" ? "/maker/setup" : "/partner/setup";
 }
@@ -29,7 +37,8 @@ export function resolveRoleDestination(input: {
   const { role, onboardingCompleted, requestedNext } = input;
 
   if (role === "admin") {
-    return isSafeAppPath(requestedNext) ? requestedNext : "/admin";
+    if (!isSafeAppPath(requestedNext)) return "/admin";
+    return normalizeAdminPath(requestedNext);
   }
 
   if (role === "maker" && !onboardingCompleted) return "/maker/setup";
@@ -46,7 +55,7 @@ export function resolveRoleDestination(input: {
     ) {
       return setupPathForRole(role);
     }
-    return requestedNext;
+    return normalizeAdminPath(requestedNext);
   }
 
   return defaultHomeForRole(role);

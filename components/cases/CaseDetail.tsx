@@ -84,6 +84,7 @@ export function CaseDetailView({
         />
 
         <dl>
+          <InfoRow label="商品コード" value={caseItem.sku?.trim() || "—"} />
           <InfoRow label="商品名" value={caseItem.productName} />
           <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow

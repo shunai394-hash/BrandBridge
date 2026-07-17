@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { FormEvent, useId, useRef, useState } from "react";
@@ -27,9 +27,9 @@ type NegotiationFormProps = {
 };
 
 const statusLabel: Record<ApplicationStatus, string> = {
-  pending: "審査中",
-  accepted: "承認済",
-  rejected: "却下",
+  pending: "蟇ｩ譟ｻ荳ｭ",
+  accepted: "謇ｿ隱肴ｸ・,
+  rejected: "蜊ｴ荳・,
 };
 
 const TOPIC_MAX = 120;
@@ -45,7 +45,7 @@ function formatBytes(bytes: number) {
 
 /**
  * Email-style negotiation start form.
- * Fields: 件名(required) / 本文 / 添付 → startNegotiationAction({ topic, body, attachment })
+ * Fields: 莉ｶ蜷・required) / 譛ｬ譁・/ 豺ｻ莉・竊・startNegotiationAction({ topic, body, attachment })
  */
 export function NegotiationForm({
   caseId,
@@ -74,11 +74,11 @@ export function NegotiationForm({
 
     const trimmedTopic = topic.trim();
     if (!trimmedTopic) {
-      setError("件名を入力してください");
+      setError("莉ｶ蜷阪ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞");
       return;
     }
     if (trimmedTopic.length > TOPIC_MAX) {
-      setError(`件名は${TOPIC_MAX}文字以内にしてください`);
+      setError(`莉ｶ蜷阪・${TOPIC_MAX}譁・ｭ嶺ｻ･蜀・↓縺励※縺上□縺輔＞`);
       return;
     }
 
@@ -101,7 +101,7 @@ export function NegotiationForm({
           return;
         }
         if (!draft.ok || !draft.id) {
-          setError(draft.error || "negotiations INSERT に失敗しました");
+          setError(draft.error || "negotiations INSERT 縺ｫ螟ｱ謨励＠縺ｾ縺励◆");
           return;
         }
 
@@ -144,7 +144,7 @@ export function NegotiationForm({
       if (!result.ok || !result.id || !result.messageId) {
         setError(
           result.error ||
-            "messages が作成されませんでした。遷移を中止しました。",
+            "messages 縺御ｽ懈・縺輔ｌ縺ｾ縺帙ｓ縺ｧ縺励◆縲る・遘ｻ繧剃ｸｭ豁｢縺励∪縺励◆縲・,
         );
         return;
       }
@@ -158,7 +158,7 @@ export function NegotiationForm({
       router.refresh();
     } catch (err) {
       setError(
-        `送信に失敗しました: ${err instanceof Error ? err.message : String(err)}`,
+        `騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${err instanceof Error ? err.message : String(err)}`,
       );
     } finally {
       setLoading(false);
@@ -169,13 +169,13 @@ export function NegotiationForm({
     return (
       <div className="rounded-lg border border-teal/25 bg-cream/70 p-6">
         <p className="text-sm leading-relaxed text-muted">
-          交渉を申し込むには、販売パートナーとしてログインしてください。
+          莠､貂峨ｒ逕ｳ縺苓ｾｼ繧縺ｫ縺ｯ縲∬ｲｩ螢ｲ繝代・繝医リ繝ｼ縺ｨ縺励※繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・
         </p>
         <div className="mt-4">
           <Button
             href={`/login?next=${encodeURIComponent(`/cases/${caseId}/negotiation`)}`}
           >
-            ログインして申し込む
+            繝ｭ繧ｰ繧､繝ｳ縺励※逕ｳ縺苓ｾｼ繧
           </Button>
         </div>
       </div>
@@ -186,7 +186,7 @@ export function NegotiationForm({
     return (
       <div className="rounded-lg border border-border bg-surface p-6">
         <p className="text-sm text-muted">
-          メーカーアカウントでは交渉申込はできません。販売パートナーとして登録・ログインしてください。
+          繝｡繝ｼ繧ｫ繝ｼ繧｢繧ｫ繧ｦ繝ｳ繝医〒縺ｯ莠､貂臥筏霎ｼ縺ｯ縺ｧ縺阪∪縺帙ｓ縲りｲｩ螢ｲ繝代・繝医リ繝ｼ縺ｨ縺励※逋ｻ骭ｲ繝ｻ繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・
         </p>
       </div>
     );
@@ -200,21 +200,21 @@ export function NegotiationForm({
     >
       <div className="border-b border-teal/20 bg-teal/5 px-5 py-3 md:px-6">
         <p className="text-xs font-semibold tracking-wide text-teal">
-          メール形式 · 新規メッセージ
+          繝｡繝ｼ繝ｫ蠖｢蠑・ﾂｷ 譁ｰ隕上Γ繝・そ繝ｼ繧ｸ
         </p>
         <p className="mt-0.5 text-sm text-muted">
-          件名・本文・添付を送信して交渉スレッドを開始します
+          莉ｶ蜷阪・譛ｬ譁・・豺ｻ莉倥ｒ騾∽ｿ｡縺励※莠､貂峨せ繝ｬ繝・ラ繧帝幕蟋九＠縺ｾ縺・
         </p>
       </div>
 
       {/* Email meta header */}
       <div className="space-y-0 border-b border-border text-sm">
         <div className="grid grid-cols-[5rem_1fr] items-center gap-2 border-b border-border/70 px-5 py-2.5 md:px-6">
-          <span className="text-muted">案件番号</span>
+          <span className="text-muted">譯井ｻｶ逡ｪ蜿ｷ</span>
           <span className="font-mono font-medium text-teal">{caseNumber}</span>
         </div>
         <div className="grid grid-cols-[5rem_1fr] items-center gap-2 px-5 py-2.5 md:px-6">
-          <span className="text-muted">商品名</span>
+          <span className="text-muted">蝠・刀蜷・/span>
           <span className="font-medium text-navy">{productName}</span>
         </div>
       </div>
@@ -222,7 +222,7 @@ export function NegotiationForm({
       {existingThreads.length > 0 ? (
         <div className="border-b border-border bg-cream/40 px-5 py-3 md:px-6">
           <p className="text-xs font-medium text-navy">
-            この案件の既存スレッド（{existingThreads.length}件）
+            縺薙・譯井ｻｶ縺ｮ譌｢蟄倥せ繝ｬ繝・ラ・・existingThreads.length}莉ｶ・・
           </p>
           <ul className="mt-2 space-y-1">
             {existingThreads.map((t) => (
@@ -243,13 +243,13 @@ export function NegotiationForm({
       ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-0">
-        {/* 件名 — required */}
+        {/* 莉ｶ蜷・窶・required */}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={topicId}
             className="pt-2.5 text-sm font-semibold text-navy"
           >
-            件名 <span className="text-red-600">*</span>
+            莉ｶ蜷・<span className="text-red-600">*</span>
           </label>
           <div>
             <input
@@ -260,24 +260,24 @@ export function NegotiationForm({
               maxLength={TOPIC_MAX}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="例: 初回ロット条件について"
+              placeholder="萓・ 蛻晏屓繝ｭ繝・ヨ譚｡莉ｶ縺ｫ縺､縺・※"
               className={fieldClass}
               autoComplete="off"
             />
             <p className="mt-1 text-xs text-muted">
-              必須 · {topic.trim().length}/{TOPIC_MAX} · negotiations.topic /
+              蠢・・ﾂｷ {topic.trim().length}/{TOPIC_MAX} ﾂｷ negotiations.topic /
               messages.topic
             </p>
           </div>
         </div>
 
-        {/* 本文 */}
+        {/* 譛ｬ譁・*/}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={bodyId}
             className="pt-2.5 text-sm font-semibold text-navy"
           >
-            本文
+            譛ｬ譁・
           </label>
           <div>
             <textarea
@@ -286,19 +286,19 @@ export function NegotiationForm({
               rows={8}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="ご提案内容・取り扱いチャネル・希望条件など"
+              placeholder="縺疲署譯亥・螳ｹ繝ｻ蜿悶ｊ謇ｱ縺・メ繝｣繝阪Ν繝ｻ蟶梧悍譚｡莉ｶ縺ｪ縺ｩ"
               className={`${fieldClass} min-h-[10rem] resize-y`}
             />
           </div>
         </div>
 
-        {/* 添付 */}
+        {/* 豺ｻ莉・*/}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={fileId}
             className="pt-1 text-sm font-semibold text-navy"
           >
-            添付
+            豺ｻ莉・
           </label>
           <div>
             <input
@@ -311,11 +311,11 @@ export function NegotiationForm({
               className="block w-full max-w-md cursor-pointer text-sm text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-teal/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-teal hover:file:bg-teal/15"
             />
             <p className="mt-1.5 text-xs text-muted">
-              PDF / 画像 / Word / Excel / テキスト / CSV（最大10MB）
+              PDF / 逕ｻ蜒・/ Word / Excel / 繝・く繧ｹ繝・/ CSV・域怙螟ｧ10MB・・
             </p>
             {file ? (
               <p className="mt-2 text-sm text-navy">
-                選択中: {file.name}（{formatBytes(file.size)}）
+                驕ｸ謚樔ｸｭ: {file.name}・・formatBytes(file.size)}・・
                 <button
                   type="button"
                   className="ml-2 text-xs text-muted underline"
@@ -324,7 +324,7 @@ export function NegotiationForm({
                     if (fileRef.current) fileRef.current.value = "";
                   }}
                 >
-                  解除
+                  隗｣髯､
                 </button>
               </p>
             ) : null}
@@ -344,7 +344,7 @@ export function NegotiationForm({
               open
             >
               <summary className="cursor-pointer text-xs font-semibold text-navy">
-                [negotiation-start] ログ
+                [negotiation-start] 繝ｭ繧ｰ
               </summary>
               <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-all text-[11px] text-navy">
                 {debugLogs.join("\n")}
@@ -353,11 +353,11 @@ export function NegotiationForm({
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Button type="submit" disabled={loading || !topic.trim()}>
-              {loading ? "送信中..." : "送信して交渉を開始"}
+            <Button type="submit" disabled={loading}>
+              {loading ? "騾∽ｿ｡荳ｭ..." : "騾∽ｿ｡縺励※莠､貂峨ｒ髢句ｧ・}
             </Button>
             <Button href={`/cases/${caseId}`} variant="outline" type="button">
-              キャンセル
+              繧ｭ繝｣繝ｳ繧ｻ繝ｫ
             </Button>
           </div>
         </div>
@@ -365,3 +365,4 @@ export function NegotiationForm({
     </section>
   );
 }
+

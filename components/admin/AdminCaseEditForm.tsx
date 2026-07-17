@@ -87,6 +87,21 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         </p>
 
         <Input
+          label="商品コード（SKU）"
+          name="sku"
+          maxLength={CASE_TEXT_LIMITS.sku}
+          value={form.sku}
+          onChange={(e) => update("sku", e.target.value)}
+          placeholder="HYC-0001"
+          autoComplete="off"
+        />
+        <p className="text-xs text-muted">
+          社内管理用の商品コードです。販売パートナーにも表示されます。
+          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
+          文字以内。例: BB-000123）
+        </p>
+
+        <Input
           label="商品名"
           name="productName"
           required
@@ -145,30 +160,18 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         </p>
 
         <TextArea
-          label="商品特徴"
-          name="productFeatures"
-          rows={4}
-          maxLength={CASE_TEXT_LIMITS.productFeatures}
-          value={form.productFeatures}
-          onChange={(e) => update("productFeatures", e.target.value)}
-          placeholder="product_features: 商品の特徴"
-        />
-        <p className="text-xs text-muted">
-          product_features。空欄なら特徴を入力して保存してください。
-        </p>
-
-        <TextArea
           label="商品説明"
           name="description"
           required
-          rows={5}
+          rows={8}
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          placeholder="description: 詳細説明のみ"
+          placeholder="特徴・用途・訴求ポイントなど"
         />
         <p className="text-xs text-muted">
-          description（詳細説明のみ）。一覧用サマリーとは別内容に。
+          特徴・用途・販売時の訴求ポイントなどをまとめて入力。（
+          {form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
       </section>
 

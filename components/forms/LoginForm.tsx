@@ -216,7 +216,12 @@ export function LoginForm({
         <span className="h-px flex-1 bg-navy/15" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        method="post"
+        action="#"
+        className="space-y-5"
+      >
         <Input
           label="メールアドレス"
           name="email"

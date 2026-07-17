@@ -3,12 +3,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  addCaseImageAction,
   deleteCaseImageAction,
   reorderCaseImagesAction,
+  uploadAndAddCaseImageAction,
 } from "@/lib/actions";
 import { MAX_CASE_IMAGES } from "@/lib/case-image-constants";
-import { uploadProductImageFile } from "@/lib/product-image-upload";
 import type { CaseImage } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
@@ -81,28 +80,23 @@ export function CaseImageUploader({
       const next = [...images];
       let lastError = "";
       for (const file of selected) {
-        const uploaded = await uploadProductImageFile(file);
-        if (!uploaded.ok) {
-          lastError = uploaded.error;
-          break;
-        }
+        const formData = new FormData();
+        formData.set("caseId", caseId);
+        formData.set("file", file);
 
-        const saved = await addCaseImageAction({
-          caseId,
-          imageUrl: uploaded.url,
-          storagePath: uploaded.path,
-        });
+        // Server Action: cookie session JWT → Storage → case_images
+        const saved = await uploadAndAddCaseImageAction(formData);
 
-        if (saved.error) {
-          lastError = saved.error;
+        if (saved.error || !saved.imageUrl) {
+          lastError = saved.error || "画像アップロードに失敗しました";
           break;
         }
 
         next.push({
           id: saved.imageId || `tmp-${Date.now()}`,
           caseId,
-          imageUrl: uploaded.url,
-          storagePath: uploaded.path,
+          imageUrl: saved.imageUrl,
+          storagePath: saved.storagePath ?? null,
           sortOrder: next.length,
           createdAt: new Date().toISOString(),
         });

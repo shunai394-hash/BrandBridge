@@ -3,17 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  acceptNegotiationAction,
-  rejectNegotiationAction,
-  updatePipelineStatusAction,
-} from "@/lib/actions";
+import { updatePipelineStatusAction } from "@/lib/actions";
 import { MessageThread } from "@/components/negotiations/MessageThread";
-import {
-  NegotiationStatusBadge,
-  PipelineStatusBadge,
-} from "@/components/negotiations/NegotiationStatusBadge";
-import { Button } from "@/components/ui/Button";
+import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
 import type {
   MessageView,
@@ -38,43 +30,17 @@ export function NegotiationDetail({
   messages,
 }: NegotiationDetailProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState<"accept" | "reject" | null>(null);
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [error, setError] = useState("");
 
   const listHref = negotiationsListPath(user.role);
-  const canModerate =
-    user.role === "maker" && item.applicationStatus === "pending";
+  const isClosed = item.applicationStatus === "rejected";
+  const canReply = !isClosed;
   const canEditPipeline =
-    item.applicationStatus === "accepted" &&
+    !isClosed &&
     (user.role === "maker" ||
       user.role === "partner" ||
       user.role === "admin");
-  const canReply = item.applicationStatus === "accepted";
-
-  async function handleAccept() {
-    setError("");
-    setLoading("accept");
-    const result = await acceptNegotiationAction(item.id);
-    setLoading(null);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    router.refresh();
-  }
-
-  async function handleReject() {
-    setError("");
-    setLoading("reject");
-    const result = await rejectNegotiationAction(item.id);
-    setLoading(null);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    router.refresh();
-  }
 
   async function handlePipelineChange(pipelineStatus: PipelineStatus) {
     setError("");
@@ -106,7 +72,6 @@ export function NegotiationDetail({
         </Link>
       </div>
 
-      {/* Email-style header — 件名を最上部 */}
       <header className="rounded-lg border border-border bg-surface p-5 md:p-6">
         <p className="text-xs font-medium tracking-wide text-muted">件名</p>
         <h1 className="mt-1 font-[family-name:var(--font-shippori)] text-2xl leading-tight text-navy md:text-3xl">
@@ -118,15 +83,20 @@ export function NegotiationDetail({
             <p className="font-mono text-sm font-medium text-teal">
               {item.caseNumber}
             </p>
+            <p className="mt-1 text-xs text-muted">
+              商品コード：
+              <span className="ml-1 font-mono text-teal">
+                {item.productSku?.trim() || "—"}
+              </span>
+            </p>
             <p className="mt-1 text-base font-medium text-navy">
               {item.productName}
             </p>
             <p className="mt-0.5 text-sm text-muted">{item.caseTitle}</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <NegotiationStatusBadge status={item.applicationStatus} />
+          {item.pipelineStatus ? (
             <PipelineStatusBadge status={item.pipelineStatus} />
-          </div>
+          ) : null}
         </div>
 
         <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
@@ -159,34 +129,6 @@ export function NegotiationDetail({
           </div>
         </dl>
       </header>
-
-      {canModerate ? (
-        <section className="mt-6 rounded-lg border border-teal/25 bg-cream/70 p-5">
-          <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-            交渉の審査
-          </h2>
-          <p className="mt-2 text-sm text-muted">
-            承認すると、双方がこのスレッドでメッセージと添付ファイルをやり取りできます。
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button
-              type="button"
-              onClick={handleAccept}
-              disabled={loading !== null}
-            >
-              {loading === "accept" ? "処理中..." : "承認する"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleReject}
-              disabled={loading !== null}
-            >
-              {loading === "reject" ? "処理中..." : "却下する"}
-            </Button>
-          </div>
-        </section>
-      ) : null}
 
       {canEditPipeline ? (
         <section className="mt-6 rounded-lg border border-border bg-surface p-5">
@@ -226,38 +168,20 @@ export function NegotiationDetail({
 
       {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
 
-      {item.applicationStatus === "pending" && user.role === "partner" ? (
-        <p className="mt-6 rounded-lg border border-border bg-surface px-5 py-4 text-sm text-muted">
-          メーカーの審査をお待ちください。承認されると返信・添付が可能になります。
-        </p>
-      ) : null}
-
-      {item.applicationStatus === "rejected" ? (
+      {isClosed ? (
         <p className="mt-6 rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          この交渉は却下されました。メッセージのやり取りはできません。
+          この交渉は終了しています。メッセージのやり取りはできません。
         </p>
       ) : null}
 
-      {item.applicationStatus === "pending" ||
-      item.applicationStatus === "accepted" ? (
-        <MessageThread
-          negotiationId={item.id}
-          messages={messages}
-          initialMessage={item.initialMessage}
-          initialFrom={item.partnerCompanyName}
-          initialAt={item.createdAt}
-          canReply={canReply}
-        />
-      ) : (
-        <MessageThread
-          negotiationId={item.id}
-          messages={[]}
-          initialMessage={item.initialMessage}
-          initialFrom={item.partnerCompanyName}
-          initialAt={item.createdAt}
-          canReply={false}
-        />
-      )}
+      <MessageThread
+        negotiationId={item.id}
+        messages={canReply ? messages : []}
+        initialMessage={item.initialMessage}
+        initialFrom={item.partnerCompanyName}
+        initialAt={item.createdAt}
+        canReply={canReply}
+      />
     </article>
   );
 }

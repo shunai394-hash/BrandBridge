@@ -24,9 +24,9 @@ export function Footer() {
             BrandBridge
           </p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/65">
-            メーカーと販売パートナーをつなぐ、BtoBマッチングサービス。
+            販路開拓と商材探しを最短でつなぐ、条件が見えるBtoBマッチング。
           </p>
-          <p className="mt-3 text-xs text-white/45">ベータ公開中</p>
+          <p className="mt-3 text-xs text-white/45">ベータ先行登録受付中</p>
         </div>
         <div className="flex flex-wrap gap-10 text-sm">
           <div>

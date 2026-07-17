@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CaseEditForm } from "@/components/forms/CaseEditForm";
-import { CaseImageUploader } from "@/components/forms/CaseImageUploader";
 import { getCaseById } from "@/lib/cases";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,12 +54,6 @@ export default async function MakerCaseEditPage({ params }: PageProps) {
           {caseItem.caseNumber}
         </p>
       </header>
-
-      <CaseImageUploader
-        caseId={caseItem.id}
-        images={caseItem.images}
-        productImageUrl={caseItem.productImageUrl}
-      />
 
       <CaseEditForm key={caseItem.id} caseItem={caseItem} />
     </div>

@@ -9,11 +9,17 @@ import {
   type ContactCategory,
 } from "@/lib/contact-types";
 
-export function ContactForm() {
+type ContactFormProps = {
+  initialCategory?: ContactCategory;
+};
+
+export function ContactForm({
+  initialCategory = "general",
+}: ContactFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
-  const [category, setCategory] = useState<ContactCategory>("general");
+  const [category, setCategory] = useState<ContactCategory>(initialCategory);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,7 +42,7 @@ export function ContactForm() {
     }
     setDone(true);
     e.currentTarget.reset();
-    setCategory("general");
+    setCategory(initialCategory);
   }
 
   if (done) {
@@ -46,7 +52,7 @@ export function ContactForm() {
           送信が完了しました
         </p>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          お問い合わせありがとうございます。内容を確認のうえ、必要に応じてご登録のメールアドレスへご連絡します。
+          お問い合わせありがとうございます。通常1〜2営業日以内にご返信します。掲載相談は優先的に確認します。
         </p>
         <Button
           type="button"
@@ -98,7 +104,11 @@ export function ContactForm() {
         required
         rows={6}
         maxLength={5000}
-        placeholder="できるだけ具体的にご記入ください（10文字以上）"
+        placeholder={
+          initialCategory === "maker"
+            ? "掲載したい商材・希望販路・ご質問などをご記入ください。ベータ参加希望の場合はその旨も記載してください。"
+            : "できるだけ具体的にご記入ください（10文字以上）"
+        }
       />
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <Button type="submit" disabled={loading}>

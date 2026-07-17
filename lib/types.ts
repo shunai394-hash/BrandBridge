@@ -48,6 +48,8 @@ export type NegotiationListItem = {
   caseNumber: string;
   caseTitle: string;
   productName: string;
+  /** Maker-managed SKU; null when unset. Separate from any future platform product ID. */
+  productSku: string | null;
   caseCategory: string;
   caseRegion: string;
   partnerId: string;
@@ -89,10 +91,28 @@ export type CreateDealInput = {
   commissionNote?: string;
 };
 
+/**
+ * Intermediary fee payment lifecycle (display / future billing).
+ * Not yet persisted on deals — dashboard maps existing deals to awaiting_invoice.
+ */
+export type CommissionPaymentStatus =
+  | "awaiting_invoice"
+  | "unpaid"
+  | "paid";
+
+export const commissionPaymentStatusLabels: Record<
+  CommissionPaymentStatus,
+  string
+> = {
+  awaiting_invoice: "請求待ち",
+  unpaid: "未払い",
+  paid: "支払い済み",
+};
+
 export const applicationStatusLabels: Record<ApplicationStatus, string> = {
-  pending: "申込審査中",
-  accepted: "申込承認",
-  rejected: "申込却下",
+  pending: "準備中",
+  accepted: "交渉中",
+  rejected: "終了",
 };
 
 export const pipelineStatusLabels: Record<PipelineStatus, string> = {
@@ -206,6 +226,8 @@ export type CaseRow = {
   offer: string;
   status: CaseStatus;
   product_name: string;
+  /** Maker-managed product code (SKU). Nullable for legacy rows. */
+  sku?: string | null;
   product_features: string | null;
   price_band: string | null;
   sales_format: SalesFormat;
@@ -243,6 +265,8 @@ export type Case = {
   offer: string;
   status: CaseStatus;
   productName: string;
+  /** Maker-managed SKU; null when unset. Not a BrandBridge auto ID. */
+  sku: string | null;
   productFeatures: string | null;
   priceBand: string | null;
   salesFormat: SalesFormat;
@@ -446,6 +470,8 @@ export type CaseCreateInput = {
   description: string;
   idealPartner: string;
   offer: string;
+  /** Maker-managed product code (SKU). Optional; empty string when unset. */
+  sku: string;
   productName: string;
   productFeatures: string;
   priceBand: string;

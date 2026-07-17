@@ -93,6 +93,7 @@ export function caseInputFromMakerDraft(
     offer: draft.dealTerms.trim()
       ? draft.dealTerms.trim()
       : `取引形式: ${deal.label}`,
+    sku: "",
     productName: draft.productName,
     // Differentiation is filled later on the edit screen
     productFeatures: "",

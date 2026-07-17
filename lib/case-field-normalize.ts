@@ -13,6 +13,7 @@ export function caseToFormInput(caseItem: Case): CaseCreateInput {
     description: caseItem.description ?? "",
     idealPartner: caseItem.idealPartner ?? "",
     offer: caseItem.offer ?? "",
+    sku: caseItem.sku ?? "",
     productName: caseItem.productName ?? "",
     productFeatures: caseItem.productFeatures ?? "",
     priceBand: caseItem.priceBand ?? "",

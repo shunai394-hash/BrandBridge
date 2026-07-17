@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import type { CaseImage } from "@/lib/types";
 
 type CaseImageGalleryProps = {
@@ -44,8 +43,10 @@ export function CaseImageGallery({
         <p className="mb-2 text-xs font-medium tracking-wide text-muted">
           商品画像
         </p>
-        <ProductCaseImage src={null} alt={alt} size="detail" />
-        <p className="mt-1.5 text-xs text-muted">画像未登録</p>
+        <div className="flex min-h-[8rem] max-w-[400px] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-cream px-4 py-8 text-center">
+          <p className="text-sm font-medium text-navy">商品画像</p>
+          <p className="text-sm text-muted">未登録</p>
+        </div>
       </div>
     );
   }

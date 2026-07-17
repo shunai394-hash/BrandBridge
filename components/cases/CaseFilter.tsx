@@ -45,7 +45,7 @@ export function CaseFilter({
           type="search"
           value={keyword}
           onChange={(e) => onKeywordChange(e.target.value)}
-          placeholder="案件名・商品名・メーカー名・概要"
+          placeholder="案件名・商品名・商品コード・メーカー名・概要"
           className="rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
         />
       </label>

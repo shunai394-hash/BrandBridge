@@ -57,6 +57,13 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
 
       <section className="mt-6 space-y-4 rounded-lg border border-border bg-surface p-5 text-sm">
         <p>
+          {caseItem.sku ? (
+            <>
+              <span className="text-muted">商品コード:</span>{" "}
+              <span className="font-mono text-teal">{caseItem.sku}</span>
+              <br />
+            </>
+          ) : null}
           <span className="text-muted">商品名:</span> {caseItem.productName}
         </p>
         <p className="whitespace-pre-wrap leading-relaxed">{caseItem.description}</p>

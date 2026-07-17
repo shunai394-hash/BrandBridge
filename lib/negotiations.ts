@@ -81,6 +81,7 @@ function mapNegotiation(
     caseNumber: caseRow?.case_number || "—",
     caseTitle: caseRow?.title ?? "案件",
     productName,
+    productSku: null,
     caseCategory: caseRow?.category ?? "",
     caseRegion: caseRow?.region ?? "",
     partnerId: row.partner_id,
@@ -114,6 +115,42 @@ const negotiationSelect = `
   ),
   profiles!partner_id ( company_name )
 `;
+
+/** Attach maker-managed SKUs without requiring the column in the join select. */
+async function attachProductSkus(
+  items: NegotiationListItem[],
+): Promise<NegotiationListItem[]> {
+  if (items.length === 0) return items;
+
+  const caseIds = [...new Set(items.map((item) => item.caseId).filter(Boolean))];
+  if (caseIds.length === 0) return items;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("cases")
+    .select("id, sku")
+    .in("id", caseIds);
+
+  if (error) {
+    // Migration 028 not applied yet, or RLS — leave productSku null
+    if (!/sku/i.test(error.message)) {
+      console.warn("[attachProductSkus]", error.message);
+    }
+    return items;
+  }
+
+  const skuByCaseId = new Map<string, string | null>();
+  for (const row of data ?? []) {
+    const id = row.id as string;
+    const sku = typeof row.sku === "string" ? row.sku.trim() : "";
+    skuByCaseId.set(id, sku || null);
+  }
+
+  return items.map((item) => ({
+    ...item,
+    productSku: skuByCaseId.get(item.caseId) ?? null,
+  }));
+}
 
 async function dealIdsForNegotiations(
   negotiationIds: string[],
@@ -202,19 +239,15 @@ async function enrichInboxFields(
       }
     }
 
-    // Maker: pending application never opened → treat as unread attention
-    if (
-      role === "maker" &&
-      item.applicationStatus === "pending" &&
-      !lastReadAt
-    ) {
+    // Maker: never-opened thread with messages → unread attention
+    if (role === "maker" && !lastReadAt && msgs.length > 0) {
       unreadCount = Math.max(unreadCount, 1);
     }
 
     const preview =
       last?.body?.trim() ||
       item.initialMessage?.trim() ||
-      (item.applicationStatus === "pending" ? "交渉申込" : null);
+      null;
 
     return {
       ...item,
@@ -325,9 +358,10 @@ export async function listNegotiationsForUser(
     );
 
   const enriched = await enrichInboxFields(mapped, user.id, user.role);
+  const withSku = await attachProductSkus(enriched);
 
   // Sort by latest activity, unread first
-  return enriched.sort((a, b) => {
+  return withSku.sort((a, b) => {
     const unreadDiff = (b.unreadCount ?? 0) - (a.unreadCount ?? 0);
     if (unreadDiff !== 0) return unreadDiff;
     const aTime = new Date(a.lastMessageAt ?? a.updatedAt).getTime();
@@ -374,7 +408,8 @@ export async function getNegotiationById(
 
   if (user.role === "admin") {
     const [enriched] = await enrichInboxFields([item], user.id, user.role);
-    return enriched;
+    const [withSku] = await attachProductSkus([enriched]);
+    return withSku;
   }
 
   const isParty =
@@ -385,7 +420,8 @@ export async function getNegotiationById(
   if (!isParty) return null;
 
   const [enriched] = await enrichInboxFields([item], user.id, user.role);
-  return enriched;
+  const [withSku] = await attachProductSkus([enriched]);
+  return withSku;
 }
 
 /** Mark negotiation thread as read for the current user */

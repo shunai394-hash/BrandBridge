@@ -23,10 +23,10 @@ import {
   deleteCaseImage,
   reorderCaseImages,
 } from "@/lib/case-images";
+import { uploadProductImageOnServer } from "@/lib/product-image-upload-server";
 import {
   getNegotiationById,
   markNegotiationRead,
-  updateNegotiationStatus,
   updatePipelineStatus,
 } from "@/lib/negotiations";
 import { createClient } from "@/lib/supabase/server";
@@ -133,6 +133,7 @@ export async function completeMakerSetupAction(
   caseInput.productImageUrl = imageUrl;
 
   const result = await createCase(maker.id, caseInput);
+  console.log("[sendMessage result]", result);
   if ("error" in result) {
     console.error("[completeMakerSetupAction] case insert failed", {
       table: "cases",
@@ -371,6 +372,88 @@ export async function addCaseImageAction(input: {
   return { imageId: result.image?.id };
 }
 
+/**
+ * Upload product image only (cookie JWT). FormData key: file
+ * Used by registration / single-image fields.
+ */
+export async function uploadProductImageAction(
+  formData: FormData,
+): Promise<{ error?: string; url?: string; path?: string }> {
+  const session = await getSessionUser();
+  if (!session) return { error: "ログインが必要です" };
+  if (!session.isActive) return { error: "アカウントが停止されています" };
+
+  const raw = formData.get("file");
+  const file =
+    raw &&
+    typeof raw === "object" &&
+    "arrayBuffer" in raw &&
+    typeof (raw as Blob).arrayBuffer === "function"
+      ? (raw as File)
+      : null;
+
+  if (!file || file.size === 0) {
+    return { error: "画像ファイルを選択してください" };
+  }
+
+  const uploaded = await uploadProductImageOnServer(file);
+  if (!uploaded.ok) return { error: uploaded.error };
+  return { url: uploaded.url, path: uploaded.path };
+}
+
+/**
+ * Upload product image on the server (cookie JWT) then insert case_images.
+ * FormData keys: caseId, file
+ */
+export async function uploadAndAddCaseImageAction(
+  formData: FormData,
+): Promise<{
+  error?: string;
+  imageId?: string;
+  imageUrl?: string;
+  storagePath?: string;
+}> {
+  const caseId = String(formData.get("caseId") ?? "").trim();
+  if (!caseId) return { error: "案件IDが不正です" };
+
+  const access = await assertCanManageCaseImages(caseId);
+  if (!access.ok) return { error: access.error };
+
+  const raw = formData.get("file");
+  const file =
+    raw &&
+    typeof raw === "object" &&
+    "arrayBuffer" in raw &&
+    typeof (raw as Blob).arrayBuffer === "function"
+      ? (raw as File)
+      : null;
+
+  if (!file || file.size === 0) {
+    return { error: "画像ファイルを選択してください" };
+  }
+
+  const uploaded = await uploadProductImageOnServer(file);
+  if (!uploaded.ok) {
+    return { error: uploaded.error };
+  }
+
+  const result = await addCaseImage({
+    caseId,
+    imageUrl: uploaded.url,
+    storagePath: uploaded.path,
+  });
+  if (result.error) {
+    return { error: result.error };
+  }
+
+  revalidateCaseImagePaths(caseId);
+  return {
+    imageId: result.image?.id,
+    imageUrl: uploaded.url,
+    storagePath: uploaded.path,
+  };
+}
+
 export async function deleteCaseImageAction(input: {
   caseId: string;
   imageId: string;
@@ -462,51 +545,10 @@ export async function withdrawCaseAction(
   return {};
 }
 
-export async function acceptNegotiationAction(
-  negotiationId: string,
-): Promise<{ error?: string }> {
-  try {
-    await requireMaker();
-  } catch (e) {
-    const message = authErrorMessage(e);
-    if (message === "UNAUTHORIZED") redirect("/login");
-    return { error: "メーカーのみ承認できます" };
-  }
-
-  const result = await updateNegotiationStatus(negotiationId, "accepted");
-  if (result.error) return { error: result.error };
-
-  revalidatePath("/negotiations");
-  revalidatePath("/maker/negotiations");
-  revalidatePath("/partner/negotiations");
-  revalidatePath(`/negotiations/${negotiationId}`);
-  return {};
-}
-
-export async function rejectNegotiationAction(
-  negotiationId: string,
-): Promise<{ error?: string }> {
-  try {
-    await requireMaker();
-  } catch (e) {
-    const message = authErrorMessage(e);
-    if (message === "UNAUTHORIZED") redirect("/login");
-    return { error: "メーカーのみ却下できます" };
-  }
-
-  const result = await updateNegotiationStatus(negotiationId, "rejected");
-  if (result.error) return { error: result.error };
-
-  revalidatePath("/negotiations");
-  revalidatePath("/maker/negotiations");
-  revalidatePath("/partner/negotiations");
-  revalidatePath(`/negotiations/${negotiationId}`);
-  return {};
-}
-
 export async function sendMessageAction(input: {
   negotiationId: string;
   body: string;
+  topic?: string | null;
   attachment?: {
     path: string;
     name: string;
@@ -526,14 +568,15 @@ export async function sendMessageAction(input: {
     return { error: "交渉が見つかりません" };
   }
 
-  if (negotiation.applicationStatus !== "accepted") {
-    return { error: "承認済みの交渉でのみメッセージを送れます" };
+  if (negotiation.applicationStatus === "rejected") {
+    return { error: "この交渉は終了しているためメッセージを送れません" };
   }
 
   const result = await sendMessage({
     negotiationId: input.negotiationId,
     senderId: user.id,
     body: input.body,
+    topic: input.topic ?? null,
     attachment: input.attachment ?? null,
   });
 
@@ -670,8 +713,8 @@ export async function updatePipelineStatusAction(input: {
     return { error: "交渉が見つかりません" };
   }
 
-  if (negotiation.applicationStatus !== "accepted") {
-    return { error: "申込承認後のみパイプラインを変更できます" };
+  if (negotiation.applicationStatus === "rejected") {
+    return { error: "終了した交渉のステータスは変更できません" };
   }
 
   const result = await updatePipelineStatus(
@@ -737,6 +780,7 @@ export async function submitContactAction(
 
 export async function signOutAction() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  // Local scope clears BrandBridge cookies; does not revoke Google account login
+  await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }

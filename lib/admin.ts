@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getDealStats } from "@/lib/deals";
+import { getAdminDashboardStats } from "@/lib/admin-dashboard";
 import type {
   ApplicationStatus,
   PipelineStatus,
@@ -9,6 +9,7 @@ import type {
   UserRole,
 } from "@/lib/types";
 
+/** @deprecated Prefer AdminDashboardStats from lib/admin-dashboard */
 export type AdminStats = {
   pendingReviews: number;
   totalUsers: number;
@@ -59,32 +60,23 @@ export type AdminNegotiationListItem = {
   hasDeal: boolean;
 };
 
+/** Kept for compatibility; dashboard UI uses getAdminDashboardStats. */
 export async function getAdminStats(): Promise<AdminStats> {
   const supabase = await createClient();
-
-  const [pending, users, negotiations, approved, dealStats] = await Promise.all([
-    supabase
-      .from("cases")
-      .select("id", { count: "exact", head: true })
-      .eq("review_status", "pending_review"),
+  const [users, negotiations, dash] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase.from("negotiations").select("id", { count: "exact", head: true }),
-    supabase
-      .from("cases")
-      .select("id", { count: "exact", head: true })
-      .eq("review_status", "approved")
-      .eq("status", "open"),
-    getDealStats(),
+    getAdminDashboardStats(),
   ]);
 
   return {
-    pendingReviews: pending.count ?? 0,
+    pendingReviews: dash.products.pendingReview,
     totalUsers: users.count ?? 0,
     totalNegotiations: negotiations.count ?? 0,
-    approvedCases: approved.count ?? 0,
-    dealCount: dealStats.dealCount,
-    totalDealAmount: dealStats.totalDealAmount,
-    totalCommission: dealStats.totalCommission,
+    approvedCases: dash.products.published,
+    dealCount: dash.fees.awaitingInvoice + dash.fees.unpaid + dash.fees.paid,
+    totalDealAmount: dash.revenue.contractAmountTotal,
+    totalCommission: dash.revenue.commissionTotal,
   };
 }
 

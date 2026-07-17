@@ -1,0 +1,31 @@
+﻿import type { Metadata } from "next";
+import { unstable_noStore as noStore } from "next/cache";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { getAdminDashboardStats } from "@/lib/admin-dashboard";
+
+export const metadata: Metadata = {
+  title: "邂｡逅・判髱｢",
+};
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function AdminDashboardPage() {
+  noStore();
+  const stats = await getAdminDashboardStats();
+
+  return (
+    <div
+      className="mx-auto max-w-6xl px-5 py-12"
+      data-admin-dashboard="ops-v2"
+      data-admin-dashboard-component="AdminDashboard"
+    >
+      <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
+        驕句霧繝繝・す繝･繝懊・繝・      </h1>
+      <p className="mt-2 text-muted">
+        蝠・刀謗ｲ霈峨・蟇ｩ譟ｻ繝ｻ莠､貂峨・螂醍ｴ・・莉ｲ莉区焔謨ｰ譁吶・豬√ｌ繧堤｢ｺ隱阪＠縺ｾ縺吶ょ膚蜩∽ｻ｣驥代・豎ｺ貂医↓縺ｯ髢｢荳弱＠縺ｾ縺帙ｓ縲・      </p>
+      <AdminDashboard stats={stats} />
+    </div>
+  );
+}
+

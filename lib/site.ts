@@ -1,9 +1,9 @@
 export const siteConfig = {
   name: "BrandBridge",
   shortName: "BrandBridge",
-  tagline: "メーカーと販売パートナーをつなぐ",
+  tagline: "販路開拓と商材探しを最短でつなぐ",
   description:
-    "BrandBridgeは、製品を広げたいメーカーと、良い商材を探す販売パートナーのためのBtoBマッチングサービスです。案件掲載・交渉・成約までをサポートします。",
+    "BrandBridgeは、販路を広げたいメーカーと売れる商材を探す販売パートナーのための条件が見えるBtoBマッチング。掲載・商材探し・交渉・成約までを一つの流れで。現在ベータ先行登録受付中。",
   locale: "ja_JP",
   contactEmail: "support@brandbridge.example",
 } as const;

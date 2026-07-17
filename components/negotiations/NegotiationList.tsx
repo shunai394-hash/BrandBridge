@@ -2,19 +2,15 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import {
-  NegotiationStatusBadge,
-  PipelineStatusBadge,
-} from "@/components/negotiations/NegotiationStatusBadge";
-import type { ApplicationStatus, NegotiationListItem } from "@/lib/types";
+import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
+import type { NegotiationListItem } from "@/lib/types";
 
-type FilterKey = "all" | ApplicationStatus;
+type FilterKey = "all" | "active" | "closed";
 
 const filters: { key: FilterKey; label: string }[] = [
   { key: "all", label: "すべて" },
-  { key: "pending", label: "審査中" },
-  { key: "accepted", label: "承認済" },
-  { key: "rejected", label: "却下" },
+  { key: "active", label: "交渉中" },
+  { key: "closed", label: "終了" },
 ];
 
 type NegotiationListProps = {
@@ -34,7 +30,10 @@ export function NegotiationList({ items }: NegotiationListProps) {
 
   const filtered = useMemo(() => {
     if (filter === "all") return items;
-    return items.filter((item) => item.applicationStatus === filter);
+    if (filter === "active") {
+      return items.filter((item) => item.applicationStatus !== "rejected");
+    }
+    return items.filter((item) => item.applicationStatus === "rejected");
   }, [items, filter]);
 
   return (
@@ -80,6 +79,10 @@ export function NegotiationList({ items }: NegotiationListProps) {
                     <p className="mt-1 text-sm text-muted">
                       <span className="font-mono text-teal">{item.caseNumber}</span>
                       {" · "}
+                      <span className="font-mono">
+                        商品コード：{item.productSku?.trim() || "—"}
+                      </span>
+                      {" · "}
                       {item.productName}
                     </p>
                     <p className="mt-0.5 text-sm text-muted">
@@ -87,12 +90,21 @@ export function NegotiationList({ items }: NegotiationListProps) {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <NegotiationStatusBadge status={item.applicationStatus} />
-                    <PipelineStatusBadge status={item.pipelineStatus} />
+                    {item.applicationStatus === "rejected" ? (
+                      <span className="inline-flex rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                        終了
+                      </span>
+                    ) : item.pipelineStatus ? (
+                      <PipelineStatusBadge status={item.pipelineStatus} />
+                    ) : (
+                      <span className="inline-flex rounded border border-teal/25 bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal-dark">
+                        交渉中
+                      </span>
+                    )}
                   </div>
                 </div>
                 <p className="mt-3 text-xs text-muted">
-                  申込日: {formatDate(item.createdAt)}
+                  開始日: {formatDate(item.createdAt)}
                   {item.hasDeal ? " ・成約済" : ""}
                 </p>
               </Link>

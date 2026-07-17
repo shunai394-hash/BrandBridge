@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
-  NegotiationStatusBadge,
   PipelineStatusBadge,
 } from "@/components/negotiations/NegotiationStatusBadge";
-import type { ApplicationStatus, NegotiationListItem } from "@/lib/types";
+import type { NegotiationListItem } from "@/lib/types";
 
-type FilterKey = "all" | "unread" | ApplicationStatus;
+type FilterKey = "all" | "unread" | "active" | "closed";
 
 type NegotiationInboxProps = {
   items: NegotiationListItem[];
@@ -27,7 +26,7 @@ function formatDateTime(value: string) {
 
 export function NegotiationInbox({
   items,
-  emptyHint = "案件詳細から交渉を申し込むと、ここに表示されます。",
+  emptyHint = "案件詳細から交渉を開始すると、ここに表示されます。",
 }: NegotiationInboxProps) {
   const [filter, setFilter] = useState<FilterKey>("all");
 
@@ -36,12 +35,20 @@ export function NegotiationInbox({
     [items],
   );
 
+  const activeCount = useMemo(
+    () => items.filter((i) => i.applicationStatus !== "rejected").length,
+    [items],
+  );
+  const closedCount = useMemo(
+    () => items.filter((i) => i.applicationStatus === "rejected").length,
+    [items],
+  );
+
   const filters: { key: FilterKey; label: string }[] = [
     { key: "all", label: `すべて (${items.length})` },
     { key: "unread", label: `未読 (${unreadThreads})` },
-    { key: "pending", label: "審査中" },
-    { key: "accepted", label: "承認済" },
-    { key: "rejected", label: "却下" },
+    { key: "active", label: `交渉中 (${activeCount})` },
+    { key: "closed", label: `終了 (${closedCount})` },
   ];
 
   const filtered = useMemo(() => {
@@ -49,7 +56,10 @@ export function NegotiationInbox({
     if (filter === "unread") {
       return items.filter((item) => (item.unreadCount ?? 0) > 0);
     }
-    return items.filter((item) => item.applicationStatus === filter);
+    if (filter === "active") {
+      return items.filter((item) => item.applicationStatus !== "rejected");
+    }
+    return items.filter((item) => item.applicationStatus === "rejected");
   }, [items, filter]);
 
   return (
@@ -128,6 +138,10 @@ export function NegotiationInbox({
                           {item.caseNumber}
                         </span>
                         <span className="mx-1.5">·</span>
+                        <span className="font-mono">
+                          商品コード：{item.productSku?.trim() || "—"}
+                        </span>
+                        <span className="mx-1.5">·</span>
                         {item.productName}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted">
@@ -149,12 +163,17 @@ export function NegotiationInbox({
                         {item.lastMessagePreview || "（メッセージなし）"}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-1.5">
-                        <NegotiationStatusBadge
-                          status={item.applicationStatus}
-                        />
-                        {item.pipelineStatus ? (
+                        {item.applicationStatus === "rejected" ? (
+                          <span className="inline-flex rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
+                            終了
+                          </span>
+                        ) : item.pipelineStatus ? (
                           <PipelineStatusBadge status={item.pipelineStatus} />
-                        ) : null}
+                        ) : (
+                          <span className="inline-flex rounded border border-teal/25 bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal-dark">
+                            交渉中
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,17 +1,29 @@
-import { createClient } from "@/lib/supabase/server";
-import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 import {
   isIntentRole,
   isSafeAppPath,
   resolveRoleDestination,
 } from "@/lib/auth-flow";
+import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
+
+type CookieToSet = {
+  name: string;
+  value: string;
+  options: Record<string, unknown>;
+};
 
 /**
  * Supabase Auth callback (email confirm / OAuth / password recovery).
- * Handles Google OAuth errors from the provider query string.
+ *
+ * Critical: session cookies from exchangeCodeForSession must be attached
+ * directly to the redirect NextResponse. Next.js 15+ does not reliably
+ * propagate cookies().set(...) onto a later NextResponse.redirect(...),
+ * which produced session-only / missing cookies after browser restart.
  */
-export async function GET(request: Request) {
-  const url = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const url = request.nextUrl;
   const origin = url.origin;
   const code = url.searchParams.get("code");
   const oauthError = url.searchParams.get("error");
@@ -21,7 +33,6 @@ export async function GET(request: Request) {
   const requestedNext = url.searchParams.get("next");
   const intentRole = url.searchParams.get("intent_role");
 
-  // Provider / user cancelled / misconfigured Google OAuth
   if (oauthError) {
     console.error("[auth/callback] oauth provider error", {
       oauthError,
@@ -47,7 +58,52 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = await createClient();
+  const cookieJar: CookieToSet[] = [];
+  const responseHeaders: Record<string, string> = {};
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookieOptions: AUTH_COOKIE_OPTIONS,
+      cookies: {
+        getAll(): { name: string; value: string }[] {
+          const map = new Map<string, string>();
+          for (const c of request.cookies.getAll()) {
+            map.set(c.name, c.value);
+          }
+          for (const entry of cookieJar) {
+            if (!entry.value) {
+              map.delete(entry.name);
+            } else {
+              map.set(entry.name, entry.value);
+            }
+          }
+          return Array.from(map.entries()).map(([name, value]) => ({
+            name,
+            value,
+          }));
+        },
+        setAll(cookiesToSet, headers) {
+          for (const cookie of cookiesToSet) {
+            const next: CookieToSet = {
+              name: cookie.name,
+              value: cookie.value,
+              options: { ...(cookie.options as Record<string, unknown>) },
+            };
+            const idx = cookieJar.findIndex((c) => c.name === next.name);
+            if (idx >= 0) {
+              cookieJar[idx] = next;
+            } else {
+              cookieJar.push(next);
+            }
+          }
+          Object.assign(responseHeaders, headers);
+        },
+      },
+    },
+  );
+
   const { error } = await supabase.auth.exchangeCodeForSession(code);
   if (error) {
     console.error("[auth/callback] exchange failed", error.message);
@@ -57,23 +113,72 @@ export async function GET(request: Request) {
     );
   }
 
-  // Password recovery → force update-password page
   if (
     isSafeAppPath(requestedNext) &&
     requestedNext.startsWith("/login/update-password")
   ) {
-    return NextResponse.redirect(`${origin}/login/update-password`);
+    return redirectWithSessionCookies(
+      `${origin}/login/update-password`,
+      cookieJar,
+      responseHeaders,
+    );
   }
 
-  await applyIntentRoleIfNeeded(intentRole);
+  await applyIntentRoleIfNeeded(supabase, intentRole);
+  const destination = await resolvePostAuthPath(supabase, requestedNext);
 
-  const destination = await resolvePostAuthPath(requestedNext);
-  return NextResponse.redirect(`${origin}${destination}`);
+  return redirectWithSessionCookies(
+    `${origin}${destination}`,
+    cookieJar,
+    responseHeaders,
+  );
+}
+
+function redirectWithSessionCookies(
+  location: string,
+  cookieJar: CookieToSet[],
+  headers: Record<string, string>,
+) {
+  const response = NextResponse.redirect(location);
+
+  for (const { name, value, options } of cookieJar) {
+    const maxAge =
+      typeof options.maxAge === "number"
+        ? options.maxAge
+        : AUTH_COOKIE_OPTIONS.maxAge;
+
+    if (!value) {
+      response.cookies.set(name, "", {
+        path: AUTH_COOKIE_OPTIONS.path,
+        sameSite: AUTH_COOKIE_OPTIONS.sameSite,
+        secure: AUTH_COOKIE_OPTIONS.secure,
+        httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
+        maxAge: 0,
+      });
+    } else {
+      response.cookies.set(name, value, {
+        path: AUTH_COOKIE_OPTIONS.path,
+        sameSite: AUTH_COOKIE_OPTIONS.sameSite,
+        secure: AUTH_COOKIE_OPTIONS.secure,
+        httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
+        maxAge,
+      });
+    }
+  }
+
+  for (const [key, value] of Object.entries(headers)) {
+    response.headers.set(key, value);
+  }
+
+  return response;
 }
 
 function mapExchangeError(message: string): string {
   const lower = message.toLowerCase();
-  if (lower.includes("provider is not enabled") || lower.includes("unsupported provider")) {
+  if (
+    lower.includes("provider is not enabled") ||
+    lower.includes("unsupported provider")
+  ) {
     return "Googleプロバイダが有効ではありません。Supabase Authentication → Providers → Google を有効にしてください。";
   }
   if (lower.includes("redirect") || lower.includes("redirect_uri")) {
@@ -98,10 +203,12 @@ function isGoogleUser(user: {
   return Boolean(user.identities?.some((i) => i.provider === "google"));
 }
 
-async function applyIntentRoleIfNeeded(intentRoleRaw: string | null) {
+async function applyIntentRoleIfNeeded(
+  supabase: SupabaseClient,
+  intentRoleRaw: string | null,
+) {
   if (!isIntentRole(intentRoleRaw)) return;
 
-  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -113,7 +220,6 @@ async function applyIntentRoleIfNeeded(intentRoleRaw: string | null) {
     .eq("id", user.id)
     .maybeSingle();
 
-  // Only set role for incomplete / default users — never demote admin
   if (profile?.role === "admin") return;
   if (profile?.onboarding_completed === true && profile.role) return;
 
@@ -131,16 +237,17 @@ async function applyIntentRoleIfNeeded(intentRoleRaw: string | null) {
   });
 }
 
-async function resolvePostAuthPath(requestedNext: string | null) {
-  const supabase = await createClient();
+async function resolvePostAuthPath(
+  supabase: SupabaseClient,
+  requestedNext: string | null,
+) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) return "/login?error=oauth&detail=セッション取得に失敗しました";
 
-  // Email/password users must be confirmed; Google OAuth is treated as verified
-  if (!isGoogleUser(user) && !user.email_confirmed_at) {
+  if (!isGoogleUser(user as User) && !user.email_confirmed_at) {
     return "/login?error=email_unconfirmed";
   }
 

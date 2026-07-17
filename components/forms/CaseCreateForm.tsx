@@ -23,6 +23,7 @@ const initial: CaseCreateInput = {
   description: "",
   idealPartner: "",
   offer: "",
+  sku: "",
   productName: "",
   productFeatures: "",
   priceBand: "",
@@ -102,16 +103,12 @@ export function CaseCreateForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="animate-fade-up space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="animate-fade-up space-y-6"
+      data-component="CaseCreateForm"
+    >
       <Section title="基本情報">
-        <Input
-          label="案件タイトル"
-          name="title"
-          required
-          maxLength={CASE_TEXT_LIMITS.title}
-          value={form.title}
-          onChange={(e) => update("title", e.target.value)}
-        />
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">カテゴリ</span>
           <select
@@ -128,12 +125,15 @@ export function CaseCreateForm() {
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">対象国・市場</span>
+          <span className="font-medium text-navy">原産国</span>
           <select
             className={selectClass}
             value={form.targetCountry}
             onChange={(e) =>
-              update("targetCountry", e.target.value as CaseCreateInput["targetCountry"])
+              update(
+                "targetCountry",
+                e.target.value as CaseCreateInput["targetCountry"],
+              )
             }
             required
           >
@@ -162,26 +162,37 @@ export function CaseCreateForm() {
       </Section>
 
       <Section title="商品情報">
+        <Input
+          label="商品コード（SKU）"
+          name="sku"
+          maxLength={CASE_TEXT_LIMITS.sku}
+          value={form.sku}
+          onChange={(e) => update("sku", e.target.value)}
+          placeholder="HYC-0001"
+          autoComplete="off"
+        />
         <p className="text-xs text-muted">
-          サマリー・特徴・説明は役割が異なります。同じ文章を3箇所に入れないでください。
+          社内管理用の商品コードです。販売パートナーにも表示されます。
+          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
+          文字以内。例: BB-000123）
         </p>
         <Input
-          label="商品・ブランド名"
-          name="productName"
+          label="商品名"
+          name="title"
           required
-          maxLength={CASE_TEXT_LIMITS.productName}
-          value={form.productName}
-          onChange={(e) => update("productName", e.target.value)}
-        />
-        <ProductImageField
-          label="商品画像"
-          value={form.productImageUrl ?? null}
-          onChange={(url) => update("productImageUrl", url)}
-          onUploadingChange={setImageUploading}
-          disabled={loading}
+          maxLength={CASE_TEXT_LIMITS.title}
+          value={form.title}
+          onChange={(e) => {
+            const value = e.target.value;
+            setForm((prev) => ({
+              ...prev,
+              title: value,
+              productName: value,
+            }));
+          }}
         />
         <TextArea
-          label="一覧用サマリー（短文）"
+          label="一覧用サマリー"
           name="summary"
           required
           rows={2}
@@ -194,26 +205,17 @@ export function CaseCreateForm() {
           一覧表示用の短文。（{form.summary.length}/{CASE_TEXT_LIMITS.summary}）
         </p>
         <TextArea
-          label="商品の特徴・差別化ポイント"
-          name="productFeatures"
-          rows={3}
-          maxLength={CASE_TEXT_LIMITS.productFeatures}
-          value={form.productFeatures}
-          onChange={(e) => update("productFeatures", e.target.value)}
-          placeholder="競合との違い・独自性"
-        />
-        <TextArea
-          label="商品説明（詳細）"
+          label="商品説明"
           name="description"
           required
-          rows={6}
+          rows={8}
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
-          placeholder="詳細な商品説明"
         />
         <p className="text-xs text-muted">
-          {form.description.length} / {CASE_TEXT_LIMITS.description} 文字
+          特徴・用途・販売時の訴求ポイントなどを自由に入力してください。
+          （{form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
         <Input
           label="想定価格帯"
@@ -222,6 +224,13 @@ export function CaseCreateForm() {
           maxLength={CASE_TEXT_LIMITS.priceBand}
           value={form.priceBand}
           onChange={(e) => update("priceBand", e.target.value)}
+        />
+        <ProductImageField
+          label="商品画像"
+          value={form.productImageUrl ?? null}
+          onChange={(url) => update("productImageUrl", url)}
+          onUploadingChange={setImageUploading}
+          disabled={loading}
         />
       </Section>
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { NegotiationForm } from "@/components/forms/NegotiationForm";
+import { NegotiationStartForm } from "@/components/forms/NegotiationStartForm";
 import { getSessionUser } from "@/lib/auth";
 import { getCaseById } from "@/lib/cases";
 import { listPartnerThreadsForCase } from "@/lib/negotiations";
@@ -62,7 +62,13 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
           交渉を開始
         </h1>
-        <p className="mt-2 text-base font-medium text-navy">
+        <p className="mt-2 text-sm text-muted">
+          商品コード：
+          <span className="ml-1 font-mono text-teal">
+            {caseItem.sku?.trim() || "—"}
+          </span>
+        </p>
+        <p className="mt-1 text-base font-medium text-navy">
           {caseItem.productName}
         </p>
         <p className="mt-1 text-sm text-muted">
@@ -76,11 +82,12 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
       </header>
 
       {/* Email compose form: 件名 / 本文 / 添付 → startNegotiationAction */}
-      <NegotiationForm
-        key={`email-form-${caseItem.id}`}
+      <NegotiationStartForm
+        key={`start-form-${caseItem.id}`}
         caseId={caseItem.id}
         caseNumber={caseItem.caseNumber}
         productName={caseItem.productName}
+        productSku={caseItem.sku}
         user={user}
         existingThreads={existingThreads}
       />

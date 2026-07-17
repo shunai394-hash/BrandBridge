@@ -5,7 +5,7 @@ import { listAdminCases } from "@/lib/admin";
 import type { ReviewStatus } from "@/lib/types";
 
 export const metadata: Metadata = {
-  title: "案件審査",
+  title: "商品審査",
 };
 
 export const dynamic = "force-dynamic";
@@ -35,10 +35,10 @@ export default async function AdminCasesPage({ searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
       <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
-        案件審査
+        商品審査
       </h1>
       <p className="mt-2 mb-4 text-muted">
-        審査待ち案件を承認（approved + open）または不承認（rejected + closed）します。
+        審査待ち商品を承認（approved + open）または不承認（rejected + closed）します。
       </p>
       <p className="mb-8 text-xs text-muted">
         フィルタ: {filter} / 表示 {items.length} 件 / DB全件 {totalUnfiltered ?? "?"} 件

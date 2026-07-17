@@ -2,8 +2,10 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
-import { uploadProductImageFile } from "@/lib/product-image-upload";
-import { updateCaseProductImageAction } from "@/lib/actions";
+import {
+  updateCaseProductImageAction,
+  uploadProductImageAction,
+} from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 
 type ProductImageFieldProps = {
@@ -83,9 +85,11 @@ export function ProductImageField({
 
     setBusy(true);
     try {
-      const result = await uploadProductImageFile(file);
-      if (!result.ok) {
-        setError(result.error);
+      const formData = new FormData();
+      formData.set("file", file);
+      const result = await uploadProductImageAction(formData);
+      if (result.error || !result.url) {
+        setError(result.error || "画像アップロードに失敗しました");
         if (fileRef.current) fileRef.current.value = "";
         return;
       }
@@ -122,12 +126,7 @@ export function ProductImageField({
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-cream/30 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-medium text-navy">{label}</p>
-        <p className="text-xs text-muted">
-          {hasImage ? "登録済み · 差し替え可能" : "未登録 · ここから追加できます"}
-        </p>
-      </div>
+      <p className="text-sm font-medium text-navy">{label}</p>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="shrink-0">
@@ -139,9 +138,12 @@ export function ProductImageField({
               className="!max-w-[200px]"
             />
           ) : (
-            <div className="flex h-32 w-32 flex-col items-center justify-center rounded-md border border-dashed border-border bg-surface text-center">
-              <ProductCaseImage src={null} size="tiny" />
-              <p className="mt-2 px-2 text-[11px] text-muted">画像未登録</p>
+            <div className="flex h-32 w-32 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-surface px-3 text-center">
+              <p className="text-xs font-medium text-navy">商品画像</p>
+              <p className="text-xs text-muted">未登録</p>
+              <p className="text-[11px] leading-snug text-muted">
+                ここから追加できます
+              </p>
             </div>
           )}
         </div>

@@ -27,11 +27,10 @@ type NegotiationFormProps = {
 };
 
 const statusLabel: Record<ApplicationStatus, string> = {
-  pending: "蟇ｩ譟ｻ荳ｭ",
-  accepted: "謇ｿ隱肴ｸ・,
-  rejected: "蜊ｴ荳・,
+  pending: "審査中",
+  accepted: "承認済み",
+  rejected: "却下",
 };
-
 const TOPIC_MAX = 120;
 
 const fieldClass =

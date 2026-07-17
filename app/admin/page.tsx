@@ -1,79 +1,41 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { getAdminStats } from "@/lib/admin";
+import { unstable_noStore as noStore } from "next/cache";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { getAdminDashboardStats } from "@/lib/admin-dashboard";
 
 export const metadata: Metadata = {
-  title: "管理画面",
+  title: "運営ダッシュボード",
 };
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
-function formatYen(n: number) {
-  return new Intl.NumberFormat("ja-JP", {
-    style: "currency",
-    currency: "JPY",
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-export default async function AdminDashboardPage() {
-  const stats = await getAdminStats();
-
-  const cards = [
-    {
-      label: "審査待ち案件",
-      value: String(stats.pendingReviews),
-      href: "/admin/cases?status=pending_review",
-    },
-    {
-      label: "公開中案件",
-      value: String(stats.approvedCases),
-      href: "/admin/cases?status=approved",
-    },
-    {
-      label: "交渉数",
-      value: String(stats.totalNegotiations),
-      href: "/admin/negotiations",
-    },
-    {
-      label: "成約件数",
-      value: String(stats.dealCount),
-      href: "/deals",
-    },
-    {
-      label: "成約金額合計",
-      value: formatYen(stats.totalDealAmount),
-      href: "/deals",
-    },
-    {
-      label: "手数料合計",
-      value: formatYen(stats.totalCommission),
-      href: "/deals",
-    },
-  ];
+/**
+ * /admin の唯一の表示元。
+ * 旧6カード（審査待ち案件 / 公開中案件 / 交渉数 / 成約件数 / 成約金額合計 / 手数料合計）
+ * は git HEAD のこのファイルにあった。作業ツリーでは ops 4セクションのみを返す。
+ */
+export default async function AdminIndexPage() {
+  noStore();
+  const stats = await getAdminDashboardStats();
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-12">
+    <div
+      className="mx-auto max-w-6xl px-5 py-12"
+      data-admin-dashboard="ops-v2"
+      data-admin-source="app/admin/page.tsx"
+    >
       <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
         運営ダッシュボード
       </h1>
       <p className="mt-2 text-muted">
-        案件審査・交渉・成約・手数料の状況を確認します。
+        商品掲載・審査・交渉・契約・仲介手数料の流れを確認します。商品代金の決済には関与しません。
       </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
-          <Link
-            key={card.label}
-            href={card.href}
-            className="rounded-lg border border-border bg-surface p-5 transition hover:border-teal/40"
-          >
-            <p className="text-sm text-muted">{card.label}</p>
-            <p className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              {card.value}
-            </p>
-          </Link>
-        ))}
-      </div>
+      <p className="mt-3 text-sm font-medium text-teal">
+        表示区分：商品 / 交渉 / 手数料 / 売上
+      </p>
+      <AdminDashboard stats={stats} />
     </div>
   );
 }

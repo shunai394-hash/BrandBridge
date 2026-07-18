@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { Button } from "@/components/ui/Button";
+import { casePublicStatusLabel } from "@/lib/case-display";
 import type { Case, SessionUser } from "@/lib/types";
 import {
   reviewStatusLabels,
@@ -95,6 +95,18 @@ export function CaseDetailView({
             label="原産国"
             value={targetCountryLabel(caseItem.targetCountry)}
           />
+          <InfoRow
+            label="販売形式"
+            value={salesFormatLabel(caseItem.salesFormat)}
+          />
+          <InfoRow
+            label="状態"
+            value={casePublicStatusLabel({
+              status: caseItem.status,
+              reviewStatus: caseItem.reviewStatus,
+              hasDeal: caseItem.hasDeal,
+            })}
+          />
         </dl>
       </header>
 
@@ -104,8 +116,12 @@ export function CaseDetailView({
         ) : null}
         <InfoRow label="商品説明" value={description} />
         <InfoRow
-          label="販売形式"
-          value={salesFormatLabel(caseItem.salesFormat)}
+          label="応募件数"
+          value={`${caseItem.applicationCount ?? 0}件`}
+        />
+        <InfoRow
+          label="交渉中"
+          value={`${caseItem.negotiationCount ?? 0}件`}
         />
         <InfoRow
           label="独占可否"

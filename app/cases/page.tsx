@@ -8,6 +8,7 @@ import {
   isBetaAutoApproveCases,
   listOpenCases,
 } from "@/lib/cases";
+import { createClient } from "@/lib/supabase/server";
 
 function toListItem(
   item: Awaited<ReturnType<typeof listOpenCases>>[number],
@@ -26,6 +27,7 @@ function toListItem(
     applicationCount: item.applicationCount ?? 0,
     status: item.status,
     reviewStatus: item.reviewStatus,
+    hasDeal: item.hasDeal ?? false,
   };
 }
 
@@ -46,23 +48,33 @@ type CasesPageProps = {
 };
 
 /**
- * Guest and logged-in: same CaseList only.
- * No getSessionUser / viewerRole table branch.
- * Soft Nav historical module path is CaseList.tsx — keep UI there.
+ * Guest and logged-in: same listOpenCases → attachNegotiationCounts → CaseList.
  */
 export default async function CasesPage({ searchParams }: CasesPageProps) {
   noStore();
   const params = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const [cases, ownDiag] = await Promise.all([
     listOpenCases(),
     diagnoseOwnCases(),
   ]);
+
+  console.log("CASE PAGE AUTH", {
+    userId: user?.id,
+    count: cases?.length,
+    firstCase: cases?.[0],
+    atl0010: cases?.find((c) => c.sku?.trim() === "ATL-0010"),
+    hyc0003: cases?.find((c) => c.sku?.trim() === "HYC-0003"),
+    aob0002: cases?.find((c) => c.sku?.trim() === "AOB-0002"),
+  });
+
   const betaAutoApprove = isBetaAutoApproveCases();
-  const ownPending = cases.filter(
-    (c) =>
-      ownDiag.authUid &&
-      c.makerId === ownDiag.authUid &&
-      c.reviewStatus === "pending_review",
+  const ownPending = ownDiag.rows.filter(
+    (r) => r.status === "open" && r.review_status === "pending_review",
   );
   const createdVisible = params.created
     ? cases.some((c) => c.id === params.created) ||
@@ -73,8 +85,49 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
   const createdSku = createdCase?.sku?.trim() || null;
   const listItems = cases.map(toListItem);
 
+  const pageAuthDebug = {
+    userId: user?.id ?? null,
+    count: cases.length,
+    atl0010: (() => {
+      const c = cases.find((x) => x.sku?.trim() === "ATL-0010");
+      return c
+        ? {
+            sku: c.sku,
+            applicationCount: c.applicationCount ?? 0,
+            hasDeal: c.hasDeal ?? false,
+          }
+        : null;
+    })(),
+    hyc0003: (() => {
+      const c = cases.find((x) => x.sku?.trim() === "HYC-0003");
+      return c
+        ? {
+            sku: c.sku,
+            applicationCount: c.applicationCount ?? 0,
+            hasDeal: c.hasDeal ?? false,
+          }
+        : null;
+    })(),
+    aob0002: (() => {
+      const c = cases.find((x) => x.sku?.trim() === "AOB-0002");
+      return c
+        ? {
+            sku: c.sku,
+            applicationCount: c.applicationCount ?? 0,
+            hasDeal: c.hasDeal ?? false,
+          }
+        : null;
+    })(),
+  };
+
+  const listKey = `cases-v19-${listItems.map((i) => i.id).join("|")}`;
+
   return (
-    <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
+    <div
+      className="mx-auto max-w-7xl px-5 py-12 md:py-16"
+      data-cases-page="v19"
+      data-cases-source="listOpenCases"
+    >
       {params.welcome === "partner" ? (
         <div className="mb-8 rounded-xl border border-teal/30 bg-cream px-5 py-4">
           <p className="font-medium text-navy">パートナー登録ありがとうございます</p>
@@ -153,9 +206,10 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
       </header>
       <StaleProductListGuard />
       <CaseList
-        key="case-list-sku-v10"
+        key={listKey}
         items={listItems}
         initialCategory={params.category}
+        pageAuthDebug={pageAuthDebug}
       />
     </div>
   );

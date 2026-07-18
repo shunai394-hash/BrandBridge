@@ -19,8 +19,10 @@ export function formatCaseDate(iso: string): string {
 export function casePublicStatusLabel(input: {
   status: CaseStatus | string;
   reviewStatus: ReviewStatus | string;
+  hasDeal?: boolean;
 }): string {
-  const { status, reviewStatus } = input;
+  const { status, reviewStatus, hasDeal } = input;
+  if (hasDeal) return "成約済み";
   if (reviewStatus === "withdrawn") return "取り下げ";
   if (reviewStatus === "rejected") return "不承認";
   if (reviewStatus === "pending_review") return "審査待ち";

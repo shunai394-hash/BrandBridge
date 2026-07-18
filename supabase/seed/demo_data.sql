@@ -701,6 +701,28 @@ insert into public.cases (
   now() - interval '20 days', now() - interval '20 days', now() - interval '20 days'
 );
 
+-- Demo SKUs (migration 028_cases_sku). Keep existing HYC-* if already set.
+update public.cases set sku = 'HYC-0001' where id = 'c0000001-0000-4000-8000-000000000001' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'AOB-0002' where id = 'c0000002-0000-4000-8000-000000000002' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'AOB-0003' where id = 'c0000003-0000-4000-8000-000000000003' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'HYC-0002' where id = 'c0000004-0000-4000-8000-000000000004' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'KTM-0005' where id = 'c0000005-0000-4000-8000-000000000005' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'KTM-0006' where id = 'c0000006-0000-4000-8000-000000000006' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'HLH-0007' where id = 'c0000007-0000-4000-8000-000000000007' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'AOB-0008' where id = 'c0000008-0000-4000-8000-000000000008' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'ATL-0009' where id = 'c0000009-0000-4000-8000-000000000009' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'ATL-0010' where id = 'c0000010-0000-4000-8000-000000000010' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'HYC-0003' where id = 'c0000011-0000-4000-8000-000000000011' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'TEC-0012' where id = 'c0000012-0000-4000-8000-000000000012' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'TEC-0013' where id = 'c0000013-0000-4000-8000-000000000013' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'TEC-0014' where id = 'c0000014-0000-4000-8000-000000000014' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'ATL-0015' where id = 'c0000015-0000-4000-8000-000000000015' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'ATL-0016' where id = 'c0000016-0000-4000-8000-000000000016' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'ATL-0017' where id = 'c0000017-0000-4000-8000-000000000017' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'IPJ-0018' where id = 'c0000018-0000-4000-8000-000000000018' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'IPJ-0019' where id = 'c0000019-0000-4000-8000-000000000019' and (sku is null or btrim(sku) = '');
+update public.cases set sku = 'IPJ-0020' where id = 'c0000020-0000-4000-8000-000000000020' and (sku is null or btrim(sku) = '');
+
 -- Popularity: favorites from demo partners
 insert into public.favorites (user_id, case_id, created_at) values
   ('a2222222-2222-4222-a222-222222222201', 'c0000001-0000-4000-8000-000000000001', now() - interval '1 day'),

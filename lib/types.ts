@@ -286,6 +286,8 @@ export type Case = {
   applicationCount?: number;
   /** Count of negotiations in active pipeline (accepted+) */
   negotiationCount?: number;
+  /** True when a row exists in public.deals for this case */
+  hasDeal?: boolean;
 };
 
 /** Row from public.case_images */

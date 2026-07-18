@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { withdrawCaseAction } from "@/lib/actions";
@@ -134,6 +133,7 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
                 const status = casePublicStatusLabel({
                   status: item.status,
                   reviewStatus: item.reviewStatus,
+                  hasDeal: item.hasDeal,
                 });
                 const sku = item.sku?.trim() || "";
 
@@ -169,8 +169,12 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
                       {item.applicationCount ?? 0}件
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      {item.reviewStatus === "approved" &&
-                      item.status === "open" ? (
+                      {status === "成約済み" ? (
+                        <span className="font-medium text-red-600">
+                          {status}
+                        </span>
+                      ) : item.reviewStatus === "approved" &&
+                        item.status === "open" ? (
                         <span className="text-teal">{status}</span>
                       ) : item.reviewStatus === "rejected" ? (
                         <span className="text-red-600">{status}</span>
@@ -209,13 +213,9 @@ export function MakerCaseList({ items }: MakerCaseListProps) {
       </div>
       <p className="text-xs text-muted">
         横スクロールで全列を確認できます。商品番号（SKU）未入力は「—」と表示します。{" "}
-        <Link
-          href="/cases"
-          prefetch={false}
-          className="text-teal hover:underline"
-        >
+        <a href="/cases" className="text-teal hover:underline">
           公開商品一覧へ
-        </Link>
+        </a>
       </p>
     </div>
   );

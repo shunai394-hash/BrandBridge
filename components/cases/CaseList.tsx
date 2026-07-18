@@ -1,7 +1,8 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CaseFilter } from "@/components/cases/CaseFilter";
 import { EmptyCasesState } from "@/components/cases/EmptyCasesState";
 import { Button } from "@/components/ui/Button";
@@ -31,26 +32,66 @@ export type CaseListItem = {
   targetCountry: TargetCountry;
   salesFormat: SalesFormat;
   isExclusive: boolean;
+  /** Server may send this; CaseList must NOT display it. Use apiMeta only. */
+  applicationCount?: number;
+  status: CaseStatus;
+  reviewStatus: ReviewStatus;
+  /** Server may send this; CaseList must NOT display it. Use apiMeta only. */
+  hasDeal?: boolean;
+};
+
+type PageAuthDebug = {
+  userId: string | null;
+  count: number;
+  atl0010: {
+    sku: string | null;
+    applicationCount: number;
+    hasDeal: boolean;
+  } | null;
+  hyc0003: {
+    sku: string | null;
+    applicationCount: number;
+    hasDeal: boolean;
+  } | null;
+  aob0002: {
+    sku: string | null;
+    applicationCount: number;
+    hasDeal: boolean;
+  } | null;
+};
+
+type CaseListProps = {
+  items?: CaseListItem[];
+  cases?: Case[] | CaseListItem[];
+  initialCategory?: string;
+  viewerRole?: UserRole | null;
+  /** Server CASE PAGE AUTH payload — logged in browser for guest vs login compare */
+  pageAuthDebug?: PageAuthDebug;
+};
+
+export const CASE_LIST_VERSION = "sku-first-v19";
+
+type CaseMeta = {
   applicationCount: number;
+  hasDeal: boolean;
+};
+
+type DisplayRow = {
+  id: string;
+  title: string;
+  productName: string;
+  sku: string | null;
+  summary: string;
+  makerName: string;
+  category: string;
+  targetCountry: TargetCountry;
+  salesFormat: SalesFormat;
+  isExclusive: boolean;
   status: CaseStatus;
   reviewStatus: ReviewStatus;
 };
 
-type CaseListProps = {
-  /** Current page path */
-  items?: CaseListItem[];
-  /**
-   * Soft Nav / HEAD RSC still sends `cases` + viewerRole for logged-in users.
-   * Accept and map — never render caseNumber / BB- / 交渉する.
-   */
-  cases?: Case[] | CaseListItem[];
-  initialCategory?: string;
-  viewerRole?: UserRole | null;
-};
-
-export const CASE_LIST_VERSION = "sku-first-v10";
-
-function toRow(item: Case | CaseListItem): CaseListItem {
+function toDisplayRow(item: Case | CaseListItem): DisplayRow {
   return {
     id: item.id,
     title: item.title,
@@ -62,27 +103,62 @@ function toRow(item: Case | CaseListItem): CaseListItem {
     targetCountry: item.targetCountry,
     salesFormat: item.salesFormat,
     isExclusive: item.isExclusive,
-    applicationCount: item.applicationCount ?? 0,
     status: item.status,
     reviewStatus: item.reviewStatus,
   };
 }
 
+function readMeta(
+  json: Record<string, unknown>,
+  id: string,
+  sku: string | null,
+): CaseMeta {
+  const byId = json[id];
+  const bySku = sku ? json[sku] : undefined;
+  const entry =
+    byId && typeof byId === "object" && !Array.isArray(byId)
+      ? byId
+      : bySku && typeof bySku === "object" && !Array.isArray(bySku)
+        ? bySku
+        : null;
+  if (!entry) return { applicationCount: 0, hasDeal: false };
+  const meta = entry as Record<string, unknown>;
+  return {
+    applicationCount: Number(meta.applicationCount) || 0,
+    hasDeal: Boolean(meta.hasDeal),
+  };
+}
+
 /**
  * Sole /cases table for guest and logged-in.
- * Soft Nav module identity: components/cases/CaseList.tsx
  */
 export function CaseList({
   items,
   cases,
   initialCategory = "すべて",
   viewerRole: _viewerRole,
+  pageAuthDebug,
 }: CaseListProps) {
-  const rows: CaseListItem[] = useMemo(() => {
-    if (items?.length) return items;
-    if (cases?.length) return cases.map(toRow);
-    return [];
-  }, [items, cases]);
+  const pathname = usePathname();
+  const sourceItems = items?.length ? items : cases?.length ? cases : [];
+  const rows = sourceItems;
+
+  useEffect(() => {
+    if (pageAuthDebug) {
+      console.log("CASE PAGE AUTH", pageAuthDebug);
+    }
+    console.log("CASELIST RECEIVED", rows[0]);
+    console.log("CASELIST RECEIVED SAMPLE", {
+      atl0010: rows.find((r) => r.sku?.trim() === "ATL-0010"),
+      hyc0003: rows.find((r) => r.sku?.trim() === "HYC-0003"),
+      aob0002: rows.find((r) => r.sku?.trim() === "AOB-0002"),
+    });
+  }, [pageAuthDebug, rows]);
+
+  const baseRows: DisplayRow[] = useMemo(
+    () => sourceItems.map(toDisplayRow),
+    [sourceItems],
+  );
 
   const startCategory = (caseCategories as readonly string[]).includes(
     initialCategory,
@@ -95,10 +171,80 @@ export function CaseList({
   const [country, setCountry] = useState("すべて");
   const [salesFormat, setSalesFormat] = useState("すべて");
   const [exclusive, setExclusive] = useState<ExclusiveFilter>("すべて");
+  /** Sole display source for 応募件数 / 成約 — keyed by item.id */
+  const [apiMeta, setApiMeta] = useState<Record<string, CaseMeta> | null>(
+    null,
+  );
+
+  const rowIdsKey = useMemo(
+    () =>
+      baseRows
+        .map((r) => r.id)
+        .sort()
+        .join(","),
+    [baseRows],
+  );
+  const rowsRef = useRef(baseRows);
+  rowsRef.current = baseRows;
+  const rowIdsKeyRef = useRef(rowIdsKey);
+  rowIdsKeyRef.current = rowIdsKey;
+
+  useEffect(() => {
+    if (pathname !== "/cases" && pathname !== "/cases/") return;
+    if (!rowIdsKey) return;
+
+    const ids = rowIdsKey.split(",");
+    const keyAtStart = rowIdsKey;
+
+    async function load(attempt: number) {
+      try {
+        const res = await fetch("/api/case-application-counts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }),
+          cache: "no-store",
+          credentials: "same-origin",
+        });
+        if (!res.ok) throw new Error(`counts ${res.status}`);
+        const json: unknown = await res.json();
+        console.log("COUNT API RESPONSE", json);
+
+        if (
+          json &&
+          typeof json === "object" &&
+          typeof (json as { error?: unknown }).error === "string"
+        ) {
+          throw new Error((json as { error: string }).error);
+        }
+
+        const root =
+          json && typeof json === "object"
+            ? (json as Record<string, unknown>)
+            : {};
+        // Always index apiMeta by item.id so render can use apiMeta[item.id]
+        const next: Record<string, CaseMeta> = {};
+        for (const row of rowsRef.current) {
+          next[row.id] = readMeta(root, row.id, row.sku?.trim() || null);
+        }
+
+        if (rowIdsKeyRef.current !== keyAtStart) return;
+        setApiMeta(next);
+      } catch (err) {
+        console.error("[CaseList] case-application-counts", err);
+        if (rowIdsKeyRef.current !== keyAtStart) return;
+        if (attempt < 3) {
+          await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+          if (rowIdsKeyRef.current === keyAtStart) await load(attempt + 1);
+        }
+      }
+    }
+
+    void load(0);
+  }, [pathname, rowIdsKey]);
 
   const filtered = useMemo(() => {
     const q = keyword.trim().toLowerCase();
-    return rows.filter((item) => {
+    return baseRows.filter((item) => {
       const matchCategory = category === "すべて" || item.category === category;
       const matchCountry =
         country === "すべて" || item.targetCountry === country;
@@ -123,9 +269,11 @@ export function CaseList({
         matchKeyword
       );
     });
-  }, [rows, keyword, category, country, salesFormat, exclusive]);
+  }, [baseRows, keyword, category, country, salesFormat, exclusive]);
 
-  if (rows.length === 0) {
+  console.log("DISPLAY META", apiMeta);
+
+  if (baseRows.length === 0) {
     return <EmptyCasesState variant="list" />;
   }
 
@@ -134,6 +282,7 @@ export function CaseList({
       className="space-y-6"
       data-component="CaseList"
       data-product-list-version={CASE_LIST_VERSION}
+      data-counts-ready={apiMeta ? "1" : "0"}
       data-testid="product-list-root"
     >
       <CaseFilter
@@ -190,10 +339,20 @@ export function CaseList({
             </thead>
             <tbody>
               {filtered.map((item) => {
-                const status = casePublicStatusLabel({
-                  status: item.status,
-                  reviewStatus: item.reviewStatus,
-                });
+                // FORBIDDEN: item.applicationCount / item.hasDeal
+                const applicationCount = apiMeta
+                  ? (apiMeta[item.id]?.applicationCount ?? 0)
+                  : null;
+                const hasDeal = apiMeta
+                  ? Boolean(apiMeta[item.id]?.hasDeal)
+                  : false;
+                const status = apiMeta
+                  ? casePublicStatusLabel({
+                      status: item.status,
+                      reviewStatus: item.reviewStatus,
+                      hasDeal: apiMeta[item.id]?.hasDeal,
+                    })
+                  : "…";
                 const negotiateHref = `/cases/${item.id}/negotiation`;
                 const sku = item.sku?.trim() || "";
 
@@ -202,6 +361,9 @@ export function CaseList({
                     key={item.id}
                     className="border-b border-border last:border-0"
                     data-product-id={item.id}
+                    data-has-deal={
+                      apiMeta ? (hasDeal ? "1" : "0") : undefined
+                    }
                   >
                     <td className="px-4 py-3 font-mono text-xs font-medium text-teal">
                       {sku || "—"}
@@ -222,11 +384,25 @@ export function CaseList({
                     <td className="px-4 py-3">
                       {salesFormatLabel(item.salesFormat)}
                     </td>
-                    <td className="px-4 py-3">
-                      {item.applicationCount ?? 0}件
+                    <td
+                      className="px-4 py-3"
+                      data-application-count={
+                        applicationCount === null
+                          ? undefined
+                          : applicationCount
+                      }
+                      data-sku={sku || undefined}
+                    >
+                      {applicationCount === null
+                        ? "…"
+                        : `${applicationCount}件`}
                     </td>
-                    <td className="px-4 py-3">
-                      {status === "公開中" ? (
+                    <td className="px-4 py-3" data-status={status}>
+                      {status === "成約済み" ? (
+                        <span className="font-medium text-red-600">
+                          {status}
+                        </span>
+                      ) : status === "公開中" ? (
                         <span className="text-teal">{status}</span>
                       ) : (
                         <span className="text-navy">{status}</span>

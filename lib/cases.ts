@@ -1,4 +1,4 @@
-import {
+﻿import {
   formatSupabaseError,
   normalizeCaseCreateInput,
   skuForDb,
@@ -6,6 +6,7 @@ import {
 } from "@/lib/case-validation";
 import { listCaseImages } from "@/lib/case-images";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/admin";
 import type {
   Case,
   CaseCreateInput,
@@ -75,25 +76,54 @@ function mapCase(row: CaseWithMaker): Case {
   };
 }
 
-/** applicationCount = all negotiations; negotiationCount = accepted / in pipeline */
+/**
+ * applicationCount / negotiationCount + hasDeal (成約済み).
+ * Uses service_role: negotiations/deals RLS hides rows from anon.
+ */
 export async function attachNegotiationCounts(
   cases: Case[],
 ): Promise<Case[]> {
   if (cases.length === 0) return cases;
 
-  const supabase = await createClient();
   const ids = cases.map((c) => c.id);
-  const { data, error } = await supabase
-    .from("negotiations")
-    .select("case_id, application_status, pipeline_status")
-    .in("case_id", ids);
+  let data: {
+    case_id: string;
+    application_status: string | null;
+    pipeline_status: string | null;
+  }[] | null = null;
+  let dealRows: { case_id: string }[] | null = null;
+  let error: { message: string } | null = null;
+
+  try {
+    const supabase = createServiceClient();
+    const [negoResult, dealResult] = await Promise.all([
+      supabase
+        .from("negotiations")
+        .select("case_id, application_status, pipeline_status")
+        .in("case_id", ids),
+      supabase.from("deals").select("case_id").in("case_id", ids),
+    ]);
+    data = negoResult.data;
+    dealRows = dealResult.data;
+    error = negoResult.error ?? dealResult.error;
+  } catch (e) {
+    error = {
+      message: e instanceof Error ? e.message : String(e),
+    };
+  }
 
   if (error) {
-    console.error("[attachNegotiationCounts]", error.message);
+    // Loud failure: zeros here used to be painted by CaseList props.
+    // CaseList must ignore these and use /api/case-application-counts.
+    console.error(
+      "[attachNegotiationCounts] FAILED — props will be 0/false:",
+      error.message,
+    );
     return cases.map((c) => ({
       ...c,
-      applicationCount: c.applicationCount ?? 0,
-      negotiationCount: c.negotiationCount ?? 0,
+      applicationCount: 0,
+      negotiationCount: 0,
+      hasDeal: false,
     }));
   }
 
@@ -110,10 +140,13 @@ export async function attachNegotiationCounts(
     }
   }
 
+  const withDeal = new Set((dealRows ?? []).map((r) => r.case_id as string));
+
   return cases.map((c) => ({
     ...c,
     applicationCount: application.get(c.id) ?? 0,
     negotiationCount: negotiation.get(c.id) ?? 0,
+    hasDeal: withDeal.has(c.id),
   }));
 }
 
@@ -152,9 +185,9 @@ async function fetchCases(
 }
 
 /**
- * /cases listing (no profiles.role check):
- * - Everyone: status=open AND review_status=approved
- * - Logged-in: also cases where maker_id = auth.uid() (any review_status, open only for marketplace)
+ * /cases listing — guest and logged-in share ONE path:
+ *   approved+open → mapCase → attachNegotiationCounts (applicationCount + hasDeal)
+ * No authenticated-only case query (that caused divergent props).
  */
 export async function listOpenCases(): Promise<Case[]> {
   const supabase = await createClient();
@@ -171,37 +204,22 @@ export async function listOpenCases(): Promise<Case[]> {
       .order("created_at", { ascending: false }),
   );
 
-  let ownRows: CaseWithMaker[] = [];
-  if (user?.id) {
-    // maker_id = auth.uid() only — never profiles.role
-    ownRows = await fetchCases((select) =>
-      supabase
-        .from("cases")
-        .select(select)
-        .eq("maker_id", user.id)
-        .eq("status", "open")
-        .order("created_at", { ascending: false }),
-    );
-  }
-
-  const byId = new Map<string, CaseWithMaker>();
-  for (const row of approvedRows) byId.set(row.id, row);
-  for (const row of ownRows) byId.set(row.id, row);
-
-  const mapped = Array.from(byId.values())
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    )
-    .map(mapCase);
-
+  const mapped = approvedRows.map(mapCase);
   const withCounts = await attachNegotiationCounts(mapped);
 
   console.info("[listOpenCases]", {
     authUid: user?.id ?? null,
-    approvedCount: approvedRows.length,
-    ownOpenCount: ownRows.length,
+    path: "approved+open → attachNegotiationCounts",
     total: withCounts.length,
+    sample: withCounts
+      .filter((c) =>
+        ["ATL-0010", "HYC-0003", "AOB-0002"].includes(c.sku?.trim() || ""),
+      )
+      .map((c) => ({
+        sku: c.sku,
+        applicationCount: c.applicationCount,
+        hasDeal: c.hasDeal,
+      })),
   });
 
   return withCounts;
@@ -316,34 +334,35 @@ export async function getCaseById(id: string): Promise<Case | null> {
   }
 
   const mapped = mapCase(data as CaseWithMaker);
+  const [withCounts] = await attachNegotiationCounts([mapped]);
   const images = await listCaseImages(id);
 
   // Prefer gallery; fall back to legacy product_image_url as single image
   if (images.length > 0) {
     return {
-      ...mapped,
+      ...withCounts,
       images,
-      productImageUrl: images[0].imageUrl || mapped.productImageUrl,
+      productImageUrl: images[0].imageUrl || withCounts.productImageUrl,
     };
   }
 
-  if (mapped.productImageUrl?.trim()) {
+  if (withCounts.productImageUrl?.trim()) {
     return {
-      ...mapped,
+      ...withCounts,
       images: [
         {
-          id: `legacy-${mapped.id}`,
-          caseId: mapped.id,
-          imageUrl: mapped.productImageUrl,
+          id: `legacy-${withCounts.id}`,
+          caseId: withCounts.id,
+          imageUrl: withCounts.productImageUrl,
           storagePath: null,
           sortOrder: 0,
-          createdAt: mapped.createdAt,
+          createdAt: withCounts.createdAt,
         },
       ],
     };
   }
 
-  return { ...mapped, images: [] };
+  return { ...withCounts, images: [] };
 }
 
 export async function getLatestCases(limit = 6): Promise<Case[]> {
@@ -446,7 +465,7 @@ export async function createCase(
         authUid: user.id,
         makerId,
       });
-      return { error: "maker_id と auth.uid() が一致しません" };
+      return { error: "maker_id 縺ｨ auth.uid() 縺御ｸ閾ｴ縺励∪縺帙ｓ" };
     }
 
     const imageUrl = normalized.productImageUrl?.trim() || null;
@@ -548,7 +567,7 @@ export async function createCase(
       });
       return {
         error: formatSupabaseError(
-          "案件の登録に失敗しました",
+          "譯井ｻｶ縺ｮ逋ｻ骭ｲ縺ｫ螟ｱ謨励＠縺ｾ縺励◆",
           error ?? { message: "no data returned after insert" },
         ),
       };
@@ -575,7 +594,7 @@ export async function createCase(
         });
         return {
           error: formatSupabaseError(
-            "案件は作成されましたが商品画像URLの保存に失敗しました",
+            "譯井ｻｶ縺ｯ菴懈・縺輔ｌ縺ｾ縺励◆縺悟膚蜩∫判蜒酋RL縺ｮ菫晏ｭ倥↓螟ｱ謨励＠縺ｾ縺励◆",
             patchError,
           ),
         };
@@ -592,8 +611,7 @@ export async function createCase(
           saved: savedImageUrl,
         });
         return {
-          error:
-            "案件は作成されましたが商品画像URLがDBに反映されませんでした。管理画面から画像を再設定してください。",
+          error: "画像URLが登録されませんでした。管理画面から画像を設定してください。",
         };
       }
     }
@@ -617,7 +635,7 @@ export async function createCase(
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     console.error("[createCase] unexpected", message);
-    return { error: `案件の登録に失敗しました: ${message}` };
+    return { error: `譯井ｻｶ縺ｮ逋ｻ骭ｲ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${message}` };
   }
 }
 
@@ -690,10 +708,10 @@ export async function updateCase(
 
     if (error) {
       console.error("[updateCase]", error.message);
-      return { error: formatSupabaseError("案件の更新に失敗しました", error) };
+      return { error: formatSupabaseError("譯井ｻｶ縺ｮ譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆", error) };
     }
     if (!data) {
-      return { error: "案件を更新できません（本人の案件のみ編集可）" };
+      return { error: "案件を更新できませんでした" };
     }
 
     console.info("[updateCase] ok", {
@@ -703,7 +721,7 @@ export async function updateCase(
     return {};
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    return { error: `案件の更新に失敗しました: ${message}` };
+    return { error: `譯井ｻｶ縺ｮ譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${message}` };
   }
 }
 
@@ -747,10 +765,10 @@ export async function adminUpdateCase(
 
     if (error) {
       console.error("[adminUpdateCase]", error.message);
-      return { error: formatSupabaseError("案件の更新に失敗しました", error) };
+      return { error: formatSupabaseError("譯井ｻｶ縺ｮ譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆", error) };
     }
     if (!data) {
-      return { error: "案件を更新できません（権限またはIDを確認してください）" };
+      return { error: "案件を更新できませんでした。権限またはIDを確認してください" };
     }
 
     console.info("[adminUpdateCase] ok", {
@@ -761,7 +779,7 @@ export async function adminUpdateCase(
     return {};
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    return { error: `案件の更新に失敗しました: ${message}` };
+    return { error: `譯井ｻｶ縺ｮ譖ｴ譁ｰ縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${message}` };
   }
 }
 
@@ -791,7 +809,7 @@ export async function withdrawCase(
     return { error: error.message };
   }
   if (!data) {
-    return { error: "案件を取り下げできません（本人の案件のみ）" };
+    return { error: "案件を取り下げできませんでした" };
   }
 
   console.info("[withdrawCase] ok", {
@@ -802,3 +820,17 @@ export async function withdrawCase(
   });
   return {};
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

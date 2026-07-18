@@ -15,12 +15,12 @@ export default function NotFound() {
         ページが見つかりません
       </h1>
       <p className="mt-4 leading-relaxed text-muted">
-        お探しのページは削除されたか、URLが変更された可能性があります。トップや案件一覧からお探しください。
+        お探しのページは削除されたか、URLが変更された可能性があります。トップや商品一覧からお探しください。
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button href="/">トップへ</Button>
         <Button href="/cases" variant="outline">
-          案件一覧へ
+          商品一覧へ
         </Button>
         <Button href="/contact" variant="ghost">
           お問い合わせ

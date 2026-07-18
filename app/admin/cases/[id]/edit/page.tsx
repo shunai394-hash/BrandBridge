@@ -18,8 +18,8 @@ export async function generateMetadata({
   const caseItem = await getCaseById(id);
   return {
     title: caseItem
-      ? `案件編集: ${caseItem.caseNumber}`
-      : "案件編集",
+      ? `商品編集: ${caseItem.caseNumber}`
+      : "商品編集",
   };
 }
 
@@ -38,7 +38,7 @@ export default async function AdminCaseEditPage({ params }: PageProps) {
       </Link>
       <header className="mb-6 mt-4">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
-          案件を編集
+          商品を編集
         </h1>
         <p className="mt-2 text-sm text-muted">
           商品情報・販売条件を更新できます。画像は上部から登録・差し替えできます。

@@ -96,14 +96,14 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
 
       {items.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-muted">
-          該当する案件がありません。
+          該当する商品がありません。
         </p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-border bg-surface">
           <table className="min-w-full text-left text-sm">
             <thead className="border-b border-border bg-cream/50 text-xs text-muted">
               <tr>
-                <th className={caseNumberHeaderClassName()}>案件番号</th>
+                <th className={caseNumberHeaderClassName()}>掲載番号</th>
                 <th className="px-4 py-3 font-medium">商品画像</th>
                 <th className="px-4 py-3 font-medium">商品名</th>
                 <th className="px-4 py-3 font-medium">原産国</th>

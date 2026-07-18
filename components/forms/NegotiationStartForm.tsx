@@ -215,17 +215,13 @@ export function NegotiationStartForm({
       </div>
 
       <div className="space-y-0 border-b border-border text-sm">
-        <div className="grid grid-cols-[5rem_1fr] items-center gap-2 border-b border-border/70 px-5 py-2.5 md:px-6">
-          <span className="text-muted">案件番号</span>
-          <span className="font-mono font-medium text-teal">{caseNumber}</span>
-        </div>
-        <div className="grid grid-cols-[5rem_1fr] items-center gap-2 border-b border-border/70 px-5 py-2.5 md:px-6">
-          <span className="text-muted">商品コード</span>
+        <div className="grid grid-cols-[7.5rem_1fr] items-center gap-2 border-b border-border/70 px-5 py-2.5 md:px-6">
+          <span className="text-muted">商品コード（SKU）</span>
           <span className="font-mono font-medium text-teal">
             {productSku?.trim() || "—"}
           </span>
         </div>
-        <div className="grid grid-cols-[5rem_1fr] items-center gap-2 px-5 py-2.5 md:px-6">
+        <div className="grid grid-cols-[7.5rem_1fr] items-center gap-2 px-5 py-2.5 md:px-6">
           <span className="text-muted">商品名</span>
           <span className="font-medium text-navy">{productName}</span>
         </div>
@@ -234,7 +230,7 @@ export function NegotiationStartForm({
       {existingThreads.length > 0 ? (
         <div className="border-b border-border bg-cream/40 px-5 py-3 md:px-6">
           <p className="text-xs font-medium text-navy">
-            この案件の既存スレッド（{existingThreads.length}件）
+            この商品の既存スレッド（{existingThreads.length}件）
           </p>
           <ul className="mt-2 space-y-1">
             {existingThreads.map((t) => (

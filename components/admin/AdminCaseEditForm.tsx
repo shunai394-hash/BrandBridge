@@ -80,7 +80,7 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
           商品情報
         </h2>
         <p className="text-xs text-muted">
-          案件番号{" "}
+          掲載番号{" "}
           <span className="font-mono text-teal">{caseItem.caseNumber}</span>
           {" ・ "}
           DBの値をそのまま表示（自動コピー・自動補完なし）。
@@ -98,7 +98,7 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         <p className="text-xs text-muted">
           社内管理用の商品コードです。販売パートナーにも表示されます。
           （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
-          文字以内。例: BB-000123）
+          文字以内。例: HYC-0001）
         </p>
 
         <Input

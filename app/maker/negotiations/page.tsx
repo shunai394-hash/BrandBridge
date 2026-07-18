@@ -6,7 +6,7 @@ import { listNegotiationsForUser } from "@/lib/negotiations";
 
 export const metadata: Metadata = {
   title: "交渉一覧（メーカー）",
-  description: "自社案件への交渉スレッドをメール形式で確認できます。",
+  description: "自社商品への交渉スレッドをメール形式で確認できます。",
 };
 
 export const dynamic = "force-dynamic";

@@ -13,8 +13,7 @@ export const fetchCache = "force-no-store";
 
 /**
  * /admin の唯一の表示元。
- * 旧6カード（審査待ち案件 / 公開中案件 / 交渉数 / 成約件数 / 成約金額合計 / 手数料合計）
- * は git HEAD のこのファイルにあった。作業ツリーでは ops 4セクションのみを返す。
+ * 旧6カード UI は git HEAD にあった。作業ツリーでは ops 4セクションのみを返す。
  */
 export default async function AdminIndexPage() {
   noStore();

@@ -67,7 +67,13 @@ export async function updateSession(request: NextRequest) {
   // Validates JWT and refreshes when expired — keeps session across restarts
   await supabase.auth.getUser();
 
-  if (request.nextUrl.pathname.startsWith("/admin")) {
+  const path = request.nextUrl.pathname;
+  if (
+    path.startsWith("/admin") ||
+    path === "/cases" ||
+    path.startsWith("/cases/") ||
+    path.startsWith("/maker/cases")
+  ) {
     supabaseResponse.headers.set(
       "Cache-Control",
       "private, no-store, no-cache, must-revalidate",

@@ -77,10 +77,8 @@ export function NegotiationList({ items }: NegotiationListProps) {
                       {item.topic}
                     </p>
                     <p className="mt-1 text-sm text-muted">
-                      <span className="font-mono text-teal">{item.caseNumber}</span>
-                      {" · "}
-                      <span className="font-mono">
-                        商品コード：{item.productSku?.trim() || "—"}
+                      <span className="font-mono text-teal">
+                        商品コード（SKU）：{item.productSku?.trim() || "—"}
                       </span>
                       {" · "}
                       {item.productName}

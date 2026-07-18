@@ -22,7 +22,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const caseItem = await getCaseById(id);
-  return { title: caseItem ? `審査: ${caseItem.title}` : "案件審査" };
+  return { title: caseItem ? `審査: ${caseItem.title}` : "商品審査" };
 }
 
 export default async function AdminCaseDetailPage({ params }: PageProps) {
@@ -33,10 +33,10 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-3xl px-5 py-12">
       <Link href="/admin/cases" className="text-sm text-teal hover:underline">
-        ← 案件審査一覧
+        ← 商品審査一覧
       </Link>
       <p className="mt-4 font-mono text-sm font-medium text-teal">
-        案件番号 {caseItem.caseNumber}
+        掲載番号 {caseItem.caseNumber}
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
         {caseItem.title}

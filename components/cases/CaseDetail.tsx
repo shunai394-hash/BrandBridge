@@ -39,21 +39,19 @@ export function CaseDetailView({
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
+  const descriptionParts = [
+    caseItem.description?.trim() || "",
+    caseItem.productFeatures?.trim() || "",
+  ].filter(Boolean);
   const description =
-    caseItem.description?.trim() || "商品説明はまだ登録されていません。";
-  const features = caseItem.productFeatures?.trim() || "";
+    descriptionParts.join("\n\n") || "商品説明はまだ登録されていません。";
 
   return (
     <article className="animate-fade-up">
-      {/* 最上部: 案件番号 */}
-      <p className="font-mono text-sm font-medium tracking-wide text-teal md:text-base">
-        {caseItem.caseNumber}
-      </p>
-
-      <div className="mt-4 mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/cases" className="text-sm text-teal hover:underline">
-          ← 案件一覧に戻る
-        </Link>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <a href="/cases" className="text-sm text-teal hover:underline">
+          ← 商品一覧に戻る
+        </a>
         <FavoriteButton
           caseId={caseItem.id}
           initialFavorited={isFavorited}
@@ -63,19 +61,19 @@ export function CaseDetailView({
 
       {showPendingBanner || caseItem.reviewStatus === "pending_review" ? (
         <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          この案件は運営審査中です（{reviewStatusLabels[caseItem.reviewStatus]}
+          この商品は運営審査中です（{reviewStatusLabels[caseItem.reviewStatus]}
           ）。承認後に公開一覧へ表示されます。
         </div>
       ) : null}
 
       {caseItem.reviewStatus === "rejected" ? (
         <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          この案件は不承認となりました。
+          この商品は不承認となりました。
           {caseItem.reviewNote ? ` 理由: ${caseItem.reviewNote}` : null}
         </div>
       ) : null}
 
-      {/* 表示順: 画像ギャラリー → 商品情報 */}
+      {/* 表示順: 画像ギャラリー → 商品名 / SKU / 説明 */}
       <header className="space-y-5">
         <CaseImageGallery
           images={caseItem.images}
@@ -83,9 +81,15 @@ export function CaseDetailView({
           alt={caseItem.productName}
         />
 
+        <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
+          {caseItem.productName}
+        </h1>
+
         <dl>
-          <InfoRow label="商品コード" value={caseItem.sku?.trim() || "—"} />
-          <InfoRow label="商品名" value={caseItem.productName} />
+          <InfoRow
+            label="商品コード（SKU）"
+            value={caseItem.sku?.trim() || "—"}
+          />
           <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow
             label="原産国"
@@ -97,9 +101,6 @@ export function CaseDetailView({
       <dl className="mt-2">
         {caseItem.summary?.trim() ? (
           <InfoRow label="一覧用サマリー" value={caseItem.summary.trim()} />
-        ) : null}
-        {features ? (
-          <InfoRow label="差別化ポイント" value={features} />
         ) : null}
         <InfoRow label="商品説明" value={description} />
         <InfoRow
@@ -155,11 +156,11 @@ export function CaseDetailView({
           </>
         ) : (
           <p className="text-sm text-muted">
-            この案件は現在交渉を受け付けていません。
+            この商品は現在交渉を受け付けていません。
           </p>
         )}
         <Button href="/cases" variant="ghost">
-          一覧に戻る
+          商品一覧に戻る
         </Button>
       </div>
     </article>

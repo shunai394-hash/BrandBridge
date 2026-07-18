@@ -19,7 +19,7 @@ export const contactCategoryOptions: {
   label: string;
 }[] = [
   { value: "general", label: "一般のお問い合わせ" },
-  { value: "maker", label: "メーカー登録・案件について" },
+  { value: "maker", label: "メーカー登録・商品について" },
   { value: "partner", label: "パートナー登録・交渉について" },
   { value: "billing", label: "手数料・成約について" },
   { value: "bug", label: "不具合の報告" },

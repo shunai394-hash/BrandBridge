@@ -6,7 +6,7 @@ import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "メーカー情報の設定",
-  description: "認証後のメーカー情報・商品案件の入力ページです。",
+  description: "認証後のメーカー情報・商品の入力ページです。",
 };
 
 export const dynamic = "force-dynamic";

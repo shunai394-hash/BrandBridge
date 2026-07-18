@@ -23,7 +23,7 @@ export async function generateMetadata({
   const caseItem = await getCaseById(id);
   return {
     title: caseItem
-      ? `交渉開始: ${caseItem.caseNumber}`
+      ? `交渉開始: ${caseItem.productName}`
       : "交渉開始",
   };
 }
@@ -52,18 +52,15 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
         href={`/cases/${caseItem.id}`}
         className="text-sm text-teal hover:underline"
       >
-        ← 案件詳細に戻る
+        ← 商品詳細に戻る
       </Link>
 
       <header className="mt-6 mb-8">
-        <p className="font-mono text-sm font-medium text-teal">
-          {caseItem.caseNumber}
-        </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
           交渉を開始
         </h1>
         <p className="mt-2 text-sm text-muted">
-          商品コード：
+          商品コード（SKU）：
           <span className="ml-1 font-mono text-teal">
             {caseItem.sku?.trim() || "—"}
           </span>

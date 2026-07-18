@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
 import Script from "next/script";
+import { CasesRouteHardReload } from "@/components/layout/CasesRouteHardReload";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { getSiteUrl, siteConfig } from "@/lib/site";
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
     "BtoB",
     "マッチング",
     "販路開拓",
-    "案件",
+    "商品",
   ],
   authors: [{ name: siteConfig.name }],
   creator: siteConfig.name,
@@ -105,6 +106,7 @@ export default function RootLayout({
           `}
         </Script>
         <Header />
+        <CasesRouteHardReload />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>

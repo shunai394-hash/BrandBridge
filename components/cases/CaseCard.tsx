@@ -18,6 +18,7 @@ function formatDate(value: string) {
 
 export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
   const delayClass = index < 3 ? `delay-${index + 1}` : "";
+  const sku = caseItem.sku?.trim() || "";
 
   return (
     <article
@@ -31,8 +32,8 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
             size="card"
           />
         </div>
-        <p className="font-mono text-xs font-medium text-teal">
-          {caseItem.caseNumber}
+        <p className="font-mono text-xs font-medium tracking-wide text-teal">
+          商品コード（SKU）：{sku || "—"}
         </p>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">
           <span className="rounded bg-cream px-2 py-0.5 text-navy">
@@ -51,17 +52,13 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
           ) : null}
           {caseItem.reviewStatus === "pending_review" ? (
             <span className="rounded border border-amber-300 bg-amber-50 px-2 py-0.5 text-amber-800">
-              審査待ち（自分の案件）
+              審査待ち（自分の商品）
             </span>
           ) : null}
         </div>
         <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-lg leading-snug text-navy transition group-hover:text-teal">
-          {caseItem.title}
+          {caseItem.productName}
         </h3>
-        <p className="mt-1 font-mono text-xs tracking-wide text-teal">
-          {caseItem.sku?.trim() || "—"}
-        </p>
-        <p className="mt-0.5 text-sm text-muted">{caseItem.productName}</p>
       </Link>
 
       {caseItem.priceBand ? (

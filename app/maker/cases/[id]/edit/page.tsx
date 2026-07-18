@@ -16,7 +16,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const caseItem = await getCaseById(id);
-  return { title: caseItem ? `編集: ${caseItem.title}` : "案件編集" };
+  return { title: caseItem ? `編集: ${caseItem.title}` : "商品編集" };
 }
 
 export default async function MakerCaseEditPage({ params }: PageProps) {
@@ -44,14 +44,14 @@ export default async function MakerCaseEditPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
       <Link href="/maker/cases" className="text-sm text-teal hover:underline">
-        ← マイ案件
+        ← マイ商品
       </Link>
       <header className="mb-6 mt-4">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          案件を編集
+          商品を編集
         </h1>
         <p className="mt-2 font-mono text-sm text-teal">
-          {caseItem.caseNumber}
+          商品コード（SKU）：{caseItem.sku?.trim() || "—"}
         </p>
       </header>
 

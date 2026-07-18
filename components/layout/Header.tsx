@@ -7,7 +7,7 @@ import type { SessionUser } from "@/lib/types";
 
 function guestLinks() {
   return [
-    { href: "/cases", label: "案件一覧" },
+    { href: "/cases", label: "商品一覧" },
     { href: "/register/maker", label: "メーカー登録" },
     { href: "/register/partner", label: "パートナー登録" },
     { href: "/login", label: "ログイン" },
@@ -18,7 +18,7 @@ async function userLinks(user: SessionUser) {
   if (user.role === "admin") {
     return [
       { href: "/admin", label: "管理画面" },
-      { href: "/cases", label: "案件一覧" },
+      { href: "/cases", label: "商品一覧" },
       { href: "/deals", label: "成約一覧" },
       { href: "/favorites", label: "お気に入り" },
       { href: "/profile/edit", label: "マイプロフィール" },
@@ -35,15 +35,15 @@ async function userLinks(user: SessionUser) {
         : "交渉";
 
   const links = [
-    { href: "/cases", label: "案件一覧" },
+    { href: "/cases", label: "商品一覧" },
     { href: negoPath, label: negoLabel },
     { href: "/deals", label: "成約一覧" },
     { href: "/favorites", label: "お気に入り" },
     { href: "/profile/edit", label: "マイプロフィール" },
   ];
   if (user.role === "maker") {
-    links.push({ href: "/maker/cases", label: "マイ案件" });
-    links.push({ href: "/maker/cases/new", label: "案件を登録" });
+    links.push({ href: "/maker/cases", label: "マイ商品" });
+    links.push({ href: "/maker/cases/new", label: "商品を登録" });
   }
   return links;
 }
@@ -62,15 +62,27 @@ export async function Header() {
           BrandBridge
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          {links.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-white/85 transition hover:text-white"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {links.map((item) =>
+            item.href === "/cases" || item.href === "/maker/cases/new" ? (
+              // Full document navigation — Soft Nav was leaving stale maker form / list UI.
+              <a
+                key={item.href}
+                href={item.href}
+                className="text-white/85 transition hover:text-white"
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                prefetch={false}
+                className="text-white/85 transition hover:text-white"
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
           {user ? (
             <form action={signOutAction}>
               <button

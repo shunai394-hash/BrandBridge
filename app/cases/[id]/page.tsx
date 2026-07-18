@@ -20,7 +20,7 @@ export async function generateMetadata({
   const caseItem = await getCaseById(id);
 
   if (!caseItem) {
-    return { title: "案件が見つかりません" };
+    return { title: "商品が見つかりません" };
   }
 
   return {

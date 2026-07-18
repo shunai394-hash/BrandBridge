@@ -81,13 +81,7 @@ export function NegotiationDetail({
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3 border-t border-border pt-4">
           <div className="min-w-0">
             <p className="font-mono text-sm font-medium text-teal">
-              {item.caseNumber}
-            </p>
-            <p className="mt-1 text-xs text-muted">
-              商品コード：
-              <span className="ml-1 font-mono text-teal">
-                {item.productSku?.trim() || "—"}
-              </span>
+              商品コード（SKU）：{item.productSku?.trim() || "—"}
             </p>
             <p className="mt-1 text-base font-medium text-navy">
               {item.productName}
@@ -112,13 +106,13 @@ export function NegotiationDetail({
             </dd>
           </div>
           <div className="grid gap-1 sm:grid-cols-[5.5rem_1fr]">
-            <dt className="text-muted">案件</dt>
+            <dt className="text-muted">商品</dt>
             <dd>
               <Link
                 href={`/cases/${item.caseId}`}
                 className="text-teal hover:underline"
               >
-                案件詳細を開く
+                商品詳細を開く
               </Link>
               <span className="mx-2 text-muted">·</span>
               <span className="text-muted">

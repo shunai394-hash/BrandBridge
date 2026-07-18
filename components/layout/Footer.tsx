@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const serviceLinks = [
-  { href: "/cases", label: "案件一覧" },
+  { href: "/cases", label: "商品一覧" },
   { href: "/for-makers", label: "メーカーの方へ" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
   { href: "/register/maker", label: "メーカー登録" },
@@ -34,9 +34,15 @@ export function Footer() {
             <ul className="space-y-2">
               {serviceLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="transition hover:text-white">
-                    {item.label}
-                  </Link>
+                  {item.href === "/cases" ? (
+                    <a href={item.href} className="transition hover:text-white">
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link href={item.href} className="transition hover:text-white">
+                      {item.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

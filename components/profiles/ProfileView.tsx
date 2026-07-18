@@ -134,15 +134,15 @@ export function ProfileView({ profile, openCases, isOwner }: ProfileViewProps) {
         <section>
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-              掲載中の案件
+              掲載中の商品
             </h2>
-            <Link href="/cases" className="text-sm text-teal hover:underline">
-              案件一覧へ
-            </Link>
+            <a href="/cases" className="text-sm text-teal hover:underline">
+              商品一覧へ
+            </a>
           </div>
           {openCases.length === 0 ? (
             <p className="rounded-lg border border-dashed border-border bg-surface px-5 py-8 text-center text-sm text-muted">
-              公開中の案件はまだありません。
+              公開中の商品はまだありません。
             </p>
           ) : (
             <ul className="space-y-3">

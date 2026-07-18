@@ -251,7 +251,7 @@ export async function createCaseAction(
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "アカウントが停止されています" };
     }
-    return { error: "メーカーアカウントでのみ案件を登録できます" };
+    return { error: "メーカーアカウントでのみ商品を登録できます" };
   }
 
   const result = await createCase(maker.id, {

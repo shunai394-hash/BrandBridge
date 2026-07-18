@@ -15,6 +15,8 @@ import {
   type CaseCreateInput,
 } from "@/lib/types";
 
+const FORM_VERSION = "product-v6";
+
 const initial: CaseCreateInput = {
   title: "",
   category: "美容・コスメ",
@@ -60,6 +62,11 @@ function Section({
   );
 }
 
+/**
+ * Maker product registration form.
+ * Soft Nav historically resolves this module path (CaseCreateForm.tsx).
+ * Keep the full UI here — do not leave a thin re-export.
+ */
 export function CaseCreateForm() {
   const [form, setForm] = useState<CaseCreateInput>(initial);
   const [loading, setLoading] = useState(false);
@@ -107,6 +114,7 @@ export function CaseCreateForm() {
       onSubmit={handleSubmit}
       className="animate-fade-up space-y-6"
       data-component="CaseCreateForm"
+      data-form-version={FORM_VERSION}
     >
       <Section title="基本情報">
         <label className="flex flex-col gap-1.5 text-sm">
@@ -163,20 +171,6 @@ export function CaseCreateForm() {
 
       <Section title="商品情報">
         <Input
-          label="商品コード（SKU）"
-          name="sku"
-          maxLength={CASE_TEXT_LIMITS.sku}
-          value={form.sku}
-          onChange={(e) => update("sku", e.target.value)}
-          placeholder="HYC-0001"
-          autoComplete="off"
-        />
-        <p className="text-xs text-muted">
-          社内管理用の商品コードです。販売パートナーにも表示されます。
-          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
-          文字以内。例: BB-000123）
-        </p>
-        <Input
           label="商品名"
           name="title"
           required
@@ -191,6 +185,20 @@ export function CaseCreateForm() {
             }));
           }}
         />
+        <Input
+          label="商品コード（SKU）"
+          name="sku"
+          maxLength={CASE_TEXT_LIMITS.sku}
+          value={form.sku}
+          onChange={(e) => update("sku", e.target.value)}
+          placeholder="HYC-0001"
+          autoComplete="off"
+        />
+        <p className="text-xs text-muted">
+          社内管理用の商品コードです。販売パートナーにも表示されます。
+          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
+          文字以内。例: HYC-0001）
+        </p>
         <TextArea
           label="一覧用サマリー"
           name="summary"
@@ -212,9 +220,10 @@ export function CaseCreateForm() {
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
+          placeholder="特徴・強み・用途・販売時の訴求内容など"
         />
         <p className="text-xs text-muted">
-          特徴・用途・販売時の訴求ポイントなどを自由に入力してください。
+          特徴・強み・用途・販売時の訴求内容をまとめて入力してください。
           （{form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
         <Input
@@ -224,13 +233,6 @@ export function CaseCreateForm() {
           maxLength={CASE_TEXT_LIMITS.priceBand}
           value={form.priceBand}
           onChange={(e) => update("priceBand", e.target.value)}
-        />
-        <ProductImageField
-          label="商品画像"
-          value={form.productImageUrl ?? null}
-          onChange={(url) => update("productImageUrl", url)}
-          onUploadingChange={setImageUploading}
-          disabled={loading}
         />
       </Section>
 
@@ -242,7 +244,10 @@ export function CaseCreateForm() {
             className={selectClass}
             value={form.salesFormat}
             onChange={(e) =>
-              update("salesFormat", e.target.value as CaseCreateInput["salesFormat"])
+              update(
+                "salesFormat",
+                e.target.value as CaseCreateInput["salesFormat"],
+              )
             }
             required
           >
@@ -327,6 +332,16 @@ export function CaseCreateForm() {
         />
       </Section>
 
+      <Section title="商品画像">
+        <ProductImageField
+          label="商品画像"
+          value={form.productImageUrl ?? null}
+          onChange={(url) => update("productImageUrl", url)}
+          onUploadingChange={setImageUploading}
+          disabled={loading}
+        />
+      </Section>
+
       {error ? (
         <p
           className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
@@ -341,3 +356,6 @@ export function CaseCreateForm() {
     </form>
   );
 }
+
+/** Alias for newer imports */
+export { CaseCreateForm as ProductCreateForm };

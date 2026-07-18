@@ -145,20 +145,6 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
 
       <Section title="商品情報">
         <Input
-          label="商品コード（SKU）"
-          name="sku"
-          maxLength={CASE_TEXT_LIMITS.sku}
-          value={form.sku}
-          onChange={(e) => update("sku", e.target.value)}
-          placeholder="HYC-0001"
-          autoComplete="off"
-        />
-        <p className="text-xs text-muted">
-          社内管理用の商品コードです。販売パートナーにも表示されます。
-          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
-          文字以内。例: BB-000123）
-        </p>
-        <Input
           label="商品名"
           name="title"
           required
@@ -173,6 +159,20 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
             }));
           }}
         />
+        <Input
+          label="商品コード（SKU）"
+          name="sku"
+          maxLength={CASE_TEXT_LIMITS.sku}
+          value={form.sku}
+          onChange={(e) => update("sku", e.target.value)}
+          placeholder="HYC-0001"
+          autoComplete="off"
+        />
+        <p className="text-xs text-muted">
+          社内管理用の商品コードです。販売パートナーにも表示されます。
+          （任意・英数字・ハイフン・アンダースコア・{CASE_TEXT_LIMITS.sku}
+          文字以内。例: HYC-0001）
+        </p>
         <TextArea
           label="一覧用サマリー"
           name="summary"
@@ -194,9 +194,10 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           maxLength={CASE_TEXT_LIMITS.description}
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
+          placeholder="特徴・強み・用途・販売時の訴求内容など"
         />
         <p className="text-xs text-muted">
-          特徴・用途・販売時の訴求ポイントなどを自由に入力してください。
+          特徴・強み・用途・販売時の訴求内容をまとめて入力してください。
           （{form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
         <Input
@@ -207,13 +208,6 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           value={form.priceBand}
           onChange={(e) => update("priceBand", e.target.value)}
         />
-        <div className="pt-1">
-          <CaseImageUploader
-            caseId={caseItem.id}
-            images={caseItem.images}
-            productImageUrl={caseItem.productImageUrl}
-          />
-        </div>
       </Section>
 
       <Section title="販売条件">
@@ -308,6 +302,14 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           maxLength={CASE_TEXT_LIMITS.idealPartner}
           value={form.idealPartner}
           onChange={(e) => update("idealPartner", e.target.value)}
+        />
+      </Section>
+
+      <Section title="商品画像">
+        <CaseImageUploader
+          caseId={caseItem.id}
+          images={caseItem.images}
+          productImageUrl={caseItem.productImageUrl}
         />
       </Section>
 

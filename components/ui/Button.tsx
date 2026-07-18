@@ -7,6 +7,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   href?: string;
   children: ReactNode;
+  /** When href is set, forwarded to next/link */
+  prefetch?: boolean;
   /** Passed through for E2E / diagnostics */
   "data-testid"?: string;
 };
@@ -25,6 +27,7 @@ export function Button({
   children,
   className = "",
   type = "button",
+  prefetch,
   ...props
 }: ButtonProps) {
   const classes = [
@@ -36,8 +39,16 @@ export function Button({
   ].join(" ");
 
   if (href) {
+    // Full document nav for /cases — Soft Nav on localhost kept a separate Router Cache
+    if (href === "/cases" || href.startsWith("/cases?")) {
+      return (
+        <a href={href} className={classes}>
+          {children}
+        </a>
+      );
+    }
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} prefetch={prefetch}>
         {children}
       </Link>
     );

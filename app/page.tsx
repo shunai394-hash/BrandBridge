@@ -26,7 +26,7 @@ const sampleCases = [
     format: "卸売",
     exclusive: "非独占",
     title: "地域特産のクラフト飲料",
-    summary: "百貨店・専門店向け。最低発注数と希望マージンを案件上で明示。",
+    summary: "百貨店・専門店向け。最低発注数と希望マージンを商品上で明示。",
   },
   {
     category: "美容・コスメ",
@@ -53,7 +53,7 @@ const betaBenefits = [
   },
   {
     title: "優先案内",
-    body: "公開案件やマッチング候補を、先行登録者へ優先してご案内します。",
+    body: "公開商品やマッチング候補を、先行登録者へ優先してご案内します。",
   },
   {
     title: "初期支援",
@@ -84,7 +84,7 @@ const reasons = [
   },
   {
     title: "条件が最初から見える",
-    body: "販売形式・対応国・独占可否などを案件に載せられるため、交渉前のミスマッチを減らせます。",
+    body: "販売形式・対応国・独占可否などを商品に載せられるため、交渉前のミスマッチを減らせます。",
   },
   {
     title: "交渉から成約までつながる",
@@ -101,7 +101,7 @@ const steps = [
   {
     n: "02",
     title: "掲載する / 探す",
-    body: "案件を出すか、公開案件から条件で絞り込みます。",
+    body: "商品を出すか、公開商品から条件で絞り込みます。",
   },
   {
     n: "03",
@@ -126,7 +126,7 @@ const trustItems = [
   },
   {
     title: "想定販売形式",
-    body: "卸売・代理店・EC販売・委託販売など、案件ごとに条件を明示できます。",
+    body: "卸売・代理店・EC販売・委託販売など、商品ごとに条件を明示できます。",
   },
   {
     title: "法人向けの安心設計",
@@ -189,7 +189,7 @@ export default async function HomePage() {
           <p className="animate-fade-up delay-2 mt-4 max-w-xl text-sm leading-relaxed text-white/75">
             初期参加企業・販売パートナーを優先募集しています。
             <br />
-            先行登録で、公開案件の優先案内と初期マッチング支援を受けられます。
+            先行登録で、公開商品の優先案内と初期マッチング支援を受けられます。
           </p>
 
           <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
@@ -204,7 +204,7 @@ export default async function HomePage() {
               variant="outline"
               className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              公開予定の案件を見る
+              公開予定の商品を見る
             </Button>
             <Button
               href="/contact?topic=listing"
@@ -216,7 +216,7 @@ export default async function HomePage() {
           </div>
 
           <p className="animate-fade-in delay-3 mt-5 text-sm text-white/65">
-            登録前に案件イメージだけ見ることもできます ·{" "}
+            登録前に商品イメージだけ見ることもできます ·{" "}
             <Link
               href="#sample-cases"
               className="underline-offset-2 hover:text-white hover:underline"
@@ -280,16 +280,16 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
               <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                {hasCases ? "公開中の案件" : "こんな案件が載るイメージ"}
+                {hasCases ? "公開中の商品" : "こんな商品が載るイメージ"}
               </h2>
               <p className="mt-3 text-muted">
                 {hasCases
-                  ? "条件が見える案件から、興味のある商材を探せます。"
+                  ? "条件が見える商品から、興味のある商材を探せます。"
                   : "カテゴリ・対応国・販売形式・独占可否など、交渉前に確認したい条件を先に見せます。"}
               </p>
             </div>
             <Button href="/cases" variant="outline" className="w-full sm:w-auto">
-              公開予定の案件を見る
+              公開予定の商品を見る
             </Button>
           </div>
 
@@ -335,7 +335,7 @@ export default async function HomePage() {
           <div className="mt-10 border-t border-border pt-8">
             <h3 className="font-medium text-navy">カテゴリ・条件の例</h3>
             <p className="mt-1 text-sm text-muted">
-              興味のある分野や販売形式から案件一覧へ進めます。
+              興味のある分野や販売形式から商品一覧へ進めます。
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
               {browseCategories.map((category) => (
@@ -560,14 +560,14 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                  新着案件
+                  新着商品
                 </h2>
                 <p className="mt-2 text-sm text-muted">
-                  最近公開された案件です。
+                  最近公開された商品です。
                 </p>
               </div>
               <Button href="/cases" variant="outline" className="w-full sm:w-auto">
-                案件一覧へ
+                商品一覧へ
               </Button>
             </div>
             <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -591,10 +591,10 @@ export default async function HomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-5 py-16 text-center md:py-20">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl md:text-3xl">
-            まずは、案件を見るか先行登録から始めましょう
+            まずは、商品を見るか先行登録から始めましょう
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/75 md:text-base">
-            温度感に合わせて進め方を選べます。案件確認だけでも、掲載相談だけでも構いません。
+            温度感に合わせて進め方を選べます。商品確認だけでも、掲載相談だけでも構いません。
           </p>
           <div className="mx-auto mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
             <Button
@@ -608,7 +608,7 @@ export default async function HomePage() {
               variant="outline"
               className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              公開予定の案件を見る
+              公開予定の商品を見る
             </Button>
             <Button
               href="/contact?topic=listing"

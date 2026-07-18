@@ -8,7 +8,7 @@ import { reviewStatusLabels, salesFormatLabel } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "商品登録内容の確認",
-  description: "メーカー登録で保存した商品案件情報を確認します。",
+  description: "メーカー登録で保存した商品情報を確認します。",
 };
 
 export const dynamic = "force-dynamic";
@@ -76,7 +76,7 @@ export default async function MakerRegistrationCompletePage({
           登録内容を確認しました
         </h1>
         <p className="mt-3 text-muted">
-          メーカー情報と商品案件は保存済みです。案件一覧で内容を確認できます（自動承認が無効の場合、他ユーザーへの公開は運営承認後です）。
+          メーカー情報と商品は保存済みです。商品一覧で内容を確認できます（自動承認が無効の場合、他ユーザーへの公開は運営承認後です）。
         </p>
       </header>
 
@@ -84,7 +84,7 @@ export default async function MakerRegistrationCompletePage({
         <div className="mb-6 rounded-xl border border-teal/40 bg-cream px-5 py-4">
           <p className="font-medium text-navy">保存に成功しました</p>
           <p className="mt-1 text-sm text-muted">
-            作成された案件ID:{" "}
+            作成された商品ID:{" "}
             <Link
               href={`/cases/${latest.id}`}
               className="font-mono text-teal hover:underline"
@@ -100,7 +100,7 @@ export default async function MakerRegistrationCompletePage({
         </div>
       ) : (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4">
-          <p className="font-medium text-red-800">案件データが見つかりません</p>
+          <p className="font-medium text-red-800">商品データが見つかりません</p>
           <p className="mt-1 text-sm text-red-700">
             保存に失敗した可能性があります。もう一度商品登録をお試しください。
             {created ? `（指定ID: ${created}）` : null}
@@ -111,7 +111,7 @@ export default async function MakerRegistrationCompletePage({
       <ol className="mb-8 space-y-2 rounded-xl border border-border bg-cream/70 px-5 py-4 text-sm text-navy">
         <li>1. 登録・メール認証</li>
         <li>2. 商品登録（完了）</li>
-        <li>3. 案件公開申請（審査待ち）</li>
+        <li>3. 商品公開申請（審査待ち）</li>
         <li>4. 販売パートナーから応募</li>
       </ol>
 
@@ -142,7 +142,7 @@ export default async function MakerRegistrationCompletePage({
         </h2>
         {!latest ? (
           <p className="mt-4 text-sm text-muted">
-            まだ案件がありません。続けて商品案件を登録できます。
+            まだ商品がありません。続けて商品を登録できます。
           </p>
         ) : (
           <div className="mt-4 space-y-4">
@@ -187,7 +187,7 @@ export default async function MakerRegistrationCompletePage({
               ))}
             </dl>
             <p className="text-xs text-muted">
-              案件ID:{" "}
+              商品ID:{" "}
               <Link
                 href={`/cases/${latest.id}`}
                 className="font-mono text-teal hover:underline"
@@ -201,7 +201,7 @@ export default async function MakerRegistrationCompletePage({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button href="/cases" className="w-full sm:w-auto">
-          案件一覧で確認する
+          商品一覧で確認する
         </Button>
         <Button href="/maker/cases/new" variant="outline" className="w-full sm:w-auto">
           別の商品を追加登録

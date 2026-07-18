@@ -78,10 +78,10 @@ export function validateCaseCreateInput(
 ): string | null {
   const n = normalizeCaseCreateInput(input);
 
-  if (!n.title.trim()) return "案件タイトルを入力してください";
+  if (!n.title.trim()) return "商品名を入力してください";
   if (!n.productName.trim()) return "商品名を入力してください";
   if (!n.summary.trim()) return "一覧用サマリーを入力してください";
-  if (!n.description.trim()) return "商品説明（案件概要）を入力してください";
+  if (!n.description.trim()) return "商品説明を入力してください";
   if (!n.idealPartner.trim()) return "求めるパートナー像を入力してください";
   if (!n.offer.trim()) return "メーカー提供条件を入力してください";
   if (!n.category.trim()) return "カテゴリを選択してください";
@@ -102,7 +102,7 @@ export function validateCaseCreateInput(
   }
 
   if (n.title.length > CASE_TEXT_LIMITS.title) {
-    return `案件タイトルは${CASE_TEXT_LIMITS.title}文字以内にしてください`;
+    return `商品名は${CASE_TEXT_LIMITS.title}文字以内にしてください`;
   }
   if (n.summary.length > CASE_TEXT_LIMITS.summary) {
     return `一覧用サマリーは${CASE_TEXT_LIMITS.summary}文字以内の短文にしてください`;
@@ -114,7 +114,7 @@ export function validateCaseCreateInput(
     return `商品名は${CASE_TEXT_LIMITS.productName}文字以内にしてください`;
   }
   if (n.productFeatures.length > CASE_TEXT_LIMITS.productFeatures) {
-    return `商品の特徴は${CASE_TEXT_LIMITS.productFeatures}文字以内にしてください`;
+    return `商品説明の追記は${CASE_TEXT_LIMITS.productFeatures}文字以内にしてください`;
   }
 
   return null;

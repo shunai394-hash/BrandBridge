@@ -43,7 +43,7 @@ const flow = [
   "メール認証",
   "プロフィール入力",
   "販売実績・希望条件入力",
-  "商品提案・案件確認",
+  "商品提案・確認",
 ];
 
 const merits = [
@@ -243,7 +243,7 @@ export default function ForPartnersPage() {
             登録後に入力するプロフィール
           </h2>
           <p className="mt-3 max-w-2xl text-muted">
-            販売パートナーとしての強みや希望条件を整理しておくと、合う商品案件を見つけやすくなります。
+            販売パートナーとしての強みや希望条件を整理しておくと、合う商品を見つけやすくなります。
           </p>
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profileItems.map((item) => (

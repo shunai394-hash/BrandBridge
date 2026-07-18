@@ -25,12 +25,12 @@ export default async function FavoritesPage() {
           お気に入り
         </h1>
         <p className="mt-3 text-muted">
-          保存した公開案件を確認できます。
+          保存した公開商品を確認できます。
         </p>
       </header>
       {cases.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-muted">
-          お気に入りの案件はまだありません。案件詳細から追加できます。
+          お気に入りの商品はまだありません。商品詳細から追加できます。
         </p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">

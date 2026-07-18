@@ -26,7 +26,7 @@ function formatDateTime(value: string) {
 
 export function NegotiationInbox({
   items,
-  emptyHint = "案件詳細から交渉を開始すると、ここに表示されます。",
+  emptyHint = "商品詳細から交渉を開始すると、ここに表示されます。",
 }: NegotiationInboxProps) {
   const [filter, setFilter] = useState<FilterKey>("all");
 
@@ -135,11 +135,7 @@ export function NegotiationInbox({
                       </div>
                       <p className="mt-0.5 truncate text-xs text-muted">
                         <span className="font-mono text-teal">
-                          {item.caseNumber}
-                        </span>
-                        <span className="mx-1.5">·</span>
-                        <span className="font-mono">
-                          商品コード：{item.productSku?.trim() || "—"}
+                          商品コード（SKU）：{item.productSku?.trim() || "—"}
                         </span>
                         <span className="mx-1.5">·</span>
                         {item.productName}

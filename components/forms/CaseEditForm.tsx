@@ -277,7 +277,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           onChange={(e) => update("salesTerms", e.target.value)}
         />
         <TextArea
-          label="メーカー提供条件"
+          label="商品提供企業の提供条件"
           name="offer"
           required
           maxLength={CASE_TEXT_LIMITS.offer}

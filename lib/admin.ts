@@ -188,7 +188,7 @@ export async function listAdminCases(
       targetCountry: (row.target_country as string | null) ?? null,
       makerId: row.maker_id as string,
       makerName:
-        (profile as { company_name?: string } | null)?.company_name ?? "メーカー",
+        (profile as { company_name?: string } | null)?.company_name ?? "商品提供企業",
       reviewStatus: row.review_status as ReviewStatus,
       status: row.status as string,
       createdAt: row.created_at as string,
@@ -347,7 +347,7 @@ export async function listAdminNegotiations(): Promise<
       caseTitle: (caseRow as { title?: string } | null)?.title ?? "案件",
       makerName:
         (makerProfile as { company_name?: string } | null)?.company_name ??
-        "メーカー",
+        "商品提供企業",
       partnerName:
         (partnerProfile as { company_name?: string } | null)?.company_name ??
         "パートナー",

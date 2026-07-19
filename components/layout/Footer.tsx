@@ -2,9 +2,9 @@ import Link from "next/link";
 
 const serviceLinks = [
   { href: "/cases", label: "商品一覧" },
-  { href: "/for-makers", label: "メーカーの方へ" },
+  { href: "/for-makers", label: "商品を広げたい事業者の方へ" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
-  { href: "/register/maker", label: "メーカー登録" },
+  { href: "/register/maker", label: "商品を広げたい事業者として登録" },
   { href: "/register/partner", label: "パートナー登録" },
   { href: "/login", label: "ログイン" },
 ];
@@ -24,7 +24,7 @@ export function Footer() {
             BrandBridge
           </p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/65">
-            販路開拓と商材探しを最短でつなぐ、条件が見えるBtoBマッチング。
+            商品を広げたい事業者と販売パートナーを最短でつなぐ、条件が見えるBtoBマッチング。
           </p>
           <p className="mt-3 text-xs text-white/45">ベータ先行登録受付中</p>
         </div>

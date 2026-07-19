@@ -33,7 +33,7 @@ function toListItem(
 
 export const metadata: Metadata = {
   title: "商品一覧",
-  description: "BrandBridgeに掲載中のメーカー商品一覧です。",
+  description: "BrandBridgeに掲載中の、商品提供企業の商品一覧です。",
 };
 
 export const dynamic = "force-dynamic";

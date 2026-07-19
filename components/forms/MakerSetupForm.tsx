@@ -21,7 +21,7 @@ import {
 } from "@/lib/types";
 
 const STEPS = [
-  { id: 1, label: "メーカー情報" },
+  { id: 1, label: "商品提供企業情報" },
   { id: 2, label: "商品情報" },
   { id: 3, label: "販売条件" },
   { id: 4, label: "確認" },

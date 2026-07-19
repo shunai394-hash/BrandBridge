@@ -65,7 +65,7 @@ Authentication → URL Configuration:
 | 案件一覧 | `/cases` |
 | 利用規約 / プライバシー | `/terms` `/privacy` |
 | 問い合わせ送信 | `/contact` |
-| メーカー登録 | `/register/maker` |
+| 商品を広げたい事業者として登録 | `/register/maker` |
 | ログイン | `/login` |
 | OG | SNS カードデバッガ、または `/opengraph-image` |
 

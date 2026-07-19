@@ -6,9 +6,9 @@ import { getSessionUser } from "@/lib/auth";
 import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
-  title: "メーカー登録",
+  title: "商品を広げたい事業者として登録",
   description:
-    "BrandBridgeへのメーカー登録。メール認証後に会社・商品情報を入力します。",
+    "BrandBridgeへ商品を広げたい事業者として登録。メール認証後に会社・商品情報を入力します。",
 };
 
 export const dynamic = "force-dynamic";
@@ -33,7 +33,7 @@ export default async function MakerRegisterPage() {
           FOR MAKERS
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          メーカー登録
+          商品を広げたい事業者として登録
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
           メールまたは Google でアカウントを作成します。認証後に会社情報・商品情報を入力します（認証前のデータ保存はありません）。
@@ -41,7 +41,7 @@ export default async function MakerRegisterPage() {
         <p className="mt-2 text-sm text-muted">
           まだ検討中の方は{" "}
           <Link href="/for-makers" className="text-teal hover:underline">
-            メーカー向けページ
+            商品提供事業者向けページ
           </Link>
           をご覧ください。
         </p>

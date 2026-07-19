@@ -37,7 +37,8 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   keywords: [
     "BrandBridge",
-    "メーカー",
+    "商品を広げたい事業者",
+    "商品提供企業",
     "販売パートナー",
     "代理店",
     "卸",

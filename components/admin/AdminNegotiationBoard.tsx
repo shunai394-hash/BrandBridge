@@ -152,7 +152,7 @@ export function AdminNegotiationBoard({
                     {item.caseTitle}
                   </Link>
                   <p className="mt-1 text-xs text-muted">
-                    メーカー: {item.makerName} ／ パートナー: {item.partnerName}
+                    商品提供企業: {item.makerName} ／ パートナー: {item.partnerName}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <NegotiationStatusBadge status={item.applicationStatus} />

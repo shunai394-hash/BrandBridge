@@ -142,7 +142,7 @@ export function CaseDetailView({
           <InfoRow label="想定価格帯" value={caseItem.priceBand.trim()} />
         ) : null}
         {caseItem.offer?.trim() ? (
-          <InfoRow label="メーカー提供条件" value={caseItem.offer.trim()} />
+          <InfoRow label="商品提供企業の提供条件" value={caseItem.offer.trim()} />
         ) : null}
         {caseItem.partnerRequirements?.trim() ? (
           <InfoRow

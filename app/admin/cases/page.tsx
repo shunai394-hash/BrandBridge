@@ -52,7 +52,7 @@ export default async function AdminCasesPage({ searchParams }: PageProps) {
       {items.length === 0 && !error && (totalUnfiltered ?? 0) === 0 ? (
         <div className="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           cases テーブルにデータがありません（0件）。画面上の「保存成功」でも insert
-          が失敗している可能性があります。メーカーで商品を再登録し、サーバーログの
+          が失敗している可能性があります。商品提供企業で商品を再登録し、サーバーログの
           [createCase] insert ok / failed を確認してください。
         </div>
       ) : null}

@@ -31,7 +31,7 @@ function mapDeal(row: DealRow): Deal {
     caseId: row.case_id,
     caseTitle: one(row.cases)?.title ?? "案件",
     makerId: row.maker_id,
-    makerName: one(row.maker)?.company_name ?? "メーカー",
+    makerName: one(row.maker)?.company_name ?? "商品提供企業",
     partnerId: row.partner_id,
     partnerName: one(row.partner)?.company_name ?? "パートナー",
     dealClosedAt: row.deal_closed_at,
@@ -165,7 +165,7 @@ export async function createDealFromNegotiation(
     : negotiation.cases;
   const makerId = (caseRow as { maker_id?: string } | null)?.maker_id;
   if (!makerId) {
-    return { error: "メーカー情報が取得できません" };
+    return { error: "商品提供企業情報が取得できません" };
   }
 
   const rate =

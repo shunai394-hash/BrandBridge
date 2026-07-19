@@ -5,7 +5,7 @@ import { getSessionUser } from "@/lib/auth";
 import { listNegotiationsForUser } from "@/lib/negotiations";
 
 export const metadata: Metadata = {
-  title: "交渉一覧（メーカー）",
+  title: "交渉一覧（商品提供企業）",
   description: "自社商品への交渉スレッドをメール形式で確認できます。",
 };
 
@@ -33,7 +33,7 @@ export default async function MakerNegotiationsPage() {
           交渉一覧
         </h1>
         <p className="mt-3 text-muted">
-          メーカー向けの交渉インボックスです。スレッドを開いて返信・添付できます。
+          商品提供企業向けの交渉インボックスです。スレッドを開いて返信・添付できます。
         </p>
         <p className="mt-2 text-sm text-navy">
           交渉件数: <span className="font-medium">{items.length}</span>

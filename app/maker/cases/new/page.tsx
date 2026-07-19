@@ -8,7 +8,7 @@ import { getSessionUser } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "商品を登録",
-  description: "メーカー向け商品登録ページです。",
+  description: "商品提供企業向け商品登録ページです。",
 };
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function NewCasePage() {
     redirect("/cases");
   }
 
-  const companyName = user?.companyName ?? "確認用メーカー";
+  const companyName = user?.companyName ?? "確認用商品提供企業";
 
   return (
     <div

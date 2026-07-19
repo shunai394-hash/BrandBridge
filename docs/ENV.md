@@ -18,7 +18,7 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 |--------|----------|------|------|
 | `NEXT_PUBLIC_SITE_URL` | ブラウザに露出 | `https://brandbridge.example.com` | OG・sitemap・canonical の基準 URL。末尾スラッシュなし |
 | `NEXT_PUBLIC_SHOW_ERROR_DETAILS` | ブラウザに露出 | `true` | （任意・調査用）エラー画面に message / stack を表示。調査後は削除 |
-| `BETA_AUTO_APPROVE_CASES` | サーバーのみ | `true` | ベータ: **新規**案件を `review_status=approved` で作成。一覧の公開条件は常に `approved`（メーカー本人は `pending_review` も表示） |
+| `BETA_AUTO_APPROVE_CASES` | サーバーのみ | `true` | ベータ: **新規**案件を `review_status=approved` で作成。一覧の公開条件は常に `approved`（商品提供企業本人は `pending_review` も表示） |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。
@@ -28,7 +28,7 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | 対象 | 表示条件 |
 |------|----------|
 | 一般・パートナー | `status=open` かつ `review_status=approved` |
-| メーカー本人 | 上記に加え、自分の `pending_review` / `rejected` |
+| 商品提供企業本人 | 上記に加え、自分の `pending_review` / `rejected` |
 | 新規 insert | `BETA_AUTO_APPROVE_CASES=true` なら `approved`、未設定なら `pending_review`（管理者審査向け） |
 
 Supabase で migration `012_restore_case_review_select.sql` を実行し、RLS を「公開=approved / 本人=own」に戻してください。

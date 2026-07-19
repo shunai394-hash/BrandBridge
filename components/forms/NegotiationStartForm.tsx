@@ -193,7 +193,7 @@ export function NegotiationStartForm({
     return (
       <div className="rounded-lg border border-border bg-surface p-6">
         <p className="text-sm text-muted">
-          メーカーアカウントでは交渉申込はできません。販売パートナーとして登録・ログインしてください。
+          商品提供企業アカウントでは交渉申込はできません。販売パートナーとして登録・ログインしてください。
         </p>
       </div>
     );

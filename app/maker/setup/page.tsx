@@ -5,8 +5,8 @@ import { getSessionUser } from "@/lib/auth";
 import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
-  title: "メーカー情報の設定",
-  description: "認証後のメーカー情報・商品の入力ページです。",
+  title: "商品提供企業情報の設定",
+  description: "認証後の商品提供企業情報・商品の入力ページです。",
 };
 
 export const dynamic = "force-dynamic";
@@ -32,7 +32,7 @@ export default async function MakerSetupPage() {
           FOR MAKERS · SETUP
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          メーカー情報・商品を登録
+          商品提供企業情報・商品を登録
         </h1>
         <p className="mt-3 text-muted">
           認証済みアカウントに紐づけて保存します。入力内容は消えません。

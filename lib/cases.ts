@@ -47,7 +47,7 @@ function mapCase(row: CaseWithMaker): Case {
     caseNumber: row.case_number || "—",
     makerId: row.maker_id,
     title: row.title,
-    makerName: profile?.company_name ?? "メーカー",
+    makerName: profile?.company_name ?? "商品提供企業",
     makerIndustry: profile?.industry ?? null,
     makerHeadquarters: profile?.headquarters ?? null,
     makerFoundedYear: profile?.founded_year ?? null,

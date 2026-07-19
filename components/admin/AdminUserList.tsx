@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import type { AdminUserListItem } from "@/lib/admin";
 
 const roleLabels: Record<string, string> = {
-  maker: "メーカー",
+  maker: "商品提供企業",
   partner: "パートナー",
   admin: "管理者",
 };

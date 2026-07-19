@@ -163,7 +163,7 @@ export const adminDashboardSections: AdminDashboardSectionDef[] = [
     id: "revenue",
     title: "売上",
     description:
-      "契約金額はメーカー⇔パートナー間の取引額。BrandBridgeの扱いは仲介手数料のみです。",
+      "契約金額は商品提供企業⇔パートナー間の取引額。BrandBridgeの扱いは仲介手数料のみです。",
     metrics: [
       {
         key: "revenue.contractAmountTotal",

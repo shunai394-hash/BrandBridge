@@ -55,7 +55,7 @@ function mapNegotiation(
   const caseRow = one(row.cases);
   const partnerProfile = one(row.profiles);
   const makerProfile = one(caseRow?.profiles ?? null);
-  const makerCompanyName = makerProfile?.company_name ?? "メーカー";
+  const makerCompanyName = makerProfile?.company_name ?? "商品提供企業";
   const partnerCompanyName = partnerProfile?.company_name ?? "パートナー";
 
   let counterpartName = makerCompanyName;

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "BrandBridge — 販路開拓と商材探しを最短でつなぐ";
+  "BrandBridge — 商品を広げたい事業者と販売パートナーを最短でつなぐ";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -52,7 +52,7 @@ export default function OpenGraphImage() {
               lineHeight: 1.35,
             }}
           >
-            販路開拓と商材探しを最短でつなぐ
+            商品を広げたい事業者と販売パートナーを最短でつなぐ
           </div>
         </div>
         <div

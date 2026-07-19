@@ -83,7 +83,7 @@ export function validateCaseCreateInput(
   if (!n.summary.trim()) return "一覧用サマリーを入力してください";
   if (!n.description.trim()) return "商品説明を入力してください";
   if (!n.idealPartner.trim()) return "求めるパートナー像を入力してください";
-  if (!n.offer.trim()) return "メーカー提供条件を入力してください";
+  if (!n.offer.trim()) return "商品提供企業の提供条件を入力してください";
   if (!n.category.trim()) return "カテゴリを選択してください";
   if (!n.region.trim()) return "募集エリアを選択してください";
 

@@ -45,7 +45,7 @@ export default async function DealsPage() {
             成約一覧
           </h1>
           <p className="mt-3 text-muted">
-            成約日・金額・仲介手数料と、商品 / メーカー / パートナーを確認できます。
+            成約日・金額・仲介手数料と、商品 / 商品提供企業 / パートナーを確認できます。
           </p>
         </div>
         {user.role === "admin" ? (
@@ -69,7 +69,7 @@ export default async function DealsPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">成約日</th>
                 <th className="px-4 py-3 font-medium">商品</th>
-                <th className="px-4 py-3 font-medium">メーカー</th>
+                <th className="px-4 py-3 font-medium">商品提供企業</th>
                 <th className="px-4 py-3 font-medium">販売パートナー</th>
                 <th className="px-4 py-3 font-medium">成約金額</th>
                 <th className="px-4 py-3 font-medium">手数料</th>

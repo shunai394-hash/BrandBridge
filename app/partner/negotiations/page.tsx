@@ -33,7 +33,7 @@ export default async function PartnerNegotiationsPage() {
           交渉一覧
         </h1>
         <p className="mt-3 text-muted">
-          パートナー向けの交渉インボックスです。商品詳細から交渉を開始すると、メーカーとすぐにメッセージをやり取りできます。
+          パートナー向けの交渉インボックスです。商品詳細から交渉を開始すると、商品提供企業とすぐにメッセージをやり取りできます。
         </p>
         <p className="mt-2 text-sm text-navy">
           交渉件数: <span className="font-medium">{items.length}</span>

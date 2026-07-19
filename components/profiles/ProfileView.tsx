@@ -10,7 +10,12 @@ type ProfileViewProps = {
 };
 
 export function ProfileView({ profile, openCases, isOwner }: ProfileViewProps) {
-  const roleLabel = profile.role === "maker" ? "メーカー" : "販売パートナー";
+  const roleLabel =
+    profile.role === "maker"
+      ? "商品提供企業"
+      : profile.role === "admin"
+        ? "管理者"
+        : "販売パートナー";
 
   return (
     <article className="animate-fade-up space-y-10">

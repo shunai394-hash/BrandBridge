@@ -106,7 +106,7 @@ where email like '%@demo.brandbridge.app';
 
 アプリ接続後:
 
-- [ ] メーカー登録 → `profiles` に行が増える
+- [ ] 商品を広げたい事業者として登録 → `profiles` に行が増える（role は内部値 `maker` のまま）
 - [ ] 案件提出 → `cases.review_status = pending_review`
 - [ ] 管理者承認後 → 公開一覧に出る
 - [ ] お問い合わせ → `contact_inquiries` に行が増える

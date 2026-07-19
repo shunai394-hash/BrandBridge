@@ -253,7 +253,7 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         />
 
         <TextArea
-          label="メーカー提供条件"
+          label="商品提供企業の提供条件"
           name="offer"
           required
           rows={3}

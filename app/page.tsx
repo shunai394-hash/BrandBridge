@@ -80,7 +80,7 @@ const partnerPains = [
 const reasons = [
   {
     title: "両方の目的がはっきりしている",
-    body: "メーカーは販路開拓、販売パートナーは商材探し。誰向けかが明確なので、迷わず始められます。",
+    body: "商品を広げたい事業者は販路開拓、販売パートナーは商材探し。誰向けかが明確なので、迷わず始められます。",
   },
   {
     title: "条件が最初から見える",
@@ -96,7 +96,7 @@ const steps = [
   {
     n: "01",
     title: "先行登録する",
-    body: "メーカーまたは販売パートナーとして無料で登録します。",
+    body: "商品を広げたい事業者または販売パートナーとして無料で登録します。",
   },
   {
     n: "02",
@@ -175,11 +175,11 @@ export default async function HomePage() {
           </p>
 
           <h1 className="animate-fade-up delay-1 mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.4] text-white drop-shadow-sm sm:text-3xl md:mt-8 md:text-4xl lg:text-[2.45rem]">
-            販路を広げたいメーカーと、売れる商材を探すパートナーを最短でつなぐ。
+            商品を広げたい事業者と、売れる商材を探す販売パートナーを最短でつなぐ。
           </h1>
 
           <p className="animate-fade-up delay-2 mt-5 max-w-xl text-[0.95rem] leading-relaxed text-white/90 sm:text-base md:mt-6 md:text-lg">
-            条件が見えるBtoBマッチング。
+            商品を広げたい事業者と販売パートナーのための、条件が見えるBtoBマッチング。
             <br />
             掲載、商材探し、交渉、成約までを一つの流れで。
             <br />
@@ -261,7 +261,7 @@ export default async function HomePage() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button href="/register/maker" className="w-full sm:w-auto">
-              メーカーとして先行登録
+              商品を広げたい事業者として先行登録
             </Button>
             <Button
               href="/register/partner"
@@ -370,7 +370,7 @@ export default async function HomePage() {
             こんな課題ありませんか
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            メーカーにも販売パートナーにも、条件が見えないまま探す負担があります。
+            商品を広げたい事業者にも販売パートナーにも、条件が見えないまま探す負担があります。
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -379,7 +379,7 @@ export default async function HomePage() {
                 FOR MAKERS
               </p>
               <h3 className="mt-2 font-[family-name:var(--font-shippori)] text-xl text-navy">
-                メーカーの方
+                商品を広げたい事業者の方
               </h3>
               <ul className="mt-5 space-y-3">
                 {makerPains.map((pain) => (
@@ -522,13 +522,13 @@ export default async function HomePage() {
                 FOR MAKERS
               </p>
               <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-xl text-navy transition group-hover:text-teal md:text-2xl">
-                メーカーの方へ
+                商品を広げたい事業者の方へ
               </h3>
               <p className="mt-3 flex-1 leading-relaxed text-muted">
-                販路を広げたい製品・ブランドを掲載し、新しい販売パートナーとの出会いを作ります。
+                商品を広げたい製品・ブランドを掲載し、新しい販売パートナーとの出会いを作ります。
               </p>
               <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
-                メーカー向けページを見る
+                商品提供事業者向けページを見る
               </span>
             </Link>
 

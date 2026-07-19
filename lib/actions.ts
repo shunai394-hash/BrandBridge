@@ -72,7 +72,7 @@ export async function completeMakerSetupAction(
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "アカウントが停止されています" };
     }
-    return { error: "メーカーアカウントでのみ登録できます" };
+    return { error: "商品提供企業アカウントでのみ登録できます" };
   }
 
   const imageUrl = input.productImageUrl?.trim() || null;
@@ -251,7 +251,7 @@ export async function createCaseAction(
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "アカウントが停止されています" };
     }
-    return { error: "メーカーアカウントでのみ商品を登録できます" };
+    return { error: "商品提供企業アカウントでのみ商品を登録できます" };
   }
 
   const result = await createCase(maker.id, {

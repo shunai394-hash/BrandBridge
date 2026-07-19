@@ -8,7 +8,7 @@ import { reviewStatusLabels, salesFormatLabel } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "商品登録内容の確認",
-  description: "メーカー登録で保存した商品情報を確認します。",
+  description: "商品を広げたい事業者として登録し、保存した商品情報を確認します。",
 };
 
 export const dynamic = "force-dynamic";
@@ -76,7 +76,7 @@ export default async function MakerRegistrationCompletePage({
           登録内容を確認しました
         </h1>
         <p className="mt-3 text-muted">
-          メーカー情報と商品は保存済みです。商品一覧で内容を確認できます（自動承認が無効の場合、他ユーザーへの公開は運営承認後です）。
+          商品提供企業情報と商品は保存済みです。商品一覧で内容を確認できます（自動承認が無効の場合、他ユーザーへの公開は運営承認後です）。
         </p>
       </header>
 
@@ -117,7 +117,7 @@ export default async function MakerRegistrationCompletePage({
 
       <section className="mb-6 rounded-xl border border-border bg-surface p-5 md:p-6">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-          メーカー情報
+          商品提供企業情報
         </h2>
         <dl className="mt-4 space-y-3 text-sm">
           {[

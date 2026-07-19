@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { CaseList, type CaseListItem } from "@/components/cases/CaseList";
+import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
 import { StaleProductListGuard } from "@/components/cases/StaleProductListGuard";
 import {
   diagnoseOwnCases,
   isBetaAutoApproveCases,
   listOpenCases,
 } from "@/lib/cases";
+import { getPlatformStats } from "@/lib/platform-stats";
 import { createClient } from "@/lib/supabase/server";
 
 function toListItem(
@@ -204,6 +206,9 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
             : null}
         </p>
       </header>
+
+      <PlatformStatsCard stats={getPlatformStats()} />
+
       <StaleProductListGuard />
       <CaseList
         key={listKey}

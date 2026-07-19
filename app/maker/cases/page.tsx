@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
 import { MakerCaseList } from "@/components/maker/MakerCaseList";
 import { Button } from "@/components/ui/Button";
-import { createClient } from "@/lib/supabase/server";
 import { listMyCases } from "@/lib/cases";
+import { getPlatformStats } from "@/lib/platform-stats";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "マイ商品",
@@ -50,6 +52,9 @@ export default async function MakerCasesPage() {
         </div>
         <Button href="/maker/cases/new">新規登録</Button>
       </header>
+
+      <PlatformStatsCard stats={getPlatformStats()} />
+
       <MakerCaseList key="maker-list-sku-v2" items={items} />
     </div>
   );

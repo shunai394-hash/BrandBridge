@@ -11,6 +11,7 @@ const serviceLinks = [
 
 const supportLinks = [
   { href: "/contact", label: "お問い合わせ" },
+  { href: "/company", label: "運営会社情報" },
   { href: "/terms", label: "利用規約" },
   { href: "/privacy", label: "プライバシーポリシー" },
 ];

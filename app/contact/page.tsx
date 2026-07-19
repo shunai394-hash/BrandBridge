@@ -40,6 +40,33 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
         <ContactForm initialCategory={initialCategory} />
       </div>
 
+      <aside className="mt-8 rounded-lg border border-border bg-surface px-5 py-5 md:px-6">
+        <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+          運営者情報
+        </h2>
+        <dl className="mt-4 space-y-3 text-sm">
+          <div>
+            <dt className="font-medium text-navy">会社名</dt>
+            <dd className="mt-0.5 text-muted">{siteConfig.company.name}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-navy">所在地</dt>
+            <dd className="mt-0.5 text-muted">
+              {siteConfig.company.postalCode}
+              <br />
+              {siteConfig.company.address}
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-4 text-sm text-muted">
+          詳細は{" "}
+          <Link href="/company" className="text-teal hover:underline">
+            運営会社情報
+          </Link>
+          をご覧ください。
+        </p>
+      </aside>
+
       <p className="mt-6 text-sm text-muted">
         個人情報の取扱いについては{" "}
         <Link href="/privacy" className="text-teal hover:underline">

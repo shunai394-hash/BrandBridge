@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   inquiryCategoryLabel,
+  inquiryReplyStatusLabel,
   type AdminInquiry,
 } from "@/lib/admin-inquiries";
 
@@ -42,6 +43,7 @@ export function AdminInquiryList({ items }: AdminInquiryListProps) {
       <table className="min-w-full text-left text-sm">
         <thead className="border-b border-border bg-cream/50 text-xs text-muted">
           <tr>
+            <th className="px-4 py-3 font-medium">ステータス</th>
             <th className="px-4 py-3 font-medium">会社名</th>
             <th className="px-4 py-3 font-medium">担当者名</th>
             <th className="px-4 py-3 font-medium">メール</th>
@@ -54,6 +56,17 @@ export function AdminInquiryList({ items }: AdminInquiryListProps) {
         <tbody>
           {items.map((item) => (
             <tr key={item.id} className="border-b border-border last:border-0">
+              <td className="px-4 py-3">
+                {item.replyStatus === "replied" ? (
+                  <span className="inline-flex rounded-md bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal-dark">
+                    {inquiryReplyStatusLabel(item.replyStatus)}
+                  </span>
+                ) : (
+                  <span className="inline-flex rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+                    {inquiryReplyStatusLabel(item.replyStatus)}
+                  </span>
+                )}
+              </td>
               <td className="px-4 py-3 font-medium text-navy">
                 {item.companyName?.trim() || "—"}
               </td>

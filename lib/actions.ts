@@ -46,6 +46,7 @@ import {
   createContactInquiry,
 } from "@/lib/contact";
 import type { ContactInput } from "@/lib/contact-types";
+import { replyToInquiry } from "@/lib/admin-inquiries";
 import { caseInputFromRegistration } from "@/lib/maker-registration";
 import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
 import type {
@@ -776,6 +777,20 @@ export async function submitContactAction(
   input: ContactInput,
 ): Promise<{ error?: string }> {
   return createContactInquiry(input);
+}
+
+export async function replyContactInquiryAction(input: {
+  inquiryId: string;
+  subject: string;
+  body: string;
+}): Promise<{ error?: string }> {
+  await requireAdmin();
+  const result = await replyToInquiry(input);
+  if (!result.error) {
+    revalidatePath("/admin/inquiries");
+    revalidatePath(`/admin/inquiries/${input.inquiryId}`);
+  }
+  return result;
 }
 
 export async function signOutAction() {

@@ -8,7 +8,7 @@ import type { SessionUser } from "@/lib/types";
 function guestLinks() {
   return [
     { href: "/cases", label: "商品一覧" },
-    { href: "/register/maker", label: "事業者登録" },
+    { href: "/register/maker", label: "商品提供企業として登録" },
     { href: "/register/partner", label: "パートナー登録" },
     { href: "/login", label: "ログイン" },
   ];

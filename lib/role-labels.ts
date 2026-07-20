@@ -2,8 +2,7 @@
  * Display-only role / audience labels.
  * Do NOT change profiles.role values ("maker" | "partner" | "admin").
  *
- * - Marketing / LP / ads / top / register CTAs → 事業者系
- * - Admin / terms / pricing / in-app formal BtoB UI → 商品提供企業
+ * 供給側表記は「商品提供企業」に統一。販売側は「販売パートナー」。
  */
 export const ROLE_DISPLAY = {
   /** Formal BtoB (admin, terms, deals, product fields) */
@@ -13,14 +12,15 @@ export const ROLE_DISPLAY = {
   makerName: "商品提供企業名",
   makerOffer: "商品提供企業の提供条件",
 
-  /** Marketing / LP / ads / top page */
-  makerMarketing: "商品を広げたい事業者",
-  makerRegister: "事業者登録",
-  makerAudience: "商品提供事業者向け",
-  makerForPage: "商品を広げたい事業者の方へ",
-  makerPerson: "商品を広げたい事業者の方",
+  /** Marketing / LP / ads / top / register CTAs */
+  makerMarketing: "商品提供企業",
+  makerRegister: "商品提供企業として登録",
+  makerAudience: "商品提供企業向け",
+  makerForPage: "商品提供企業の方へ",
+  makerPerson: "商品提供企業の方",
 
   partner: "販売パートナー",
+  partnerRegister: "販売パートナーとして登録",
 } as const;
 
 export function roleDisplayLabel(

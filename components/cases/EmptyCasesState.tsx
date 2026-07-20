@@ -33,7 +33,7 @@ export function EmptyCasesState({ variant }: EmptyCasesStateProps) {
       <div className="grid gap-4 md:grid-cols-3">
         {[
           {
-            title: "商品を広げたい事業者の方",
+            title: "商品提供企業の方",
             body: "製品・条件を整えて登録。審査後に商品公開できます。",
           },
           {
@@ -56,7 +56,7 @@ export function EmptyCasesState({ variant }: EmptyCasesStateProps) {
       </div>
 
       <div className="flex flex-wrap justify-center gap-3">
-        <Button href="/register/maker">商品を広げたい事業者として登録</Button>
+        <Button href="/register/maker">商品提供企業として登録</Button>
         <Button href="/register/partner" variant="outline">
           パートナー登録
         </Button>

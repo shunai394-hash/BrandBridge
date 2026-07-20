@@ -12,6 +12,12 @@ import {
   displayPriceCondition,
 } from "@/lib/price-display";
 import {
+  displayExclusiveDealOption,
+  displayOptionalText,
+  displaySampleDealLabel,
+  displayTrademarkStatus,
+} from "@/lib/case-detail-display";
+import {
   salesFormatLabel,
   targetCountryLabel,
   reviewStatusLabels,
@@ -120,6 +126,82 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
           <div>
             <dt className="text-xs text-muted">独占販売可否</dt>
             <dd>{caseItem.isExclusive ? "相談可" : "非独占"}</dd>
+          </div>
+        </dl>
+        <dl className="mt-4 grid gap-2 border-t border-border pt-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs text-muted">ブランド名</dt>
+            <dd>{displayOptionalText(caseItem.brandName)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">商標・ライセンス</dt>
+            <dd>{displayTrademarkStatus(caseItem.trademarkStatus)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">独占販売可否（詳細）</dt>
+            <dd>
+              {displayExclusiveDealOption(caseItem.exclusiveDealOption)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">サンプル提供可否</dt>
+            <dd>{displaySampleDealLabel(caseItem.sampleAvailable)}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">ブランド概要</dt>
+            <dd className="whitespace-pre-wrap">
+              {displayOptionalText(caseItem.brandOverview)}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">商品の強み</dt>
+            <dd className="whitespace-pre-wrap">
+              {displayOptionalText(caseItem.productStrengths)}
+            </dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">既存販売実績</dt>
+            <dd className="whitespace-pre-wrap">
+              {displayOptionalText(caseItem.salesTrackRecord)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">日本/米国の販売可否</dt>
+            <dd>
+              {displayOptionalText(caseItem.marketAvailabilityJpUs)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">リードタイム</dt>
+            <dd>{displayOptionalText(caseItem.leadTime)}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">初回発注条件</dt>
+            <dd className="whitespace-pre-wrap">
+              {displayOptionalText(caseItem.initialOrderTerms)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">出荷元</dt>
+            <dd>{displayOptionalText(caseItem.shipFrom)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">対応通貨</dt>
+            <dd>{displayOptionalText(caseItem.currencies)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">Incoterms</dt>
+            <dd>{displayOptionalText(caseItem.incoterms)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">対応言語</dt>
+            <dd>{displayOptionalText(caseItem.supportLanguages)}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs text-muted">必要認証</dt>
+            <dd className="whitespace-pre-wrap">
+              {displayOptionalText(caseItem.certifications)}
+            </dd>
           </div>
         </dl>
         <p className="whitespace-pre-wrap leading-relaxed">

@@ -5,9 +5,7 @@ export const PARTNER_ONLY_PRICING_KEYS = [
   "wholesalePrice",
   "lotPricing",
   "minOrderAmount",
-  "suggestedRetailPrice",
   "priceConditions",
-  "sampleAvailable",
   "testSaleAvailable",
 ] as const;
 
@@ -31,9 +29,7 @@ export function redactPartnerPricing(caseItem: Case): Case {
     wholesalePrice: null,
     lotPricing: null,
     minOrderAmount: null,
-    suggestedRetailPrice: null,
     priceConditions: null,
-    sampleAvailable: null,
     testSaleAvailable: null,
   };
 }

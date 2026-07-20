@@ -80,7 +80,7 @@ const partnerPains = [
 const reasons = [
   {
     title: "両方の目的がはっきりしている",
-    body: "商品を広げたい事業者は販路開拓、販売パートナーは商材探し。誰向けかが明確なので、迷わず始められます。",
+    body: "商品提供企業は販路開拓、販売パートナーは商材探し。誰向けかが明確なので、迷わず始められます。",
   },
   {
     title: "条件が最初から見える",
@@ -95,23 +95,18 @@ const reasons = [
 const steps = [
   {
     n: "01",
-    title: "先行登録する",
-    body: "商品を広げたい事業者または販売パートナーとして無料で登録します。",
+    title: "掲載",
+    body: "商品情報・MOQ・卸価格・販売条件を登録",
   },
   {
     n: "02",
-    title: "掲載する / 探す",
-    body: "商品を出すか、公開商品から条件で絞り込みます。",
+    title: "マッチング",
+    body: "条件に合う販売パートナーと出会う",
   },
   {
     n: "03",
-    title: "交渉する",
-    body: "申し込み後、メッセージで条件をすり合わせます。",
-  },
-  {
-    n: "04",
-    title: "成約する",
-    body: "合意できたら成約へ。手数料の管理にも対応しています。",
+    title: "商談・契約",
+    body: "交渉から取引開始へ進む",
   },
 ];
 
@@ -130,7 +125,7 @@ const trustItems = [
   },
   {
     title: "法人向けの安心設計",
-    body: "事業者向けの利用を前提とし、掲載には審査があります。本人確認も順次強化予定です。",
+    body: "法人利用を前提とし、掲載には審査があります。本人確認も順次強化予定です。",
   },
 ];
 
@@ -175,21 +170,21 @@ export default async function HomePage() {
           </p>
 
           <h1 className="animate-fade-up delay-1 mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.4] text-white drop-shadow-sm sm:text-3xl md:mt-8 md:text-4xl lg:text-[2.45rem]">
-            商品を広げたい事業者と、売れる商材を探す販売パートナーを最短でつなぐ。
+            日本進出したい海外ブランドと、
+            <br />
+            売れる販売パートナーをつなぐ。
           </h1>
 
           <p className="animate-fade-up delay-2 mt-5 max-w-xl text-[0.95rem] leading-relaxed text-white/90 sm:text-base md:mt-6 md:text-lg">
-            商品を広げたい事業者と販売パートナーのための、条件が見えるBtoBマッチング。
+            BrandBridgeは、MOQ・卸価格・独占可否・輸送条件まで整理された、
             <br />
-            掲載、商材探し、交渉、成約までを一つの流れで。
-            <br />
-            現在はベータ先行登録を受付中です。
+            交渉可能なBtoB商談プラットフォームです。
           </p>
 
           <p className="animate-fade-up delay-2 mt-4 max-w-xl text-sm leading-relaxed text-white/75">
-            初期参加企業・販売パートナーを優先募集しています。
+            紹介だけで終わるマッチングではなく、
             <br />
-            先行登録で、公開商品の優先案内と初期マッチング支援を受けられます。
+            条件が合えば、そのまま商談・交渉へ進めます。
           </p>
 
           <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
@@ -261,14 +256,14 @@ export default async function HomePage() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Button href="/register/maker" className="w-full sm:w-auto">
-              商品を広げたい事業者として先行登録
+              商品提供企業として登録
             </Button>
             <Button
               href="/register/partner"
               variant="outline"
               className="w-full sm:w-auto"
             >
-              販売パートナーとして先行登録
+              販売パートナーとして登録
             </Button>
           </div>
         </div>
@@ -370,7 +365,7 @@ export default async function HomePage() {
             こんな課題ありませんか
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            商品を広げたい事業者にも販売パートナーにも、条件が見えないまま探す負担があります。
+            商品提供企業にも販売パートナーにも、条件が見えないまま探す負担があります。
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -379,7 +374,7 @@ export default async function HomePage() {
                 FOR MAKERS
               </p>
               <h3 className="mt-2 font-[family-name:var(--font-shippori)] text-xl text-navy">
-                商品を広げたい事業者の方
+                商品提供企業の方
               </h3>
               <ul className="mt-5 space-y-3">
                 {makerPains.map((pain) => (
@@ -449,9 +444,9 @@ export default async function HomePage() {
             使い方はシンプル
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            先行登録から成約まで、4ステップで進められます。
+            掲載から商談・契約まで、3ステップで進められます。
           </p>
-          <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-10 grid gap-6 sm:grid-cols-3">
             {steps.map((step) => (
               <li key={step.n} className="border-t-2 border-teal/50 pt-4">
                 <p className="text-xs font-medium tracking-wider text-teal">
@@ -522,13 +517,13 @@ export default async function HomePage() {
                 FOR MAKERS
               </p>
               <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-xl text-navy transition group-hover:text-teal md:text-2xl">
-                商品を広げたい事業者の方へ
+                商品提供企業の方へ
               </h3>
               <p className="mt-3 flex-1 leading-relaxed text-muted">
                 商品を広げたい製品・ブランドを掲載し、新しい販売パートナーとの出会いを作ります。
               </p>
               <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
-                商品提供事業者向けページを見る
+                商品提供企業向けページを見る
               </span>
             </Link>
 

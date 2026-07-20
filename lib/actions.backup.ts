@@ -72,7 +72,7 @@ export async function completeMakerSetupAction(
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "アカウントが停止されています" };
     }
-    return { error: "メーカーアカウントでのみ登録できます" };
+    return { error: "商品提供企業アカウントでのみ登録できます" };
   }
 
   const imageUrl = input.productImageUrl?.trim() || null;
@@ -250,7 +250,7 @@ export async function createCaseAction(
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "アカウントが停止されています" };
     }
-    return { error: "メーカーアカウントでのみ案件を登録できます" };
+    return { error: "商品提供企業アカウントでのみ商品を登録できます" };
   }
 
   const result = await createCase(maker.id, {
@@ -470,7 +470,7 @@ export async function acceptNegotiationAction(
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") redirect("/login");
-    return { error: "メーカーのみ承認できます" };
+    return { error: "商品提供企業のみ承認できます" };
   }
 
   const result = await updateNegotiationStatus(negotiationId, "accepted");
@@ -491,7 +491,7 @@ export async function rejectNegotiationAction(
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") redirect("/login");
-    return { error: "メーカーのみ却下できます" };
+    return { error: "商品提供企業のみ却下できます" };
   }
 
   const result = await updateNegotiationStatus(negotiationId, "rejected");

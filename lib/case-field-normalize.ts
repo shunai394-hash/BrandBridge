@@ -1,5 +1,9 @@
 import type { Case, CaseCreateInput } from "@/lib/types";
 import {
+  normalizeExclusiveDealOption,
+  normalizeTrademarkStatus,
+} from "@/lib/case-detail-display";
+import {
   normalizeAvailability,
   normalizePriceCondition,
 } from "@/lib/price-display";
@@ -36,6 +40,22 @@ export function caseToFormInput(caseItem: Case): CaseCreateInput {
     partnerChannels: caseItem.partnerChannels ?? "",
     partnerRequirements: caseItem.partnerRequirements ?? "",
     productImageUrl: caseItem.productImageUrl?.trim() || null,
+    brandName: caseItem.brandName ?? "",
+    brandOverview: caseItem.brandOverview ?? "",
+    productStrengths: caseItem.productStrengths ?? "",
+    salesTrackRecord: caseItem.salesTrackRecord ?? "",
+    marketAvailabilityJpUs: caseItem.marketAvailabilityJpUs ?? "",
+    leadTime: caseItem.leadTime ?? "",
+    initialOrderTerms: caseItem.initialOrderTerms ?? "",
+    trademarkStatus: normalizeTrademarkStatus(caseItem.trademarkStatus),
+    exclusiveDealOption: normalizeExclusiveDealOption(
+      caseItem.exclusiveDealOption,
+    ),
+    shipFrom: caseItem.shipFrom ?? "",
+    currencies: caseItem.currencies ?? "",
+    incoterms: caseItem.incoterms ?? "",
+    certifications: caseItem.certifications ?? "",
+    supportLanguages: caseItem.supportLanguages ?? "",
   };
 }
 

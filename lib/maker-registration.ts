@@ -113,6 +113,20 @@ export function caseInputFromMakerDraft(
     partnerChannels: channels,
     partnerRequirements: "",
     productImageUrl: productImageUrl ?? null,
+    brandName: "",
+    brandOverview: "",
+    productStrengths: "",
+    salesTrackRecord: "",
+    marketAvailabilityJpUs: "",
+    leadTime: "",
+    initialOrderTerms: "",
+    trademarkStatus: "",
+    exclusiveDealOption: "",
+    shipFrom: "",
+    currencies: "",
+    incoterms: "",
+    certifications: "",
+    supportLanguages: "",
   };
 }
 

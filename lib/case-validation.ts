@@ -1,6 +1,10 @@
 import type { CaseCreateInput, SalesFormat, TargetCountry } from "@/lib/types";
 import { salesFormatOptions, targetCountryOptions } from "@/lib/types";
 import {
+  normalizeExclusiveDealOption,
+  normalizeTrademarkStatus,
+} from "@/lib/case-detail-display";
+import {
   normalizeAvailability,
   normalizePriceCondition,
 } from "@/lib/price-display";
@@ -27,6 +31,18 @@ export const CASE_TEXT_LIMITS = {
   minOrder: 200,
   minOrderAmount: 200,
   suggestedRetailPrice: 200,
+  brandName: 200,
+  brandOverview: 5000,
+  productStrengths: 5000,
+  salesTrackRecord: 5000,
+  marketAvailabilityJpUs: 500,
+  leadTime: 200,
+  initialOrderTerms: 2000,
+  shipFrom: 200,
+  currencies: 200,
+  incoterms: 200,
+  certifications: 2000,
+  supportLanguages: 200,
 } as const;
 
 /** Allowed: ASCII letters, digits, hyphen, underscore */
@@ -86,6 +102,22 @@ export function normalizeCaseCreateInput(
       input.productImageUrl == null
         ? null
         : asText(input.productImageUrl).trim() || null,
+    brandName: asText(input.brandName),
+    brandOverview: asText(input.brandOverview),
+    productStrengths: asText(input.productStrengths),
+    salesTrackRecord: asText(input.salesTrackRecord),
+    marketAvailabilityJpUs: asText(input.marketAvailabilityJpUs),
+    leadTime: asText(input.leadTime),
+    initialOrderTerms: asText(input.initialOrderTerms),
+    trademarkStatus: normalizeTrademarkStatus(input.trademarkStatus),
+    exclusiveDealOption: normalizeExclusiveDealOption(
+      input.exclusiveDealOption,
+    ),
+    shipFrom: asText(input.shipFrom),
+    currencies: asText(input.currencies),
+    incoterms: asText(input.incoterms),
+    certifications: asText(input.certifications),
+    supportLanguages: asText(input.supportLanguages),
   };
 }
 
@@ -156,6 +188,60 @@ export function validateCaseCreateInput(
   }
   if (n.suggestedRetailPrice.length > CASE_TEXT_LIMITS.suggestedRetailPrice) {
     return `希望小売価格は${CASE_TEXT_LIMITS.suggestedRetailPrice}文字以内にしてください`;
+  }
+  if (n.brandName.length > CASE_TEXT_LIMITS.brandName) {
+    return `ブランド名は${CASE_TEXT_LIMITS.brandName}文字以内にしてください`;
+  }
+  if (n.brandOverview.length > CASE_TEXT_LIMITS.brandOverview) {
+    return `ブランド概要は${CASE_TEXT_LIMITS.brandOverview}文字以内にしてください`;
+  }
+  if (n.productStrengths.length > CASE_TEXT_LIMITS.productStrengths) {
+    return `商品の強みは${CASE_TEXT_LIMITS.productStrengths}文字以内にしてください`;
+  }
+  if (n.salesTrackRecord.length > CASE_TEXT_LIMITS.salesTrackRecord) {
+    return `既存販売実績は${CASE_TEXT_LIMITS.salesTrackRecord}文字以内にしてください`;
+  }
+  if (
+    n.marketAvailabilityJpUs.length > CASE_TEXT_LIMITS.marketAvailabilityJpUs
+  ) {
+    return `日本/米国の販売可否は${CASE_TEXT_LIMITS.marketAvailabilityJpUs}文字以内にしてください`;
+  }
+  if (n.leadTime.length > CASE_TEXT_LIMITS.leadTime) {
+    return `リードタイムは${CASE_TEXT_LIMITS.leadTime}文字以内にしてください`;
+  }
+  if (n.initialOrderTerms.length > CASE_TEXT_LIMITS.initialOrderTerms) {
+    return `初回発注条件は${CASE_TEXT_LIMITS.initialOrderTerms}文字以内にしてください`;
+  }
+  if (n.shipFrom.length > CASE_TEXT_LIMITS.shipFrom) {
+    return `出荷元は${CASE_TEXT_LIMITS.shipFrom}文字以内にしてください`;
+  }
+  if (n.currencies.length > CASE_TEXT_LIMITS.currencies) {
+    return `対応通貨は${CASE_TEXT_LIMITS.currencies}文字以内にしてください`;
+  }
+  if (n.incoterms.length > CASE_TEXT_LIMITS.incoterms) {
+    return `Incotermsは${CASE_TEXT_LIMITS.incoterms}文字以内にしてください`;
+  }
+  if (n.certifications.length > CASE_TEXT_LIMITS.certifications) {
+    return `必要認証は${CASE_TEXT_LIMITS.certifications}文字以内にしてください`;
+  }
+  if (n.supportLanguages.length > CASE_TEXT_LIMITS.supportLanguages) {
+    return `対応言語は${CASE_TEXT_LIMITS.supportLanguages}文字以内にしてください`;
+  }
+  if (
+    n.trademarkStatus &&
+    n.trademarkStatus !== "registered" &&
+    n.trademarkStatus !== "pending" &&
+    n.trademarkStatus !== "unregistered"
+  ) {
+    return "商標・ライセンス情報の値が不正です";
+  }
+  if (
+    n.exclusiveDealOption &&
+    n.exclusiveDealOption !== "available" &&
+    n.exclusiveDealOption !== "conditional" &&
+    n.exclusiveDealOption !== "unavailable"
+  ) {
+    return "独占販売可否の値が不正です";
   }
 
   return null;

@@ -245,6 +245,20 @@ export type CaseRow = {
   partner_channels: string | null;
   partner_requirements: string | null;
   product_image_url: string | null;
+  brand_name?: string | null;
+  brand_overview?: string | null;
+  product_strengths?: string | null;
+  sales_track_record?: string | null;
+  market_availability_jp_us?: string | null;
+  lead_time?: string | null;
+  initial_order_terms?: string | null;
+  trademark_status?: string | null;
+  exclusive_deal_option?: string | null;
+  ship_from?: string | null;
+  currencies?: string | null;
+  incoterms?: string | null;
+  certifications?: string | null;
+  support_languages?: string | null;
   review_status: ReviewStatus;
   reviewed_at: string | null;
   reviewed_by: string | null;
@@ -300,6 +314,34 @@ export type Case = {
   partnerChannels: string | null;
   partnerRequirements: string | null;
   productImageUrl: string | null;
+  /** ブランド名 */
+  brandName: string | null;
+  /** ブランド概要 */
+  brandOverview: string | null;
+  /** 商品の強み（差別化）。商品特徴とは別 */
+  productStrengths: string | null;
+  /** 既存販売実績 */
+  salesTrackRecord: string | null;
+  /** 日本/米国の販売可否 */
+  marketAvailabilityJpUs: string | null;
+  /** リードタイム */
+  leadTime: string | null;
+  /** 初回発注条件 */
+  initialOrderTerms: string | null;
+  /** 商標・ライセンス: registered | pending | unregistered */
+  trademarkStatus: string | null;
+  /** 独占販売可否: available | conditional | unavailable */
+  exclusiveDealOption: string | null;
+  /** 出荷元 */
+  shipFrom: string | null;
+  /** 対応通貨 */
+  currencies: string | null;
+  /** 取引条件（Incoterms） */
+  incoterms: string | null;
+  /** 必要認証 */
+  certifications: string | null;
+  /** 対応言語 */
+  supportLanguages: string | null;
   /** Gallery images (case_images), ordered by sort_order. Primary = [0]. */
   images?: CaseImage[];
   reviewStatus: ReviewStatus;
@@ -522,6 +564,20 @@ export type CaseCreateInput = {
   partnerChannels: string;
   partnerRequirements: string;
   productImageUrl?: string | null;
+  brandName: string;
+  brandOverview: string;
+  productStrengths: string;
+  salesTrackRecord: string;
+  marketAvailabilityJpUs: string;
+  leadTime: string;
+  initialOrderTerms: string;
+  trademarkStatus: string;
+  exclusiveDealOption: string;
+  shipFrom: string;
+  currencies: string;
+  incoterms: string;
+  certifications: string;
+  supportLanguages: string;
 };
 
 export type SessionUser = {

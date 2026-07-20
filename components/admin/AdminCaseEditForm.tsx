@@ -7,6 +7,7 @@ import { adminUpdateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { CasePricingFields } from "@/components/forms/CasePricingFields";
+import { CaseDetailEnrichmentFields } from "@/components/forms/CaseDetailEnrichmentFields";
 import { caseToFormInput } from "@/lib/case-field-normalize";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
@@ -251,6 +252,8 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
           <h3 className="mb-3 text-sm font-medium text-navy">価格・発注条件</h3>
           <CasePricingFields form={form} update={update} />
         </div>
+
+        <CaseDetailEnrichmentFields form={form} update={update} />
 
         <TextArea
           label="商品提供企業の提供条件"

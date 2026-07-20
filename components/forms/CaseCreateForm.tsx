@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
 import { CasePricingFields } from "@/components/forms/CasePricingFields";
+import { CaseDetailEnrichmentFields } from "@/components/forms/CaseDetailEnrichmentFields";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
@@ -45,6 +46,20 @@ const initial: CaseCreateInput = {
   partnerChannels: "",
   partnerRequirements: "",
   productImageUrl: null,
+  brandName: "",
+  brandOverview: "",
+  productStrengths: "",
+  salesTrackRecord: "",
+  marketAvailabilityJpUs: "",
+  leadTime: "",
+  initialOrderTerms: "",
+  trademarkStatus: "",
+  exclusiveDealOption: "",
+  shipFrom: "",
+  currencies: "",
+  incoterms: "",
+  certifications: "",
+  supportLanguages: "",
 };
 
 const categoryOptions = caseCategories.filter((c) => c !== "すべて");
@@ -241,13 +256,15 @@ export function CaseCreateForm() {
           maxLength={CASE_TEXT_LIMITS.productFeatures}
           value={form.productFeatures}
           onChange={(e) => update("productFeatures", e.target.value)}
-          placeholder="差別化ポイント・仕様・訴求ポイントなど"
+          placeholder="機能・スペック・仕様など（差別化は「商品の強み」へ）"
         />
       </Section>
 
       <Section title="価格・発注条件">
         <CasePricingFields form={form} update={update} />
       </Section>
+
+      <CaseDetailEnrichmentFields form={form} update={update} />
 
       <Section title="販売条件">
         <p className="text-xs text-muted">各項目を個別に入力してください。</p>

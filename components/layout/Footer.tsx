@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { ROLE_DISPLAY } from "@/lib/role-labels";
 
 const serviceLinks = [
   { href: "/cases", label: "商品一覧" },
-  { href: "/for-makers", label: "商品を広げたい事業者の方へ" },
+  { href: "/for-makers", label: ROLE_DISPLAY.makerForPage },
   { href: "/for-partners", label: "販売パートナーの方へ" },
-  { href: "/register/maker", label: "商品を広げたい事業者として登録" },
+  { href: "/register/maker", label: ROLE_DISPLAY.makerRegister },
   { href: "/register/partner", label: "パートナー登録" },
   { href: "/login", label: "ログイン" },
 ];
@@ -25,7 +26,7 @@ export function Footer() {
             BrandBridge
           </p>
           <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/65">
-            商品を広げたい事業者と販売パートナーを最短でつなぐ、条件が見えるBtoBマッチング。
+            日本進出したい海外ブランドと売れる販売パートナーをつなぐ、交渉可能なBtoB商談プラットフォーム。
           </p>
           <p className="mt-3 text-xs text-white/45">ベータ先行登録受付中</p>
         </div>

@@ -273,7 +273,7 @@ export function LoginForm({
       <p className="text-center text-sm text-muted">
         アカウントをお持ちでない方は{" "}
         <Link href="/register/maker" className="text-teal hover:underline">
-          商品を広げたい事業者として登録
+          商品提供企業として登録
         </Link>
         {" / "}
         <Link href="/register/partner" className="text-teal hover:underline">

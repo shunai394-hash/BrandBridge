@@ -8,7 +8,7 @@ import { reviewStatusLabels, salesFormatLabel } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "商品登録内容の確認",
-  description: "商品を広げたい事業者として登録し、保存した商品情報を確認します。",
+  description: "商品提供企業として登録し、保存した商品情報を確認します。",
 };
 
 export const dynamic = "force-dynamic";

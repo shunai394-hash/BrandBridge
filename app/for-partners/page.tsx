@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 const pains = [
-  "新しく取り扱える商品を探しているが、良い商品提供事業者が見つからない",
+  "新しく取り扱える商品を探しているが、良い商品提供企業が見つからない",
   "Amazon、EC、店舗で販売できる商材を増やしたい",
   "海外や新規ブランドとの取引に不安がある",
   "代理店や独占販売できる商品を探している",
@@ -28,7 +28,7 @@ const capabilities = [
   },
   {
     step: "STEP3",
-    title: "商品提供事業者と商談する",
+    title: "商品提供企業と商談する",
     body: "商品条件、販売条件、契約内容を確認できます。",
   },
   {
@@ -49,7 +49,7 @@ const flow = [
 const merits = [
   "新しい商品との出会い",
   "取り扱い商品の幅を広げられる",
-  "商品提供事業者との直接取引機会",
+  "商品提供企業との直接取引機会",
   "販売条件を確認してから検討できる",
 ];
 
@@ -115,7 +115,7 @@ export default function ForPartnersPage() {
           </h1>
           <div className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-white/85 md:text-lg">
             <p>
-              BrandBridgeは、販売チャネルを持つバイヤー・店舗・EC事業者と、商品を広げたい事業者をつなぐBtoBマッチングサービスです。
+              BrandBridgeは、販売チャネルを持つバイヤー・店舗・EC事業者と、商品提供企業をつなぐBtoBマッチングサービスです。
             </p>
             <p>
               あなたの販売ジャンルや得意な販路に合わせて、新しい取り扱い商品の発見をサポートします。

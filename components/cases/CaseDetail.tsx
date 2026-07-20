@@ -1,6 +1,13 @@
+import type { ReactNode } from "react";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { Button } from "@/components/ui/Button";
+import {
+  displayExclusiveDealOption,
+  displayOptionalText,
+  displaySampleDealLabel,
+  displayTrademarkStatus,
+} from "@/lib/case-detail-display";
 import { casePublicStatusLabel } from "@/lib/case-display";
 import { canViewPartnerPricing } from "@/lib/case-pricing-access";
 import {
@@ -34,6 +41,23 @@ function InfoRow({ label, value }: { label: string; value: string }) {
         {value}
       </dd>
     </div>
+  );
+}
+
+function DetailSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mt-8">
+      <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+        {title}
+      </h2>
+      <dl className="mt-2">{children}</dl>
+    </section>
   );
 }
 
@@ -127,6 +151,96 @@ export function CaseDetailView({
         ) : null}
       </section>
 
+      <DetailSection title="ブランド情報">
+        <InfoRow
+          label="ブランド名"
+          value={displayOptionalText(caseItem.brandName)}
+        />
+        <InfoRow
+          label="ブランド概要"
+          value={displayOptionalText(caseItem.brandOverview)}
+        />
+        <InfoRow
+          label="商品の強み"
+          value={displayOptionalText(caseItem.productStrengths)}
+        />
+      </DetailSection>
+
+      <DetailSection title="販売情報">
+        <InfoRow
+          label="既存販売実績"
+          value={displayOptionalText(caseItem.salesTrackRecord)}
+        />
+        <InfoRow
+          label="日本/米国の販売可否"
+          value={displayOptionalText(caseItem.marketAvailabilityJpUs)}
+        />
+        <InfoRow
+          label="想定小売価格"
+          value={displayOptionalText(caseItem.suggestedRetailPrice)}
+        />
+        <InfoRow
+          label="リードタイム"
+          value={displayOptionalText(caseItem.leadTime)}
+        />
+      </DetailSection>
+
+      <DetailSection title="取引条件">
+        <InfoRow
+          label="初回発注条件"
+          value={displayOptionalText(caseItem.initialOrderTerms)}
+        />
+        <InfoRow
+          label="参考卸価格帯"
+          value={displayPriceBand(caseItem.priceBand)}
+        />
+        <InfoRow
+          label="MOQ（最低発注数量）"
+          value={displayMoq(caseItem.minOrder)}
+        />
+      </DetailSection>
+
+      <DetailSection title="契約・権利情報">
+        <InfoRow
+          label="商標・ライセンス情報"
+          value={displayTrademarkStatus(caseItem.trademarkStatus)}
+        />
+        <InfoRow
+          label="独占販売可否"
+          value={displayExclusiveDealOption(caseItem.exclusiveDealOption)}
+        />
+      </DetailSection>
+
+      <DetailSection title="海外展開用情報">
+        <InfoRow
+          label="出荷元"
+          value={displayOptionalText(caseItem.shipFrom)}
+        />
+        <InfoRow
+          label="対応通貨"
+          value={displayOptionalText(caseItem.currencies)}
+        />
+        <InfoRow
+          label="取引条件（Incoterms）"
+          value={displayOptionalText(caseItem.incoterms)}
+        />
+        <InfoRow
+          label="必要認証"
+          value={displayOptionalText(caseItem.certifications)}
+        />
+        <InfoRow
+          label="対応言語"
+          value={displayOptionalText(caseItem.supportLanguages)}
+        />
+      </DetailSection>
+
+      <DetailSection title="商談情報">
+        <InfoRow
+          label="サンプル提供可否"
+          value={displaySampleDealLabel(caseItem.sampleAvailable)}
+        />
+      </DetailSection>
+
       {partnerUnlocked ? (
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
@@ -213,7 +327,7 @@ export function CaseDetailView({
         {partnerUnlocked && isPartner && canStartNegotiation ? (
           <>
             <Button href={negotiateHref}>
-              {alreadyApplied ? "新しいテーマで交渉" : "メーカーへ応募・問い合わせ"}
+              {alreadyApplied ? "新しいテーマで交渉" : "商品提供企業へ応募・問い合わせ"}
             </Button>
             {alreadyApplied ? (
               <Button href="/partner/negotiations" variant="outline">

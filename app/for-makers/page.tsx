@@ -3,9 +3,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "商品を広げたい事業者の方へ",
+  title: "商品提供企業の方へ",
   description:
-    "商品を広げたい事業者向け。あなたの商品を日本の販売パートナーへ。BrandBridgeで商品を登録し、新しい販路開拓の機会をつくります。登録無料・初期費用なし。",
+    "商品提供企業向け。あなたの商品を日本の販売パートナーへ。BrandBridgeで商品を登録し、新しい販路開拓の機会をつくります。登録無料・初期費用なし。",
 };
 
 const pains = [
@@ -39,9 +39,9 @@ const capabilities = [
 ];
 
 const flow = [
-  "商品を広げたい事業者として登録",
+  "商品提供企業として登録",
   "メール認証",
-  "事業者情報入力",
+  "企業情報入力",
   "商品登録",
   "販売パートナーとの商談",
 ];
@@ -63,7 +63,7 @@ const faqs = [
     a: "食品、コスメ、健康、美容、雑貨、家電など幅広いカテゴリに対応します。",
   },
   {
-    q: "海外の事業者でも利用できますか？",
+    q: "海外の商品提供企業でも利用できますか？",
     a: "利用できる設計にしています。",
   },
 ];
@@ -92,7 +92,7 @@ export default function ForMakersPage() {
           </h1>
           <div className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-white/85 md:text-lg">
             <p>
-              BrandBridgeは、商品を広げたい事業者と、新しい商材を探している販売パートナーをつなぐBtoBマッチングサービスです。
+              BrandBridgeは、商品提供企業と、新しい商材を探している販売パートナーをつなぐBtoBマッチングサービスです。
             </p>
             <p>
               商品情報を登録することで、新しい販売チャネル開拓の機会を作れます。
@@ -163,7 +163,7 @@ export default function ForMakersPage() {
       <section className="border-t border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-16 md:py-20">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            商品を広げたい事業者として登録する流れ
+            商品提供企業として登録する流れ
           </h2>
           <ol className="mt-10 flex flex-col gap-0 md:flex-row md:items-stretch md:gap-0">
             {flow.map((label, i) => (
@@ -251,7 +251,7 @@ export default function ForMakersPage() {
               href="/register/maker"
               className="w-full py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.4)] sm:w-auto sm:min-w-[240px]"
             >
-              商品を広げたい事業者として登録を開始する
+              商品提供企業として登録を開始する
             </Button>
             <p className="text-sm text-white/65">登録無料・初期費用なし</p>
           </div>

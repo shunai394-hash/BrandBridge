@@ -210,7 +210,7 @@ async function main() {
   writeSampleJpeg(jpegPath);
   const negoUrl = `${BASE}/negotiations/${nego.id}`;
   const partnerMsg = `パートナー送信 ${stamp}`;
-  const makerMsg = `メーカー返信 ${stamp}`;
+  const makerMsg = `商品提供企業返信 ${stamp}`;
 
   // headed:false but real Chromium against localhost — screenshots prove UI
   const browser = await chromium.launch({ headless: true });
@@ -287,7 +287,7 @@ async function main() {
     const makerSubmit = page.getByTestId("negotiation-reply-submit");
     await makerSubmit.waitFor({ state: "visible" });
     assert((await makerSubmit.isDisabled()) === false, "maker submit disabled");
-    const makerTopic = `件名 メーカー回答 ${stamp}`;
+    const makerTopic = `件名 商品提供企業回答 ${stamp}`;
     await page.getByTestId("negotiation-reply-topic").fill(makerTopic);
     await page.getByTestId("negotiation-reply-body").fill(makerMsg);
     await page.getByTestId("negotiation-reply-file").setInputFiles(jpegPath);

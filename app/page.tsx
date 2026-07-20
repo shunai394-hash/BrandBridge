@@ -545,6 +545,15 @@ export default async function HomePage() {
               </span>
             </Link>
           </div>
+
+          <p className="mt-8">
+            <Link
+              href="/pricing"
+              className="text-sm font-medium text-teal transition hover:underline"
+            >
+              料金プラン
+            </Link>
+          </p>
         </div>
       </section>
 

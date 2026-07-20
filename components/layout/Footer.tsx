@@ -5,6 +5,7 @@ const serviceLinks = [
   { href: "/cases", label: "商品一覧" },
   { href: "/for-makers", label: ROLE_DISPLAY.makerForPage },
   { href: "/for-partners", label: "販売パートナーの方へ" },
+  { href: "/pricing", label: "料金プラン" },
   { href: "/register/maker", label: ROLE_DISPLAY.makerRegister },
   { href: "/register/partner", label: "パートナー登録" },
   { href: "/login", label: "ログイン" },

@@ -47,6 +47,7 @@ import {
 } from "@/lib/contact";
 import type { ContactInput } from "@/lib/contact-types";
 import { replyToInquiry } from "@/lib/admin-inquiries";
+import { sendCompanyEmail } from "@/lib/admin-companies";
 import { caseInputFromRegistration } from "@/lib/maker-registration";
 import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
 import type {
@@ -785,11 +786,35 @@ export async function replyContactInquiryAction(input: {
   body: string;
 }): Promise<{ error?: string }> {
   await requireAdmin();
+  // Safe env presence check only (no secret values).
+  console.info("[replyContactInquiryAction] mail env", {
+    hasResendApiKey: Boolean(process.env.RESEND_API_KEY?.trim()),
+    hasContactReceiveEmail: Boolean(process.env.CONTACT_RECEIVE_EMAIL?.trim()),
+    nodeEnv: process.env.NODE_ENV ?? null,
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+  });
   const result = await replyToInquiry(input);
   if (!result.error) {
     revalidatePath("/admin/inquiries");
     revalidatePath(`/admin/inquiries/${input.inquiryId}`);
   }
+  return result;
+}
+
+export async function sendCompanyEmailAction(input: {
+  companyId: string;
+  subject: string;
+  body: string;
+}): Promise<{ error?: string }> {
+  await requireAdmin();
+  console.info("[sendCompanyEmailAction] mail env", {
+    hasResendApiKey: Boolean(process.env.RESEND_API_KEY?.trim()),
+    nodeEnv: process.env.NODE_ENV ?? null,
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+  });
+  const result = await sendCompanyEmail(input);
+  revalidatePath("/admin/companies");
+  revalidatePath(`/admin/companies/${input.companyId}/email`);
   return result;
 }
 

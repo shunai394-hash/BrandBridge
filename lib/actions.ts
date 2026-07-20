@@ -48,6 +48,11 @@ import {
 import type { ContactInput } from "@/lib/contact-types";
 import { replyToInquiry } from "@/lib/admin-inquiries";
 import { sendCompanyEmail } from "@/lib/admin-companies";
+import {
+  addProspectThreadMessage,
+  createAndSendOutboundEmail,
+  replyOnOutboundThread,
+} from "@/lib/admin-outbound-mail";
 import { caseInputFromRegistration } from "@/lib/maker-registration";
 import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
 import type {
@@ -815,6 +820,51 @@ export async function sendCompanyEmailAction(input: {
   const result = await sendCompanyEmail(input);
   revalidatePath("/admin/companies");
   revalidatePath(`/admin/companies/${input.companyId}/email`);
+  return result;
+}
+
+export async function sendOutboundEmailAction(input: {
+  toEmail: string;
+  subject: string;
+  body: string;
+}): Promise<{ id?: string; error?: string }> {
+  await requireAdmin();
+  console.info("[sendOutboundEmailAction] mail env", {
+    hasResendApiKey: Boolean(process.env.RESEND_API_KEY?.trim()),
+    hasMailFromAddress: Boolean(process.env.MAIL_FROM_ADDRESS?.trim()),
+    nodeEnv: process.env.NODE_ENV ?? null,
+    vercelEnv: process.env.VERCEL_ENV ?? null,
+  });
+  const result = await createAndSendOutboundEmail(input);
+  revalidatePath("/admin/mail");
+  if (result.id) {
+    revalidatePath(`/admin/mail/${result.id}`);
+  }
+  return result;
+}
+
+export async function replyOutboundThreadAction(input: {
+  outboundEmailId: string;
+  message: string;
+}): Promise<{ error?: string }> {
+  await requireAdmin();
+  const result = await replyOnOutboundThread(input);
+  if (!result.error) {
+    revalidatePath("/admin/mail");
+    revalidatePath(`/admin/mail/${input.outboundEmailId}`);
+  }
+  return result;
+}
+
+export async function addOutboundProspectMessageAction(input: {
+  outboundEmailId: string;
+  message: string;
+}): Promise<{ error?: string }> {
+  await requireAdmin();
+  const result = await addProspectThreadMessage(input);
+  if (!result.error) {
+    revalidatePath(`/admin/mail/${input.outboundEmailId}`);
+  }
   return result;
 }
 

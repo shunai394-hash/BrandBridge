@@ -19,6 +19,10 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `NEXT_PUBLIC_SITE_URL` | ブラウザに露出 | `https://brandbridge.example.com` | OG・sitemap・canonical の基準 URL。末尾スラッシュなし |
 | `NEXT_PUBLIC_SHOW_ERROR_DETAILS` | ブラウザに露出 | `true` | （任意・調査用）エラー画面に message / stack を表示。調査後は削除 |
 | `BETA_AUTO_APPROVE_CASES` | サーバーのみ | `true` | ベータ: **新規**案件を `review_status=approved` で作成。一覧の公開条件は常に `approved`（商品提供企業本人は `pending_review` も表示） |
+| `RESEND_API_KEY` | サーバーのみ | `re_...` | お問い合わせ通知・営業メール（Resend） |
+| `CONTACT_RECEIVE_EMAIL` | サーバーのみ | `ops@example.com` | お問い合わせ通知の受信先 |
+| `MAIL_FROM_NAME` | サーバーのみ | `BrandBridge` | `/admin/mail` 営業メールの差出人名 |
+| `MAIL_FROM_ADDRESS` | サーバーのみ | `sales@brandbridge.jp` | `/admin/mail` 営業メールの差出人アドレス（未設定時は onboarding@resend.dev） |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。

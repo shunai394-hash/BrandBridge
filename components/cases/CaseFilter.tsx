@@ -6,18 +6,27 @@ import {
   targetCountryOptions,
   type ExclusiveFilter,
 } from "@/lib/types";
+import {
+  moqFilterPresets,
+  priceBandPresets,
+  PRICE_BAND_QUOTE_REQUIRED,
+} from "@/lib/price-display";
 
 type CaseFilterProps = {
   keyword: string;
   category: string;
   country: string;
   salesFormat: string;
+  priceBand: string;
+  moq: string;
   exclusive: ExclusiveFilter;
   categories: readonly string[];
   onKeywordChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onCountryChange: (value: string) => void;
   onSalesFormatChange: (value: string) => void;
+  onPriceBandChange: (value: string) => void;
+  onMoqChange: (value: string) => void;
   onExclusiveChange: (value: ExclusiveFilter) => void;
 };
 
@@ -26,12 +35,16 @@ export function CaseFilter({
   category,
   country,
   salesFormat,
+  priceBand,
+  moq,
   exclusive,
   categories,
   onKeywordChange,
   onCategoryChange,
   onCountryChange,
   onSalesFormatChange,
+  onPriceBandChange,
+  onMoqChange,
   onExclusiveChange,
 }: CaseFilterProps) {
   const selectClass =
@@ -49,7 +62,7 @@ export function CaseFilter({
           className="rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
         />
       </label>
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">カテゴリ</span>
           <select
@@ -65,7 +78,7 @@ export function CaseFilter({
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">国</span>
+          <span className="font-medium text-navy">原産国</span>
           <select
             value={country}
             onChange={(e) => onCountryChange(e.target.value)}
@@ -95,6 +108,36 @@ export function CaseFilter({
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-navy">参考卸価格帯</span>
+          <select
+            value={priceBand}
+            onChange={(e) => onPriceBandChange(e.target.value)}
+            className={selectClass}
+          >
+            <option value="すべて">すべて</option>
+            {priceBandPresets.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+            <option value="__other__">その他</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
+          <span className="font-medium text-navy">MOQ</span>
+          <select
+            value={moq}
+            onChange={(e) => onMoqChange(e.target.value)}
+            className={selectClass}
+          >
+            {moqFilterPresets.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5 text-sm">
           <span className="font-medium text-navy">独占可否</span>
           <select
             value={exclusive}
@@ -111,6 +154,9 @@ export function CaseFilter({
           </select>
         </label>
       </div>
+      <p className="text-xs text-muted">
+        参考卸価格帯の未設定は「{PRICE_BAND_QUOTE_REQUIRED}」として扱います。
+      </p>
     </div>
   );
 }

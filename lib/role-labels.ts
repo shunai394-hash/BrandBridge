@@ -15,7 +15,7 @@ export const ROLE_DISPLAY = {
 
   /** Marketing / LP / ads / top page */
   makerMarketing: "商品を広げたい事業者",
-  makerRegister: "商品を広げたい事業者として登録",
+  makerRegister: "事業者登録",
   makerAudience: "商品提供事業者向け",
   makerForPage: "商品を広げたい事業者の方へ",
   makerPerson: "商品を広げたい事業者の方",

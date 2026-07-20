@@ -46,15 +46,12 @@ export function AdminOutboundMailComposeForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-4 rounded-lg border border-border bg-surface p-5 md:p-6"
-    >
+    <form onSubmit={onSubmit} className="space-y-4">
       <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
         新規メール作成
       </h2>
       <p className="text-sm text-muted">
-        未登録企業への提携依頼・営業メールを送信します（お問い合わせ管理とは別機能です）。
+        未登録企業への掲載案内・提携依頼を送信します。
       </p>
       <Input
         label="宛先メールアドレス"

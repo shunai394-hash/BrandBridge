@@ -1,4 +1,8 @@
 import type { Case, CaseCreateInput } from "@/lib/types";
+import {
+  normalizeAvailability,
+  normalizePriceCondition,
+} from "@/lib/price-display";
 
 /**
  * Map DB case → edit form input AS-IS.
@@ -17,9 +21,16 @@ export function caseToFormInput(caseItem: Case): CaseCreateInput {
     productName: caseItem.productName ?? "",
     productFeatures: caseItem.productFeatures ?? "",
     priceBand: caseItem.priceBand ?? "",
+    wholesalePrice: caseItem.wholesalePrice ?? "",
+    priceConditions: normalizePriceCondition(caseItem.priceConditions),
+    lotPricing: caseItem.lotPricing ?? "",
     salesFormat: caseItem.salesFormat,
     salesTerms: caseItem.salesTerms ?? "",
     minOrder: caseItem.minOrder ?? "",
+    minOrderAmount: caseItem.minOrderAmount ?? "",
+    suggestedRetailPrice: caseItem.suggestedRetailPrice ?? "",
+    sampleAvailable: normalizeAvailability(caseItem.sampleAvailable),
+    testSaleAvailable: normalizeAvailability(caseItem.testSaleAvailable),
     isExclusive: Boolean(caseItem.isExclusive),
     targetCountry: caseItem.targetCountry,
     partnerChannels: caseItem.partnerChannels ?? "",

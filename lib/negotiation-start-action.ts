@@ -116,6 +116,27 @@ export async function startNegotiationAction(input: {
 
   const supabase = await createClient();
 
+  // ----- 0) applications INSERT (応募件数の正) -----
+  const { error: appError } = await supabase.from("applications").insert({
+    case_id: input.caseId,
+    partner_id: partner.id,
+    message: body,
+    status: "accepted",
+  });
+  // 23505 = already applied (unique case_id + partner_id)
+  if (appError && appError.code !== "23505") {
+    log("applications insert FAIL", {
+      message: appError.message,
+      code: appError.code,
+    });
+    return {
+      ok: false,
+      error: `applications INSERT 失敗: ${appError.message}`,
+      logs,
+    };
+  }
+  log("applications insert OK", { duplicate: appError?.code === "23505" });
+
   // ----- 1) negotiations INSERT (must include topic) -----
   const negotiationPayload = {
     case_id: input.caseId,
@@ -333,6 +354,21 @@ export async function startNegotiationDraftAction(input: {
   const body =
     (input.body ?? input.message)?.trim() || "交渉を申し込みました";
   const supabase = await createClient();
+
+  const { error: appError } = await supabase.from("applications").insert({
+    case_id: input.caseId,
+    partner_id: partner.id,
+    message: body,
+    status: "accepted",
+  });
+  if (appError && appError.code !== "23505") {
+    log("applications insert FAIL", { message: appError.message });
+    return {
+      ok: false,
+      error: `applications INSERT 失敗: ${appError.message}`,
+      logs,
+    };
+  }
 
   log("negotiation insert (draft)", { topic, caseId: input.caseId });
 

@@ -40,12 +40,9 @@ export async function POST(request: Request) {
 
   try {
     const supabase = createServiceClient();
-    const [casesResult, negoResult, dealResult] = await Promise.all([
+    const [casesResult, appResult, dealResult] = await Promise.all([
       supabase.from("cases").select("id, sku").in("id", ids),
-      supabase
-        .from("negotiations")
-        .select("case_id")
-        .in("case_id", ids),
+      supabase.from("applications").select("case_id").in("case_id", ids),
       supabase.from("deals").select("case_id").in("case_id", ids),
     ]);
 
@@ -56,10 +53,10 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
-    if (negoResult.error) {
-      console.error("[case-application-counts]", negoResult.error.message);
+    if (appResult.error) {
+      console.error("[case-application-counts]", appResult.error.message);
       return NextResponse.json(
-        { error: negoResult.error.message },
+        { error: appResult.error.message },
         { status: 500 },
       );
     }
@@ -76,7 +73,7 @@ export async function POST(request: Request) {
       byCaseId[id] = { applicationCount: 0, hasDeal: false };
     }
 
-    for (const row of negoResult.data ?? []) {
+    for (const row of appResult.data ?? []) {
       const caseId = row.case_id as string;
       if (!byCaseId[caseId]) {
         byCaseId[caseId] = { applicationCount: 0, hasDeal: false };

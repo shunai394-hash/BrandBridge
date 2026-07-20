@@ -6,6 +6,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { adminUpdateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { CasePricingFields } from "@/components/forms/CasePricingFields";
 import { caseToFormInput } from "@/lib/case-field-normalize";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
@@ -173,6 +174,15 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
           特徴・用途・販売時の訴求ポイントなどをまとめて入力。（
           {form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
+        <TextArea
+          label="商品特徴"
+          name="productFeatures"
+          rows={4}
+          maxLength={CASE_TEXT_LIMITS.productFeatures}
+          value={form.productFeatures}
+          onChange={(e) => update("productFeatures", e.target.value)}
+          placeholder="差別化ポイント・仕様など"
+        />
       </section>
 
       <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
@@ -200,7 +210,7 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         </label>
 
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-navy">独占可否</legend>
+          <legend className="text-sm font-medium text-navy">独占販売可否</legend>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
@@ -208,7 +218,7 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
               checked={form.isExclusive}
               onChange={() => update("isExclusive", true)}
             />
-            独占可
+            独占販売の相談可
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -222,19 +232,11 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
         </fieldset>
 
         <Input
-          label="最小発注数量"
-          name="minOrder"
-          value={form.minOrder}
-          onChange={(e) => update("minOrder", e.target.value)}
-          placeholder="例: 初回 100個〜"
-        />
-
-        <Input
-          label="販売チャネル"
+          label="対応チャネル（EC・店舗・卸）"
           name="partnerChannels"
           value={form.partnerChannels}
           onChange={(e) => update("partnerChannels", e.target.value)}
-          placeholder="例: 実店舗 / EC / 卸"
+          placeholder="例: EC / 実店舗 / 卸"
         />
 
         <TextArea
@@ -245,12 +247,10 @@ export function AdminCaseEditForm({ caseItem }: AdminCaseEditFormProps) {
           onChange={(e) => update("salesTerms", e.target.value)}
         />
 
-        <Input
-          label="想定価格帯"
-          name="priceBand"
-          value={form.priceBand}
-          onChange={(e) => update("priceBand", e.target.value)}
-        />
+        <div className="border-t border-border pt-4">
+          <h3 className="mb-3 text-sm font-medium text-navy">価格・発注条件</h3>
+          <CasePricingFields form={form} update={update} />
+        </div>
 
         <TextArea
           label="商品提供企業の提供条件"

@@ -6,6 +6,12 @@ import { CaseImageUploader } from "@/components/forms/CaseImageUploader";
 import { Button } from "@/components/ui/Button";
 import { getCaseById } from "@/lib/cases";
 import {
+  displayAvailability,
+  displayMoq,
+  displayPriceBand,
+  displayPriceCondition,
+} from "@/lib/price-display";
+import {
   salesFormatLabel,
   targetCountryLabel,
   reviewStatusLabels,
@@ -67,6 +73,55 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
           <span className="text-muted">商品名:</span> {caseItem.productName}
         </p>
         <p className="whitespace-pre-wrap leading-relaxed">{caseItem.description}</p>
+        {caseItem.productFeatures?.trim() ? (
+          <p className="whitespace-pre-wrap leading-relaxed">
+            <span className="text-muted">商品特徴:</span>{" "}
+            {caseItem.productFeatures}
+          </p>
+        ) : null}
+        <dl className="grid gap-2 border-t border-border pt-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs text-muted">参考卸価格帯</dt>
+            <dd>{displayPriceBand(caseItem.priceBand)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">MOQ</dt>
+            <dd>{displayMoq(caseItem.minOrder)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">正確な卸価格</dt>
+            <dd>{caseItem.wholesalePrice?.trim() || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">ロット別価格</dt>
+            <dd className="whitespace-pre-wrap">
+              {caseItem.lotPricing?.trim() || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">最小発注金額</dt>
+            <dd>{caseItem.minOrderAmount?.trim() || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">希望小売価格</dt>
+            <dd>{caseItem.suggestedRetailPrice?.trim() || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">価格条件</dt>
+            <dd>{displayPriceCondition(caseItem.priceConditions)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">サンプル / テスト販売</dt>
+            <dd>
+              {displayAvailability(caseItem.sampleAvailable)} /{" "}
+              {displayAvailability(caseItem.testSaleAvailable)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-muted">独占販売可否</dt>
+            <dd>{caseItem.isExclusive ? "相談可" : "非独占"}</dd>
+          </div>
+        </dl>
         <p className="whitespace-pre-wrap leading-relaxed">
           <span className="text-muted">提供条件:</span> {caseItem.offer}
         </p>

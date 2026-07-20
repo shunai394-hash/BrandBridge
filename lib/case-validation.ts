@@ -1,5 +1,9 @@
 import type { CaseCreateInput, SalesFormat, TargetCountry } from "@/lib/types";
 import { salesFormatOptions, targetCountryOptions } from "@/lib/types";
+import {
+  normalizeAvailability,
+  normalizePriceCondition,
+} from "@/lib/price-display";
 
 /** Soft app-level limits (DB columns are unbounded `text`). */
 export const CASE_TEXT_LIMITS = {
@@ -17,7 +21,12 @@ export const CASE_TEXT_LIMITS = {
   partnerChannels: 1000,
   partnerRequirements: 5000,
   priceBand: 200,
+  wholesalePrice: 200,
+  priceConditions: 50,
+  lotPricing: 2000,
   minOrder: 200,
+  minOrderAmount: 200,
+  suggestedRetailPrice: 200,
 } as const;
 
 /** Allowed: ASCII letters, digits, hyphen, underscore */
@@ -59,9 +68,16 @@ export function normalizeCaseCreateInput(
     productName: asText(input.productName),
     productFeatures: asText(input.productFeatures),
     priceBand: asText(input.priceBand),
+    wholesalePrice: asText(input.wholesalePrice),
+    priceConditions: normalizePriceCondition(input.priceConditions),
+    lotPricing: asText(input.lotPricing),
     salesFormat: asText(input.salesFormat) as SalesFormat,
     salesTerms: asText(input.salesTerms),
     minOrder: asText(input.minOrder),
+    minOrderAmount: asText(input.minOrderAmount),
+    suggestedRetailPrice: asText(input.suggestedRetailPrice),
+    sampleAvailable: normalizeAvailability(input.sampleAvailable),
+    testSaleAvailable: normalizeAvailability(input.testSaleAvailable),
     isExclusive: Boolean(input.isExclusive),
     targetCountry: asText(input.targetCountry) as TargetCountry,
     partnerChannels: asText(input.partnerChannels),
@@ -93,6 +109,13 @@ export function validateCaseCreateInput(
   if (!targetCountries.has(n.targetCountry)) {
     return `対象国が不正です: ${n.targetCountry}`;
   }
+  if (
+    n.priceConditions &&
+    n.priceConditions !== "fixed" &&
+    n.priceConditions !== "quote"
+  ) {
+    return "価格条件は「固定価格」または「見積条件あり」を選択してください";
+  }
 
   if (n.sku.length > CASE_TEXT_LIMITS.sku) {
     return `商品コード（SKU）は${CASE_TEXT_LIMITS.sku}文字以内にしてください`;
@@ -114,7 +137,25 @@ export function validateCaseCreateInput(
     return `商品名は${CASE_TEXT_LIMITS.productName}文字以内にしてください`;
   }
   if (n.productFeatures.length > CASE_TEXT_LIMITS.productFeatures) {
-    return `商品説明の追記は${CASE_TEXT_LIMITS.productFeatures}文字以内にしてください`;
+    return `商品特徴は${CASE_TEXT_LIMITS.productFeatures}文字以内にしてください`;
+  }
+  if (n.priceBand.length > CASE_TEXT_LIMITS.priceBand) {
+    return `参考卸価格帯は${CASE_TEXT_LIMITS.priceBand}文字以内にしてください`;
+  }
+  if (n.wholesalePrice.length > CASE_TEXT_LIMITS.wholesalePrice) {
+    return `正確な卸価格は${CASE_TEXT_LIMITS.wholesalePrice}文字以内にしてください`;
+  }
+  if (n.lotPricing.length > CASE_TEXT_LIMITS.lotPricing) {
+    return `ロット別価格は${CASE_TEXT_LIMITS.lotPricing}文字以内にしてください`;
+  }
+  if (n.minOrder.length > CASE_TEXT_LIMITS.minOrder) {
+    return `MOQは${CASE_TEXT_LIMITS.minOrder}文字以内にしてください`;
+  }
+  if (n.minOrderAmount.length > CASE_TEXT_LIMITS.minOrderAmount) {
+    return `最小発注金額は${CASE_TEXT_LIMITS.minOrderAmount}文字以内にしてください`;
+  }
+  if (n.suggestedRetailPrice.length > CASE_TEXT_LIMITS.suggestedRetailPrice) {
+    return `希望小売価格は${CASE_TEXT_LIMITS.suggestedRetailPrice}文字以内にしてください`;
   }
 
   return null;

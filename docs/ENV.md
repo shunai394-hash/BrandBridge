@@ -21,8 +21,10 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `BETA_AUTO_APPROVE_CASES` | サーバーのみ | `true` | ベータ: **新規**案件を `review_status=approved` で作成。一覧の公開条件は常に `approved`（商品提供企業本人は `pending_review` も表示） |
 | `RESEND_API_KEY` | サーバーのみ | `re_...` | お問い合わせ通知・営業メール（Resend） |
 | `CONTACT_RECEIVE_EMAIL` | サーバーのみ | `ops@example.com` | お問い合わせ通知の受信先 |
-| `MAIL_FROM_NAME` | サーバーのみ | `BrandBridge` | `/admin/mail` 営業メールの差出人名 |
-| `MAIL_FROM_ADDRESS` | サーバーのみ | `sales@brandbridge.jp` | `/admin/mail` 営業メールの差出人アドレス（未設定時は onboarding@resend.dev） |
+| `MAIL_FROM_NAME` | サーバーのみ | `BrandBridge` | `/admin/mail` 差出人名（必須） |
+| `MAIL_FROM_ADDRESS` | サーバーのみ | `sales@brandbridge.jp` | `/admin/mail` 差出人アドレス（必須）。Reply-To と同一推奨 |
+| `REPLY_TO_EMAIL` | サーバーのみ | `sales@brandbridge.jp` | `/admin/mail` Reply-To（必須）。未設定時は MAIL_FROM_ADDRESS |
+| Resend Webhook | Dashboard | `email.received` → `/api/resend/inbound` | 受信を受信箱・スレッドへ自動反映 |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。

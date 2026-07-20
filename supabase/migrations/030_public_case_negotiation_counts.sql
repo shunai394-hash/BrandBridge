@@ -1,8 +1,14 @@
 -- Public aggregate counts for /cases (applicationCount / negotiationCount).
 -- RLS on negotiations only allows party/admin SELECT, so anon gets [].
 -- This SECURITY DEFINER RPC returns counts only (no message / partner_id).
+--
+-- Version 030 (not 028): 028 is already used by 028_cases_sku.sql on remote.
+-- DROP first: CREATE OR REPLACE cannot change RETURNS TABLE column types
+-- (SQLSTATE 42P13).
 
-create or replace function public.get_case_negotiation_counts(p_case_ids uuid[])
+drop function if exists public.get_case_negotiation_counts(uuid[]);
+
+create function public.get_case_negotiation_counts(p_case_ids uuid[])
 returns table (
   case_id uuid,
   application_count bigint,

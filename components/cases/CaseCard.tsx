@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
+import { displayMoq, displayPriceBand } from "@/lib/price-display";
 import type { Case } from "@/lib/types";
 import { salesFormatLabel, targetCountryLabel } from "@/lib/types";
 
@@ -61,9 +62,11 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
         </h3>
       </Link>
 
-      {caseItem.priceBand ? (
-        <p className="mt-2 text-xs text-muted">価格帯: {caseItem.priceBand}</p>
-      ) : null}
+      <p className="mt-2 text-xs text-muted">
+        参考卸価格帯: {displayPriceBand(caseItem.priceBand)}
+        {" ／ "}
+        MOQ: {displayMoq(caseItem.minOrder)}
+      </p>
 
       <Link href={`/cases/${caseItem.id}`} className="group mt-3 block">
         <p className="line-clamp-2 text-sm leading-relaxed text-foreground/85">

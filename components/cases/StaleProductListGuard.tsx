@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { CASE_LIST_VERSION } from "@/components/cases/CaseList";
 
 /**
- * Only hard-reload when a legacy CaseList module is painted.
- * Do not reload for slow API / missing root on first paint (that aborted counts fetch).
+ * Hard-reload when a stale CaseList is painted
+ * (商品画像列あり / 参考卸価格帯・MOQ欠落 / 旧案件レイアウト).
  */
 export function StaleProductListGuard() {
   const pathname = usePathname();
@@ -22,13 +22,28 @@ export function StaleProductListGuard() {
       ),
     ].map((th) => th.textContent?.trim() ?? "");
 
+    if (ths.length === 0) return;
+
+    const hasPriceBand = ths.some((t) => t.includes("参考卸価格帯"));
+    const hasMoq = ths.some((t) => t.includes("MOQ"));
+    const hasImage = ths.some((t) => t.includes("商品画像"));
+    const hasApplications = ths.some((t) => t.includes("応募件数"));
+    const hasSku = ths.includes("商品番号（SKU）");
+
+    const isCurrent =
+      hasSku &&
+      !hasImage &&
+      hasPriceBand &&
+      hasMoq &&
+      hasApplications;
+
     const hasLegacy =
       text.includes("案件番号") ||
       text.includes("件の案件") ||
-      text.includes("20件の案件") ||
-      ths.includes("商品画像") ||
       ths[0] === "案件番号" ||
-      (text.includes("交渉する") && /BB-\d{6}/.test(text));
+      hasImage ||
+      (text.includes("交渉する") && /BB-\d{6}/.test(text)) ||
+      !isCurrent;
 
     if (!hasLegacy) return;
 

@@ -51,6 +51,7 @@ import { sendCompanyEmail } from "@/lib/admin-companies";
 import {
   addProspectThreadMessage,
   createAndSendOutboundEmail,
+  markInboundRead,
   replyOnOutboundThread,
 } from "@/lib/admin-outbound-mail";
 import { caseInputFromRegistration } from "@/lib/maker-registration";
@@ -832,11 +833,15 @@ export async function sendOutboundEmailAction(input: {
   console.info("[sendOutboundEmailAction] mail env", {
     hasResendApiKey: Boolean(process.env.RESEND_API_KEY?.trim()),
     hasMailFromAddress: Boolean(process.env.MAIL_FROM_ADDRESS?.trim()),
+    hasMailFromName: Boolean(process.env.MAIL_FROM_NAME?.trim()),
+    hasReplyToEmail: Boolean(process.env.REPLY_TO_EMAIL?.trim()),
     nodeEnv: process.env.NODE_ENV ?? null,
     vercelEnv: process.env.VERCEL_ENV ?? null,
   });
   const result = await createAndSendOutboundEmail(input);
   revalidatePath("/admin/mail");
+  revalidatePath("/admin/mail/sent");
+  revalidatePath("/admin/mail/threads");
   if (result.id) {
     revalidatePath(`/admin/mail/${result.id}`);
   }
@@ -851,6 +856,8 @@ export async function replyOutboundThreadAction(input: {
   const result = await replyOnOutboundThread(input);
   if (!result.error) {
     revalidatePath("/admin/mail");
+    revalidatePath("/admin/mail/sent");
+    revalidatePath("/admin/mail/threads");
     revalidatePath(`/admin/mail/${input.outboundEmailId}`);
   }
   return result;
@@ -863,7 +870,26 @@ export async function addOutboundProspectMessageAction(input: {
   await requireAdmin();
   const result = await addProspectThreadMessage(input);
   if (!result.error) {
+    revalidatePath("/admin/mail");
+    revalidatePath("/admin/mail/threads");
     revalidatePath(`/admin/mail/${input.outboundEmailId}`);
+  }
+  return result;
+}
+
+export async function markInboundEmailReadAction(input: {
+  inboundId?: string;
+  outboundEmailId?: string | null;
+  markAllForOutbound?: boolean;
+}): Promise<{ error?: string }> {
+  await requireAdmin();
+  const result = await markInboundRead(input);
+  if (!result.error) {
+    revalidatePath("/admin/mail");
+    revalidatePath("/admin/mail/threads");
+    if (input.outboundEmailId) {
+      revalidatePath(`/admin/mail/${input.outboundEmailId}`);
+    }
   }
   return result;
 }

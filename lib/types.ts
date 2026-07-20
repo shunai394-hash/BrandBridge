@@ -230,9 +230,16 @@ export type CaseRow = {
   sku?: string | null;
   product_features: string | null;
   price_band: string | null;
+  wholesale_price?: string | null;
+  price_conditions?: string | null;
+  lot_pricing?: string | null;
   sales_format: SalesFormat;
   sales_terms: string | null;
   min_order: string | null;
+  min_order_amount?: string | null;
+  suggested_retail_price?: string | null;
+  sample_available?: string | null;
+  test_sale_available?: string | null;
   is_exclusive: boolean;
   target_country: TargetCountry;
   partner_channels: string | null;
@@ -268,10 +275,26 @@ export type Case = {
   /** Maker-managed SKU; null when unset. Not a BrandBridge auto ID. */
   sku: string | null;
   productFeatures: string | null;
+  /** 参考卸価格帯（空欄は UI で「見積条件あり」） */
   priceBand: string | null;
+  /** 正確な卸価格（パートナー限定） */
+  wholesalePrice: string | null;
+  /** 価格条件: fixed | quote（パートナー限定） */
+  priceConditions: string | null;
+  /** ロット別価格（パートナー限定） */
+  lotPricing: string | null;
   salesFormat: SalesFormat;
   salesTerms: string | null;
+  /** MOQ（最低発注数量） */
   minOrder: string | null;
+  /** 最小発注金額（パートナー限定） */
+  minOrderAmount: string | null;
+  /** 希望小売価格（想定売価・パートナー限定） */
+  suggestedRetailPrice: string | null;
+  /** サンプル提供: yes | no | negotiable（パートナー限定） */
+  sampleAvailable: string | null;
+  /** テスト販売: yes | no | negotiable（パートナー限定） */
+  testSaleAvailable: string | null;
   isExclusive: boolean;
   targetCountry: TargetCountry;
   partnerChannels: string | null;
@@ -282,9 +305,9 @@ export type Case = {
   reviewStatus: ReviewStatus;
   reviewNote: string | null;
   createdAt: string;
-  /** Count of partner applications (negotiations) */
+  /** Count of partner applications (public.applications) */
   applicationCount?: number;
-  /** Count of negotiations in active pipeline (accepted+) */
+  /** Count of negotiation threads (public.negotiations) */
   negotiationCount?: number;
   /** True when a row exists in public.deals for this case */
   hasDeal?: boolean;
@@ -476,10 +499,24 @@ export type CaseCreateInput = {
   sku: string;
   productName: string;
   productFeatures: string;
+  /** 参考卸価格帯 */
   priceBand: string;
+  /** 正確な卸価格 */
+  wholesalePrice: string;
+  /** 価格条件: fixed | quote | "" */
+  priceConditions: string;
+  /** ロット別価格 */
+  lotPricing: string;
   salesFormat: SalesFormat;
   salesTerms: string;
+  /** MOQ */
   minOrder: string;
+  /** 最小発注金額 */
+  minOrderAmount: string;
+  /** 希望小売価格 */
+  suggestedRetailPrice: string;
+  sampleAvailable: string;
+  testSaleAvailable: string;
   isExclusive: boolean;
   targetCountry: TargetCountry;
   partnerChannels: string;

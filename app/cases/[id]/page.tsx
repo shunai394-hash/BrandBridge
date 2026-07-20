@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CaseDetailView } from "@/components/cases/CaseDetail";
 import { getSessionUser } from "@/lib/auth";
+import {
+  applyPricingVisibility,
+  canViewPartnerPricing,
+} from "@/lib/case-pricing-access";
 import { getCaseById } from "@/lib/cases";
 import { isFavorite } from "@/lib/favorites";
 import { hasAppliedToCase } from "@/lib/negotiations";
@@ -35,13 +39,16 @@ export default async function CaseDetailPage({
 }: CaseDetailPageProps) {
   const { id } = await params;
   const { pending } = await searchParams;
-  const caseItem = await getCaseById(id);
+  const raw = await getCaseById(id);
 
-  if (!caseItem) {
+  if (!raw) {
     notFound();
   }
 
   const user = await getSessionUser();
+  const showPartnerPricing = canViewPartnerPricing(raw, user);
+  const caseItem = applyPricingVisibility(raw, user);
+
   const alreadyApplied =
     user?.role === "partner"
       ? await hasAppliedToCase(caseItem.id, user.id)
@@ -56,6 +63,7 @@ export default async function CaseDetailPage({
         alreadyApplied={alreadyApplied}
         isFavorited={favorited}
         showPendingBanner={pending === "1"}
+        showPartnerPricing={showPartnerPricing}
       />
     </div>
   );

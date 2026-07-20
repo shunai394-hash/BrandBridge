@@ -6,6 +6,7 @@ import { createCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
+import { CasePricingFields } from "@/components/forms/CasePricingFields";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import {
   caseCategories,
@@ -15,7 +16,7 @@ import {
   type CaseCreateInput,
 } from "@/lib/types";
 
-const FORM_VERSION = "product-v6";
+const FORM_VERSION = "product-v7";
 
 const initial: CaseCreateInput = {
   title: "",
@@ -28,10 +29,17 @@ const initial: CaseCreateInput = {
   sku: "",
   productName: "",
   productFeatures: "",
-  priceBand: "",
+  priceBand: "見積条件あり",
+  wholesalePrice: "",
+  priceConditions: "quote",
+  lotPricing: "",
   salesFormat: "wholesale",
   salesTerms: "",
   minOrder: "",
+  minOrderAmount: "",
+  suggestedRetailPrice: "",
+  sampleAvailable: "",
+  testSaleAvailable: "",
   isExclusive: false,
   targetCountry: "JP",
   partnerChannels: "",
@@ -226,14 +234,19 @@ export function CaseCreateForm() {
           特徴・強み・用途・販売時の訴求内容をまとめて入力してください。
           （{form.description.length}/{CASE_TEXT_LIMITS.description}）
         </p>
-        <Input
-          label="想定価格帯"
-          name="priceBand"
-          placeholder="例: 小売 3,000〜5,000円"
-          maxLength={CASE_TEXT_LIMITS.priceBand}
-          value={form.priceBand}
-          onChange={(e) => update("priceBand", e.target.value)}
+        <TextArea
+          label="商品特徴"
+          name="productFeatures"
+          rows={4}
+          maxLength={CASE_TEXT_LIMITS.productFeatures}
+          value={form.productFeatures}
+          onChange={(e) => update("productFeatures", e.target.value)}
+          placeholder="差別化ポイント・仕様・訴求ポイントなど"
         />
+      </Section>
+
+      <Section title="価格・発注条件">
+        <CasePricingFields form={form} update={update} />
       </Section>
 
       <Section title="販売条件">
@@ -259,7 +272,7 @@ export function CaseCreateForm() {
           </select>
         </label>
         <fieldset className="space-y-2">
-          <legend className="text-sm font-medium text-navy">独占可否</legend>
+          <legend className="text-sm font-medium text-navy">独占販売可否</legend>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="radio"
@@ -267,7 +280,7 @@ export function CaseCreateForm() {
               checked={form.isExclusive}
               onChange={() => update("isExclusive", true)}
             />
-            独占可
+            独占販売の相談可
           </label>
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -280,17 +293,9 @@ export function CaseCreateForm() {
           </label>
         </fieldset>
         <Input
-          label="最小発注数量"
-          name="minOrder"
-          maxLength={CASE_TEXT_LIMITS.minOrder}
-          value={form.minOrder}
-          onChange={(e) => update("minOrder", e.target.value)}
-          placeholder="例: 初回 100個〜"
-        />
-        <Input
-          label="販売チャネル"
+          label="対応チャネル（EC・店舗・卸）"
           name="partnerChannels"
-          placeholder="例: 実店舗 / EC / 卸"
+          placeholder="例: EC / 実店舗 / 卸"
           maxLength={CASE_TEXT_LIMITS.partnerChannels}
           value={form.partnerChannels}
           onChange={(e) => update("partnerChannels", e.target.value)}

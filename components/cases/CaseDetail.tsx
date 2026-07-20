@@ -2,6 +2,13 @@ import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { Button } from "@/components/ui/Button";
 import { casePublicStatusLabel } from "@/lib/case-display";
+import { canViewPartnerPricing } from "@/lib/case-pricing-access";
+import {
+  displayAvailability,
+  displayMoq,
+  displayPriceBand,
+  displayPriceCondition,
+} from "@/lib/price-display";
 import type { Case, SessionUser } from "@/lib/types";
 import {
   reviewStatusLabels,
@@ -15,11 +22,13 @@ type CaseDetailProps = {
   alreadyApplied: boolean;
   isFavorited: boolean;
   showPendingBanner?: boolean;
+  /** Server-computed; when false partner-only fields are already redacted. */
+  showPartnerPricing: boolean;
 };
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[8rem_1fr] sm:gap-4">
+    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
       <dt className="text-sm font-medium text-muted">{label}</dt>
       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-navy">
         {value}
@@ -34,17 +43,15 @@ export function CaseDetailView({
   alreadyApplied,
   isFavorited,
   showPendingBanner = false,
+  showPartnerPricing,
 }: CaseDetailProps) {
   const negotiateHref = `/cases/${caseItem.id}/negotiation`;
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
-
-  const descriptionParts = [
-    caseItem.description?.trim() || "",
-    caseItem.productFeatures?.trim() || "",
-  ].filter(Boolean);
-  const description =
-    descriptionParts.join("\n\n") || "商品説明はまだ登録されていません。";
+  const isPartner = user?.role === "partner";
+  // Defense in depth: never show if server redacted / unauthorized
+  const partnerUnlocked =
+    showPartnerPricing && canViewPartnerPricing(caseItem, user);
 
   return (
     <article className="animate-fade-up">
@@ -73,7 +80,6 @@ export function CaseDetailView({
         </div>
       ) : null}
 
-      {/* 表示順: 画像ギャラリー → 商品名 / SKU / 説明 */}
       <header className="space-y-5">
         <CaseImageGallery
           images={caseItem.images}
@@ -86,10 +92,6 @@ export function CaseDetailView({
         </h1>
 
         <dl>
-          <InfoRow
-            label="商品コード（SKU）"
-            value={caseItem.sku?.trim() || "—"}
-          />
           <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow
             label="原産国"
@@ -100,69 +102,118 @@ export function CaseDetailView({
             value={salesFormatLabel(caseItem.salesFormat)}
           />
           <InfoRow
-            label="状態"
-            value={casePublicStatusLabel({
-              status: caseItem.status,
-              reviewStatus: caseItem.reviewStatus,
-              hasDeal: caseItem.hasDeal,
-            })}
+            label="参考卸価格帯"
+            value={displayPriceBand(caseItem.priceBand)}
           />
+          <InfoRow label="MOQ（最低発注数量）" value={displayMoq(caseItem.minOrder)} />
         </dl>
       </header>
 
-      <dl className="mt-2">
-        {caseItem.summary?.trim() ? (
-          <InfoRow label="一覧用サマリー" value={caseItem.summary.trim()} />
+      <section className="mt-8">
+        <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+          商品説明
+        </h2>
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+          {caseItem.description?.trim() ||
+            "商品説明はまだ登録されていません。"}
+        </p>
+        {caseItem.productFeatures?.trim() ? (
+          <>
+            <h3 className="mt-6 text-sm font-medium text-muted">商品特徴</h3>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+              {caseItem.productFeatures.trim()}
+            </p>
+          </>
         ) : null}
-        <InfoRow label="商品説明" value={description} />
-        <InfoRow
-          label="応募件数"
-          value={`${caseItem.applicationCount ?? 0}件`}
-        />
-        <InfoRow
-          label="交渉中"
-          value={`${caseItem.negotiationCount ?? 0}件`}
-        />
-        <InfoRow
-          label="独占可否"
-          value={
-            caseItem.isExclusive ? "独占可" : "非独占（複数パートナー可）"
-          }
-        />
-        {caseItem.minOrder?.trim() ? (
-          <InfoRow label="最小発注数量" value={caseItem.minOrder.trim()} />
-        ) : null}
-        {caseItem.partnerChannels?.trim() ? (
-          <InfoRow label="販売チャネル" value={caseItem.partnerChannels.trim()} />
-        ) : null}
-        {caseItem.salesTerms?.trim() ? (
-          <InfoRow label="その他の取引条件" value={caseItem.salesTerms.trim()} />
-        ) : null}
-        {caseItem.priceBand?.trim() ? (
-          <InfoRow label="想定価格帯" value={caseItem.priceBand.trim()} />
-        ) : null}
-        {caseItem.offer?.trim() ? (
-          <InfoRow label="商品提供企業の提供条件" value={caseItem.offer.trim()} />
-        ) : null}
-        {caseItem.partnerRequirements?.trim() ? (
-          <InfoRow
-            label="必須実績・体制"
-            value={caseItem.partnerRequirements.trim()}
-          />
-        ) : null}
-        {caseItem.idealPartner?.trim() ? (
-          <InfoRow
-            label="求めるパートナー像"
-            value={caseItem.idealPartner.trim()}
-          />
-        ) : null}
-      </dl>
+      </section>
+
+      {partnerUnlocked ? (
+        <section className="mt-8">
+          <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+            取引条件（ログイン限定）
+          </h2>
+          <dl className="mt-2">
+            <InfoRow
+              label="正確な卸価格"
+              value={caseItem.wholesalePrice?.trim() || "見積条件あり"}
+            />
+            <InfoRow
+              label="ロット別価格"
+              value={caseItem.lotPricing?.trim() || "—"}
+            />
+            <InfoRow
+              label="最小発注金額"
+              value={caseItem.minOrderAmount?.trim() || "応相談"}
+            />
+            <InfoRow
+              label="希望小売価格"
+              value={caseItem.suggestedRetailPrice?.trim() || "—"}
+            />
+            <InfoRow
+              label="価格条件"
+              value={displayPriceCondition(caseItem.priceConditions)}
+            />
+            <InfoRow
+              label="サンプル提供可否"
+              value={displayAvailability(caseItem.sampleAvailable)}
+            />
+            <InfoRow
+              label="テスト販売可否"
+              value={displayAvailability(caseItem.testSaleAvailable)}
+            />
+            <InfoRow
+              label="独占販売可否"
+              value={
+                caseItem.isExclusive
+                  ? "独占販売の相談可"
+                  : "非独占（複数パートナー可）"
+              }
+            />
+            <InfoRow
+              label="対応国"
+              value={targetCountryLabel(caseItem.targetCountry)}
+            />
+            {caseItem.partnerChannels?.trim() ? (
+              <InfoRow
+                label="対応チャネル"
+                value={caseItem.partnerChannels.trim()}
+              />
+            ) : null}
+            <InfoRow
+              label="状態"
+              value={casePublicStatusLabel({
+                status: caseItem.status,
+                reviewStatus: caseItem.reviewStatus,
+                hasDeal: caseItem.hasDeal,
+              })}
+            />
+          </dl>
+        </section>
+      ) : (
+        <div className="mt-8 rounded-lg border border-border bg-cream/50 px-4 py-5 text-sm text-muted">
+          <p className="font-medium text-navy">詳細な卸価格・取引条件</p>
+          <p className="mt-2">
+            正確な卸価格・ロット別価格・発注条件などは、販売パートナーとしてログイン後に確認できます。
+          </p>
+          {!user ? (
+            <p className="mt-3">
+              <Button href={`/login?next=/cases/${caseItem.id}`} prefetch={false}>
+                ログインして詳細を見る
+              </Button>
+            </p>
+          ) : user.role !== "partner" ? (
+            <p className="mt-2 text-xs">
+              販売パートナーアカウントでログインすると表示されます。
+            </p>
+          ) : null}
+        </div>
+      )}
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
-        {canStartNegotiation ? (
+        {partnerUnlocked && isPartner && canStartNegotiation ? (
           <>
             <Button href={negotiateHref}>
-              {alreadyApplied ? "新しいテーマで交渉" : "交渉を開始"}
+              {alreadyApplied ? "新しいテーマで交渉" : "メーカーへ応募・問い合わせ"}
             </Button>
             {alreadyApplied ? (
               <Button href="/partner/negotiations" variant="outline">
@@ -170,6 +221,14 @@ export function CaseDetailView({
               </Button>
             ) : null}
           </>
+        ) : canStartNegotiation && !user ? (
+          <Button href={`/login?next=${encodeURIComponent(negotiateHref)}`}>
+            ログインして応募・問い合わせ
+          </Button>
+        ) : canStartNegotiation && user && !isPartner ? (
+          <p className="text-sm text-muted">
+            販売パートナーとしてログインすると応募・問い合わせできます。
+          </p>
         ) : (
           <p className="text-sm text-muted">
             この商品は現在交渉を受け付けていません。

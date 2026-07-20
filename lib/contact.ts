@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import type { ContactInput } from "@/lib/contact-types";
+import { sendContactEmail } from "@/lib/sendContactEmail";
 
 export async function createContactInquiry(
   input: ContactInput,
@@ -37,6 +38,21 @@ export async function createContactInquiry(
   if (error) {
     console.error("[createContactInquiry]", error.message);
     return { error: "送信に失敗しました。時間をおいて再度お試しください。" };
+  }
+
+  // DB 保存成功後に管理者通知。メール失敗でも問い合わせ自体は成功扱い。
+  const mail = await sendContactEmail({
+    name,
+    email,
+    companyName,
+    category: input.category,
+    message,
+  });
+  if (!mail.ok) {
+    console.error(
+      "[createContactInquiry] notify email failed (inquiry saved):",
+      mail.error,
+    );
   }
 
   return {};

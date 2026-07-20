@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import { CaseFilter } from "@/components/cases/CaseFilter";
 import { EmptyCasesState } from "@/components/cases/EmptyCasesState";
 import { Button } from "@/components/ui/Button";
 import { casePublicStatusLabel } from "@/lib/case-display";
+import {
+  displayMoq,
+  displayPriceBand,
+  matchesMoqFilter,
+  priceBandPresets,
+  PRICE_BAND_QUOTE_REQUIRED,
+} from "@/lib/price-display";
 import {
   caseCategories,
   salesFormatLabel,
@@ -32,6 +38,9 @@ export type CaseListItem = {
   targetCountry: TargetCountry;
   salesFormat: SalesFormat;
   isExclusive: boolean;
+  productImageUrl: string | null;
+  priceBand: string | null;
+  minOrder: string | null;
   /** Server may send this; CaseList must NOT display it. Use apiMeta only. */
   applicationCount?: number;
   status: CaseStatus;
@@ -69,7 +78,8 @@ type CaseListProps = {
   pageAuthDebug?: PageAuthDebug;
 };
 
-export const CASE_LIST_VERSION = "sku-first-v19";
+/** Bump when list columns change so StaleProductListGuard can force refresh. */
+export const CASE_LIST_VERSION = "sku-pricing-moq-v25";
 
 type CaseMeta = {
   applicationCount: number;
@@ -87,6 +97,9 @@ type DisplayRow = {
   targetCountry: TargetCountry;
   salesFormat: SalesFormat;
   isExclusive: boolean;
+  productImageUrl: string | null;
+  priceBand: string | null;
+  minOrder: string | null;
   status: CaseStatus;
   reviewStatus: ReviewStatus;
 };
@@ -103,6 +116,9 @@ function toDisplayRow(item: Case | CaseListItem): DisplayRow {
     targetCountry: item.targetCountry,
     salesFormat: item.salesFormat,
     isExclusive: item.isExclusive,
+    productImageUrl: item.productImageUrl ?? null,
+    priceBand: item.priceBand ?? null,
+    minOrder: item.minOrder ?? null,
     status: item.status,
     reviewStatus: item.reviewStatus,
   };
@@ -131,6 +147,9 @@ function readMeta(
 
 /**
  * Sole /cases table for guest and logged-in.
+ * Columns: SKU → 商品名 → カテゴリ → 原産国 → 販売形式 →
+ * 参考卸価格帯 → MOQ → 応募件数 → 状態 → 操作
+ * （一覧に商品画像は出さない）
  */
 export function CaseList({
   items,
@@ -139,7 +158,6 @@ export function CaseList({
   viewerRole: _viewerRole,
   pageAuthDebug,
 }: CaseListProps) {
-  const pathname = usePathname();
   const sourceItems = items?.length ? items : cases?.length ? cases : [];
   const rows = sourceItems;
 
@@ -147,12 +165,6 @@ export function CaseList({
     if (pageAuthDebug) {
       console.log("CASE PAGE AUTH", pageAuthDebug);
     }
-    console.log("CASELIST RECEIVED", rows[0]);
-    console.log("CASELIST RECEIVED SAMPLE", {
-      atl0010: rows.find((r) => r.sku?.trim() === "ATL-0010"),
-      hyc0003: rows.find((r) => r.sku?.trim() === "HYC-0003"),
-      aob0002: rows.find((r) => r.sku?.trim() === "AOB-0002"),
-    });
   }, [pageAuthDebug, rows]);
 
   const baseRows: DisplayRow[] = useMemo(
@@ -170,8 +182,9 @@ export function CaseList({
   const [category, setCategory] = useState(startCategory);
   const [country, setCountry] = useState("すべて");
   const [salesFormat, setSalesFormat] = useState("すべて");
+  const [priceBand, setPriceBand] = useState("すべて");
+  const [moq, setMoq] = useState("すべて");
   const [exclusive, setExclusive] = useState<ExclusiveFilter>("すべて");
-  /** Sole display source for 応募件数 / 成約 — keyed by item.id */
   const [apiMeta, setApiMeta] = useState<Record<string, CaseMeta> | null>(
     null,
   );
@@ -190,7 +203,7 @@ export function CaseList({
   rowIdsKeyRef.current = rowIdsKey;
 
   useEffect(() => {
-    if (pathname !== "/cases" && pathname !== "/cases/") return;
+    // CaseList is only mounted on /cases; always load counts when rows exist.
     if (!rowIdsKey) return;
 
     const ids = rowIdsKey.split(",");
@@ -207,7 +220,6 @@ export function CaseList({
         });
         if (!res.ok) throw new Error(`counts ${res.status}`);
         const json: unknown = await res.json();
-        console.log("COUNT API RESPONSE", json);
 
         if (
           json &&
@@ -221,7 +233,6 @@ export function CaseList({
           json && typeof json === "object"
             ? (json as Record<string, unknown>)
             : {};
-        // Always index apiMeta by item.id so render can use apiMeta[item.id]
         const next: Record<string, CaseMeta> = {};
         for (const row of rowsRef.current) {
           next[row.id] = readMeta(root, row.id, row.sku?.trim() || null);
@@ -240,7 +251,7 @@ export function CaseList({
     }
 
     void load(0);
-  }, [pathname, rowIdsKey]);
+  }, [rowIdsKey]);
 
   const filtered = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -250,6 +261,15 @@ export function CaseList({
         country === "すべて" || item.targetCountry === country;
       const matchFormat =
         salesFormat === "すべて" || item.salesFormat === salesFormat;
+      const displayedBand = displayPriceBand(item.priceBand);
+      const matchPriceBand =
+        priceBand === "すべて" ||
+        (priceBand === "__other__"
+          ? !(priceBandPresets as readonly string[]).includes(displayedBand)
+          : displayedBand === priceBand ||
+            (priceBand === PRICE_BAND_QUOTE_REQUIRED &&
+              !item.priceBand?.trim()));
+      const matchMoq = matchesMoqFilter(item.minOrder, moq);
       const matchExclusive =
         exclusive === "すべて" ||
         (exclusive === "独占可" && item.isExclusive) ||
@@ -260,18 +280,29 @@ export function CaseList({
         item.productName.toLowerCase().includes(q) ||
         (item.sku?.toLowerCase().includes(q) ?? false) ||
         item.summary.toLowerCase().includes(q) ||
-        item.makerName.toLowerCase().includes(q);
+        item.makerName.toLowerCase().includes(q) ||
+        displayedBand.toLowerCase().includes(q) ||
+        displayMoq(item.minOrder).toLowerCase().includes(q);
       return (
         matchCategory &&
         matchCountry &&
         matchFormat &&
+        matchPriceBand &&
+        matchMoq &&
         matchExclusive &&
         matchKeyword
       );
     });
-  }, [baseRows, keyword, category, country, salesFormat, exclusive]);
-
-  console.log("DISPLAY META", apiMeta);
+  }, [
+    baseRows,
+    keyword,
+    category,
+    country,
+    salesFormat,
+    priceBand,
+    moq,
+    exclusive,
+  ]);
 
   if (baseRows.length === 0) {
     return <EmptyCasesState variant="list" />;
@@ -290,12 +321,16 @@ export function CaseList({
         category={category}
         country={country}
         salesFormat={salesFormat}
+        priceBand={priceBand}
+        moq={moq}
         exclusive={exclusive}
         categories={caseCategories}
         onKeywordChange={setKeyword}
         onCategoryChange={setCategory}
         onCountryChange={setCountry}
         onSalesFormatChange={setSalesFormat}
+        onPriceBandChange={setPriceBand}
+        onMoqChange={setMoq}
         onExclusiveChange={setExclusive}
       />
 
@@ -306,40 +341,45 @@ export function CaseList({
       ) : (
         <div className="w-full overflow-x-auto rounded-lg border border-border bg-surface">
           <table
-            className="w-full min-w-[56rem] table-fixed text-left text-sm"
+            className="w-full min-w-[72rem] table-fixed text-left text-sm"
             data-testid="product-list-table"
           >
             <thead className="border-b border-border bg-cream/50 text-xs text-muted">
               <tr>
-                <th className="w-[10rem] px-4 py-3 font-medium" scope="col">
+                <th className="w-[9rem] px-3 py-3 font-medium" scope="col">
                   商品番号（SKU）
                 </th>
-                <th className="px-4 py-3 font-medium" scope="col">
+                <th className="px-3 py-3 font-medium" scope="col">
                   商品名
                 </th>
-                <th className="w-36 px-4 py-3 font-medium" scope="col">
+                <th className="w-28 px-3 py-3 font-medium" scope="col">
                   カテゴリ
                 </th>
-                <th className="w-28 px-4 py-3 font-medium" scope="col">
+                <th className="w-24 px-3 py-3 font-medium" scope="col">
                   原産国
                 </th>
-                <th className="w-28 px-4 py-3 font-medium" scope="col">
+                <th className="w-24 px-3 py-3 font-medium" scope="col">
                   販売形式
                 </th>
-                <th className="w-24 px-4 py-3 font-medium" scope="col">
+                <th className="w-36 px-3 py-3 font-medium" scope="col">
+                  参考卸価格帯
+                </th>
+                <th className="w-28 px-3 py-3 font-medium" scope="col">
+                  MOQ（最低発注数量）
+                </th>
+                <th className="w-24 px-3 py-3 font-medium" scope="col">
                   応募件数
                 </th>
-                <th className="w-24 px-4 py-3 font-medium" scope="col">
+                <th className="w-24 px-3 py-3 font-medium" scope="col">
                   状態
                 </th>
-                <th className="w-44 px-4 py-3 font-medium" scope="col">
+                <th className="w-40 px-3 py-3 font-medium" scope="col">
                   操作
                 </th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((item) => {
-                // FORBIDDEN: item.applicationCount / item.hasDeal
                 const applicationCount = apiMeta
                   ? (apiMeta[item.id]?.applicationCount ?? 0)
                   : null;
@@ -364,11 +404,13 @@ export function CaseList({
                     data-has-deal={
                       apiMeta ? (hasDeal ? "1" : "0") : undefined
                     }
+                    data-price-band={displayPriceBand(item.priceBand)}
+                    data-moq={displayMoq(item.minOrder)}
                   >
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-teal">
+                    <td className="px-3 py-3 font-mono text-xs font-medium text-teal">
                       {sku || "—"}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">
                       <Link
                         href={`/cases/${item.id}`}
                         prefetch={false}
@@ -377,15 +419,19 @@ export function CaseList({
                         {item.productName}
                       </Link>
                     </td>
-                    <td className="px-4 py-3">{item.category}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">{item.category}</td>
+                    <td className="px-3 py-3">
                       {targetCountryLabel(item.targetCountry)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">
                       {salesFormatLabel(item.salesFormat)}
                     </td>
+                    <td className="px-3 py-3 font-medium text-navy">
+                      {displayPriceBand(item.priceBand)}
+                    </td>
+                    <td className="px-3 py-3">{displayMoq(item.minOrder)}</td>
                     <td
-                      className="px-4 py-3"
+                      className="px-3 py-3"
                       data-application-count={
                         applicationCount === null
                           ? undefined
@@ -397,7 +443,7 @@ export function CaseList({
                         ? "…"
                         : `${applicationCount}件`}
                     </td>
-                    <td className="px-4 py-3" data-status={status}>
+                    <td className="px-3 py-3" data-status={status}>
                       {status === "成約済み" ? (
                         <span className="font-medium text-red-600">
                           {status}
@@ -408,7 +454,7 @@ export function CaseList({
                         <span className="text-navy">{status}</span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-3 py-3">
                       <div className="flex flex-wrap items-center gap-3">
                         <Link
                           href={`/cases/${item.id}`}

@@ -54,7 +54,7 @@ export function AdminOutboundThreadForms({ outboundEmailId }: Props) {
       setError(result.error);
       return;
     }
-    setSuccess("先方からの返信をスレッドに記録しました。");
+    setSuccess("先方からの返信を受信箱・スレッドに記録しました。");
     setProspectBody("");
     router.refresh();
   }
@@ -68,7 +68,10 @@ export function AdminOutboundThreadForms({ outboundEmailId }: Props) {
         onSubmit={sendAdminReply}
         className="space-y-4 rounded-lg border border-border bg-surface p-5"
       >
-        <h3 className="font-medium text-navy">運営から追加返信（メール送信）</h3>
+        <h3 className="font-medium text-navy">このスレッドに返信</h3>
+        <p className="text-xs text-muted">
+          同じ宛先へメール送信し、スレッドに時系列で追加されます。
+        </p>
         <TextArea
           label="本文"
           name="adminBody"
@@ -86,9 +89,10 @@ export function AdminOutboundThreadForms({ outboundEmailId }: Props) {
         onSubmit={logProspect}
         className="space-y-4 rounded-lg border border-dashed border-border bg-cream/40 p-5"
       >
-        <h3 className="font-medium text-navy">先方返信の記録</h3>
+        <h3 className="font-medium text-navy">先方返信の手動記録</h3>
         <p className="text-xs text-muted">
-          メール受信（Webhook）連携前は、受け取った返信内容をここに手動記録できます。
+          Resend 受信Webhook未設定時用。届いた返信を貼ると受信箱に反映し状態を
+          replied にします。
         </p>
         <TextArea
           label="先方メッセージ"
@@ -98,8 +102,12 @@ export function AdminOutboundThreadForms({ outboundEmailId }: Props) {
           required
           rows={5}
         />
-        <Button type="submit" variant="outline" disabled={loading === "prospect"}>
-          {loading === "prospect" ? "保存中..." : "スレッドに記録"}
+        <Button
+          type="submit"
+          variant="outline"
+          disabled={loading === "prospect"}
+        >
+          {loading === "prospect" ? "保存中..." : "受信箱・スレッドに記録"}
         </Button>
       </form>
     </div>

@@ -4,13 +4,15 @@ type ProductCaseImageProps = {
   src?: string | null;
   alt?: string;
   /**
-   * - detail: real image up to 400px; NULL → text-only empty state
-   * - thumb: list/admin thumbnail (or text empty)
-   * - card: card media when image exists; NULL → text empty
+   * - detail: real image up to 400px; NULL → text-only empty state (unless usePlaceholder)
+   * - thumb: list/admin thumbnail
+   * - card: card media
    */
   size?: "detail" | "thumb" | "card" | "tiny";
   className?: string;
   imageClassName?: string;
+  /** When true and src is empty, show /product-placeholder.svg */
+  usePlaceholder?: boolean;
 };
 
 const EMPTY_FRAME: Record<NonNullable<ProductCaseImageProps["size"]>, string> =
@@ -31,8 +33,9 @@ const IMAGE_FRAME: Record<NonNullable<ProductCaseImageProps["size"]>, string> =
 
 /**
  * Product image display.
- * NULL product_image_url → text-only empty state (no SVG / icon placeholder).
- * Real URL → sized frame; detail max 400px.
+ * Real URL → sized frame.
+ * Empty + usePlaceholder → placeholder SVG.
+ * Empty otherwise → text-only empty state.
  */
 export function ProductCaseImage({
   src,
@@ -40,10 +43,12 @@ export function ProductCaseImage({
   size = "thumb",
   className = "",
   imageClassName = "object-cover",
+  usePlaceholder = false,
 }: ProductCaseImageProps) {
   const url = src?.trim() || null;
+  const displayUrl = url || (usePlaceholder ? PRODUCT_IMAGE_PLACEHOLDER : null);
 
-  if (!url) {
+  if (!displayUrl) {
     return (
       <span
         className={[
@@ -74,8 +79,8 @@ export function ProductCaseImage({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={url}
-        alt={alt}
+        src={displayUrl}
+        alt={url ? alt : "商品画像未登録"}
         className={["h-full w-full", imageClassName].join(" ")}
       />
     </span>

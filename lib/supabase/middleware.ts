@@ -19,6 +19,8 @@ function isSupabaseConfigured() {
  */
 export async function updateSession(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
+  // Expose pathname to Server Components (e.g. admin layout login next=).
+  requestHeaders.set("x-pathname", request.nextUrl.pathname);
   // Dev-only UI check on the same path (no redirect to another page).
   if (
     process.env.NODE_ENV === "development" &&

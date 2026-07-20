@@ -12,8 +12,20 @@ const adminNav = [
   { href: "/admin/cases", label: "商品審査" },
   { href: "/admin/users", label: "ユーザー管理" },
   { href: "/admin/negotiations", label: "交渉一覧" },
+  { href: "/admin/inquiries", label: "お問い合わせ" },
   { href: "/deals", label: "成約一覧" },
 ] as const;
+
+function safeNextPath(pathname: string | null): string {
+  if (
+    pathname &&
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("//")
+  ) {
+    return pathname;
+  }
+  return "/admin";
+}
 
 export default async function AdminLayout({
   children,
@@ -26,11 +38,12 @@ export default async function AdminLayout({
     hdrs.get("x-bb-admin-ui-probe") === "1";
 
   // Always resolve admin via auth.getUser() → profiles.id = auth.uid()
+  // Single auth gate for ALL /admin/* pages (including /admin/inquiries).
   const diagnosis = await diagnoseAdminAccess();
 
   if (!diagnosis.ok && !uiProbe) {
     const params = new URLSearchParams({
-      next: "/admin",
+      next: safeNextPath(hdrs.get("x-pathname")),
       error: diagnosis.code,
     });
     if (diagnosis.role) params.set("role", diagnosis.role);

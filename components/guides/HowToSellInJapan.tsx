@@ -155,12 +155,12 @@ const copy = {
   en: {
     eyebrow: "USA → Japan Import Guide",
     title: "How to Sell in Japan",
-    lead: "A clear path for overseas manufacturers—from product registration to shipping and selling with Japanese partners. Understand the flow in about five minutes.",
+    lead: "A clear path for overseas product suppliers—from product registration to shipping and selling with Japanese partners. Understand the flow in about five minutes.",
     introTitle: "New to selling in Japan?",
     introBody: "Don't worry. This guide explains everything in simple steps.",
     step1Title: "The journey",
     step1Nodes: [
-      "USA Manufacturer",
+      "USA Product Supplier",
       "Register Product",
       "BrandBridge",
       "Japanese Sales Partner",
@@ -179,8 +179,12 @@ const copy = {
     step3Title: "Who does what?",
     roles: [
       {
-        title: "Manufacturer",
-        items: ["Register product", "Provide quotation", "Ship products"],
+        title: "Product Supplier",
+        items: [
+          "Register product",
+          "Present quotation and deal terms",
+          "Ship products",
+        ],
       },
       {
         title: "Japanese Partner",
@@ -197,7 +201,7 @@ const copy = {
     carriers: ["FedEx", "UPS", "DHL", "EMS"],
     step5Title: "Payments",
     step5Body:
-      "Partners pay manufacturers directly. Choose the method that fits both sides.",
+      "Partners pay product suppliers directly. Choose the method that fits both sides.",
     payments: ["Wire Transfer", "Wise", "PayPal", "Stripe"],
     step6Title: "Import procedure",
     step6Body:
@@ -282,12 +286,12 @@ const copy = {
   ja: {
     eyebrow: "USA → 日本 輸入ガイド",
     title: "日本で販売する方法",
-    lead: "海外メーカーが商品登録から、日本の販売パートナーとの出荷・販売までを把握できるガイドです。初心者でも約5分で流れがわかります。",
+    lead: "海外の商品提供企業が商品登録から、日本の販売パートナーとの出荷・販売までを把握できるガイドです。初心者でも約5分で流れがわかります。",
     introTitle: "日本販売は初めてですか？",
     introBody: "大丈夫です。このガイドで流れをかんたんに説明します。",
     step1Title: "全体の流れ",
     step1Nodes: [
-      "海外メーカー",
+      "海外の商品提供企業",
       "商品登録",
       "BrandBridge",
       "日本の販売パートナー",
@@ -306,8 +310,8 @@ const copy = {
     step3Title: "役割分担",
     roles: [
       {
-        title: "メーカー",
-        items: ["商品登録", "見積・条件提示", "商品の出荷"],
+        title: "商品提供企業",
+        items: ["商品を登録", "見積・取引条件を提示", "商品の発送"],
       },
       {
         title: "日本のパートナー",
@@ -324,7 +328,7 @@ const copy = {
     carriers: ["FedEx", "UPS", "DHL", "EMS"],
     step5Title: "支払い",
     step5Body:
-      "パートナーからメーカーへ直接支払いが行われます。双方に合う方法を選べます。",
+      "パートナーから商品提供企業へ直接支払いが行われます。双方に合う方法を選べます。",
     payments: ["銀行送金", "Wise", "PayPal", "Stripe"],
     step6Title: "輸入手続き",
     step6Body:
@@ -539,7 +543,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
           />
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3 md:gap-4">
             <FlowNode
-              label={locale === "en" ? "Manufacturer" : "メーカー"}
+              label={locale === "en" ? "Product Supplier" : "商品提供企業"}
             />
             <Arrow />
             <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
@@ -576,7 +580,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
             />
             <Arrow />
             <FlowNode
-              label={locale === "en" ? "Manufacturer" : "メーカー"}
+              label={locale === "en" ? "Product Supplier" : "商品提供企業"}
             />
           </div>
           <div className="mt-10 flex flex-wrap justify-center gap-3">

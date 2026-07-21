@@ -85,6 +85,28 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              New to selling in Japan?
+            </h2>
+            <p className="mt-3 leading-relaxed text-muted">
+              Learn how to connect with Japanese sales partners and start
+              selling.
+            </p>
+            <div className="mt-6">
+              <Button
+                href="/en/how-to-sell-in-japan"
+                className="w-full sm:w-auto"
+              >
+                Learn How to Sell in Japan
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">

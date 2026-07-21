@@ -26,6 +26,7 @@ const ja = {
   ],
   supportLinks: [
     { href: "/contact", label: "お問い合わせ" },
+    { href: "/how-to-sell-in-japan", label: "日本で販売する方法" },
     { href: "/company", label: "運営会社情報" },
     { href: "/terms", label: "利用規約" },
     { href: "/privacy", label: "プライバシーポリシー" },
@@ -42,11 +43,11 @@ const en = {
     { href: "/en/cases", label: "Product Listings" },
     { href: "/en/register/maker", label: "Register as Product Supplier" },
     { href: "/en/register/partner", label: "Partner Registration" },
-    { href: "/en/how-to-sell-in-japan", label: "How to Sell in Japan" },
     { href: "/en/login", label: "Login" },
   ],
   supportLinks: [
     { href: "/en/contact", label: "Contact" },
+    { href: "/en/how-to-sell-in-japan", label: "How to Sell in Japan" },
     { href: "/company", label: "Company" },
     { href: "/terms", label: "Terms of Use" },
     { href: "/privacy", label: "Privacy Policy" },

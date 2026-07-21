@@ -231,6 +231,24 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <div className="max-w-2xl rounded-xl border border-border bg-cream/40 p-6 md:p-8">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              はじめて海外商品を扱う方へ
+            </h2>
+            <p className="mt-3 leading-relaxed text-muted">
+              海外ブランドとの取引方法を初心者向けに図解で解説しています。
+            </p>
+            <div className="mt-6">
+              <Button href="/how-to-sell-in-japan" className="w-full sm:w-auto">
+                日本で販売する方法を見る
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 2. Beta meaning */}
       <section
         id="early-access"

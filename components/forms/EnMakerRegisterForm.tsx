@@ -72,7 +72,7 @@ export function EnMakerRegisterForm() {
         user.user_metadata?.registration_locale === "en";
 
       if (profile?.onboarding_completed === true && profile.role === "maker") {
-        router.replace("/en/maker/dashboard");
+        router.replace("/en/products");
         return;
       }
 
@@ -195,7 +195,7 @@ export function EnMakerRegisterForm() {
           <li>3. Start matching with sales partners</li>
         </ol>
         <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-          <Button href="/login?next=/en/maker/setup" className="w-full sm:w-auto">
+          <Button href="/en/login?next=/en/maker/setup" className="w-full sm:w-auto">
             Go to login
           </Button>
           <Button href="/en" variant="outline" className="w-full sm:w-auto">
@@ -216,6 +216,7 @@ export function EnMakerRegisterForm() {
         intentRole="maker"
         nextPath={SETUP_PATH}
         label="Continue with Google"
+        locale="en"
       />
       <div className="flex items-center gap-3 text-xs text-muted">
         <span className="h-px flex-1 bg-navy/15" />

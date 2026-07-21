@@ -75,13 +75,16 @@ function displayPriceBandEn(value: string | null | undefined): string {
   if (t === PRICE_BAND_QUOTE_REQUIRED || t === "見積条件あり") {
     return "Quote required";
   }
-  return t;
+  return t
+    .replace(/以上/g, "+")
+    .replace(/〜/g, "–")
+    .replace(/～/g, "–");
 }
 
 function displayMoqEn(value: string | null | undefined): string {
   const t = displayMoq(value);
   if (t === "応相談") return "Negotiable";
-  return t;
+  return t.replace(/以上/g, "+").replace(/〜/g, "–").replace(/～/g, "–");
 }
 
 function statusLabelEn(input: {

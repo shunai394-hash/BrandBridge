@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LanguageSwitch } from "@/components/layout/LanguageSwitch";
+import { NavResourcesMenu } from "@/components/layout/NavResourcesMenu";
 import { signOutAction } from "@/lib/actions";
 import type { UserRole } from "@/lib/types";
 
@@ -16,12 +16,8 @@ type HeaderNavProps = {
   negoPath: string | null;
   negoTotal: number;
   negoUnread: number;
-  /** Server-detected /en route (x-pathname). */
+  /** SSR hint from middleware x-pathname (first paint only). */
   serverIsEnglish?: boolean;
-  /** Always render English labels (app/en/layout). */
-  forceEnglish?: boolean;
-  /** Root header: render nothing on /en/* so en layout owns the nav. */
-  hideOnEnglishRoutes?: boolean;
 };
 
 function isEnglishPath(pathname: string | null | undefined): boolean {
@@ -29,12 +25,28 @@ function isEnglishPath(pathname: string | null | undefined): boolean {
   return pathname === "/en" || pathname.startsWith("/en/");
 }
 
+/**
+ * Live route locale. Prefer client pathname; fall back to window, then SSR hint.
+ * No useState — soft-nav must not keep a stale Japanese label set.
+ */
+function useIsEnglishRoute(serverIsEnglish: boolean): boolean {
+  const pathname = usePathname() ?? "";
+  if (isEnglishPath(pathname)) return true;
+  if (typeof window !== "undefined" && isEnglishPath(window.location.pathname)) {
+    return true;
+  }
+  // First SSR paint for /en/* when usePathname is not yet available
+  if (!pathname) return serverIsEnglish;
+  return false;
+}
+
 function usesHardNav(href: string): boolean {
   return (
     href === "/cases" ||
     href === "/en/cases" ||
     href === "/maker/cases/new" ||
-    href === "/en/maker/setup"
+    href === "/en/maker/setup" ||
+    href === "/en/products"
   );
 }
 
@@ -43,8 +55,8 @@ function guestLinks(en: boolean) {
     return [
       { href: "/en/cases", label: "Product Listings" },
       { href: "/en/register/maker", label: "Register as Product Supplier" },
-      { href: "/register/partner", label: "Partner Registration" },
-      { href: "/login?next=/en/maker/setup", label: "Login" },
+      { href: "/en/register/partner", label: "Partner Registration" },
+      { href: "/en/login?next=/en/maker/setup", label: "Login" },
     ];
   }
   return [
@@ -67,9 +79,9 @@ function userLinks(
       return [
         { href: "/admin", label: "Admin" },
         { href: "/en/cases", label: "Product Listings" },
-        { href: "/deals", label: "Deals" },
-        { href: "/favorites", label: "Favorites" },
-        { href: "/profile/edit", label: "My Profile" },
+        { href: "/en/deals", label: "Deals" },
+        { href: "/en/favorites", label: "Favorites" },
+        { href: "/en/profile", label: "My Profile" },
       ];
     }
     return [
@@ -96,10 +108,10 @@ function userLinks(
   const links = en
     ? [
         { href: "/en/cases", label: "Product Listings" },
-        { href: negoPath, label: negoLabel },
-        { href: "/deals", label: "Deals" },
-        { href: "/favorites", label: "Favorites" },
-        { href: "/profile/edit", label: "My Profile" },
+        { href: "/en/negotiations", label: negoLabel },
+        { href: "/en/deals", label: "Deals" },
+        { href: "/en/favorites", label: "Favorites" },
+        { href: "/en/profile", label: "My Profile" },
       ]
     : [
         { href: "/cases", label: "商品一覧" },
@@ -111,7 +123,7 @@ function userLinks(
 
   if (user.role === "maker") {
     if (en) {
-      links.push({ href: "/en/maker/dashboard", label: "My Products" });
+      links.push({ href: "/en/products", label: "My Products" });
       links.push({ href: "/en/maker/setup", label: "Register Product" });
     } else {
       links.push({ href: "/maker/cases", label: "マイ商品" });
@@ -121,45 +133,14 @@ function userLinks(
   return links;
 }
 
-function resolveIsEnglish(
-  pathname: string,
-  serverIsEnglish: boolean,
-  forceEnglish: boolean,
-): boolean {
-  if (forceEnglish) return true;
-  if (isEnglishPath(pathname)) return true;
-  if (typeof window !== "undefined" && isEnglishPath(window.location.pathname)) {
-    return true;
-  }
-  if (!pathname || pathname === "/") {
-    return serverIsEnglish;
-  }
-  return false;
-}
-
 export function HeaderNav({
   user,
   negoPath,
   negoTotal,
   negoUnread,
   serverIsEnglish = false,
-  forceEnglish = false,
-  hideOnEnglishRoutes = false,
 }: HeaderNavProps) {
-  const pathname = usePathname() ?? "";
-  const [en, setEn] = useState(() =>
-    resolveIsEnglish(pathname, serverIsEnglish, forceEnglish),
-  );
-
-  useLayoutEffect(() => {
-    setEn(resolveIsEnglish(pathname, serverIsEnglish, forceEnglish));
-  }, [pathname, serverIsEnglish, forceEnglish]);
-
-  // Root header must not show on /en/* — app/en/layout owns the English nav.
-  if (hideOnEnglishRoutes && en) {
-    return null;
-  }
-
+  const en = useIsEnglishRoute(serverIsEnglish);
   const links = user
     ? userLinks(user, en, negoPath ?? "/negotiations", negoTotal, negoUnread)
     : guestLinks(en);
@@ -170,8 +151,8 @@ export function HeaderNav({
   return (
     <header
       className="sticky top-0 z-50 border-b border-white/10 bg-navy-deep/90 text-white backdrop-blur-md"
+      data-component="HeaderNav"
       data-nav-locale={en ? "en" : "ja"}
-      data-header-mode={forceEnglish ? "en-only" : "default"}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5">
         <Link
@@ -185,6 +166,7 @@ export function HeaderNav({
           className="hidden items-center gap-6 text-sm md:flex"
           aria-label={en ? "Main" : "メイン"}
         >
+          <NavResourcesMenu locale={en ? "en" : "ja"} />
           {links.map((item) =>
             usesHardNav(item.href) ? (
               <a
@@ -218,6 +200,13 @@ export function HeaderNav({
           <LanguageSwitch />
         </nav>
         <div className="flex items-center gap-3 md:hidden">
+          <Link
+            href={en ? "/en/how-to-sell-in-japan" : "/how-to-sell-in-japan"}
+            prefetch={false}
+            className="text-xs text-white/85 transition hover:text-white"
+          >
+            {en ? "Resources" : "ガイド"}
+          </Link>
           <LanguageSwitch />
           {user ? (
             <form action={signOutAction}>
@@ -230,7 +219,7 @@ export function HeaderNav({
             </form>
           ) : (
             <Link
-              href={en ? "/login?next=/en/maker/setup" : "/login"}
+              href={en ? "/en/login?next=/en/maker/setup" : "/login"}
               className="rounded-md bg-teal px-3.5 py-2 text-xs font-medium text-white transition hover:bg-teal-dark"
             >
               {loginLabel}

@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function EnglishMakerSetupPage() {
   const user = await getSessionUser();
   if (!user) {
-    redirect(`/login?next=${encodeURIComponent("/en/maker/setup")}`);
+    redirect(`/en/login?next=${encodeURIComponent("/en/maker/setup")}`);
   }
   if (user.role !== "maker") {
     redirect("/en/cases");

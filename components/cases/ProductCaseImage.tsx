@@ -13,6 +13,8 @@ type ProductCaseImageProps = {
   imageClassName?: string;
   /** When true and src is empty, show /product-placeholder.svg */
   usePlaceholder?: boolean;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: "ja" | "en";
 };
 
 const EMPTY_FRAME: Record<NonNullable<ProductCaseImageProps["size"]>, string> =
@@ -44,9 +46,15 @@ export function ProductCaseImage({
   className = "",
   imageClassName = "object-cover",
   usePlaceholder = false,
+  locale = "ja",
 }: ProductCaseImageProps) {
+  const en = locale === "en";
   const url = src?.trim() || null;
   const displayUrl = url || (usePlaceholder ? PRODUCT_IMAGE_PLACEHOLDER : null);
+  const label = en ? "Product image" : "商品画像";
+  const empty = en ? "Not set" : "未登録";
+  const ariaEmpty = en ? "Product image not set" : "商品画像 未登録";
+  const altEmpty = en ? "Product image not set" : "商品画像未登録";
 
   if (!displayUrl) {
     return (
@@ -59,10 +67,10 @@ export function ProductCaseImage({
           .filter(Boolean)
           .join(" ")}
         role="img"
-        aria-label="商品画像 未登録"
+        aria-label={ariaEmpty}
       >
-        <span className="text-xs font-medium text-navy">商品画像</span>
-        <span className="text-xs text-muted">未登録</span>
+        <span className="text-xs font-medium text-navy">{label}</span>
+        <span className="text-xs text-muted">{empty}</span>
       </span>
     );
   }
@@ -80,7 +88,7 @@ export function ProductCaseImage({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={displayUrl}
-        alt={url ? alt : "商品画像未登録"}
+        alt={url ? alt : altEmpty}
         className={["h-full w-full", imageClassName].join(" ")}
       />
     </span>

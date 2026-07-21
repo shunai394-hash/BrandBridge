@@ -19,7 +19,7 @@ export default async function EnglishMakerRegisterPage() {
     if (user.role === "maker") {
       const profile = await getProfileById(user.id);
       if (profile?.onboarding_completed) {
-        redirect("/en/maker/dashboard");
+        redirect("/en/products");
       }
       // English register success path: always continue to English maker setup.
       redirect("/en/maker/setup");
@@ -52,7 +52,7 @@ export default async function EnglishMakerRegisterPage() {
       <p className="mt-8 text-sm text-muted">
         Japanese registration:{" "}
         <Link href="/register/maker" className="text-teal hover:underline">
-          商品提供企業として登録
+          Japanese supplier registration
         </Link>
       </p>
     </div>

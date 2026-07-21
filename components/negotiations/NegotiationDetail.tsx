@@ -7,6 +7,13 @@ import { updatePipelineStatusAction } from "@/lib/actions";
 import { MessageThread } from "@/components/negotiations/MessageThread";
 import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
+import {
+  negotiationDetailCopy,
+  pipelineStatusLabelsEn,
+  toEnglishActionError,
+  type NegotiationUiLocale,
+} from "@/lib/negotiation-ui";
+import { enCategoryLabel } from "@/lib/en-case-catalog";
 import type {
   MessageView,
   NegotiationListItem,
@@ -22,18 +29,27 @@ type NegotiationDetailProps = {
   item: NegotiationListItem;
   user: SessionUser;
   messages: MessageView[];
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: NegotiationUiLocale;
 };
 
 export function NegotiationDetail({
   item,
   user,
   messages,
+  locale = "ja",
 }: NegotiationDetailProps) {
   const router = useRouter();
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [error, setError] = useState("");
+  const t = negotiationDetailCopy[locale];
+  const en = locale === "en";
 
-  const listHref = negotiationsListPath(user.role);
+  const listHref = en
+    ? "/en/negotiations"
+    : negotiationsListPath(user.role);
+  const caseHref = en ? `/en/cases/${item.caseId}` : `/cases/${item.caseId}`;
+  const dealsHref = en ? "/en/deals" : "/deals";
   const isClosed = item.applicationStatus === "rejected";
   const canReply = !isClosed;
   const canEditPipeline =
@@ -51,7 +67,7 @@ export function NegotiationDetail({
     });
     setPipelineLoading(false);
     if (result.error) {
-      setError(result.error);
+      setError(en ? toEnglishActionError(result.error) : result.error);
       return;
     }
     router.refresh();
@@ -65,15 +81,18 @@ export function NegotiationDetail({
         : item.partnerId;
 
   return (
-    <article className="animate-fade-up">
+    <article
+      className="animate-fade-up"
+      lang={en ? "en" : undefined}
+    >
       <div className="mb-6">
         <Link href={listHref} className="text-sm text-teal hover:underline">
-          ← 交渉一覧に戻る
+          {t.back}
         </Link>
       </div>
 
       <header className="rounded-lg border border-border bg-surface p-5 md:p-6">
-        <p className="text-xs font-medium tracking-wide text-muted">件名</p>
+        <p className="text-xs font-medium tracking-wide text-muted">{t.topic}</p>
         <h1 className="mt-1 font-[family-name:var(--font-shippori)] text-2xl leading-tight text-navy md:text-3xl">
           {item.topic}
         </h1>
@@ -81,7 +100,7 @@ export function NegotiationDetail({
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3 border-t border-border pt-4">
           <div className="min-w-0">
             <p className="font-mono text-sm font-medium text-teal">
-              商品コード（SKU）：{item.productSku?.trim() || "—"}
+              {t.sku} {item.productSku?.trim() || "—"}
             </p>
             <p className="mt-1 text-base font-medium text-navy">
               {item.productName}
@@ -89,13 +108,16 @@ export function NegotiationDetail({
             <p className="mt-0.5 text-sm text-muted">{item.caseTitle}</p>
           </div>
           {item.pipelineStatus ? (
-            <PipelineStatusBadge status={item.pipelineStatus} />
+            <PipelineStatusBadge
+              status={item.pipelineStatus}
+              locale={locale}
+            />
           ) : null}
         </div>
 
         <dl className="mt-5 space-y-2 border-t border-border pt-4 text-sm">
           <div className="grid gap-1 sm:grid-cols-[5.5rem_1fr]">
-            <dt className="text-muted">相手</dt>
+            <dt className="text-muted">{t.counterpart}</dt>
             <dd>
               <Link
                 href={`/profiles/${counterpartHref}`}
@@ -106,18 +128,27 @@ export function NegotiationDetail({
             </dd>
           </div>
           <div className="grid gap-1 sm:grid-cols-[5.5rem_1fr]">
-            <dt className="text-muted">商品</dt>
+            <dt className="text-muted">{t.product}</dt>
             <dd>
-              <Link
-                href={`/cases/${item.caseId}`}
-                className="text-teal hover:underline"
-              >
-                商品詳細を開く
+              <Link href={caseHref} className="text-teal hover:underline">
+                {t.openProduct}
               </Link>
               <span className="mx-2 text-muted">·</span>
               <span className="text-muted">
-                {item.caseCategory}
-                {item.caseRegion ? ` / ${item.caseRegion}` : ""}
+                {en
+                  ? enCategoryLabel(item.caseCategory)
+                  : item.caseCategory}
+                {item.caseRegion
+                  ? ` / ${
+                      en
+                        ? ({
+                            全国: "Japan (nationwide)",
+                            特定地域: "Specific regions in Japan",
+                            オンライン中心: "Online-focused",
+                          }[item.caseRegion] ?? item.caseRegion)
+                        : item.caseRegion
+                    }`
+                  : ""}
               </span>
             </dd>
           </div>
@@ -127,13 +158,11 @@ export function NegotiationDetail({
       {canEditPipeline ? (
         <section className="mt-6 rounded-lg border border-border bg-surface p-5">
           <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-            成約プロセス
+            {t.pipelineTitle}
           </h2>
-          <p className="mt-2 text-sm text-muted">
-            交渉中 → 条件確認 → 契約準備 → 成約 / 終了
-          </p>
+          <p className="mt-2 text-sm text-muted">{t.pipelineHint}</p>
           <label className="mt-4 flex flex-col gap-1.5 text-sm sm:max-w-xs">
-            <span className="font-medium text-navy">ステータス</span>
+            <span className="font-medium text-navy">{t.status}</span>
             <select
               className="rounded-md border border-border px-3 py-2"
               value={item.pipelineStatus ?? "in_negotiation"}
@@ -144,16 +173,16 @@ export function NegotiationDetail({
             >
               {pipelineStatusOptions.map((s) => (
                 <option key={s} value={s}>
-                  {pipelineStatusLabels[s]}
+                  {en ? pipelineStatusLabelsEn[s] : pipelineStatusLabels[s]}
                 </option>
               ))}
             </select>
           </label>
           {item.hasDeal ? (
             <p className="mt-3 text-sm text-teal">
-              成約レコードが登録されています。{" "}
-              <Link href="/deals" className="underline">
-                成約一覧
+              {t.hasDeal}{" "}
+              <Link href={dealsHref} className="underline">
+                {t.dealsLink}
               </Link>
             </p>
           ) : null}
@@ -164,7 +193,7 @@ export function NegotiationDetail({
 
       {isClosed ? (
         <p className="mt-6 rounded-lg border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-          この交渉は終了しています。メッセージのやり取りはできません。
+          {t.closedNotice}
         </p>
       ) : null}
 
@@ -175,6 +204,7 @@ export function NegotiationDetail({
         initialFrom={item.partnerCompanyName}
         initialAt={item.createdAt}
         canReply={canReply}
+        locale={locale}
       />
     </article>
   );

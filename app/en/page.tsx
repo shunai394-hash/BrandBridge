@@ -71,6 +71,17 @@ export default function EnglishHomePage() {
               Contact Us
             </Button>
           </div>
+          <div className="mt-6">
+            <p className="text-sm font-medium tracking-wide text-teal">
+              How does it work?
+            </p>
+            <Link
+              href="/en/how-to-sell-in-japan"
+              className="mt-1 inline-flex text-sm text-white/85 underline-offset-4 transition hover:text-white hover:underline"
+            >
+              Learn how to sell in Japan
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -149,7 +160,7 @@ export default function EnglishHomePage() {
           </div>
           <p className="mt-6 text-sm text-white/65">
             <Link href="/" className="underline-offset-2 hover:underline">
-              日本語トップへ戻る
+              Back to Japanese home
             </Link>
           </p>
         </div>

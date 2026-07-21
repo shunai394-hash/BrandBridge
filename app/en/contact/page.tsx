@@ -95,7 +95,7 @@ export default async function EnglishContactPage({
       <p className="mt-6 text-sm text-muted">
         Looking for the Japanese contact form?{" "}
         <Link href="/contact" className="text-teal hover:underline">
-          日本語のお問い合わせはこちら
+          Japanese contact form
         </Link>
       </p>
     </div>

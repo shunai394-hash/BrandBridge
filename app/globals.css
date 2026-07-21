@@ -88,3 +88,82 @@ a {
 .delay-3 {
   animation-delay: 0.36s;
 }
+
+@keyframes guide-pulse-arrow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+}
+
+.guide-arrow {
+  animation: guide-pulse-arrow 1.6s ease-in-out infinite;
+}
+
+.guide-flow-enter > * {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.guide-flow-enter.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.55s ease,
+    transform 0.55s ease;
+}
+
+.guide-flow-enter.is-visible > *:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.guide-flow-enter.is-visible > *:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.guide-flow-enter.is-visible > *:nth-child(3) {
+  transition-delay: 0.25s;
+}
+.guide-flow-enter.is-visible > *:nth-child(4) {
+  transition-delay: 0.35s;
+}
+.guide-flow-enter.is-visible > *:nth-child(5) {
+  transition-delay: 0.45s;
+}
+.guide-flow-enter.is-visible > *:nth-child(6) {
+  transition-delay: 0.55s;
+}
+.guide-flow-enter.is-visible > *:nth-child(7) {
+  transition-delay: 0.65s;
+}
+.guide-flow-enter.is-visible > *:nth-child(8) {
+  transition-delay: 0.75s;
+}
+.guide-flow-enter.is-visible > *:nth-child(9) {
+  transition-delay: 0.85s;
+}
+
+@keyframes guide-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.guide-marquee-track {
+  animation: guide-marquee 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-marquee-track {
+    animation: none;
+  }
+  .guide-arrow {
+    animation: none;
+  }
+}

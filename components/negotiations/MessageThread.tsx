@@ -1,4 +1,8 @@
 import { MessageForm } from "@/components/negotiations/MessageForm";
+import {
+  negotiationDetailCopy,
+  type NegotiationUiLocale,
+} from "@/lib/negotiation-ui";
 import type { MessageView } from "@/lib/types";
 
 type MessageThreadProps = {
@@ -8,10 +12,12 @@ type MessageThreadProps = {
   initialFrom?: string;
   initialAt?: string;
   canReply: boolean;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: NegotiationUiLocale;
 };
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("ja-JP", {
+function formatDateTime(value: string, locale: NegotiationUiLocale) {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "ja-JP", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -34,20 +40,25 @@ export function MessageThread({
   initialFrom,
   initialAt,
   canReply,
+  locale = "ja",
 }: MessageThreadProps) {
+  const t = negotiationDetailCopy[locale];
+
   return (
-    <section className="mt-8">
-      <h2 className="text-xl text-navy">スレッド</h2>
+    <section className="mt-8" lang={locale === "en" ? "en" : undefined}>
+      <h2 className="text-xl text-navy">{t.thread}</h2>
 
       <div className="mt-4 space-y-3">
         {initialMessage ? (
           <article className="rounded-lg border border-border bg-surface p-4">
             <p className="text-xs text-muted">
-              From: {initialFrom || "パートナー"}
+              From: {initialFrom || t.partnerFallback}
             </p>
 
             {initialAt ? (
-              <p className="text-xs text-muted">{formatDateTime(initialAt)}</p>
+              <p className="text-xs text-muted">
+                {formatDateTime(initialAt, locale)}
+              </p>
             ) : null}
 
             <p className="mt-3 whitespace-pre-wrap">{initialMessage}</p>
@@ -64,15 +75,15 @@ export function MessageThread({
               data-testid="negotiation-message"
             >
               <p className="text-xs text-muted">
-                From: {message.isMine ? "あなた" : message.senderName}
+                From: {message.isMine ? t.you : message.senderName}
               </p>
               <p className="text-xs text-muted">
-                {formatDateTime(message.createdAt)}
+                {formatDateTime(message.createdAt, locale)}
               </p>
 
               {message.topic?.trim() ? (
                 <p className="mt-3 text-sm font-semibold text-navy">
-                  件名: {message.topic.trim()}
+                  {t.subjectPrefix} {message.topic.trim()}
                 </p>
               ) : null}
 
@@ -87,7 +98,9 @@ export function MessageThread({
                   className="mt-3 rounded-md border border-teal/25 bg-teal/[0.06] px-3 py-2.5"
                   data-testid="message-attachment"
                 >
-                  <p className="text-sm font-medium text-navy">📎 添付</p>
+                  <p className="text-sm font-medium text-navy">
+                    {t.attachment}
+                  </p>
                   {message.attachment.url ? (
                     <a
                       href={message.attachment.url}
@@ -115,9 +128,9 @@ export function MessageThread({
 
       {canReply ? (
         <div className="mt-6 rounded-lg border border-border bg-surface p-4 md:p-5">
-          <h3 className="text-sm font-medium text-navy">返信</h3>
+          <h3 className="text-sm font-medium text-navy">{t.reply}</h3>
           <div className="mt-3">
-            <MessageForm negotiationId={negotiationId} />
+            <MessageForm negotiationId={negotiationId} locale={locale} />
           </div>
         </div>
       ) : null}

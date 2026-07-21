@@ -4,9 +4,16 @@ import { FormEvent, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sendMessageAction } from "@/lib/actions";
 import { uploadNegotiationAttachment } from "@/lib/negotiation-attachment-upload";
+import {
+  messageFormCopy,
+  toEnglishActionError,
+  type NegotiationUiLocale,
+} from "@/lib/negotiation-ui";
 
 type MessageFormProps = {
   negotiationId: string;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: NegotiationUiLocale;
 };
 
 const TOPIC_MAX = 120;
@@ -23,12 +30,17 @@ function formatBytes(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function MessageForm({ negotiationId }: MessageFormProps) {
+export function MessageForm({
+  negotiationId,
+  locale = "ja",
+}: MessageFormProps) {
   const router = useRouter();
   const topicId = useId();
   const bodyId = useId();
   const fileId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
+  const t = messageFormCopy[locale];
+  const en = locale === "en";
 
   const [topic, setTopic] = useState("");
   const [body, setBody] = useState("");
@@ -45,17 +57,17 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
 
     const trimmedTopic = topic.trim();
     if (!trimmedTopic) {
-      setError("件名を入力してください");
+      setError(t.errTopicRequired);
       return;
     }
     if (trimmedTopic.length > TOPIC_MAX) {
-      setError(`件名は${TOPIC_MAX}文字以内にしてください`);
+      setError(t.errTopicMax(TOPIC_MAX));
       return;
     }
 
     const text = body.trim();
     if (!text && !file) {
-      setError("メッセージまたは添付ファイルを入力してください");
+      setError(t.errBodyOrFile);
       return;
     }
 
@@ -71,7 +83,9 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
         );
 
         if (!uploaded.ok) {
-          setError(uploaded.error);
+          setError(
+            en ? toEnglishActionError(uploaded.error) : uploaded.error,
+          );
           return;
         }
 
@@ -91,7 +105,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
       });
 
       if (result?.error) {
-        setError(result.error);
+        setError(en ? toEnglishActionError(result.error) : result.error);
         return;
       }
 
@@ -107,8 +121,8 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
     } catch (err) {
       setError(
         err instanceof Error
-          ? `送信に失敗しました: ${err.message}`
-          : "送信に失敗しました",
+          ? t.errSendFailedWith(err.message)
+          : t.errSendFailed,
       );
     } finally {
       setLoading(false);
@@ -122,13 +136,15 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
       className="space-y-0"
       data-testid="negotiation-reply-form"
       data-form-version="reply-email-v1"
+      lang={en ? "en" : undefined}
     >
       <div className="grid grid-cols-1 gap-1.5 border-b border-border pb-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3">
         <label
           htmlFor={topicId}
           className="pt-2.5 text-sm font-semibold text-navy"
         >
-          件名 <span className="text-red-600">*</span>
+          {t.topic}{" "}
+          <span className="text-red-600">{t.topicRequired}</span>
         </label>
         <div>
           <input
@@ -139,13 +155,13 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
             maxLength={TOPIC_MAX}
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="例: 条件について回答いたします"
+            placeholder={t.topicPlaceholder}
             className={fieldClass}
             autoComplete="off"
             data-testid="negotiation-reply-topic"
           />
           <p className="mt-1 text-xs text-muted">
-            必須 · {topic.trim().length}/{TOPIC_MAX}
+            {t.topicHint(topic.trim().length, TOPIC_MAX)}
           </p>
         </div>
       </div>
@@ -155,7 +171,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
           htmlFor={bodyId}
           className="pt-2.5 text-sm font-semibold text-navy"
         >
-          本文
+          {t.body}
         </label>
         <div>
           <textarea
@@ -164,7 +180,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
             rows={4}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="返信内容を入力"
+            placeholder={t.bodyPlaceholder}
             className={`${fieldClass} min-h-[7rem] resize-y`}
             data-testid="negotiation-reply-body"
           />
@@ -176,7 +192,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
           htmlFor={fileId}
           className="pt-1 text-sm font-semibold text-navy"
         >
-          添付
+          {t.attachment}
         </label>
         <div>
           <input
@@ -189,23 +205,21 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
             data-testid="negotiation-reply-file"
             className="block w-full max-w-md cursor-pointer text-sm text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-teal/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-teal hover:file:bg-teal/15"
           />
-          <p className="mt-1.5 text-xs text-muted">
-            PDF / 画像 / Word / Excel / テキスト / CSV（最大10MB）
-          </p>
+          <p className="mt-1.5 text-xs text-muted">{t.attachmentHint}</p>
 
           {file ? (
             <div
               className="mt-2 rounded-md border border-teal/25 bg-teal/[0.06] px-3 py-2.5"
               data-testid="negotiation-reply-file-ready"
             >
-              <p className="text-sm font-medium text-navy">📎 添付済み</p>
+              <p className="text-sm font-medium text-navy">{t.attached}</p>
               <p className="mt-0.5 break-all text-sm text-foreground">
                 {file.name}
               </p>
               <p className="mt-0.5 text-xs text-muted">
                 {formatBytes(file.size)}
               </p>
-              <p className="mt-1 text-xs text-teal">アップロード準備完了</p>
+              <p className="mt-1 text-xs text-teal">{t.uploadReady}</p>
               <button
                 type="button"
                 className="mt-1.5 cursor-pointer text-xs text-muted underline hover:text-navy"
@@ -214,7 +228,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
                   if (fileRef.current) fileRef.current.value = "";
                 }}
               >
-                添付をやめる
+                {t.removeAttachment}
               </button>
             </div>
           ) : null}
@@ -233,7 +247,7 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
           data-testid="negotiation-reply-submit"
           className={submitButtonClass}
         >
-          {loading ? "送信中..." : "返信する"}
+          {loading ? t.sending : t.send}
         </button>
       </div>
     </form>

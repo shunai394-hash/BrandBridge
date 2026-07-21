@@ -130,7 +130,7 @@ export default async function EnglishCasesPage({
       <p className="mt-12 text-sm text-muted">
         Looking for the Japanese list?{" "}
         <Link href="/cases" className="text-teal hover:underline">
-          商品一覧
+          Japanese product listings
         </Link>
       </p>
     </div>

@@ -210,6 +210,15 @@ export default async function HomePage() {
             </Button>
           </div>
 
+          <p className="animate-fade-up delay-3 mt-6">
+            <Link
+              href="/how-to-sell-in-japan"
+              className="text-sm text-teal underline-offset-4 transition hover:text-white hover:underline"
+            >
+              日本で販売する流れを見る
+            </Link>
+          </p>
+
           <p className="animate-fade-in delay-3 mt-5 text-sm text-white/65">
             登録前に商品イメージだけ見ることもできます ·{" "}
             <Link

@@ -11,35 +11,50 @@ type GoogleAuthButtonProps = {
   intentRole?: "maker" | "partner";
   label?: string;
   className?: string;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: "ja" | "en";
 };
 
-function mapGoogleOAuthError(message: string): string {
+function mapGoogleOAuthError(message: string, en: boolean): string {
   const lower = message.toLowerCase();
   if (
     lower.includes("provider is not enabled") ||
     lower.includes("unsupported provider") ||
     lower.includes("validation_failed")
   ) {
-    return "Googleログインが有効になっていません。Supabase の Authentication → Providers → Google を有効にし、Client ID / Secret を設定してください。";
+    return en
+      ? "Google sign-in is not enabled. Enable Google under Supabase Authentication → Providers and set Client ID / Secret."
+      : "Googleログインが有効になっていません。Supabase の Authentication → Providers → Google を有効にし、Client ID / Secret を設定してください。";
   }
   if (lower.includes("redirect") && lower.includes("uri")) {
-    return "リダイレクトURLが許可されていません。Supabase の Redirect URLs にサイトの /auth/callback を追加してください。";
+    return en
+      ? "Redirect URL is not allowed. Add this site’s /auth/callback to Supabase Redirect URLs."
+      : "リダイレクトURLが許可されていません。Supabase の Redirect URLs にサイトの /auth/callback を追加してください。";
   }
   if (lower.includes("popup") || lower.includes("blocked")) {
-    return "ポップアップがブロックされました。ブラウザの設定を確認してから再度お試しください。";
+    return en
+      ? "Popup was blocked. Check your browser settings and try again."
+      : "ポップアップがブロックされました。ブラウザの設定を確認してから再度お試しください。";
   }
   if (lower.includes("network") || lower.includes("fetch")) {
-    return "ネットワークエラーが発生しました。接続を確認して再度お試しください。";
+    return en
+      ? "Network error. Check your connection and try again."
+      : "ネットワークエラーが発生しました。接続を確認して再度お試しください。";
   }
-  return `Googleログインに失敗しました: ${message}`;
+  return en
+    ? `Google sign-in failed: ${message}`
+    : `Googleログインに失敗しました: ${message}`;
 }
 
 export function GoogleAuthButton({
   nextPath,
   intentRole,
-  label = "Googleで続ける",
+  label,
   className = "",
+  locale = "ja",
 }: GoogleAuthButtonProps) {
+  const en = locale === "en";
+  const buttonLabel = label ?? (en ? "Continue with Google" : "Googleで続ける");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,13 +83,13 @@ export function GoogleAuthButton({
       });
 
       if (oauthError) {
-        setError(mapGoogleOAuthError(oauthError.message));
+        setError(mapGoogleOAuthError(oauthError.message, en));
         setLoading(false);
       }
       // On success the browser navigates away to Google
     } catch (err) {
-      const message = err instanceof Error ? err.message : "不明なエラー";
-      setError(mapGoogleOAuthError(message));
+      const message = err instanceof Error ? err.message : en ? "Unknown error" : "不明なエラー";
+      setError(mapGoogleOAuthError(message, en));
       setLoading(false);
     }
   }
@@ -88,7 +103,11 @@ export function GoogleAuthButton({
         className="flex w-full items-center justify-center gap-2.5 rounded-md border border-border bg-white px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-cream disabled:opacity-60"
       >
         <GoogleIcon />
-        {loading ? "Googleへ移動中..." : label}
+        {loading
+          ? en
+            ? "Redirecting to Google…"
+            : "Googleへ移動中..."
+          : buttonLabel}
       </button>
       {error ? (
         <p className="mt-2 text-left text-sm text-red-600" role="alert">

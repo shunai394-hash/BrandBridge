@@ -157,6 +157,7 @@ export function ProductImageField({
               alt={en ? "Product image preview" : "商品画像プレビュー"}
               size="detail"
               className="!max-w-[200px]"
+              locale={en ? "en" : "ja"}
             />
           ) : (
             <div className="flex h-32 w-32 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-surface px-3 text-center">

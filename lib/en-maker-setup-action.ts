@@ -22,7 +22,7 @@ function lineValue(block: string, label: string): string | null {
 /**
  * English-only maker setup save.
  * Reuses the same profile + createCase path as completeMakerSetupAction,
- * but redirects to /en/maker/dashboard (does not modify the Japanese action).
+ * but redirects to /en/products (does not modify the Japanese action).
  */
 export async function completeEnMakerSetupAction(
   input: Omit<MakerRegistrationInput, "email" | "password">,
@@ -33,7 +33,7 @@ export async function completeEnMakerSetupAction(
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") {
-      redirect(`/login?next=${encodeURIComponent("/en/maker/setup")}`);
+      redirect(`/en/login?next=${encodeURIComponent("/en/maker/setup")}`);
     }
     if (message === "ACCOUNT_INACTIVE") {
       return { error: "Your account has been suspended." };
@@ -122,9 +122,10 @@ export async function completeEnMakerSetupAction(
     .update({ onboarding_completed: true })
     .eq("id", maker.id);
 
-  const completePath = `/en/maker/dashboard?created=${encodeURIComponent(result.id)}`;
+  const completePath = `/en/products?created=${encodeURIComponent(result.id)}`;
 
   revalidatePath("/en/maker/setup");
+  revalidatePath("/en/products");
   revalidatePath("/en/maker/dashboard");
   revalidatePath("/en/cases");
   revalidatePath("/cases");

@@ -45,7 +45,10 @@ function displayWholesaleEn(value: string | null | undefined): string {
   if (t === PRICE_BAND_QUOTE_REQUIRED || t === "見積条件あり") {
     return "Quote required";
   }
-  return t;
+  return t
+    .replace(/以上/g, "+")
+    .replace(/〜/g, "–")
+    .replace(/～/g, "–");
 }
 
 /** Prefer shipFrom / embedded English line; else target country label. */
@@ -135,6 +138,7 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
           images={caseItem.images}
           productImageUrl={caseItem.productImageUrl}
           alt={en.productName}
+          locale="en"
         />
 
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">

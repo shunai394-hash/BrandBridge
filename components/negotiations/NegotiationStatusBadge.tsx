@@ -3,6 +3,11 @@ import {
   applicationStatusLabels,
   pipelineStatusLabels,
 } from "@/lib/types";
+import {
+  applicationStatusLabelsEn,
+  pipelineStatusLabelsEn,
+  type NegotiationUiLocale,
+} from "@/lib/negotiation-ui";
 
 const appStyles: Record<ApplicationStatus, string> = {
   pending: "bg-amber-50 text-amber-800 border-amber-200",
@@ -20,29 +25,45 @@ const pipelineStyles: Record<PipelineStatus, string> = {
 
 type NegotiationStatusBadgeProps = {
   status: ApplicationStatus;
+  locale?: NegotiationUiLocale;
 };
 
-export function NegotiationStatusBadge({ status }: NegotiationStatusBadgeProps) {
+export function NegotiationStatusBadge({
+  status,
+  locale = "ja",
+}: NegotiationStatusBadgeProps) {
+  const label =
+    locale === "en"
+      ? applicationStatusLabelsEn[status]
+      : applicationStatusLabels[status];
   return (
     <span
       className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${appStyles[status]}`}
     >
-      {applicationStatusLabels[status]}
+      {label}
     </span>
   );
 }
 
 type PipelineStatusBadgeProps = {
   status: PipelineStatus | null;
+  locale?: NegotiationUiLocale;
 };
 
-export function PipelineStatusBadge({ status }: PipelineStatusBadgeProps) {
+export function PipelineStatusBadge({
+  status,
+  locale = "ja",
+}: PipelineStatusBadgeProps) {
   if (!status) return null;
+  const label =
+    locale === "en"
+      ? pipelineStatusLabelsEn[status]
+      : pipelineStatusLabels[status];
   return (
     <span
       className={`inline-flex rounded border px-2 py-0.5 text-xs font-medium ${pipelineStyles[status]}`}
     >
-      {pipelineStatusLabels[status]}
+      {label}
     </span>
   );
 }

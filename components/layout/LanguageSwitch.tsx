@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+/**
+ * Hard navigation between JA/EN so the shared root Header remounts
+ * with the correct label set (soft-nav was leaving Japanese labels on /en).
+ */
 export function LanguageSwitch() {
   const pathname = usePathname() ?? "/";
   const isEnglish = pathname === "/en" || pathname.startsWith("/en/");
@@ -13,9 +16,9 @@ export function LanguageSwitch() {
       aria-label="Language"
     >
       {isEnglish ? (
-        <Link href="/" className="text-white/70 transition hover:text-white">
-          日本語
-        </Link>
+        <a href="/" className="text-white/70 transition hover:text-white">
+          Japanese
+        </a>
       ) : (
         <span className="text-white" aria-current="page">
           日本語
@@ -29,9 +32,9 @@ export function LanguageSwitch() {
           English
         </span>
       ) : (
-        <Link href="/en" className="text-white/70 transition hover:text-white">
+        <a href="/en" className="text-white/70 transition hover:text-white">
           English
-        </Link>
+        </a>
       )}
     </div>
   );

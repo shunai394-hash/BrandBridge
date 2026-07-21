@@ -2,21 +2,25 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
 import {
-  PipelineStatusBadge,
-} from "@/components/negotiations/NegotiationStatusBadge";
+  negotiationInboxCopy,
+  type NegotiationUiLocale,
+} from "@/lib/negotiation-ui";
 import type { NegotiationListItem } from "@/lib/types";
 
 type FilterKey = "all" | "unread" | "active" | "closed";
 
 type NegotiationInboxProps = {
   items: NegotiationListItem[];
-  /** Role-specific empty hint */
+  /** Role-specific empty hint (overrides locale default when set) */
   emptyHint?: string;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: NegotiationUiLocale;
 };
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat("ja-JP", {
+function formatDateTime(value: string, locale: NegotiationUiLocale) {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "ja-JP", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -26,8 +30,11 @@ function formatDateTime(value: string) {
 
 export function NegotiationInbox({
   items,
-  emptyHint = "商品詳細から交渉を開始すると、ここに表示されます。",
+  emptyHint,
+  locale = "ja",
 }: NegotiationInboxProps) {
+  const t = negotiationInboxCopy[locale];
+  const resolvedEmptyHint = emptyHint ?? t.emptyHintMaker;
   const [filter, setFilter] = useState<FilterKey>("all");
 
   const unreadThreads = useMemo(
@@ -45,10 +52,10 @@ export function NegotiationInbox({
   );
 
   const filters: { key: FilterKey; label: string }[] = [
-    { key: "all", label: `すべて (${items.length})` },
-    { key: "unread", label: `未読 (${unreadThreads})` },
-    { key: "active", label: `交渉中 (${activeCount})` },
-    { key: "closed", label: `終了 (${closedCount})` },
+    { key: "all", label: `${t.filters.all} (${items.length})` },
+    { key: "unread", label: `${t.filters.unread} (${unreadThreads})` },
+    { key: "active", label: `${t.filters.active} (${activeCount})` },
+    { key: "closed", label: `${t.filters.closed} (${closedCount})` },
   ];
 
   const filtered = useMemo(() => {
@@ -63,7 +70,7 @@ export function NegotiationInbox({
   }, [items, filter]);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5" lang={locale === "en" ? "en" : undefined}>
       <div className="flex flex-wrap gap-2">
         {filters.map((item) => {
           const active = filter === item.key;
@@ -88,8 +95,8 @@ export function NegotiationInbox({
       {filtered.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-sm text-muted">
           {items.length === 0
-            ? `まだ交渉がありません。${emptyHint}`
-            : "該当する交渉がありません。"}
+            ? `${t.empty} ${resolvedEmptyHint}`
+            : t.emptyFiltered}
         </p>
       ) : (
         <ul className="overflow-hidden rounded-lg border border-border bg-surface">
@@ -101,7 +108,11 @@ export function NegotiationInbox({
                 className="border-b border-border last:border-0"
               >
                 <Link
-                  href={`/negotiations/${item.id}`}
+                  href={
+                    locale === "en"
+                      ? `/en/negotiations/${item.id}`
+                      : `/negotiations/${item.id}`
+                  }
                   className={[
                     "block px-4 py-3.5 transition hover:bg-cream/60 md:px-5",
                     hasUnread ? "bg-cream/35" : "",
@@ -130,22 +141,23 @@ export function NegotiationInbox({
                         <time className="shrink-0 text-xs text-muted">
                           {formatDateTime(
                             item.lastMessageAt ?? item.updatedAt,
+                            locale,
                           )}
                         </time>
                       </div>
                       <p className="mt-0.5 truncate text-xs text-muted">
                         <span className="font-mono text-teal">
-                          商品コード（SKU）：{item.productSku?.trim() || "—"}
+                          {t.sku}: {item.productSku?.trim() || "—"}
                         </span>
                         <span className="mx-1.5">·</span>
                         {item.productName}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted">
-                        相手: {item.counterpartName}
+                        {t.counterpart}: {item.counterpartName}
                         {hasUnread
-                          ? ` · 未読 ${item.unreadCount}件`
+                          ? ` · ${t.unreadCount(item.unreadCount ?? 0)}`
                           : item.messageCount
-                            ? ` · メッセージ ${item.messageCount}件`
+                            ? ` · ${t.messageCount(item.messageCount)}`
                             : ""}
                       </p>
                       <p
@@ -156,18 +168,21 @@ export function NegotiationInbox({
                             : "text-muted",
                         ].join(" ")}
                       >
-                        {item.lastMessagePreview || "（メッセージなし）"}
+                        {item.lastMessagePreview || t.noMessage}
                       </p>
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {item.applicationStatus === "rejected" ? (
                           <span className="inline-flex rounded border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">
-                            終了
+                            {t.statusClosed}
                           </span>
                         ) : item.pipelineStatus ? (
-                          <PipelineStatusBadge status={item.pipelineStatus} />
+                          <PipelineStatusBadge
+                            status={item.pipelineStatus}
+                            locale={locale}
+                          />
                         ) : (
                           <span className="inline-flex rounded border border-teal/25 bg-teal/10 px-2 py-0.5 text-xs font-medium text-teal-dark">
-                            交渉中
+                            {t.statusActive}
                           </span>
                         )}
                       </div>

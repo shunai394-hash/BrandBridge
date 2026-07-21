@@ -61,6 +61,7 @@ export function EnCaseCard({ caseItem, index = 0 }: EnCaseCardProps) {
             src={caseItem.productImageUrl}
             alt={en.productName}
             size="card"
+            locale="en"
           />
         </div>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">

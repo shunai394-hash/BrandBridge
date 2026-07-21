@@ -5,6 +5,8 @@ import { FormEvent, useState } from "react";
 import { updateProfileAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
+import { enProfileCopy } from "@/lib/en-account-ui";
+import { toEnglishActionError } from "@/lib/negotiation-ui";
 import {
   employeeRanges,
   type Profile,
@@ -14,6 +16,8 @@ import {
 
 type ProfileEditFormProps = {
   profile: Profile;
+  /** Default Japanese for /profile/edit — English for /en/profile. */
+  locale?: "ja" | "en";
 };
 
 function toForm(profile: Profile): ProfileUpdateInput {
@@ -40,11 +44,52 @@ function toForm(profile: Profile): ProfileUpdateInput {
   };
 }
 
-export function ProfileEditForm({ profile }: ProfileEditFormProps) {
+const ja = {
+  emailLocked: "メールアドレス（変更不可）",
+  companyName: "会社名 / 屋号",
+  contactName: "担当者名",
+  description: "会社紹介",
+  websiteUrl: "公式サイト URL",
+  headquarters: "本社所在地",
+  foundedYear: "設立年",
+  foundedYearPlaceholder: "例: 2015",
+  employeeRange: "従業員規模",
+  unset: "未設定",
+  corporateNumber: "法人番号（任意）",
+  achievements: "実績",
+  achievementsPlaceholder: "取り扱い実績・導入事例などを記載",
+  industry: "業種",
+  productOverview: "取り扱い商品概要",
+  displayName: "表示名",
+  entityType: "個人 / 法人",
+  individual: "個人",
+  corporate: "法人",
+  salesGenres: "販売ジャンル",
+  salesGenresPlaceholder: "例: 美容 / 食品",
+  salesChannel: "販売チャネル",
+  salesChannelPlaceholder: "例: Amazon / 実店舗",
+  area: "対応エリア",
+  preferredCategories: "希望商品カテゴリ",
+  preferredDealTypes: "希望取引条件",
+  preferredDealTypesPlaceholder: "例: 卸販売 / 代理店",
+  strength: "強み",
+  save: "保存する",
+  saving: "保存中...",
+  viewPublic: "公開ページを見る",
+  publicNotePrefix: "",
+  publicNoteLink: "公開プロフィール",
+  publicNoteSuffix: "ではメールアドレスは表示されません。",
+} as const;
+
+export function ProfileEditForm({
+  profile,
+  locale = "ja",
+}: ProfileEditFormProps) {
   const [form, setForm] = useState<ProfileUpdateInput>(() => toForm(profile));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const role: UserRole = profile.role;
+  const t = locale === "en" ? enProfileCopy : ja;
 
   function update<K extends keyof ProfileUpdateInput>(
     key: K,
@@ -60,7 +105,9 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
     const result = await updateProfileAction(form);
     setLoading(false);
     if (result?.error) {
-      setError(result.error);
+      setError(
+        locale === "en" ? toEnglishActionError(result.error) : result.error,
+      );
     }
   }
 
@@ -68,34 +115,38 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
     "w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20";
 
   return (
-    <form onSubmit={handleSubmit} className="animate-fade-up space-y-5">
+    <form
+      onSubmit={handleSubmit}
+      className="animate-fade-up space-y-5"
+      lang={locale === "en" ? "en" : undefined}
+    >
       <p className="text-sm text-muted">
-        メールアドレス（変更不可）: {profile.email}
+        {t.emailLocked}: {profile.email}
       </p>
 
       <Input
-        label="会社名 / 屋号"
+        label={t.companyName}
         name="companyName"
         required
         value={form.companyName}
         onChange={(e) => update("companyName", e.target.value)}
       />
       <Input
-        label="担当者名"
+        label={t.contactName}
         name="contactName"
         required
         value={form.contactName}
         onChange={(e) => update("contactName", e.target.value)}
       />
       <TextArea
-        label="会社紹介"
+        label={t.description}
         name="description"
         rows={4}
         value={form.description}
         onChange={(e) => update("description", e.target.value)}
       />
       <Input
-        label="公式サイト URL"
+        label={t.websiteUrl}
         name="websiteUrl"
         type="url"
         placeholder="https://"
@@ -103,27 +154,27 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         onChange={(e) => update("websiteUrl", e.target.value)}
       />
       <Input
-        label="本社所在地"
+        label={t.headquarters}
         name="headquarters"
         value={form.headquarters}
         onChange={(e) => update("headquarters", e.target.value)}
       />
       <Input
-        label="設立年"
+        label={t.foundedYear}
         name="foundedYear"
         inputMode="numeric"
-        placeholder="例: 2015"
+        placeholder={t.foundedYearPlaceholder}
         value={form.foundedYear}
         onChange={(e) => update("foundedYear", e.target.value)}
       />
       <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-medium text-navy">従業員規模</span>
+        <span className="font-medium text-navy">{t.employeeRange}</span>
         <select
           className={selectClass}
           value={form.employeeRange}
           onChange={(e) => update("employeeRange", e.target.value)}
         >
-          <option value="">未設定</option>
+          <option value="">{t.unset}</option>
           {employeeRanges.map((range) => (
             <option key={range} value={range}>
               {range}
@@ -132,16 +183,16 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
         </select>
       </label>
       <Input
-        label="法人番号（任意）"
+        label={t.corporateNumber}
         name="corporateNumber"
         value={form.corporateNumber}
         onChange={(e) => update("corporateNumber", e.target.value)}
       />
       <TextArea
-        label="実績"
+        label={t.achievements}
         name="achievements"
         rows={4}
-        placeholder="取り扱い実績・導入事例などを記載"
+        placeholder={t.achievementsPlaceholder}
         value={form.achievements}
         onChange={(e) => update("achievements", e.target.value)}
       />
@@ -149,13 +200,13 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
       {role === "maker" ? (
         <>
           <Input
-            label="業種"
+            label={t.industry}
             name="industry"
             value={form.industry}
             onChange={(e) => update("industry", e.target.value)}
           />
           <TextArea
-            label="取り扱い商品概要"
+            label={t.productOverview}
             name="productOverview"
             value={form.productOverview}
             onChange={(e) => update("productOverview", e.target.value)}
@@ -164,13 +215,13 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
       ) : (
         <>
           <Input
-            label="表示名"
+            label={t.displayName}
             name="displayName"
             value={form.displayName}
             onChange={(e) => update("displayName", e.target.value)}
           />
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-navy">個人 / 法人</span>
+            <span className="font-medium text-navy">{t.entityType}</span>
             <select
               className={selectClass}
               value={form.entityType}
@@ -181,46 +232,46 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
                 )
               }
             >
-              <option value="">未設定</option>
-              <option value="individual">個人</option>
-              <option value="corporate">法人</option>
+              <option value="">{t.unset}</option>
+              <option value="individual">{t.individual}</option>
+              <option value="corporate">{t.corporate}</option>
             </select>
           </label>
           <Input
-            label="販売ジャンル"
+            label={t.salesGenres}
             name="salesGenres"
-            placeholder="例: 美容 / 食品"
+            placeholder={t.salesGenresPlaceholder}
             value={form.salesGenres}
             onChange={(e) => update("salesGenres", e.target.value)}
           />
           <Input
-            label="販売チャネル"
+            label={t.salesChannel}
             name="salesChannel"
-            placeholder="例: Amazon / 実店舗"
+            placeholder={t.salesChannelPlaceholder}
             value={form.salesChannel}
             onChange={(e) => update("salesChannel", e.target.value)}
           />
           <Input
-            label="対応エリア"
+            label={t.area}
             name="area"
             value={form.area}
             onChange={(e) => update("area", e.target.value)}
           />
           <Input
-            label="希望商品カテゴリ"
+            label={t.preferredCategories}
             name="preferredCategories"
             value={form.preferredCategories}
             onChange={(e) => update("preferredCategories", e.target.value)}
           />
           <Input
-            label="希望取引条件"
+            label={t.preferredDealTypes}
             name="preferredDealTypes"
-            placeholder="例: 卸販売 / 代理店"
+            placeholder={t.preferredDealTypesPlaceholder}
             value={form.preferredDealTypes}
             onChange={(e) => update("preferredDealTypes", e.target.value)}
           />
           <TextArea
-            label="強み"
+            label={t.strength}
             name="strength"
             value={form.strength}
             onChange={(e) => update("strength", e.target.value)}
@@ -232,18 +283,25 @@ export function ProfileEditForm({ profile }: ProfileEditFormProps) {
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" disabled={loading}>
-          {loading ? "保存中..." : "保存する"}
+          {loading ? t.saving : t.save}
         </Button>
         <Button href={`/profiles/${profile.id}`} variant="outline">
-          公開ページを見る
+          {t.viewPublic}
         </Button>
       </div>
-      <p className="text-xs text-muted">
-        <Link href={`/profiles/${profile.id}`} className="text-teal hover:underline">
-          公開プロフィール
-        </Link>
-        ではメールアドレスは表示されません。
-      </p>
+      {locale === "en" ? (
+        <p className="text-xs text-muted">{enProfileCopy.publicNote}</p>
+      ) : (
+        <p className="text-xs text-muted">
+          <Link
+            href={`/profiles/${profile.id}`}
+            className="text-teal hover:underline"
+          >
+            {ja.publicNoteLink}
+          </Link>
+          {ja.publicNoteSuffix}
+        </p>
+      )}
     </form>
   );
 }

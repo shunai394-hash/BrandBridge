@@ -8,6 +8,7 @@ import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
 import { completeEnMakerSetupAction } from "@/lib/en-maker-setup-action";
 import { ENGLISH_CASE_MARKER } from "@/lib/inquiry-language";
+import { toEnglishActionError } from "@/lib/negotiation-ui";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -278,7 +279,7 @@ export function EnMakerSetupForm({
       } = await supabase.auth.getUser();
       if (!user || user.id !== userId) {
         setError("Your session is invalid. Please sign in again.");
-        router.push(`/login?next=${encodeURIComponent(SETUP_PATH)}`);
+        router.push(`/en/login?next=${encodeURIComponent(SETUP_PATH)}`);
         return;
       }
 
@@ -286,7 +287,7 @@ export function EnMakerSetupForm({
       const result = await completeEnMakerSetupAction(payload);
 
       if (result?.error) {
-        setError(result.error);
+        setError(toEnglishActionError(result.error));
       }
       // Success: English action redirects to /en/cases?created=…
     } catch (err) {

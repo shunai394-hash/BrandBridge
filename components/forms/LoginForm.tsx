@@ -16,23 +16,27 @@ type LoginFormProps = {
   nextPath?: string;
   initialError?: string;
   initialKind?: "login" | "permission" | "";
+  /** Default Japanese (/login). English UI for /en/login only. */
+  locale?: "ja" | "en";
 };
 
-function authEnvOk(): { ok: true } | { ok: false; message: string } {
+function authEnvOk(en: boolean): { ok: true } | { ok: false; message: string } {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   if (!url || !key) {
     return {
       ok: false,
-      message:
-        "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY が未設定です",
+      message: en
+        ? "Supabase URL / anon key is not configured."
+        : "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY が未設定です",
     };
   }
   if (url.includes("placeholder") || key.includes("placeholder")) {
     return {
       ok: false,
-      message:
-        "Supabase が placeholder 設定のままです。本番の URL / anon key を設定してください",
+      message: en
+        ? "Supabase is still using placeholder credentials. Set the production URL and anon key."
+        : "Supabase が placeholder 設定のままです。本番の URL / anon key を設定してください",
     };
   }
   return { ok: true };
@@ -42,7 +46,9 @@ export function LoginForm({
   nextPath,
   initialError,
   initialKind,
+  locale = "ja",
 }: LoginFormProps) {
+  const en = locale === "en";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +68,7 @@ export function LoginForm({
     setLoading(true);
 
     try {
-      const env = authEnvOk();
+      const env = authEnvOk(en);
       if (!env.ok) {
         console.log("[LOGIN] error message=" + env.message + " status=env");
         setError(env.message);
@@ -91,7 +97,11 @@ export function LoginForm({
 
       if (!signInData.user) {
         console.log("[LOGIN] error message=no user returned status=");
-        setError("Auth error: user が返ってきませんでした");
+        setError(
+          en
+            ? "Auth error: no user returned"
+            : "Auth error: user が返ってきませんでした",
+        );
         return;
       }
 
@@ -99,7 +109,9 @@ export function LoginForm({
       if (!signInData.user.email_confirmed_at) {
         await supabase.auth.signOut();
         setError(
-          "メール認証が完了していません。確認メールのリンクを開いてからログインしてください。",
+          en
+            ? "Email not confirmed yet. Open the link in your confirmation email, then sign in."
+            : "メール認証が完了していません。確認メールのリンクを開いてからログインしてください。",
         );
         return;
       }
@@ -143,7 +155,9 @@ export function LoginForm({
           `[LOGIN] error message=no profile status=profiles user.id=${authUserId}`,
         );
         setError(
-          `profiles error: user.id=${authUserId} に対応する profiles 行がありません`,
+          en
+            ? `profiles error: no profile row for user.id=${authUserId}`
+            : `profiles error: user.id=${authUserId} に対応する profiles 行がありません`,
         );
         return;
       }
@@ -153,7 +167,9 @@ export function LoginForm({
           `[LOGIN] error message=inactive status=permission user.id=${authUserId}`,
         );
         setError(
-          `role error: アカウント停止中 (is_active=false) / user.id=${authUserId} / role=${profile.role}`,
+          en
+            ? `role error: account suspended (is_active=false) / user.id=${authUserId} / role=${profile.role}`
+            : `role error: アカウント停止中 (is_active=false) / user.id=${authUserId} / role=${profile.role}`,
         );
         return;
       }
@@ -166,16 +182,26 @@ export function LoginForm({
           `[LOGIN] error message=role insufficient status=permission role=${role}`,
         );
         setInfo(
-          [
-            "Auth login は成功しています。",
-            `user.id=${authUserId}`,
-            `profiles.role=${role}`,
-            "必要な role=admin",
-            `update public.profiles set role='admin', is_active=true where id='${authUserId}';`,
-          ].join("\n"),
+          en
+            ? [
+                "Auth login succeeded.",
+                `user.id=${authUserId}`,
+                `profiles.role=${role}`,
+                "Required role=admin",
+                `update public.profiles set role='admin', is_active=true where id='${authUserId}';`,
+              ].join("\n")
+            : [
+                "Auth login は成功しています。",
+                `user.id=${authUserId}`,
+                `profiles.role=${role}`,
+                "必要な role=admin",
+                `update public.profiles set role='admin', is_active=true where id='${authUserId}';`,
+              ].join("\n"),
         );
         setError(
-          `role error: 現在の role=${role}（Auth error ではありません）`,
+          en
+            ? `role error: current role=${role} (not an Auth error)`
+            : `role error: 現在の role=${role}（Auth error ではありません）`,
         );
         return;
       }
@@ -199,28 +225,39 @@ export function LoginForm({
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.log(`[LOGIN] error message=${message} status=exception`);
-      setError(`予期しないエラー: ${message}`);
+      setError(
+        en ? `Unexpected error: ${message}` : `予期しないエラー: ${message}`,
+      );
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="animate-fade-up space-y-5">
+    <div className="animate-fade-up space-y-5" lang={en ? "en" : undefined}>
       {isSafeAppPath(nextPath) && nextPath.startsWith("/admin") ? (
         <p className="rounded-md border border-teal/30 bg-cream px-3 py-2 text-xs text-muted">
-          管理画面ログインです。失敗理由は必ず赤文字で表示されます。
+          {en
+            ? "Admin login. Errors are shown in red."
+            : "管理画面ログインです。失敗理由は必ず赤文字で表示されます。"}
         </p>
       ) : null}
 
       <GoogleAuthButton
-        nextPath={isSafeAppPath(nextPath) ? nextPath : "/cases"}
-        label="Googleでログイン"
+        nextPath={
+          isSafeAppPath(nextPath)
+            ? nextPath
+            : en
+              ? "/en/cases"
+              : "/cases"
+        }
+        label={en ? "Continue with Google" : "Googleでログイン"}
+        locale={en ? "en" : "ja"}
       />
 
       <div className="flex items-center gap-3 text-xs text-muted">
         <span className="h-px flex-1 bg-navy/15" />
-        またはメール
+        {en ? "or email" : "またはメール"}
         <span className="h-px flex-1 bg-navy/15" />
       </div>
 
@@ -231,7 +268,7 @@ export function LoginForm({
         className="space-y-5"
       >
         <Input
-          label="メールアドレス"
+          label={en ? "Email" : "メールアドレス"}
           name="email"
           type="email"
           required
@@ -240,7 +277,7 @@ export function LoginForm({
           onChange={(e) => setEmail(e.target.value)}
         />
         <PasswordInput
-          label="パスワード"
+          label={en ? "Password" : "パスワード"}
           name="password"
           required
           autoComplete="current-password"
@@ -248,13 +285,19 @@ export function LoginForm({
           onChange={(e) => setPassword(e.target.value)}
         />
         <p className="text-right text-sm">
-          <Link href="/login/forgot" className="text-teal hover:underline">
-            パスワードをお忘れの方
-          </Link>
+          {en ? (
+            <Link href="/en/contact" className="text-teal hover:underline">
+              Need help signing in? Contact us
+            </Link>
+          ) : (
+            <Link href="/login/forgot" className="text-teal hover:underline">
+              パスワードをお忘れの方
+            </Link>
+          )}
         </p>
         {loading ? (
           <p className="text-sm text-muted">
-            ログイン処理中…（コンソールに [LOGIN] ログ）
+            {en ? "Signing in…" : "ログイン処理中…（コンソールに [LOGIN] ログ）"}
           </p>
         ) : null}
         {error ? (
@@ -274,19 +317,39 @@ export function LoginForm({
           </p>
         ) : null}
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "ログイン中..." : "ログイン"}
+          {loading
+            ? en
+              ? "Signing in..."
+              : "ログイン中..."
+            : en
+              ? "Login"
+              : "ログイン"}
         </Button>
       </form>
 
       <p className="text-center text-sm text-muted">
-        アカウントをお持ちでない方は{" "}
-        <Link href="/register/maker" className="text-teal hover:underline">
-          商品提供企業として登録
-        </Link>
-        {" / "}
-        <Link href="/register/partner" className="text-teal hover:underline">
-          パートナー登録
-        </Link>
+        {en ? (
+          <>
+            New here?{" "}
+            <Link
+              href="/en/register/maker"
+              className="text-teal hover:underline"
+            >
+              Register your product
+            </Link>
+          </>
+        ) : (
+          <>
+            アカウントをお持ちでない方は{" "}
+            <Link href="/register/maker" className="text-teal hover:underline">
+              商品提供企業として登録
+            </Link>
+            {" / "}
+            <Link href="/register/partner" className="text-teal hover:underline">
+              パートナー登録
+            </Link>
+          </>
+        )}
       </p>
     </div>
   );

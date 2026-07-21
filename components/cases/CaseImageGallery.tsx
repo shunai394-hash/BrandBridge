@@ -8,6 +8,8 @@ type CaseImageGalleryProps = {
   /** Legacy fallback when gallery empty */
   productImageUrl?: string | null;
   alt: string;
+  /** Default Japanese — Japanese routes unchanged. */
+  locale?: "ja" | "en";
 };
 
 /**
@@ -17,7 +19,9 @@ export function CaseImageGallery({
   images,
   productImageUrl,
   alt,
+  locale = "ja",
 }: CaseImageGalleryProps) {
+  const en = locale === "en";
   const list =
     images && images.length > 0
       ? images
@@ -36,16 +40,18 @@ export function CaseImageGallery({
 
   const [activeIndex, setActiveIndex] = useState(0);
   const active = list[Math.min(activeIndex, Math.max(list.length - 1, 0))];
+  const label = en ? "Product image" : "商品画像";
+  const empty = en ? "Not set" : "未登録";
 
   if (list.length === 0) {
     return (
       <div>
         <p className="mb-2 text-xs font-medium tracking-wide text-muted">
-          商品画像
+          {label}
         </p>
         <div className="flex min-h-[8rem] max-w-[400px] flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-cream px-4 py-8 text-center">
-          <p className="text-sm font-medium text-navy">商品画像</p>
-          <p className="text-sm text-muted">未登録</p>
+          <p className="text-sm font-medium text-navy">{label}</p>
+          <p className="text-sm text-muted">{empty}</p>
         </div>
       </div>
     );
@@ -54,7 +60,7 @@ export function CaseImageGallery({
   return (
     <div>
       <p className="mb-2 text-xs font-medium tracking-wide text-muted">
-        商品画像
+        {label}
       </p>
       <div className="overflow-hidden rounded-md border border-border bg-cream">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +84,11 @@ export function CaseImageGallery({
                     ? "border-teal"
                     : "border-transparent opacity-80 hover:opacity-100",
                 ].join(" ")}
-                aria-label={`画像 ${index + 1} を表示`}
+                aria-label={
+                  en
+                    ? `Show image ${index + 1}`
+                    : `画像 ${index + 1} を表示`
+                }
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

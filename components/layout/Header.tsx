@@ -9,32 +9,40 @@ function isEnglishPath(pathname: string | null | undefined): boolean {
   return pathname === "/en" || pathname.startsWith("/en/");
 }
 
-type HeaderMode = "default" | "en-only";
-
 /**
- * default: used by root layout — hides itself on /en/* (en layout owns nav)
- * en-only: used by app/en/layout — always English labels
+ * Sole site header (app/layout.tsx).
+ * Labels for /en/* are decided in HeaderNav from the live pathname.
  */
-export async function Header({ mode = "default" }: { mode?: HeaderMode }) {
+export async function Header() {
   const pathname = (await headers()).get("x-pathname");
   const serverIsEnglish = isEnglishPath(pathname);
   const user = await getSessionUser();
 
-  const negoPath = user ? negotiationsListPath(user.role) : null;
-  const counts =
-    user && user.role !== "admin"
-      ? await countNegotiationsForUser(user)
-      : { total: 0, unread: 0 };
+  if (!user) {
+    return (
+      <HeaderNav
+        user={null}
+        negoPath={null}
+        negoTotal={0}
+        negoUnread={0}
+        serverIsEnglish={serverIsEnglish}
+      />
+    );
+  }
+
+  const negoPath = negotiationsListPath(user.role);
+  const { total, unread } =
+    user.role === "admin"
+      ? { total: 0, unread: 0 }
+      : await countNegotiationsForUser(user);
 
   return (
     <HeaderNav
-      user={user ? { role: user.role } : null}
+      user={{ role: user.role }}
       negoPath={negoPath}
-      negoTotal={counts.total}
-      negoUnread={counts.unread}
+      negoTotal={total}
+      negoUnread={unread}
       serverIsEnglish={serverIsEnglish}
-      forceEnglish={mode === "en-only"}
-      hideOnEnglishRoutes={mode === "default"}
     />
   );
 }

@@ -41,7 +41,15 @@ export function resolveRoleDestination(input: {
     return normalizeAdminPath(requestedNext);
   }
 
-  if (role === "maker" && !onboardingCompleted) return "/maker/setup";
+  if (role === "maker" && !onboardingCompleted) {
+    if (
+      isSafeAppPath(requestedNext) &&
+      requestedNext.startsWith("/en/maker/setup")
+    ) {
+      return "/en/maker/setup";
+    }
+    return "/maker/setup";
+  }
   if (role === "partner" && !onboardingCompleted) return "/partner/setup";
 
   if (isSafeAppPath(requestedNext)) {
@@ -50,6 +58,7 @@ export function resolveRoleDestination(input: {
       !onboardingCompleted &&
       (role === "maker" || role === "partner") &&
       !requestedNext.startsWith("/maker/setup") &&
+      !requestedNext.startsWith("/en/maker/setup") &&
       !requestedNext.startsWith("/partner/setup") &&
       !requestedNext.startsWith("/login/update-password")
     ) {

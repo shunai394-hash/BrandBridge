@@ -1,0 +1,212 @@
+import Link from "next/link";
+import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
+import { Button } from "@/components/ui/Button";
+import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
+import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display";
+import type { Case, SalesFormat, TargetCountry } from "@/lib/types";
+
+const SALES_FORMAT_EN: Record<SalesFormat, string> = {
+  wholesale: "Wholesale",
+  consignment: "Consignment",
+  agency: "Agency",
+  oem: "OEM / ODM",
+  ec: "E-commerce",
+  other: "Other",
+};
+
+const TARGET_MARKET_EN: Record<TargetCountry, string> = {
+  JP: "Japan",
+  US: "United States",
+  CN: "China",
+  ASEAN: "ASEAN",
+  EU: "Europe",
+  GLOBAL: "Global",
+  OTHER: "Other",
+};
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[11rem_1fr] sm:gap-4">
+      <dt className="text-sm font-medium text-muted">{label}</dt>
+      <dd className="whitespace-pre-wrap text-sm leading-relaxed text-navy">
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function displayMoqEn(value: string | null | undefined): string {
+  const t = value?.trim();
+  return t ? t : "Negotiable";
+}
+
+function displayWholesaleEn(value: string | null | undefined): string {
+  const t = displayPriceBand(value);
+  if (t === PRICE_BAND_QUOTE_REQUIRED || t === "見積条件あり") {
+    return "Quote required";
+  }
+  return t;
+}
+
+/** Prefer shipFrom / embedded English line; else target country label. */
+function countryOfOriginEn(caseItem: Case): string {
+  const fromShip = caseItem.shipFrom?.trim();
+  if (fromShip) return fromShip;
+
+  const blob = [caseItem.description, caseItem.offer, caseItem.summary]
+    .filter(Boolean)
+    .join("\n");
+  const m = blob.match(/Country of Origin:\s*(.+)/i);
+  if (m?.[1]?.trim()) return m[1].trim();
+
+  return (
+    TARGET_MARKET_EN[caseItem.targetCountry] ?? caseItem.targetCountry ?? "—"
+  );
+}
+
+/** Prefer MOQ column; else line embedded in offer/description. */
+function moqEn(caseItem: Case): string {
+  if (caseItem.minOrder?.trim()) return displayMoqEn(caseItem.minOrder);
+  const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
+    .filter(Boolean)
+    .join("\n");
+  const m = blob.match(/^MOQ:\s*(.+)$/im);
+  if (m?.[1]?.trim()) return m[1].trim();
+  return "Negotiable";
+}
+
+function wholesaleEn(caseItem: Case): string {
+  if (caseItem.priceBand?.trim()) {
+    return displayWholesaleEn(caseItem.priceBand);
+  }
+  const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
+    .filter(Boolean)
+    .join("\n");
+  const m = blob.match(/^Wholesale Price:\s*(.+)$/im);
+  if (m?.[1]?.trim()) return m[1].trim();
+  return displayWholesaleEn(null);
+}
+
+function exclusiveEn(caseItem: Case): string {
+  const blob = [caseItem.offer, caseItem.description].filter(Boolean).join("\n");
+  if (/Exclusive Availability:\s*Available/i.test(blob)) {
+    return "Exclusive available";
+  }
+  if (/Exclusive Availability:\s*Non-exclusive/i.test(blob)) {
+    return "Non-exclusive";
+  }
+  return caseItem.isExclusive ? "Exclusive available" : "Non-exclusive";
+}
+
+type EnCaseDetailProps = {
+  caseItem: Case;
+};
+
+export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
+  // Same negotiation entry as Japanese CaseDetail / CaseList (not /en/contact).
+  const negotiateHref = `/cases/${caseItem.id}/negotiation`;
+  const canStartNegotiation =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
+  const en = resolveEnCatalogDisplay({
+    id: caseItem.id,
+    sku: caseItem.sku,
+    productName: caseItem.productName,
+    category: caseItem.category,
+    summary: caseItem.summary,
+    description: caseItem.description,
+    productFeatures: caseItem.productFeatures,
+  });
+  const companyName = caseItem.makerName?.trim() || "—";
+
+  return (
+    <article className="animate-fade-up">
+      <div className="mb-6">
+        <Link href="/en/cases" className="text-sm text-teal hover:underline">
+          ← Back to products
+        </Link>
+      </div>
+
+      <p className="text-xs font-medium tracking-wider text-teal">
+        BrandBridge Product
+      </p>
+
+      <header className="mt-3 space-y-5">
+        <CaseImageGallery
+          images={caseItem.images}
+          productImageUrl={caseItem.productImageUrl}
+          alt={en.productName}
+        />
+
+        <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
+          {en.productName}
+        </h1>
+
+        <dl>
+          <InfoRow label="Product Name" value={en.productName} />
+          <InfoRow label="Company Name" value={companyName} />
+          <InfoRow
+            label="Country of Origin"
+            value={countryOfOriginEn(caseItem)}
+          />
+          <InfoRow label="Category" value={en.category} />
+          <InfoRow
+            label="Sales Format"
+            value={
+              SALES_FORMAT_EN[caseItem.salesFormat] ?? caseItem.salesFormat
+            }
+          />
+          <InfoRow label="MOQ" value={moqEn(caseItem)} />
+          <InfoRow
+            label="Wholesale Price Range"
+            value={wholesaleEn(caseItem)}
+          />
+          <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
+        </dl>
+      </header>
+
+      <section className="mt-8">
+        <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+          Product Description
+        </h2>
+        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+          {en.description}
+        </p>
+      </section>
+
+      {en.features ? (
+        <section className="mt-8">
+          <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+            Product features
+          </h2>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+            {en.features}
+          </p>
+        </section>
+      ) : null}
+
+      <section className="mt-10 border-t border-border pt-8">
+        <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+          Start a business discussion
+        </h2>
+        <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
+          Open a negotiation with the product supplier on BrandBridge—same flow
+          as the Japanese product detail page.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          {canStartNegotiation ? (
+            <Button href={negotiateHref} prefetch={false}>
+              Start Negotiation
+            </Button>
+          ) : (
+            <p className="text-sm text-muted">
+              This product is not open for negotiation right now.
+            </p>
+          )}
+          <Button href="/en/cases" variant="ghost">
+            Back to listings
+          </Button>
+        </div>
+      </section>
+    </article>
+  );
+}

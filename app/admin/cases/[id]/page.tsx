@@ -22,6 +22,7 @@ import {
   targetCountryLabel,
   reviewStatusLabels,
 } from "@/lib/types";
+import { caseLanguageLabel } from "@/lib/inquiry-language";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -41,6 +42,9 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
   const { id } = await params;
   const caseItem = await getCaseById(id);
   if (!caseItem) notFound();
+  const language = caseLanguageLabel(
+    `${caseItem.description}\n${caseItem.offer ?? ""}\n${caseItem.summary}`,
+  );
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12">
@@ -50,9 +54,20 @@ export default async function AdminCaseDetailPage({ params }: PageProps) {
       <p className="mt-4 font-mono text-sm font-medium text-teal">
         掲載番号 {caseItem.caseNumber}
       </p>
-      <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy">
-        {caseItem.title}
-      </h1>
+      <div className="mt-2 flex flex-wrap items-center gap-3">
+        <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy">
+          {caseItem.title}
+        </h1>
+        <span
+          className={
+            language === "English"
+              ? "rounded-md bg-navy/10 px-2.5 py-1 text-xs font-medium text-navy"
+              : "rounded-md bg-cream px-2.5 py-1 text-xs font-medium text-muted"
+          }
+        >
+          Language: {language}
+        </span>
+      </div>
       <p className="mt-2 text-sm text-muted">
         {caseItem.makerName} ・ {reviewStatusLabels[caseItem.reviewStatus]} ・{" "}
         {targetCountryLabel(caseItem.targetCountry)} ・{" "}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { StripeCheckoutButton } from "@/components/StripeCheckoutButton";
 
 export const metadata: Metadata = {
   title: "料金",
@@ -154,9 +155,7 @@ export default function PricingPage() {
               </p>
               <FeatureList items={growthFeatures} />
               <div className="mt-auto pt-7">
-                <Button href="/contact" className="w-full">
-                  お問い合わせ
-                </Button>
+                <StripeCheckoutButton />
               </div>
             </article>
 

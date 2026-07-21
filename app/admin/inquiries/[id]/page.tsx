@@ -9,6 +9,11 @@ import {
   inquiryReplyStatusLabel,
   listInquiryMessages,
 } from "@/lib/admin-inquiries";
+import {
+  extractInquiryProductId,
+  extractInquiryProductName,
+  inquiryLanguageLabel,
+} from "@/lib/inquiry-language";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -57,7 +62,13 @@ export default async function AdminInquiryDetailPage({ params }: PageProps) {
   ]);
   if (!item) notFound();
 
-  const defaultSubject = `Re: 【BrandBridge】お問い合わせへのご返信（${item.contactName}様）`;
+  const languageLabel = inquiryLanguageLabel(item.message);
+  const isEnglish = languageLabel === "English";
+  const productId = extractInquiryProductId(item.message);
+  const productName = extractInquiryProductName(item.message);
+  const defaultSubject = isEnglish
+    ? `Re: [BrandBridge] Response to your inquiry`
+    : `Re: 【BrandBridge】お問い合わせへのご返信（${item.contactName}様）`;
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12">
@@ -81,6 +92,20 @@ export default async function AdminInquiryDetailPage({ params }: PageProps) {
             {inquiryReplyStatusLabel(item.replyStatus)}
           </span>
         )}
+        <span
+          className={
+            isEnglish
+              ? "rounded-md bg-navy/10 px-2.5 py-1 text-xs font-medium text-navy"
+              : "rounded-md bg-cream px-2.5 py-1 text-xs font-medium text-muted"
+          }
+        >
+          Language: {languageLabel}
+        </span>
+        {productName || productId ? (
+          <span className="rounded-md bg-cream px-2.5 py-1 text-xs font-medium text-navy">
+            Product: {productName || productId}
+          </span>
+        ) : null}
       </div>
       <p className="mt-2 text-sm text-muted">{formatDate(item.createdAt)}</p>
 
@@ -89,6 +114,33 @@ export default async function AdminInquiryDetailPage({ params }: PageProps) {
           問い合わせ者情報
         </h2>
         <dl className="mt-3 space-y-4 rounded-lg border border-border bg-surface p-5 text-sm md:p-6">
+          <div className="grid gap-1 sm:grid-cols-[8rem_1fr] sm:gap-4">
+            <dt className="font-medium text-navy">Language</dt>
+            <dd className="text-muted">{languageLabel}</dd>
+          </div>
+          <div className="grid gap-1 sm:grid-cols-[8rem_1fr] sm:gap-4">
+            <dt className="font-medium text-navy">Product</dt>
+            <dd className="text-muted">
+              {productName || productId ? (
+                <div>
+                  {productName ? (
+                    <p className="font-medium text-navy">{productName}</p>
+                  ) : null}
+                  {productId ? (
+                    <Link
+                      href={`/en/cases/${productId}`}
+                      prefetch={false}
+                      className="font-mono text-sm text-teal hover:underline"
+                    >
+                      {productId}
+                    </Link>
+                  ) : null}
+                </div>
+              ) : (
+                "—"
+              )}
+            </dd>
+          </div>
           <div className="grid gap-1 sm:grid-cols-[8rem_1fr] sm:gap-4">
             <dt className="font-medium text-navy">会社名</dt>
             <dd className="text-muted">{item.companyName?.trim() || "—"}</dd>

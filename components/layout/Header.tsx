@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LanguageSwitch } from "@/components/layout/LanguageSwitch";
 import { signOutAction } from "@/lib/actions";
 import { getSessionUser } from "@/lib/auth";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
@@ -93,24 +94,28 @@ export async function Header() {
               </button>
             </form>
           ) : null}
+          <LanguageSwitch />
         </nav>
-        {user ? (
-          <form action={signOutAction} className="md:hidden">
-            <button
-              type="submit"
+        <div className="flex items-center gap-3 md:hidden">
+          <LanguageSwitch />
+          {user ? (
+            <form action={signOutAction}>
+              <button
+                type="submit"
+                className="rounded-md bg-teal px-3.5 py-2 text-xs font-medium text-white transition hover:bg-teal-dark"
+              >
+                ログアウト
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/login"
               className="rounded-md bg-teal px-3.5 py-2 text-xs font-medium text-white transition hover:bg-teal-dark"
             >
-              ログアウト
-            </button>
-          </form>
-        ) : (
-          <Link
-            href="/login"
-            className="rounded-md bg-teal px-3.5 py-2 text-xs font-medium text-white transition hover:bg-teal-dark md:hidden"
-          >
-            ログイン
-          </Link>
-        )}
+              ログイン
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -12,6 +12,7 @@ import {
   caseNumberHeaderClassName,
   formatCaseDate,
 } from "@/lib/case-display";
+import { caseLanguageLabel } from "@/lib/inquiry-language";
 import {
   reviewStatusLabels,
   targetCountryLabel,
@@ -106,6 +107,7 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                 <th className={caseNumberHeaderClassName()}>掲載番号</th>
                 <th className="px-4 py-3 font-medium">商品画像</th>
                 <th className="px-4 py-3 font-medium">商品名</th>
+                <th className="px-4 py-3 font-medium">Language</th>
                 <th className="px-4 py-3 font-medium">原産国</th>
                 <th className="px-4 py-3 font-medium">登録日</th>
                 <th className="px-4 py-3 font-medium">状態</th>
@@ -116,6 +118,7 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
               {items.map((item) => {
                 const busy = loadingId === item.id;
                 const canReview = item.reviewStatus === "pending_review";
+                const language = caseLanguageLabel(item.languageHint);
                 return (
                   <tr
                     key={item.id}
@@ -138,6 +141,17 @@ export function AdminCaseList({ items, currentFilter }: AdminCaseListProps) {
                       >
                         {item.productName}
                       </Link>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={
+                          language === "English"
+                            ? "inline-flex rounded-md bg-navy/10 px-2 py-0.5 text-xs font-medium text-navy"
+                            : "inline-flex rounded-md bg-cream px-2 py-0.5 text-xs font-medium text-muted"
+                        }
+                      >
+                        {language}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {item.targetCountry

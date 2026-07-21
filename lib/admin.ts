@@ -35,6 +35,8 @@ export type AdminCaseListItem = {
   status: string;
   createdAt: string;
   reviewNote: string | null;
+  /** Existing text fields used to detect English listings (no new column). */
+  languageHint: string;
 };
 
 export type AdminUserListItem = {
@@ -112,6 +114,9 @@ export async function listAdminCases(
       product_image_url,
       sales_format,
       target_country,
+      summary,
+      description,
+      offer,
       profiles!maker_id ( company_name )
     `;
   const selectPlain = `
@@ -127,7 +132,10 @@ export async function listAdminCases(
       product_name,
       product_image_url,
       sales_format,
-      target_country
+      target_country,
+      summary,
+      description,
+      offer
     `;
 
   let query = supabase
@@ -193,6 +201,13 @@ export async function listAdminCases(
       status: row.status as string,
       createdAt: row.created_at as string,
       reviewNote: (row.review_note as string | null) ?? null,
+      languageHint: [
+        row.summary,
+        row.description,
+        row.offer,
+      ]
+        .filter((v) => typeof v === "string" && v.trim())
+        .join("\n"),
     };
   });
 

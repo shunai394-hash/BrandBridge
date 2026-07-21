@@ -125,6 +125,7 @@ export async function GET(request: NextRequest) {
   }
 
   await applyIntentRoleIfNeeded(supabase, intentRole);
+  await stampEnRegistrationLocaleIfNeeded(supabase, requestedNext);
   const destination = await resolvePostAuthPath(supabase, requestedNext);
 
   return redirectWithSessionCookies(
@@ -237,6 +238,35 @@ async function applyIntentRoleIfNeeded(
   });
 }
 
+/** Persist EN maker locale so later logins keep English setup (no schema change). */
+async function stampEnRegistrationLocaleIfNeeded(
+  supabase: SupabaseClient,
+  requestedNext: string | null,
+) {
+  if (
+    requestedNext !== "/en/maker/setup" &&
+    requestedNext !== "/en/register/maker"
+  ) {
+    return;
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const meta = user.user_metadata ?? {};
+  if (meta.registration_locale === "en") return;
+
+  await supabase.auth.updateUser({
+    data: {
+      ...meta,
+      registration_locale: "en",
+      registration_source: "/en/register/maker",
+    },
+  });
+}
+
 async function resolvePostAuthPath(
   supabase: SupabaseClient,
   requestedNext: string | null,
@@ -270,5 +300,9 @@ async function resolvePostAuthPath(
     role,
     onboardingCompleted: completed,
     requestedNext,
+    registrationLocale:
+      (user.user_metadata?.registration_locale as string | undefined) ?? null,
+    registrationSource:
+      (user.user_metadata?.registration_source as string | undefined) ?? null,
   });
 }

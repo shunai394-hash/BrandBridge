@@ -69,6 +69,12 @@ export function UpdatePasswordForm() {
       const destination = resolveRoleDestination({
         role: profile?.role,
         onboardingCompleted: profile?.onboarding_completed === true,
+        registrationLocale:
+          (user.user_metadata?.registration_locale as string | undefined) ??
+          null,
+        registrationSource:
+          (user.user_metadata?.registration_source as string | undefined) ??
+          null,
       });
 
       window.location.assign(destination);

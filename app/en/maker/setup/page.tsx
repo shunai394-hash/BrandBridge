@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EnMakerSetupForm } from "@/components/forms/EnMakerSetupForm";
+import { StaleEnMakerSetupGuard } from "@/components/forms/StaleEnMakerSetupGuard";
 import { getSessionUser } from "@/lib/auth";
 import { getProfileById } from "@/lib/profiles";
 
@@ -23,12 +23,10 @@ export default async function EnglishMakerSetupPage() {
   }
 
   const profile = await getProfileById(user.id);
-  if (profile?.onboarding_completed) {
-    redirect("/en/maker/dashboard");
-  }
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
+    <div className="mx-auto max-w-2xl px-5 py-12 md:py-16" lang="en">
+      <StaleEnMakerSetupGuard />
       <header className="mb-8">
         <p className="text-xs font-medium tracking-wider text-teal">
           FOR OVERSEAS BRANDS · SETUP
@@ -40,14 +38,15 @@ export default async function EnglishMakerSetupPage() {
           Complete your company profile and product details. Saved information
           stays linked to your BrandBridge account.
         </p>
-        <p className="mt-2 text-sm text-muted">
-          Prefer Japanese setup?{" "}
-          <Link href="/maker/setup" className="text-teal hover:underline">
-            日本語のセットアップへ
-          </Link>
-        </p>
       </header>
-      <EnMakerSetupForm email={user.email} userId={user.id} />
+      <EnMakerSetupForm
+        email={user.email}
+        userId={user.id}
+        initialCompanyName={profile?.company_name ?? ""}
+        initialContactName={profile?.contact_name ?? ""}
+        initialIndustry={profile?.industry ?? ""}
+        initialCompanyOverview={profile?.description ?? ""}
+      />
     </div>
   );
 }

@@ -184,6 +184,14 @@ export function LoginForm({
         role,
         onboardingCompleted: profile.onboarding_completed === true,
         requestedNext: wantsAdmin ? nextPath : nextPath,
+        registrationLocale:
+          (session.user.user_metadata?.registration_locale as
+            | string
+            | undefined) ?? null,
+        registrationSource:
+          (session.user.user_metadata?.registration_source as
+            | string
+            | undefined) ?? null,
       });
 
       console.log(`[LOGIN] redirect -> ${destination}`);

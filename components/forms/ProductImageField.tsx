@@ -25,6 +25,8 @@ type ProductImageFieldProps = {
   saveImmediately?: boolean;
   /** Called after a successful immediate DB save */
   onSaved?: (url: string | null) => void;
+  /** UI copy language (default Japanese). English used by /en/maker/setup only. */
+  locale?: "ja" | "en";
 };
 
 /**
@@ -34,12 +36,13 @@ type ProductImageFieldProps = {
 export function ProductImageField({
   value,
   onChange,
-  label = "商品画像",
+  label,
   disabled = false,
   onUploadingChange,
   caseId,
   saveImmediately = false,
   onSaved,
+  locale = "ja",
 }: ProductImageFieldProps) {
   const inputId = useId();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -48,6 +51,8 @@ export function ProductImageField({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [preview, setPreview] = useState<string | null>(value?.trim() || null);
+  const en = locale === "en";
+  const fieldLabel = label ?? (en ? "Product Image" : "商品画像");
 
   useEffect(() => {
     setPreview(value?.trim() || null);
@@ -73,7 +78,15 @@ export function ProductImageField({
       setError(result.error);
       return false;
     }
-    setSuccess(url ? "商品画像を保存しました" : "商品画像をクリアしました");
+    setSuccess(
+      url
+        ? en
+          ? "Product image saved."
+          : "商品画像を保存しました"
+        : en
+          ? "Product image cleared."
+          : "商品画像をクリアしました",
+    );
     onSaved?.(url);
     return true;
   }
@@ -89,7 +102,10 @@ export function ProductImageField({
       formData.set("file", file);
       const result = await uploadProductImageAction(formData);
       if (result.error || !result.url) {
-        setError(result.error || "画像アップロードに失敗しました");
+        setError(
+          result.error ||
+            (en ? "Image upload failed." : "画像アップロードに失敗しました"),
+        );
         if (fileRef.current) fileRef.current.value = "";
         return;
       }
@@ -99,16 +115,21 @@ export function ProductImageField({
 
       const ok = await persistUrl(result.url);
       if (!ok) {
-        // URL is in form state; user can still hit form save
         setError((prev) =>
           prev
             ? prev
-            : "アップロードは成功しましたがDB保存に失敗しました。画面下部の保存を押してください。",
+            : en
+              ? "Upload succeeded but saving failed. Use Save at the bottom of the form."
+              : "アップロードは成功しましたがDB保存に失敗しました。画面下部の保存を押してください。",
         );
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(`画像アップロードに失敗しました: ${message}`);
+      setError(
+        en
+          ? `Image upload failed: ${message}`
+          : `画像アップロードに失敗しました: ${message}`,
+      );
       if (fileRef.current) fileRef.current.value = "";
     } finally {
       setBusy(false);
@@ -126,23 +147,27 @@ export function ProductImageField({
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-cream/30 p-4">
-      <p className="text-sm font-medium text-navy">{label}</p>
+      <p className="text-sm font-medium text-navy">{fieldLabel}</p>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="shrink-0">
           {hasImage ? (
             <ProductCaseImage
               src={preview}
-              alt="商品画像プレビュー"
+              alt={en ? "Product image preview" : "商品画像プレビュー"}
               size="detail"
               className="!max-w-[200px]"
             />
           ) : (
             <div className="flex h-32 w-32 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-surface px-3 text-center">
-              <p className="text-xs font-medium text-navy">商品画像</p>
-              <p className="text-xs text-muted">未登録</p>
+              <p className="text-xs font-medium text-navy">
+                {en ? "Product image" : "商品画像"}
+              </p>
+              <p className="text-xs text-muted">
+                {en ? "Not set" : "未登録"}
+              </p>
               <p className="text-[11px] leading-snug text-muted">
-                ここから追加できます
+                {en ? "Add an image here" : "ここから追加できます"}
               </p>
             </div>
           )}
@@ -150,7 +175,13 @@ export function ProductImageField({
 
         <div className="min-w-0 flex-1 space-y-2">
           <label htmlFor={inputId} className="block text-xs font-medium text-navy">
-            {hasImage ? "画像を差し替え" : "画像をアップロード"}
+            {hasImage
+              ? en
+                ? "Replace image"
+                : "画像を差し替え"
+              : en
+                ? "Upload image"
+                : "画像をアップロード"}
           </label>
           <input
             id={inputId}
@@ -164,16 +195,24 @@ export function ProductImageField({
             }}
           />
           <p className="text-xs text-muted">
-            JPEG / PNG / WebP / GIF（最大5MB）。選択すると Storage
-            へアップロードされます。
-            {saveImmediately && caseId
-              ? " 成功後に cases.product_image_url へ自動保存します。"
-              : " フォームの「保存」で DB に反映されます。"}
+            {en
+              ? saveImmediately && caseId
+                ? "JPEG / PNG / WebP / GIF (max 5MB). Uploads to storage, then saves automatically."
+                : "JPEG / PNG / WebP / GIF (max 5MB). Use Save on the form to store the URL."
+              : saveImmediately && caseId
+                ? "JPEG / PNG / WebP / GIF（最大5MB）。選択すると Storage へアップロードされます。 成功後に cases.product_image_url へ自動保存します。"
+                : "JPEG / PNG / WebP / GIF（最大5MB）。選択すると Storage へアップロードされます。 フォームの「保存」で DB に反映されます。"}
           </p>
 
           {uploading || saving ? (
             <p className="text-sm text-navy">
-              {uploading ? "アップロード中…" : "保存中…"}
+              {uploading
+                ? en
+                  ? "Uploading…"
+                  : "アップロード中…"
+                : en
+                  ? "Saving…"
+                  : "保存中…"}
             </p>
           ) : null}
 
@@ -192,7 +231,7 @@ export function ProductImageField({
                 void handleClear();
               }}
             >
-              画像をクリア
+              {en ? "Clear image" : "画像をクリア"}
             </button>
           ) : null}
 
@@ -207,7 +246,7 @@ export function ProductImageField({
                   void persistUrl(preview);
                 }}
               >
-                画像だけ今すぐ保存
+                {en ? "Save image now" : "画像だけ今すぐ保存"}
               </Button>
             </div>
           ) : null}

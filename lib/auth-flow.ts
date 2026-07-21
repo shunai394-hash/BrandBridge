@@ -33,19 +33,37 @@ export function resolveRoleDestination(input: {
   role: string | null | undefined;
   onboardingCompleted: boolean;
   requestedNext?: string | null;
+  /** From auth user_metadata (English register flow). */
+  registrationLocale?: string | null;
+  registrationSource?: string | null;
 }): string {
-  const { role, onboardingCompleted, requestedNext } = input;
+  const {
+    role,
+    onboardingCompleted,
+    requestedNext,
+    registrationLocale,
+    registrationSource,
+  } = input;
 
   if (role === "admin") {
     if (!isSafeAppPath(requestedNext)) return "/admin";
     return normalizeAdminPath(requestedNext);
   }
 
+  const prefersEnglishMakerSetup =
+    registrationLocale === "en" ||
+    registrationSource === "/en/register/maker" ||
+    (typeof registrationSource === "string" &&
+      registrationSource.startsWith("/en/"));
+
   if (role === "maker" && !onboardingCompleted) {
     if (
       isSafeAppPath(requestedNext) &&
       requestedNext.startsWith("/en/maker/setup")
     ) {
+      return "/en/maker/setup";
+    }
+    if (prefersEnglishMakerSetup) {
       return "/en/maker/setup";
     }
     return "/maker/setup";
@@ -62,6 +80,9 @@ export function resolveRoleDestination(input: {
       !requestedNext.startsWith("/partner/setup") &&
       !requestedNext.startsWith("/login/update-password")
     ) {
+      if (role === "maker" && prefersEnglishMakerSetup) {
+        return "/en/maker/setup";
+      }
       return setupPathForRole(role);
     }
     return normalizeAdminPath(requestedNext);

@@ -72,6 +72,11 @@ const selectClass =
 type EnMakerSetupFormProps = {
   email: string;
   userId: string;
+  /** Prefill only — does not change save Action. */
+  initialCompanyName?: string;
+  initialContactName?: string;
+  initialIndustry?: string;
+  initialCompanyOverview?: string;
 };
 
 function FieldLabel({
@@ -101,17 +106,29 @@ type EnFormState = Omit<MakerRegistrationInput, "email" | "password"> & {
   exclusiveNote: "yes" | "no" | "";
 };
 
-export function EnMakerSetupForm({ email, userId }: EnMakerSetupFormProps) {
+export function EnMakerSetupForm({
+  email,
+  userId,
+  initialCompanyName = "",
+  initialContactName = "",
+  initialIndustry = "",
+  initialCompanyOverview = "",
+}: EnMakerSetupFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [error, setError] = useState("");
+  const industryDefault = (industryOptions as readonly string[]).includes(
+    initialIndustry,
+  )
+    ? initialIndustry
+    : "美容・コスメ";
   const [form, setForm] = useState<EnFormState>({
-    companyName: "",
-    contactName: "",
-    industry: "美容・コスメ",
-    companyOverview: "",
+    companyName: initialCompanyName,
+    contactName: initialContactName,
+    industry: industryDefault,
+    companyOverview: initialCompanyOverview,
     productName: "",
     productCategory: "美容・コスメ",
     productSummary: "",
@@ -285,7 +302,13 @@ export function EnMakerSetupForm({ email, userId }: EnMakerSetupFormProps) {
   const progress = useMemo(() => (step / STEPS.length) * 100, [step]);
 
   return (
-    <div className="animate-fade-up space-y-6">
+    <div
+      className="animate-fade-up space-y-6"
+      lang="en"
+      data-component="EnMakerSetupForm"
+      data-form-version="en-setup-v1"
+      data-locale="en"
+    >
       <div>
         <p className="text-sm font-medium text-navy">
           STEP {step} / {STEPS.length}
@@ -303,6 +326,7 @@ export function EnMakerSetupForm({ email, userId }: EnMakerSetupFormProps) {
       <form
         onSubmit={step === 4 ? handleSubmit : (e) => e.preventDefault()}
         className="space-y-5 rounded-xl border border-border bg-surface p-5 md:p-6"
+        lang="en"
       >
         {step === 1 ? (
           <>
@@ -369,6 +393,7 @@ export function EnMakerSetupForm({ email, userId }: EnMakerSetupFormProps) {
             />
             <ProductImageField
               label="Product Image (optional)"
+              locale="en"
               value={form.productImageUrl ?? null}
               onChange={(url) => update("productImageUrl", url)}
               onUploadingChange={setImageUploading}

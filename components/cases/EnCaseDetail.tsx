@@ -1,9 +1,10 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
+import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
 import { Button } from "@/components/ui/Button";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
-import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display";
 import type { Case, SalesFormat, TargetCountry } from "@/lib/types";
 
 const SALES_FORMAT_EN: Record<SalesFormat, string> = {
@@ -25,7 +26,7 @@ const TARGET_MARKET_EN: Record<TargetCountry, string> = {
   OTHER: "Other",
 };
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[11rem_1fr] sm:gap-4">
       <dt className="text-sm font-medium text-muted">{label}</dt>
@@ -39,17 +40,6 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 function displayMoqEn(value: string | null | undefined): string {
   const t = value?.trim();
   return t ? t : "Negotiable";
-}
-
-function displayWholesaleEn(value: string | null | undefined): string {
-  const t = displayPriceBand(value);
-  if (t === PRICE_BAND_QUOTE_REQUIRED || t === "見積条件あり") {
-    return "Quote required";
-  }
-  return t
-    .replace(/以上/g, "+")
-    .replace(/〜/g, "–")
-    .replace(/～/g, "–");
 }
 
 /** Prefer shipFrom / embedded English line; else target country label. */
@@ -79,16 +69,14 @@ function moqEn(caseItem: Case): string {
   return "Negotiable";
 }
 
-function wholesaleEn(caseItem: Case): string {
-  if (caseItem.priceBand?.trim()) {
-    return displayWholesaleEn(caseItem.priceBand);
-  }
+/** Prefer priceBand; else wholesale line embedded in offer/description. */
+function wholesaleSource(caseItem: Case): string | null {
+  if (caseItem.priceBand?.trim()) return caseItem.priceBand;
   const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
     .filter(Boolean)
     .join("\n");
   const m = blob.match(/^Wholesale Price:\s*(.+)$/im);
-  if (m?.[1]?.trim()) return m[1].trim();
-  return displayWholesaleEn(null);
+  return m?.[1]?.trim() || null;
 }
 
 function exclusiveEn(caseItem: Case): string {
@@ -163,7 +151,12 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
           <InfoRow label="MOQ" value={moqEn(caseItem)} />
           <InfoRow
             label="Wholesale Price Range"
-            value={wholesaleEn(caseItem)}
+            value={
+              <WholesalePriceRange
+                priceBand={wholesaleSource(caseItem)}
+                locale="en"
+              />
+            }
           />
           <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
         </dl>

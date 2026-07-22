@@ -1,13 +1,15 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
+import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
 import { Button } from "@/components/ui/Button";
 import {
   displayExclusiveDealOption,
   displayOptionalText,
   displayTrademarkStatus,
 } from "@/lib/case-detail-display";
-import { displayMoq, displayPriceBand } from "@/lib/price-display";
+import { displayMoq } from "@/lib/price-display";
 import type { Case, SalesFormat, TargetCountry } from "@/lib/types";
 import { salesFormatLabel, targetCountryLabel } from "@/lib/types";
 
@@ -35,7 +37,7 @@ const MARKET_EN: Record<TargetCountry, string> = {
   OTHER: "Other",
 };
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[11rem_1fr] sm:gap-4">
       <dt className="text-sm font-medium text-muted">{label}</dt>
@@ -236,11 +238,10 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
           <InfoRow
             label={t.wholesale}
             value={
-              en
-                ? (caseItem.priceBand ?? "Quote required")
-                    .replace(/以上/g, "+")
-                    .replace(/〜/g, "–")
-                : displayPriceBand(caseItem.priceBand)
+              <WholesalePriceRange
+                priceBand={caseItem.priceBand}
+                locale={locale}
+              />
             }
           />
           <InfoRow label={t.exclusive} value={exclusive} />
@@ -260,9 +261,10 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
           <InfoRow
             label={t.priceBand}
             value={
-              en
-                ? caseItem.priceBand ?? "—"
-                : displayPriceBand(caseItem.priceBand)
+              <WholesalePriceRange
+                priceBand={caseItem.priceBand}
+                locale={locale}
+              />
             }
           />
           <InfoRow label={t.moq} value={displayMoq(caseItem.minOrder)} />

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
+import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
 import { Button } from "@/components/ui/Button";
 import {
   displayExclusiveDealOption,
@@ -14,7 +15,6 @@ import { canViewPartnerPricing } from "@/lib/case-pricing-access";
 import {
   displayAvailability,
   displayMoq,
-  displayPriceBand,
   displayPriceCondition,
 } from "@/lib/price-display";
 import type { Case, SessionUser } from "@/lib/types";
@@ -34,7 +34,7 @@ type CaseDetailProps = {
   showPartnerPricing: boolean;
 };
 
-function InfoRow({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="grid gap-1 border-b border-border py-3 sm:grid-cols-[9rem_1fr] sm:gap-4">
       <dt className="text-sm font-medium text-muted">{label}</dt>
@@ -128,7 +128,12 @@ export function CaseDetailView({
           />
           <InfoRow
             label="参考卸価格帯"
-            value={displayPriceBand(caseItem.priceBand)}
+            value={
+              <WholesalePriceRange
+                priceBand={caseItem.priceBand}
+                locale="ja"
+              />
+            }
           />
           <InfoRow label="MOQ（最低発注数量）" value={displayMoq(caseItem.minOrder)} />
         </dl>
@@ -195,7 +200,9 @@ export function CaseDetailView({
         />
         <InfoRow
           label="参考卸価格帯"
-          value={displayPriceBand(caseItem.priceBand)}
+          value={
+            <WholesalePriceRange priceBand={caseItem.priceBand} locale="ja" />
+          }
         />
         <InfoRow
           label="MOQ（最低発注数量）"

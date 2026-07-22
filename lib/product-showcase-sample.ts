@@ -12,6 +12,9 @@ const SAMPLE_IMAGE_PATHS = [
 /** Local skincare product intro clip (not an unrelated YouTube placeholder). */
 const SAMPLE_VIDEO = "/videos/showcase/aurora-intro.mp4";
 
+/** Sample wholesale band stored as JPY (USD approx derived at display time). */
+export const SHOWCASE_WHOLESALE_JPY = "¥3,000–¥5,000";
+
 function sampleImages(): CaseImage[] {
   return SAMPLE_IMAGE_PATHS.map((imageUrl, index) => ({
     id: `showcase-img-${index + 1}`,
@@ -61,7 +64,7 @@ function baseSampleCase(
     productName: overrides.productName,
     sku: "AURORA-SERUM-30",
     productFeatures: overrides.productFeatures,
-    priceBand: "¥3,000–¥5,000",
+    priceBand: SHOWCASE_WHOLESALE_JPY,
     wholesalePrice: null,
     priceConditions: "quote",
     lotPricing: null,
@@ -118,7 +121,7 @@ export function getEnglishProductShowcaseSample(): Case {
     productFeatures:
       "• 30ml glass bottle with premium dropper\n• Fragrance-light, clean formula\n• Strong repeat purchase in US boutiques\n• Marketing assets: product photos, short intro video, English fact sheet\n• Samples available for partner evaluation",
     offer:
-      "Wholesale to Japanese sales partners\nMOQ: 48 units\nReference wholesale band: ¥3,000–¥5,000\nExclusive option: available by territory (conditional)\nSamples: available\nIncoterms: FOB / CIF / DDP negotiable",
+      "Wholesale to Japanese sales partners\nMOQ: 48 units\nReference wholesale band: USD $20–$35 (Approx. ¥3,000–¥5,000)\nExclusive option: available by territory (conditional)\nSamples: available\nIncoterms: FOB / CIF / DDP negotiable",
     salesTerms:
       "Payment: wire / Wise (negotiable)\nLead time: 2–4 weeks\nSupport: English-speaking brand team; Japanese partners welcome",
     idealPartner:
@@ -145,7 +148,7 @@ export function getJapaneseProductShowcaseSample(): Case {
     productFeatures:
       "• 30ml ガラスボトル（プレミアムドロッパー）\n• 低香料・クリーン処方\n• 米国ブティックでのリピート実績\n• 商品写真・紹介動画・英語ファクトシートあり\n• パートナー向けサンプル提供可",
     offer:
-      "日本の販売パートナー向け卸販売\nMOQ：48本\n参考卸価格帯：¥3,000〜¥5,000\n独占：エリア条件つきで相談可\nサンプル：提供可\nIncoterms：FOB / CIF / DDP（応相談）",
+      "日本の販売パートナー向け卸販売\nMOQ：48本\n参考卸価格帯：¥3,000〜¥5,000（約 USD $20–$35）\n独占：エリア条件つきで相談可\nサンプル：提供可\nIncoterms：FOB / CIF / DDP（応相談）",
     salesTerms:
       "支払い：銀行送金 / Wise（応相談）\nリードタイム：2〜4週間\nサポート：英語対応ブランドチーム（日本語はBrandBridge経由で調整可）",
     idealPartner:

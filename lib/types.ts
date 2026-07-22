@@ -457,6 +457,8 @@ export type MakerRegistrationInput = {
   dealType: MakerDealType;
   dealTerms: string;
   productImageUrl?: string | null;
+  /** Gallery URLs collected during setup (first → productImageUrl / case_images). */
+  productImageUrls?: string[] | null;
   productVideoUrl?: string | null;
   /** Optional structured fields (EN setup / future JA setup) → case columns */
   brandName?: string | null;

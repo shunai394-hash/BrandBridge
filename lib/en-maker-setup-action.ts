@@ -41,7 +41,15 @@ export async function completeEnMakerSetupAction(
     return { error: "Product supplier accounts only." };
   }
 
-  const imageUrl = input.productImageUrl?.trim() || null;
+  const galleryUrls = [
+    ...(input.productImageUrls ?? []),
+    input.productImageUrl,
+  ]
+    .map((u) => u?.trim() || "")
+    .filter(Boolean)
+    .filter((url, index, arr) => arr.indexOf(url) === index)
+    .slice(0, 4);
+  const imageUrl = galleryUrls[0] ?? null;
   const caseInput = caseInputFromRegistration({
     ...input,
     email: maker.email,
@@ -171,6 +179,25 @@ export async function completeEnMakerSetupAction(
     }
   }
 
+  if (result.id && galleryUrls.length > 0) {
+    const rows = galleryUrls.map((image_url, sort_order) => ({
+      case_id: result.id,
+      image_url,
+      storage_path: null as string | null,
+      sort_order,
+    }));
+    const { error: galleryError } = await supabase
+      .from("case_images")
+      .insert(rows);
+    if (galleryError) {
+      console.error("[completeEnMakerSetupAction] case_images insert", {
+        caseId: result.id,
+        message: galleryError.message,
+      });
+      // Listing exists; gallery can be fixed from edit — do not fail the whole setup.
+    }
+  }
+
   await supabase
     .from("profiles")
     .update({ onboarding_completed: true })
@@ -182,6 +209,8 @@ export async function completeEnMakerSetupAction(
   revalidatePath("/en/products");
   revalidatePath("/en/maker/dashboard");
   revalidatePath("/en/cases");
+  revalidatePath(`/en/cases/${result.id}`);
   revalidatePath("/cases");
+  revalidatePath(`/cases/${result.id}`);
   redirect(completePath);
 }

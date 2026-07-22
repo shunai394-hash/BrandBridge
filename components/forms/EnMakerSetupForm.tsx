@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
-import { ProductImageField } from "@/components/forms/ProductImageField";
 import { ProductVideoUrlField } from "@/components/forms/ProductVideoUrlField";
+import { SetupProductImagesField } from "@/components/forms/SetupProductImagesField";
 import { completeEnMakerSetupAction } from "@/lib/en-maker-setup-action";
 import { ENGLISH_CASE_MARKER } from "@/lib/inquiry-language";
 import { toEnglishActionError } from "@/lib/negotiation-ui";
@@ -150,6 +150,7 @@ export function EnMakerSetupForm({
     dealType: "卸販売",
     dealTerms: "",
     productImageUrl: null,
+    productImageUrls: [],
     productVideoUrl: null,
     brandName: "",
     countryOfOrigin: "",
@@ -273,7 +274,8 @@ export function EnMakerSetupForm({
       salesChannels: form.salesChannels,
       dealType: form.dealType,
       dealTerms,
-      productImageUrl: form.productImageUrl,
+      productImageUrl: form.productImageUrls?.[0] ?? form.productImageUrl,
+      productImageUrls: form.productImageUrls ?? [],
       productVideoUrl: form.productVideoUrl?.trim() || null,
       brandName: brand || null,
       countryOfOrigin: origin || null,
@@ -438,11 +440,13 @@ export function EnMakerSetupForm({
               onChange={(e) => update("countryOfOrigin", e.target.value)}
               placeholder="e.g. Japan, United States, Thailand"
             />
-            <ProductImageField
-              label="Product Image (optional)"
+            <SetupProductImagesField
               locale="en"
-              value={form.productImageUrl ?? null}
-              onChange={(url) => update("productImageUrl", url)}
+              value={form.productImageUrls ?? []}
+              onChange={(urls) => {
+                update("productImageUrls", urls);
+                update("productImageUrl", urls[0] ?? null);
+              }}
               onUploadingChange={setImageUploading}
               disabled={loading}
             />
@@ -763,8 +767,10 @@ export function EnMakerSetupForm({
               ],
               ["Trade Conditions", form.dealTerms || "—"],
               [
-                "Product Image",
-                form.productImageUrl ? "Selected" : "Not selected",
+                "Product Images",
+                (form.productImageUrls?.length ?? 0) > 0
+                  ? `${form.productImageUrls!.length} selected`
+                  : "Not selected",
               ],
               [
                 "Product Video URL",

@@ -52,6 +52,11 @@ function vimeoId(url: URL): string | null {
 
 const VIDEO_FILE_EXT = /\.(mp4|webm|ogg)(?:$|[?#])/i;
 
+/** Known placeholder / unrelated test videos — never render on product pages. */
+const BLOCKED_YOUTUBE_IDS = new Set([
+  "jNQXAC9IVRw", // "Me at the zoo" — accidental test URL
+]);
+
 function isVideoFilePath(value: string): boolean {
   return VIDEO_FILE_EXT.test(value);
 }
@@ -79,6 +84,7 @@ export function parseProductVideoUrl(
 
   const yt = youtubeId(url);
   if (yt) {
+    if (BLOCKED_YOUTUBE_IDS.has(yt)) return null;
     return {
       kind: "youtube",
       videoId: yt,

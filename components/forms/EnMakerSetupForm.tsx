@@ -6,6 +6,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
+import { ProductVideoUrlField } from "@/components/forms/ProductVideoUrlField";
 import { completeEnMakerSetupAction } from "@/lib/en-maker-setup-action";
 import { ENGLISH_CASE_MARKER } from "@/lib/inquiry-language";
 import { toEnglishActionError } from "@/lib/negotiation-ui";
@@ -138,6 +139,7 @@ export function EnMakerSetupForm({
     dealType: "卸販売",
     dealTerms: "",
     productImageUrl: null,
+    productVideoUrl: null,
     brandName: "",
     countryOfOrigin: "",
     wholesalePrice: "",
@@ -250,6 +252,7 @@ export function EnMakerSetupForm({
       dealType: form.dealType,
       dealTerms,
       productImageUrl: form.productImageUrl,
+      productVideoUrl: form.productVideoUrl?.trim() || null,
     };
   }
 
@@ -398,6 +401,12 @@ export function EnMakerSetupForm({
               value={form.productImageUrl ?? null}
               onChange={(url) => update("productImageUrl", url)}
               onUploadingChange={setImageUploading}
+              disabled={loading}
+            />
+            <ProductVideoUrlField
+              locale="en"
+              value={form.productVideoUrl ?? ""}
+              onChange={(v) => update("productVideoUrl", v || null)}
               disabled={loading}
             />
             <label className="flex flex-col gap-1.5 text-sm">
@@ -609,6 +618,10 @@ export function EnMakerSetupForm({
               [
                 "Product Image",
                 form.productImageUrl ? "Selected" : "Not selected",
+              ],
+              [
+                "Product Video URL",
+                form.productVideoUrl?.trim() || "—",
               ],
             ].map(([label, value]) => (
               <div

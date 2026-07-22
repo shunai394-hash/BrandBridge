@@ -265,6 +265,7 @@ export async function createCaseAction(
   const result = await createCase(maker.id, {
     ...input,
     productImageUrl: input.productImageUrl?.trim() || null,
+    productVideoUrl: input.productVideoUrl?.trim() || null,
   });
   if ("error" in result) {
     return { error: result.error };
@@ -287,6 +288,7 @@ export async function updateCaseAction(
   const result = await updateCase(caseId, {
     ...input,
     productImageUrl: input.productImageUrl?.trim() || null,
+    productVideoUrl: input.productVideoUrl?.trim() || null,
   });
   if (result.error) return { error: result.error };
 
@@ -294,6 +296,7 @@ export async function updateCaseAction(
   revalidatePath("/maker/cases");
   revalidatePath(`/maker/cases/${caseId}/edit`);
   revalidatePath(`/cases/${caseId}`);
+  revalidatePath(`/en/cases/${caseId}`);
   redirect("/maker/cases");
 }
 
@@ -313,11 +316,13 @@ export async function adminUpdateCaseAction(
   const result = await adminUpdateCase(caseId, {
     ...input,
     productImageUrl: input.productImageUrl?.trim() || null,
+    productVideoUrl: input.productVideoUrl?.trim() || null,
   });
   if (result.error) return { error: result.error };
 
   revalidatePath("/cases");
   revalidatePath(`/cases/${caseId}`);
+  revalidatePath(`/en/cases/${caseId}`);
   revalidatePath("/admin/cases");
   revalidatePath(`/admin/cases/${caseId}`);
   revalidatePath(`/admin/cases/${caseId}/edit`);

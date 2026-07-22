@@ -6,6 +6,7 @@ import { updateCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { CaseImageUploader } from "@/components/forms/CaseImageUploader";
+import { ProductVideoUrlField } from "@/components/forms/ProductVideoUrlField";
 import { CasePricingFields } from "@/components/forms/CasePricingFields";
 import { CaseDetailEnrichmentFields } from "@/components/forms/CaseDetailEnrichmentFields";
 import { caseToFormInput } from "@/lib/case-field-normalize";
@@ -70,6 +71,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
       const result = await updateCaseAction(caseItem.id, {
         ...form,
         productImageUrl: caseItem.productImageUrl?.trim() || null,
+        productVideoUrl: form.productVideoUrl?.trim() || null,
       });
       if (result?.error) {
         setError(result.error);
@@ -311,6 +313,15 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           caseId={caseItem.id}
           images={caseItem.images}
           productImageUrl={caseItem.productImageUrl}
+        />
+      </Section>
+
+      <Section title="商品紹介動画">
+        <ProductVideoUrlField
+          locale="ja"
+          value={form.productVideoUrl ?? ""}
+          onChange={(v) => update("productVideoUrl", v || null)}
+          disabled={loading}
         />
       </Section>
 

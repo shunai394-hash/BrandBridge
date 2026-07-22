@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
+import { ProductVideo } from "@/components/cases/ProductVideo";
 import { Button } from "@/components/ui/Button";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display";
@@ -167,6 +168,8 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
           <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
         </dl>
       </header>
+
+      <ProductVideo url={caseItem.productVideoUrl} locale="en" />
 
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">

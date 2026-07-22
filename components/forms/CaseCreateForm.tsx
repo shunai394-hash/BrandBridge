@@ -6,6 +6,7 @@ import { createCaseAction } from "@/lib/actions";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
+import { ProductVideoUrlField } from "@/components/forms/ProductVideoUrlField";
 import { CasePricingFields } from "@/components/forms/CasePricingFields";
 import { CaseDetailEnrichmentFields } from "@/components/forms/CaseDetailEnrichmentFields";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
@@ -46,6 +47,7 @@ const initial: CaseCreateInput = {
   partnerChannels: "",
   partnerRequirements: "",
   productImageUrl: null,
+  productVideoUrl: null,
   brandName: "",
   brandOverview: "",
   productStrengths: "",
@@ -116,6 +118,7 @@ export function CaseCreateForm() {
       const result = await createCaseAction({
         ...form,
         productImageUrl: form.productImageUrl?.trim() || null,
+        productVideoUrl: form.productVideoUrl?.trim() || null,
       });
       if (result?.error) {
         setError(result.error);
@@ -360,6 +363,15 @@ export function CaseCreateForm() {
           value={form.productImageUrl ?? null}
           onChange={(url) => update("productImageUrl", url)}
           onUploadingChange={setImageUploading}
+          disabled={loading}
+        />
+      </Section>
+
+      <Section title="商品紹介動画">
+        <ProductVideoUrlField
+          locale="ja"
+          value={form.productVideoUrl ?? ""}
+          onChange={(v) => update("productVideoUrl", v || null)}
           disabled={loading}
         />
       </Section>

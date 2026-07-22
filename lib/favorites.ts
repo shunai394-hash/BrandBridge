@@ -55,6 +55,7 @@ function mapFavoriteCase(
     partnerChannels: row.partner_channels,
     partnerRequirements: row.partner_requirements,
     productImageUrl: row.product_image_url ?? null,
+    productVideoUrl: row.product_video_url ?? null,
     brandName: row.brand_name ?? null,
     brandOverview: row.brand_overview ?? null,
     productStrengths: row.product_strengths ?? null,

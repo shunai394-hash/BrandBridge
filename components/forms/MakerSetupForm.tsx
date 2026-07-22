@@ -6,6 +6,7 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 import { ProductImageField } from "@/components/forms/ProductImageField";
+import { ProductVideoUrlField } from "@/components/forms/ProductVideoUrlField";
 import { completeMakerSetupAction } from "@/lib/actions";
 import { CASE_TEXT_LIMITS } from "@/lib/case-validation";
 import { createClient } from "@/lib/supabase/client";
@@ -76,6 +77,7 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
     dealType: "卸販売",
     dealTerms: "",
     productImageUrl: null,
+    productVideoUrl: null,
   });
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
@@ -178,6 +180,7 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
         dealType: form.dealType,
         dealTerms: form.dealTerms,
         productImageUrl: imageUrl,
+        productVideoUrl: form.productVideoUrl?.trim() || null,
       });
 
       if (result?.error) {
@@ -273,6 +276,12 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               value={form.productImageUrl ?? null}
               onChange={(url) => update("productImageUrl", url)}
               onUploadingChange={setImageUploading}
+              disabled={loading}
+            />
+            <ProductVideoUrlField
+              locale="ja"
+              value={form.productVideoUrl ?? ""}
+              onChange={(v) => update("productVideoUrl", v || null)}
               disabled={loading}
             />
             <label className="flex flex-col gap-1.5 text-sm">
@@ -416,6 +425,10 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               ["取引形式", form.dealType],
               ["希望条件", form.dealTerms || "—"],
               ["画像", form.productImageUrl ? "設定済み" : "未選択"],
+              [
+                "商品紹介動画",
+                form.productVideoUrl?.trim() || "未設定",
+              ],
             ].map(([label, value]) => (
               <div key={label as string} className="grid gap-1 sm:grid-cols-[7rem_1fr]">
                 <dt className="text-muted">{label}</dt>

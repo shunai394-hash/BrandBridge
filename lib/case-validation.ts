@@ -102,6 +102,10 @@ export function normalizeCaseCreateInput(
       input.productImageUrl == null
         ? null
         : asText(input.productImageUrl).trim() || null,
+    productVideoUrl:
+      input.productVideoUrl == null
+        ? null
+        : asText(input.productVideoUrl).trim() || null,
     brandName: asText(input.brandName),
     brandOverview: asText(input.brandOverview),
     productStrengths: asText(input.productStrengths),

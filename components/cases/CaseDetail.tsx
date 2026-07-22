@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
+import { ProductVideo } from "@/components/cases/ProductVideo";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { Button } from "@/components/ui/Button";
 import {
@@ -132,6 +133,8 @@ export function CaseDetailView({
           <InfoRow label="MOQ（最低発注数量）" value={displayMoq(caseItem.minOrder)} />
         </dl>
       </header>
+
+      <ProductVideo url={caseItem.productVideoUrl} locale="ja" />
 
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">

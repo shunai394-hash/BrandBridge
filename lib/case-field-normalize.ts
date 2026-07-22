@@ -40,6 +40,7 @@ export function caseToFormInput(caseItem: Case): CaseCreateInput {
     partnerChannels: caseItem.partnerChannels ?? "",
     partnerRequirements: caseItem.partnerRequirements ?? "",
     productImageUrl: caseItem.productImageUrl?.trim() || null,
+    productVideoUrl: caseItem.productVideoUrl?.trim() || null,
     brandName: caseItem.brandName ?? "",
     brandOverview: caseItem.brandOverview ?? "",
     productStrengths: caseItem.productStrengths ?? "",

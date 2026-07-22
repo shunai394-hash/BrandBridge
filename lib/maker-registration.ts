@@ -62,6 +62,7 @@ export function toCaseDraftMeta(
 export function caseInputFromMakerDraft(
   draft: MakerCaseDraftMeta,
   productImageUrl?: string | null,
+  productVideoUrl?: string | null,
 ): CaseCreateInput {
   const deal = mapDealType(draft.dealType);
   const area = mapSalesArea(draft.salesArea);
@@ -113,6 +114,7 @@ export function caseInputFromMakerDraft(
     partnerChannels: channels,
     partnerRequirements: "",
     productImageUrl: productImageUrl ?? null,
+    productVideoUrl: productVideoUrl ?? null,
     brandName: "",
     brandOverview: "",
     productStrengths: "",
@@ -136,5 +138,6 @@ export function caseInputFromRegistration(
   return caseInputFromMakerDraft(
     toCaseDraftMeta(input),
     input.productImageUrl,
+    input.productVideoUrl,
   );
 }

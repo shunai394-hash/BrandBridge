@@ -245,6 +245,8 @@ export type CaseRow = {
   partner_channels: string | null;
   partner_requirements: string | null;
   product_image_url: string | null;
+  /** Optional product introduction video URL (YouTube / Vimeo / etc.). */
+  product_video_url?: string | null;
   brand_name?: string | null;
   brand_overview?: string | null;
   product_strengths?: string | null;
@@ -314,6 +316,8 @@ export type Case = {
   partnerChannels: string | null;
   partnerRequirements: string | null;
   productImageUrl: string | null;
+  /** Optional product introduction video URL */
+  productVideoUrl: string | null;
   /** ブランド名 */
   brandName: string | null;
   /** ブランド概要 */
@@ -453,6 +457,7 @@ export type MakerRegistrationInput = {
   dealType: MakerDealType;
   dealTerms: string;
   productImageUrl?: string | null;
+  productVideoUrl?: string | null;
 };
 
 /** Stored in auth user_metadata when email confirmation is required */
@@ -564,6 +569,7 @@ export type CaseCreateInput = {
   partnerChannels: string;
   partnerRequirements: string;
   productImageUrl?: string | null;
+  productVideoUrl?: string | null;
   brandName: string;
   brandOverview: string;
   productStrengths: string;

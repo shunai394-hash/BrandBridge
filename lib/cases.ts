@@ -77,6 +77,7 @@ function mapCase(row: CaseWithMaker): Case {
     partnerChannels: row.partner_channels,
     partnerRequirements: row.partner_requirements,
     productImageUrl: row.product_image_url ?? null,
+    productVideoUrl: row.product_video_url ?? null,
     brandName: row.brand_name ?? null,
     brandOverview: row.brand_overview ?? null,
     productStrengths: row.product_strengths ?? null,
@@ -509,6 +510,7 @@ export async function createCase(
     }
 
     const imageUrl = normalized.productImageUrl?.trim() || null;
+    const videoUrl = normalized.productVideoUrl?.trim() || null;
 
     console.info("[createCase] insert start", {
       table: "cases",
@@ -517,6 +519,7 @@ export async function createCase(
       product_name: normalized.productName,
       has_product_image_url: Boolean(imageUrl),
       product_image_url_len: imageUrl?.length ?? 0,
+      has_product_video_url: Boolean(videoUrl),
       description_len: normalized.description.length,
       summary_len: normalized.summary.length,
       reviewStatus,
@@ -551,6 +554,7 @@ export async function createCase(
       partner_channels: normalized.partnerChannels.trim() || null,
       partner_requirements: normalized.partnerRequirements.trim() || null,
       product_image_url: imageUrl,
+      product_video_url: videoUrl,
       brand_name: normalized.brandName.trim() || null,
       brand_overview: normalized.brandOverview.trim() || null,
       product_strengths: normalized.productStrengths.trim() || null,
@@ -615,6 +619,25 @@ export async function createCase(
         ? { ...retry.data, product_image_url: null }
         : retry.data;
       error = retry.error;
+    }
+
+    const missingVideo =
+      error &&
+      /Could not find the 'product_video_url' column/i.test(
+        `${error?.message ?? ""} ${error?.details ?? ""}`,
+      );
+    if (missingVideo) {
+      console.warn("[createCase] retry without product_video_url (column missing)");
+      const { product_video_url: _omitVideo, ...withoutVideo } = insertPayload;
+      const retryVideo = await supabase
+        .from("cases")
+        .insert(withoutVideo)
+        .select(
+          "id, product_name, maker_id, status, review_status, created_at, product_image_url",
+        )
+        .single();
+      data = retryVideo.data;
+      error = retryVideo.error;
     }
 
     if (error || !data) {
@@ -729,6 +752,7 @@ function caseUpdatePayload(normalized: CaseCreateInput) {
     target_country: normalized.targetCountry,
     partner_channels: normalized.partnerChannels.trim() || null,
     partner_requirements: normalized.partnerRequirements.trim() || null,
+    product_video_url: normalized.productVideoUrl?.trim() || null,
     brand_name: normalized.brandName.trim() || null,
     brand_overview: normalized.brandOverview.trim() || null,
     product_strengths: normalized.productStrengths.trim() || null,
@@ -788,6 +812,25 @@ export async function updateCase(
         .maybeSingle();
       data = retry.data;
       error = retry.error;
+    }
+
+    if (
+      error &&
+      /Could not find the 'product_video_url' column/i.test(
+        `${error.message} ${error.details ?? ""}`,
+      )
+    ) {
+      console.warn("[updateCase] retry without product_video_url (column missing)");
+      const { product_video_url: _omitVideo, ...withoutVideo } = payload;
+      const retryVideo = await supabase
+        .from("cases")
+        .update(withoutVideo)
+        .eq("id", caseId)
+        .eq("maker_id", user.id)
+        .select("id, product_image_url")
+        .maybeSingle();
+      data = retryVideo.data;
+      error = retryVideo.error;
     }
 
     if (error) {

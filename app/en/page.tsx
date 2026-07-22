@@ -87,21 +87,43 @@ export default function EnglishHomePage() {
 
       <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
-            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              New to selling in Japan?
-            </h2>
-            <p className="mt-3 leading-relaxed text-muted">
-              Learn how to connect with Japanese sales partners and start
-              selling.
-            </p>
-            <div className="mt-6">
-              <Button
-                href="/en/how-to-sell-in-japan"
-                className="w-full sm:w-auto"
-              >
-                Learn How to Sell in Japan
-              </Button>
+          <div className="grid gap-5 md:grid-cols-2 md:gap-6">
+            <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
+              <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+                New to selling in Japan?
+              </h2>
+              <p className="mt-3 leading-relaxed text-muted">
+                Learn how to connect with Japanese sales partners and start
+                selling.
+              </p>
+              <div className="mt-6">
+                <Button
+                  href="/en/how-to-sell-in-japan"
+                  className="w-full sm:w-auto"
+                >
+                  Learn How to Sell in Japan
+                </Button>
+              </div>
+            </div>
+            <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
+              <p className="text-xs font-medium tracking-wider text-teal">
+                FOR PRODUCT SUPPLIERS
+              </p>
+              <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+                For Product Suppliers
+              </h2>
+              <p className="mt-3 leading-relaxed text-muted">
+                Preview how your product page will look after registration—
+                images, video, description, and deal terms.
+              </p>
+              <div className="mt-6">
+                <Button
+                  href="/en/product-showcase"
+                  className="w-full sm:w-auto"
+                >
+                  See Product Showcase Sample
+                </Button>
+              </div>
             </div>
           </div>
         </div>

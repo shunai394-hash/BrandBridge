@@ -1,12 +1,27 @@
-import type { Case } from "@/lib/types";
+import type { Case, CaseImage } from "@/lib/types";
 
 /** Stable sample id — not a real DB case; showcase pages only. */
 export const PRODUCT_SHOWCASE_ID = "showcase-sample-aurora-serum";
 
-const SAMPLE_IMAGE =
-  "https://images.unsplash.com/photo-1620916560666-c23b5b2cfb2d?auto=format&fit=crop&w=1200&q=80";
+const SAMPLE_IMAGE_PATHS = [
+  "/images/showcase/aurora-main.jpg",
+  "/images/showcase/aurora-2.jpg",
+  "/images/showcase/aurora-3.jpg",
+] as const;
 
-const SAMPLE_VIDEO = "https://www.youtube.com/watch?v=jNQXAC9IVRw";
+/** Local skincare product intro clip (not an unrelated YouTube placeholder). */
+const SAMPLE_VIDEO = "/videos/showcase/aurora-intro.mp4";
+
+function sampleImages(): CaseImage[] {
+  return SAMPLE_IMAGE_PATHS.map((imageUrl, index) => ({
+    id: `showcase-img-${index + 1}`,
+    caseId: PRODUCT_SHOWCASE_ID,
+    imageUrl,
+    storagePath: null,
+    sortOrder: index,
+    createdAt: "2026-01-01T00:00:00.000Z",
+  }));
+}
 
 function baseSampleCase(
   overrides: Pick<
@@ -26,6 +41,7 @@ function baseSampleCase(
     | "idealPartner"
   >,
 ): Case {
+  const images = sampleImages();
   return {
     id: PRODUCT_SHOWCASE_ID,
     caseNumber: "BB-SAMPLE",
@@ -60,7 +76,7 @@ function baseSampleCase(
     targetCountry: "JP",
     partnerChannels: "Specialty retail / Department stores / E-commerce",
     partnerRequirements: null,
-    productImageUrl: SAMPLE_IMAGE,
+    productImageUrl: images[0]?.imageUrl ?? null,
     productVideoUrl: SAMPLE_VIDEO,
     brandName: overrides.brandName,
     brandOverview: overrides.brandOverview,
@@ -76,16 +92,7 @@ function baseSampleCase(
     incoterms: "FOB / CIF / DDP (negotiable)",
     certifications: "Cruelty-free · Dermatologist tested",
     supportLanguages: "English / Japanese (via BrandBridge)",
-    images: [
-      {
-        id: "showcase-img-1",
-        caseId: PRODUCT_SHOWCASE_ID,
-        imageUrl: SAMPLE_IMAGE,
-        storagePath: null,
-        sortOrder: 0,
-        createdAt: "2026-01-01T00:00:00.000Z",
-      },
-    ],
+    images,
     reviewStatus: "approved",
     reviewNote: null,
     createdAt: "2026-01-01T00:00:00.000Z",

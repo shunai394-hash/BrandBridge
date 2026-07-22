@@ -105,6 +105,13 @@ export default function ForMakersPage() {
             >
               無料で商品を登録する
             </Button>
+            <Button
+              href="/product-showcase"
+              variant="outline"
+              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[240px]"
+            >
+              商品掲載サンプルを見る
+            </Button>
             <p className="text-sm text-white/70">登録無料・初期費用なし</p>
           </div>
         </div>

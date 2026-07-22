@@ -537,7 +537,7 @@ export default async function HomePage() {
 
           <div className="mt-10 grid gap-5 md:grid-cols-2 md:gap-6">
             <Link
-              href="/for-makers"
+              href="/product-showcase"
               className="group flex flex-col rounded-xl border border-border bg-surface p-6 shadow-[0_16px_40px_rgba(20,32,51,0.06)] transition hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-[0_18px_44px_rgba(20,32,51,0.1)] md:p-8"
             >
               <p className="text-xs font-medium tracking-wider text-teal">
@@ -547,10 +547,10 @@ export default async function HomePage() {
                 商品提供企業の方へ
               </h3>
               <p className="mt-3 flex-1 leading-relaxed text-muted">
-                商品を広げたい製品・ブランドを掲載し、新しい販売パートナーとの出会いを作ります。
+                登録後の商品ページ完成イメージを、サンプルで確認できます。掲載の見え方を先に把握したうえで登録を進められます。
               </p>
               <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
-                商品提供企業向けページを見る
+                商品掲載サンプルを見る
               </span>
             </Link>
 

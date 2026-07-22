@@ -1,6 +1,7 @@
 export type ProductVideoEmbed =
   | { kind: "youtube"; videoId: string; embedUrl: string; watchUrl: string }
   | { kind: "vimeo"; videoId: string; embedUrl: string; watchUrl: string }
+  | { kind: "file"; href: string }
   | { kind: "link"; href: string };
 
 function safeUrl(raw: string): URL | null {
@@ -49,12 +50,24 @@ function vimeoId(url: URL): string | null {
   return null;
 }
 
-/** Parse a stored product video URL into embed or plain link. */
+const VIDEO_FILE_EXT = /\.(mp4|webm|ogg)(?:$|[?#])/i;
+
+function isVideoFilePath(value: string): boolean {
+  return VIDEO_FILE_EXT.test(value);
+}
+
+/** Parse a stored product video URL into embed, file, or plain link. */
 export function parseProductVideoUrl(
   value: string | null | undefined,
 ): ProductVideoEmbed | null {
   const trimmed = value?.trim();
   if (!trimmed) return null;
+
+  // Same-origin / public asset paths (e.g. /videos/showcase/aurora-intro.mp4)
+  if (trimmed.startsWith("/") && isVideoFilePath(trimmed)) {
+    return { kind: "file", href: trimmed };
+  }
+
   const url = safeUrl(trimmed);
   if (!url) {
     // Non-URL text — still offer a link if it looks like a URL without scheme
@@ -82,6 +95,10 @@ export function parseProductVideoUrl(
       embedUrl: `https://player.vimeo.com/video/${encodeURIComponent(vim)}`,
       watchUrl: `https://vimeo.com/${encodeURIComponent(vim)}`,
     };
+  }
+
+  if (isVideoFilePath(url.pathname) || isVideoFilePath(url.href)) {
+    return { kind: "file", href: url.toString() };
   }
 
   return { kind: "link", href: url.toString() };

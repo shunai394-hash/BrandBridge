@@ -166,41 +166,29 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
         BrandBridge Product
       </p>
 
-      <header className="mt-3 space-y-5">
+      <h1 className="mt-3 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
+        {caseItem.productName}
+      </h1>
+
+      {/* 1. Product images (main + gallery) */}
+      <div className="mt-5">
         <CaseImageGallery
           images={caseItem.images}
           productImageUrl={caseItem.productImageUrl}
           alt={caseItem.productName}
           locale={locale}
         />
+      </div>
 
-        <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          {caseItem.productName}
-        </h1>
+      {/* 2. Product intro video */}
+      <ProductVideo
+        url={caseItem.productVideoUrl}
+        locale={locale}
+        showEmpty
+        poster={caseItem.productImageUrl}
+      />
 
-        <dl>
-          <InfoRow label={t.metaName} value={caseItem.productName} />
-          <InfoRow label={t.company} value={caseItem.makerName} />
-          <InfoRow label={t.origin} value={origin} />
-          <InfoRow label={t.category} value={caseItem.category} />
-          <InfoRow label={t.format} value={salesFormat} />
-          <InfoRow label={t.moq} value={displayMoq(caseItem.minOrder)} />
-          <InfoRow
-            label={t.wholesale}
-            value={
-              en
-                ? (caseItem.priceBand ?? "Quote required")
-                    .replace(/以上/g, "+")
-                    .replace(/〜/g, "–")
-                : displayPriceBand(caseItem.priceBand)
-            }
-          />
-          <InfoRow label={t.exclusive} value={exclusive} />
-        </dl>
-      </header>
-
-      <ProductVideo url={caseItem.productVideoUrl} locale={locale} />
-
+      {/* 3. Description */}
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           {t.description}
@@ -210,6 +198,7 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
         </p>
       </section>
 
+      {/* 4. Features */}
       {caseItem.productFeatures?.trim() ? (
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
@@ -226,6 +215,11 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
           {t.brand}
         </h2>
         <dl className="mt-2">
+          <InfoRow label={t.metaName} value={caseItem.productName} />
+          <InfoRow label={t.company} value={caseItem.makerName} />
+          <InfoRow label={t.origin} value={origin} />
+          <InfoRow label={t.category} value={caseItem.category} />
+          <InfoRow label={t.format} value={salesFormat} />
           <InfoRow
             label={t.brandName}
             value={displayOptionalText(caseItem.brandName)}
@@ -238,9 +232,22 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
             label={t.strengths}
             value={displayOptionalText(caseItem.productStrengths)}
           />
+          <InfoRow label={t.moq} value={displayMoq(caseItem.minOrder)} />
+          <InfoRow
+            label={t.wholesale}
+            value={
+              en
+                ? (caseItem.priceBand ?? "Quote required")
+                    .replace(/以上/g, "+")
+                    .replace(/〜/g, "–")
+                : displayPriceBand(caseItem.priceBand)
+            }
+          />
+          <InfoRow label={t.exclusive} value={exclusive} />
         </dl>
       </section>
 
+      {/* 5. Deal terms */}
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           {t.terms}

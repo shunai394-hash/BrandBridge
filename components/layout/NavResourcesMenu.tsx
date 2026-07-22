@@ -13,8 +13,27 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
   const menuId = useId();
   const en = locale === "en";
   const triggerLabel = en ? "Resources" : "ガイド";
-  const itemLabel = en ? "How to Sell in Japan" : "日本で販売する方法";
-  const itemHref = en ? "/en/how-to-sell-in-japan" : "/how-to-sell-in-japan";
+  const items = en
+    ? [
+        {
+          href: "/en/how-to-sell-in-japan",
+          label: "How to Sell in Japan",
+        },
+        {
+          href: "/en/product-showcase",
+          label: "Product Showcase Sample",
+        },
+      ]
+    : [
+        {
+          href: "/how-to-sell-in-japan",
+          label: "日本で販売する方法",
+        },
+        {
+          href: "/product-showcase",
+          label: "商品掲載サンプル",
+        },
+      ];
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -55,15 +74,18 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
           className="absolute top-full left-0 z-50 min-w-[14rem] pt-2"
         >
           <div className="rounded-md border border-white/15 bg-navy-deep py-1.5 shadow-lg">
-            <Link
-              role="menuitem"
-              href={itemHref}
-              prefetch={false}
-              className="block px-3.5 py-2 text-sm text-white/90 transition hover:bg-white/10 hover:text-white"
-              onClick={() => setOpen(false)}
-            >
-              {itemLabel}
-            </Link>
+            {items.map((item) => (
+              <Link
+                key={item.href}
+                role="menuitem"
+                href={item.href}
+                prefetch={false}
+                className="block px-3.5 py-2 text-sm text-white/90 transition hover:bg-white/10 hover:text-white"
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </div>
         </div>
       ) : null}

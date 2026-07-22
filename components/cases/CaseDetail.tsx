@@ -117,11 +117,22 @@ export function CaseDetailView({
         </h1>
 
         <dl>
-          <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow
-            label="原産国"
-            value={targetCountryLabel(caseItem.targetCountry)}
+            label="商品名"
+            value={caseItem.productName}
           />
+          <InfoRow
+            label="会社名"
+            value={caseItem.makerName?.trim() || "—"}
+          />
+          <InfoRow
+            label="原産国／出荷元"
+            value={
+              caseItem.shipFrom?.trim() ||
+              targetCountryLabel(caseItem.targetCountry)
+            }
+          />
+          <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow
             label="販売形式"
             value={salesFormatLabel(caseItem.salesFormat)}
@@ -136,6 +147,14 @@ export function CaseDetailView({
             }
           />
           <InfoRow label="MOQ（最低発注数量）" value={displayMoq(caseItem.minOrder)} />
+          <InfoRow
+            label="対応通貨"
+            value={displayOptionalText(caseItem.currencies)}
+          />
+          <InfoRow
+            label="サンプル提供可否"
+            value={displaySampleDealLabel(caseItem.sampleAvailable)}
+          />
         </dl>
       </header>
 
@@ -208,6 +227,14 @@ export function CaseDetailView({
           label="MOQ（最低発注数量）"
           value={displayMoq(caseItem.minOrder)}
         />
+        <InfoRow
+          label="支払条件"
+          value={displayOptionalText(caseItem.salesTerms)}
+        />
+        <InfoRow
+          label="サンプル提供可否"
+          value={displaySampleDealLabel(caseItem.sampleAvailable)}
+        />
       </DetailSection>
 
       <DetailSection title="契約・権利情報">
@@ -223,8 +250,12 @@ export function CaseDetailView({
 
       <DetailSection title="海外展開用情報">
         <InfoRow
-          label="出荷元"
+          label="原産国／出荷元"
           value={displayOptionalText(caseItem.shipFrom)}
+        />
+        <InfoRow
+          label="ターゲット市場"
+          value={targetCountryLabel(caseItem.targetCountry)}
         />
         <InfoRow
           label="対応通貨"

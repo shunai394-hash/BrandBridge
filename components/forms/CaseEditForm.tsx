@@ -111,7 +111,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           </select>
         </label>
         <label className="flex flex-col gap-1.5 text-sm">
-          <span className="font-medium text-navy">原産国</span>
+          <span className="font-medium text-navy">ターゲット市場</span>
           <select
             className={selectClass}
             value={form.targetCountry}
@@ -272,7 +272,7 @@ export function CaseEditForm({ caseItem }: CaseEditFormProps) {
           onChange={(e) => update("partnerChannels", e.target.value)}
         />
         <TextArea
-          label="その他の取引条件（任意）"
+          label="支払条件（Payment Terms・任意）"
           name="salesTerms"
           rows={3}
           maxLength={CASE_TEXT_LIMITS.salesTerms}

@@ -52,12 +52,66 @@ export async function completeEnMakerSetupAction(
 
   // Map English-only folded fields onto existing case columns (no schema change).
   const terms = input.dealTerms ?? "";
-  const wholesale = lineValue(terms, "Wholesale Price");
-  const moq = lineValue(terms, "MOQ");
-  const origin = lineValue(terms, "Country of Origin");
+  const wholesale =
+    input.priceBand?.trim() || lineValue(terms, "Wholesale Price");
+  const moq = input.minOrder?.trim() || lineValue(terms, "MOQ");
+  const origin =
+    input.countryOfOrigin?.trim() || lineValue(terms, "Country of Origin");
   if (wholesale) caseInput.priceBand = wholesale;
   if (moq) caseInput.minOrder = moq;
   if (origin) caseInput.shipFrom = origin;
+
+  if (input.brandName?.trim()) caseInput.brandName = input.brandName.trim();
+  if (input.brandOverview?.trim()) {
+    caseInput.brandOverview = input.brandOverview.trim();
+  }
+  if (input.productStrengths?.trim()) {
+    caseInput.productStrengths = input.productStrengths.trim();
+  }
+  if (input.productFeatures?.trim()) {
+    caseInput.productFeatures = input.productFeatures.trim();
+  }
+  if (input.currencies?.trim()) caseInput.currencies = input.currencies.trim();
+  if (input.sampleAvailable?.trim()) {
+    caseInput.sampleAvailable = input.sampleAvailable.trim();
+  }
+  if (input.salesTerms?.trim()) caseInput.salesTerms = input.salesTerms.trim();
+  if (input.incoterms?.trim()) caseInput.incoterms = input.incoterms.trim();
+  if (input.initialOrderTerms?.trim()) {
+    caseInput.initialOrderTerms = input.initialOrderTerms.trim();
+  }
+  if (input.certifications?.trim()) {
+    caseInput.certifications = input.certifications.trim();
+  }
+  if (input.supportLanguages?.trim()) {
+    caseInput.supportLanguages = input.supportLanguages.trim();
+  }
+  if (input.trademarkStatus?.trim()) {
+    caseInput.trademarkStatus = input.trademarkStatus.trim();
+  }
+  if (input.exclusiveDealOption?.trim()) {
+    caseInput.exclusiveDealOption = input.exclusiveDealOption.trim();
+    if (
+      input.exclusiveDealOption === "available" ||
+      input.exclusiveDealOption === "conditional"
+    ) {
+      caseInput.isExclusive = true;
+    } else if (input.exclusiveDealOption === "unavailable") {
+      caseInput.isExclusive = false;
+    }
+  } else if (/Exclusive Availability:\s*Available/i.test(terms)) {
+    caseInput.exclusiveDealOption = "available";
+    caseInput.isExclusive = true;
+  } else if (/Exclusive Availability:\s*Non-exclusive/i.test(terms)) {
+    caseInput.exclusiveDealOption = "unavailable";
+    caseInput.isExclusive = false;
+  }
+
+  // Prefer structured Brand: line from description if brandName still empty
+  if (!caseInput.brandName?.trim()) {
+    const brandFromDesc = lineValue(caseInput.description, "Brand");
+    if (brandFromDesc) caseInput.brandName = brandFromDesc;
+  }
 
   if (!caseInput.description.includes(ENGLISH_CASE_MARKER)) {
     caseInput.description = `${ENGLISH_CASE_MARKER}\n${caseInput.description}`;

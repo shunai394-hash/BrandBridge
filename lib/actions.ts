@@ -102,6 +102,13 @@ export async function completeMakerSetupAction(
     caseInput.productImageUrl = imageUrl;
   }
 
+  if (input.countryOfOrigin?.trim()) {
+    caseInput.shipFrom = input.countryOfOrigin.trim();
+  }
+  if (input.salesTerms?.trim()) {
+    caseInput.salesTerms = input.salesTerms.trim();
+  }
+
   const supabase = await createClient();
 
   // Save profile fields first, but do NOT mark onboarding complete until case insert succeeds.

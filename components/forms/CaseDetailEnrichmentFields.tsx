@@ -160,7 +160,7 @@ export function CaseDetailEnrichmentFields({ form, update }: Props) {
           海外展開用情報
         </h2>
         <Input
-          label="出荷元"
+          label="原産国／出荷元"
           name="shipFrom"
           maxLength={CASE_TEXT_LIMITS.shipFrom}
           value={form.shipFrom}

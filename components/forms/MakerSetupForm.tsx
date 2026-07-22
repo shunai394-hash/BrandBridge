@@ -78,6 +78,8 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
     dealTerms: "",
     productImageUrl: null,
     productVideoUrl: null,
+    countryOfOrigin: "",
+    salesTerms: "",
   });
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
@@ -403,6 +405,22 @@ export function MakerSetupForm({ email, userId }: MakerSetupFormProps) {
               rows={4}
               value={form.dealTerms}
               onChange={(e) => update("dealTerms", e.target.value)}
+              placeholder="リードタイム、支払条件、その他の希望など"
+            />
+            <Input
+              label="原産国／出荷元（任意）"
+              name="countryOfOrigin"
+              value={form.countryOfOrigin ?? ""}
+              onChange={(e) => update("countryOfOrigin", e.target.value)}
+              placeholder="例: アメリカ合衆国 / 大阪"
+            />
+            <TextArea
+              label="支払条件（任意）"
+              name="salesTerms"
+              rows={2}
+              value={form.salesTerms ?? ""}
+              onChange={(e) => update("salesTerms", e.target.value)}
+              placeholder="例: 銀行振込 / Net 30"
             />
           </>
         ) : null}

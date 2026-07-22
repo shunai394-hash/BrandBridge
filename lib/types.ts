@@ -458,6 +458,24 @@ export type MakerRegistrationInput = {
   dealTerms: string;
   productImageUrl?: string | null;
   productVideoUrl?: string | null;
+  /** Optional structured fields (EN setup / future JA setup) → case columns */
+  brandName?: string | null;
+  countryOfOrigin?: string | null;
+  productFeatures?: string | null;
+  currencies?: string | null;
+  sampleAvailable?: string | null;
+  /** Payment terms → cases.sales_terms */
+  salesTerms?: string | null;
+  incoterms?: string | null;
+  initialOrderTerms?: string | null;
+  brandOverview?: string | null;
+  productStrengths?: string | null;
+  certifications?: string | null;
+  supportLanguages?: string | null;
+  trademarkStatus?: string | null;
+  exclusiveDealOption?: string | null;
+  minOrder?: string | null;
+  priceBand?: string | null;
 };
 
 /** Stored in auth user_metadata when email confirmation is required */

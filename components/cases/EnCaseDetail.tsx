@@ -4,6 +4,12 @@ import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
 import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
 import { Button } from "@/components/ui/Button";
+import {
+  displayExclusiveDealOption,
+  displayOptionalText,
+  displaySampleDealLabel,
+  displayTrademarkStatus,
+} from "@/lib/case-detail-display";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import type { Case, SalesFormat, TargetCountry } from "@/lib/types";
 
@@ -37,12 +43,53 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
   );
 }
 
+function DetailSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mt-8">
+      <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+        {title}
+      </h2>
+      <dl className="mt-2">{children}</dl>
+    </section>
+  );
+}
+
 function displayMoqEn(value: string | null | undefined): string {
   const t = value?.trim();
   return t ? t : "Negotiable";
 }
 
-/** Prefer shipFrom / embedded English line; else target country label. */
+function trademarkEn(value: string | null | undefined): string {
+  if (value === "registered") return "Registered";
+  if (value === "pending") return "Pending";
+  if (value === "unregistered") return "Unregistered";
+  const ja = displayTrademarkStatus(value);
+  return ja === "—" ? "—" : ja;
+}
+
+function exclusiveOptionEn(value: string | null | undefined): string {
+  if (value === "available") return "Exclusive available";
+  if (value === "conditional") return "Available by territory (conditional)";
+  if (value === "unavailable") return "Not available";
+  const ja = displayExclusiveDealOption(value);
+  return ja === "—" ? "—" : ja;
+}
+
+function sampleEn(value: string | null | undefined): string {
+  if (value === "yes") return "Available";
+  if (value === "negotiable") return "Negotiable";
+  if (value === "no") return "Not available";
+  const ja = displaySampleDealLabel(value);
+  return ja === "—" ? "—" : ja;
+}
+
+/** Prefer shipFrom; else embedded English line; else target market. */
 function countryOfOriginEn(caseItem: Case): string {
   const fromShip = caseItem.shipFrom?.trim();
   if (fromShip) return fromShip;
@@ -58,7 +105,6 @@ function countryOfOriginEn(caseItem: Case): string {
   );
 }
 
-/** Prefer MOQ column; else line embedded in offer/description. */
 function moqEn(caseItem: Case): string {
   if (caseItem.minOrder?.trim()) return displayMoqEn(caseItem.minOrder);
   const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
@@ -69,7 +115,6 @@ function moqEn(caseItem: Case): string {
   return "Negotiable";
 }
 
-/** Prefer priceBand; else wholesale line embedded in offer/description. */
 function wholesaleSource(caseItem: Case): string | null {
   if (caseItem.priceBand?.trim()) return caseItem.priceBand;
   const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
@@ -80,6 +125,9 @@ function wholesaleSource(caseItem: Case): string | null {
 }
 
 function exclusiveEn(caseItem: Case): string {
+  const fromOption = exclusiveOptionEn(caseItem.exclusiveDealOption);
+  if (fromOption !== "—") return fromOption;
+
   const blob = [caseItem.offer, caseItem.description].filter(Boolean).join("\n");
   if (/Exclusive Availability:\s*Available/i.test(blob)) {
     return "Exclusive available";
@@ -95,7 +143,6 @@ type EnCaseDetailProps = {
 };
 
 export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
-  // Same negotiation entry as Japanese CaseDetail / CaseList (not /en/contact).
   const negotiateHref = `/cases/${caseItem.id}/negotiation`;
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
@@ -111,7 +158,7 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
   const companyName = caseItem.makerName?.trim() || "—";
 
   return (
-    <article className="animate-fade-up">
+    <article className="animate-fade-up" lang="en">
       <div className="mb-6">
         <Link href="/en/cases" className="text-sm text-teal hover:underline">
           ← Back to products
@@ -158,7 +205,15 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
               />
             }
           />
+          <InfoRow
+            label="Currency"
+            value={displayOptionalText(caseItem.currencies)}
+          />
           <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
+          <InfoRow
+            label="Samples Availability"
+            value={sampleEn(caseItem.sampleAvailable)}
+          />
         </dl>
       </header>
 
@@ -176,13 +231,90 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
       {en.features ? (
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-            Product features
+            Product Features
           </h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
             {en.features}
           </p>
         </section>
       ) : null}
+
+      <DetailSection title="Brand information">
+        <InfoRow
+          label="Brand name"
+          value={displayOptionalText(caseItem.brandName)}
+        />
+        <InfoRow
+          label="Brand Overview"
+          value={displayOptionalText(caseItem.brandOverview)}
+        />
+        <InfoRow
+          label="Product Strengths"
+          value={displayOptionalText(caseItem.productStrengths)}
+        />
+      </DetailSection>
+
+      <DetailSection title="Deal terms">
+        <InfoRow
+          label="Initial Order Terms"
+          value={displayOptionalText(caseItem.initialOrderTerms)}
+        />
+        <InfoRow
+          label="Wholesale Price Range"
+          value={
+            <WholesalePriceRange
+              priceBand={wholesaleSource(caseItem)}
+              locale="en"
+            />
+          }
+        />
+        <InfoRow label="MOQ" value={moqEn(caseItem)} />
+        <InfoRow
+          label="Payment Terms"
+          value={displayOptionalText(caseItem.salesTerms)}
+        />
+        <InfoRow
+          label="Samples Availability"
+          value={sampleEn(caseItem.sampleAvailable)}
+        />
+        <InfoRow
+          label="Trademark / License"
+          value={trademarkEn(caseItem.trademarkStatus)}
+        />
+        <InfoRow
+          label="Exclusive Option"
+          value={exclusiveEn(caseItem)}
+        />
+      </DetailSection>
+
+      <DetailSection title="International terms">
+        <InfoRow
+          label="Ship From"
+          value={displayOptionalText(caseItem.shipFrom)}
+        />
+        <InfoRow
+          label="Target Market"
+          value={
+            TARGET_MARKET_EN[caseItem.targetCountry] ?? caseItem.targetCountry
+          }
+        />
+        <InfoRow
+          label="Currency"
+          value={displayOptionalText(caseItem.currencies)}
+        />
+        <InfoRow
+          label="Incoterms"
+          value={displayOptionalText(caseItem.incoterms)}
+        />
+        <InfoRow
+          label="Certifications"
+          value={displayOptionalText(caseItem.certifications)}
+        />
+        <InfoRow
+          label="Support Languages"
+          value={displayOptionalText(caseItem.supportLanguages)}
+        />
+      </DetailSection>
 
       <section className="mt-10 border-t border-border pt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">

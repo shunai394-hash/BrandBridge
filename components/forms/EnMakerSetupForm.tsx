@@ -106,6 +106,17 @@ type EnFormState = Omit<MakerRegistrationInput, "email" | "password"> & {
   wholesalePrice: string;
   moq: string;
   exclusiveNote: "yes" | "no" | "";
+  productFeatures: string;
+  currencies: string;
+  sampleAvailable: string;
+  paymentTerms: string;
+  incoterms: string;
+  initialOrderTerms: string;
+  brandOverview: string;
+  productStrengths: string;
+  certifications: string;
+  supportLanguages: string;
+  trademarkStatus: string;
 };
 
 export function EnMakerSetupForm({
@@ -145,6 +156,17 @@ export function EnMakerSetupForm({
     wholesalePrice: "",
     moq: "",
     exclusiveNote: "",
+    productFeatures: "",
+    currencies: "",
+    sampleAvailable: "",
+    paymentTerms: "",
+    incoterms: "",
+    initialOrderTerms: "",
+    brandOverview: "",
+    productStrengths: "",
+    certifications: "",
+    supportLanguages: "",
+    trademarkStatus: "",
   });
 
   function update<K extends keyof EnFormState>(key: K, value: EnFormState[K]) {
@@ -253,6 +275,27 @@ export function EnMakerSetupForm({
       dealTerms,
       productImageUrl: form.productImageUrl,
       productVideoUrl: form.productVideoUrl?.trim() || null,
+      brandName: brand || null,
+      countryOfOrigin: origin || null,
+      productFeatures: form.productFeatures.trim() || null,
+      currencies: form.currencies.trim() || null,
+      sampleAvailable: form.sampleAvailable || null,
+      salesTerms: form.paymentTerms.trim() || null,
+      incoterms: form.incoterms.trim() || null,
+      initialOrderTerms: form.initialOrderTerms.trim() || null,
+      brandOverview: form.brandOverview.trim() || null,
+      productStrengths: form.productStrengths.trim() || null,
+      certifications: form.certifications.trim() || null,
+      supportLanguages: form.supportLanguages.trim() || null,
+      trademarkStatus: form.trademarkStatus || null,
+      exclusiveDealOption:
+        form.exclusiveNote === "yes"
+          ? "available"
+          : form.exclusiveNote === "no"
+            ? "unavailable"
+            : null,
+      minOrder: form.moq.trim() || null,
+      priceBand: form.wholesalePrice.trim() || null,
     };
   }
 
@@ -436,6 +479,33 @@ export function EnMakerSetupForm({
               {form.productSummary.length} / {CASE_TEXT_LIMITS.description}{" "}
               characters
             </p>
+            <TextArea
+              label="Product Features (optional)"
+              name="productFeatures"
+              rows={3}
+              maxLength={CASE_TEXT_LIMITS.productFeatures}
+              value={form.productFeatures}
+              onChange={(e) => update("productFeatures", e.target.value)}
+              placeholder="Key specs, ingredients, packaging, etc."
+            />
+            <TextArea
+              label="Brand Overview (optional)"
+              name="brandOverview"
+              rows={3}
+              maxLength={CASE_TEXT_LIMITS.brandOverview}
+              value={form.brandOverview}
+              onChange={(e) => update("brandOverview", e.target.value)}
+              placeholder="Brand story, positioning, target audience"
+            />
+            <TextArea
+              label="Product Strengths (optional)"
+              name="productStrengths"
+              rows={3}
+              maxLength={CASE_TEXT_LIMITS.productStrengths}
+              value={form.productStrengths}
+              onChange={(e) => update("productStrengths", e.target.value)}
+              placeholder="Differentiation and why partners should sell this"
+            />
           </>
         ) : null}
 
@@ -575,7 +645,84 @@ export function EnMakerSetupForm({
               rows={4}
               value={form.dealTerms}
               onChange={(e) => update("dealTerms", e.target.value)}
-              placeholder="Lead time, Incoterms, payment terms, etc."
+              placeholder="Lead time and other free-text notes"
+            />
+            <TextArea
+              label="Payment Terms (optional)"
+              name="paymentTerms"
+              rows={2}
+              maxLength={CASE_TEXT_LIMITS.salesTerms}
+              value={form.paymentTerms}
+              onChange={(e) => update("paymentTerms", e.target.value)}
+              placeholder="e.g. Wire / Wise · Net 30 negotiable"
+            />
+            <Input
+              label="Currency (optional)"
+              name="currencies"
+              maxLength={CASE_TEXT_LIMITS.currencies}
+              value={form.currencies}
+              onChange={(e) => update("currencies", e.target.value)}
+              placeholder="e.g. USD / JPY"
+            />
+            <Input
+              label="Incoterms (optional)"
+              name="incoterms"
+              maxLength={CASE_TEXT_LIMITS.incoterms}
+              value={form.incoterms}
+              onChange={(e) => update("incoterms", e.target.value)}
+              placeholder="e.g. FOB / CIF / DDP"
+            />
+            <TextArea
+              label="Initial Order Terms (optional)"
+              name="initialOrderTerms"
+              rows={2}
+              maxLength={CASE_TEXT_LIMITS.initialOrderTerms}
+              value={form.initialOrderTerms}
+              onChange={(e) => update("initialOrderTerms", e.target.value)}
+              placeholder="e.g. MOQ 48 · Sample kit · Net 30"
+            />
+            <label className="flex flex-col gap-1.5 text-sm">
+              <FieldLabel>Samples Availability</FieldLabel>
+              <select
+                className={selectClass}
+                value={form.sampleAvailable}
+                onChange={(e) => update("sampleAvailable", e.target.value)}
+              >
+                <option value="">Not set</option>
+                <option value="yes">Available</option>
+                <option value="negotiable">Negotiable</option>
+                <option value="no">Not available</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm">
+              <FieldLabel>Trademark / License</FieldLabel>
+              <select
+                className={selectClass}
+                value={form.trademarkStatus}
+                onChange={(e) => update("trademarkStatus", e.target.value)}
+              >
+                <option value="">Not set</option>
+                <option value="registered">Registered</option>
+                <option value="pending">Pending</option>
+                <option value="unregistered">Unregistered</option>
+              </select>
+            </label>
+            <TextArea
+              label="Certifications (optional)"
+              name="certifications"
+              rows={2}
+              maxLength={CASE_TEXT_LIMITS.certifications}
+              value={form.certifications}
+              onChange={(e) => update("certifications", e.target.value)}
+              placeholder="e.g. Cruelty-free · Dermatologist tested"
+            />
+            <Input
+              label="Support Languages (optional)"
+              name="supportLanguages"
+              maxLength={CASE_TEXT_LIMITS.supportLanguages}
+              value={form.supportLanguages}
+              onChange={(e) => update("supportLanguages", e.target.value)}
+              placeholder="e.g. English / Japanese"
             />
           </>
         ) : null}

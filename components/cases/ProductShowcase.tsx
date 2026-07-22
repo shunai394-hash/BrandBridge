@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import {
   displayExclusiveDealOption,
   displayOptionalText,
+  displaySampleDealLabel,
   displayTrademarkStatus,
 } from "@/lib/case-detail-display";
 import { displayMoq } from "@/lib/price-display";
@@ -71,6 +72,8 @@ const copy = {
     terms: "Deal terms",
     initialOrder: "Initial order terms",
     priceBand: "Reference wholesale band",
+    payment: "Payment Terms",
+    samples: "Samples Availability",
     trademark: "Trademark / license",
     exclusiveDeal: "Exclusive availability",
     shipping: "International terms",
@@ -107,10 +110,12 @@ const copy = {
     terms: "取引条件",
     initialOrder: "初回発注条件",
     priceBand: "参考卸価格帯",
+    payment: "支払条件",
+    samples: "サンプル提供可否",
     trademark: "商標・ライセンス",
     exclusiveDeal: "独占販売可否",
     shipping: "海外展開用情報",
-    shipFrom: "出荷元",
+    shipFrom: "原産国／出荷元",
     currencies: "対応通貨",
     incoterms: "取引条件（Incoterms）",
     certifications: "必要認証",
@@ -244,7 +249,25 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
               />
             }
           />
+          <InfoRow
+            label={t.currencies}
+            value={displayOptionalText(caseItem.currencies)}
+          />
           <InfoRow label={t.exclusive} value={exclusive} />
+          <InfoRow
+            label={t.samples}
+            value={
+              en
+                ? caseItem.sampleAvailable === "yes"
+                  ? "Available"
+                  : caseItem.sampleAvailable === "negotiable"
+                    ? "Negotiable"
+                    : caseItem.sampleAvailable === "no"
+                      ? "Not available"
+                      : displaySampleDealLabel(caseItem.sampleAvailable)
+                : displaySampleDealLabel(caseItem.sampleAvailable)
+            }
+          />
         </dl>
       </section>
 
@@ -268,6 +291,24 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
             }
           />
           <InfoRow label={t.moq} value={displayMoq(caseItem.minOrder)} />
+          <InfoRow
+            label={t.payment}
+            value={displayOptionalText(caseItem.salesTerms)}
+          />
+          <InfoRow
+            label={t.samples}
+            value={
+              en
+                ? caseItem.sampleAvailable === "yes"
+                  ? "Available"
+                  : caseItem.sampleAvailable === "negotiable"
+                    ? "Negotiable"
+                    : caseItem.sampleAvailable === "no"
+                      ? "Not available"
+                      : displaySampleDealLabel(caseItem.sampleAvailable)
+                : displaySampleDealLabel(caseItem.sampleAvailable)
+            }
+          />
           <InfoRow
             label={t.trademark}
             value={

@@ -29,7 +29,7 @@ export function parseYenPriceBand(
   if (!t) return null;
 
   const range = t.match(
-    /¥?\s*([\d,]+)\s*[〜～\-–—~]\s*¥?\s*([\d,]+)/u,
+    /¥?\s*([\d,]+)\s*円?\s*[〜～\-–—~]\s*¥?\s*([\d,]+)\s*円?/u,
   );
   if (range) {
     const min = parseYenAmount(range[1]);
@@ -39,15 +39,21 @@ export function parseYenPriceBand(
     }
   }
 
-  const plus = t.match(/¥?\s*([\d,]+)\s*以上/u);
+  const plus = t.match(/¥?\s*([\d,]+)\s*円?\s*以上/u);
   if (plus) {
     const min = parseYenAmount(plus[1]);
     if (min != null) return { type: "minPlus", min };
   }
 
-  const single = t.match(/¥\s*([\d,]+)/u);
-  if (single) {
-    const n = parseYenAmount(single[1]);
+  const singleYenMark = t.match(/¥\s*([\d,]+)/u);
+  if (singleYenMark) {
+    const n = parseYenAmount(singleYenMark[1]);
+    if (n != null) return { type: "range", min: n, max: n };
+  }
+
+  const singleYenKanji = t.match(/([\d,]+)\s*円/u);
+  if (singleYenKanji) {
+    const n = parseYenAmount(singleYenKanji[1]);
     if (n != null) return { type: "range", min: n, max: n };
   }
 
@@ -146,17 +152,19 @@ export function resolveWholesalePriceDisplay(
     return { kind: "single", primary: raw };
   }
 
+  const taxSuffix = /税/.test(priceBand ?? "") ? "（税別）" : "";
+
   if (locale === "en") {
     return {
       kind: "dual",
       primary: formatUsdPrimary(yen),
-      secondary: formatYenApprox(yen),
+      secondary: `${formatYenApprox(yen)}${taxSuffix ? " excl. tax" : ""}`,
     };
   }
 
   return {
     kind: "dual",
-    primary: formatYenPrimary(yen),
+    primary: `${formatYenPrimary(yen)}${taxSuffix}`,
     secondary: formatUsdApprox(yen),
   };
 }

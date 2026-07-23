@@ -175,6 +175,51 @@ export const EN_CASE_CATALOG: Record<string, EnCaseCatalogEntry> = {
       "Prototype-to-mid-volume metal parts with English quotation and lead-time workflows.",
     features: "CNC / sheet metal, ISO9001 factory",
   },
+  "c0000021-0000-4000-8000-000000000021": {
+    productName: "Nordic Wood Lamp",
+    summary:
+      "Scandinavian-style table lamp with a natural wood base and fabric shade for interior wholesale.",
+    description:
+      "A Scandinavian-style table lamp featuring a natural wood base and fabric shade. Perfect for living rooms, bedrooms, cafés, and modern interiors. Oak grain base with soft diffused light for calm spaces.",
+    features:
+      "Oak wood base / linen-blend fabric shade / E26 socket / 42cm height / LED bulb included",
+  },
+  "c0000022-0000-4000-8000-000000000022": {
+    productName: "Urban Travel Backpack",
+    summary:
+      "Multifunctional backpack with laptop sleeve, waterproof fabric, and USB port.",
+    description:
+      "A multifunctional backpack with a laptop compartment, waterproof fabric, and USB charging port. Ideal for commuting, school, and travel. Padded back panel and anti-theft pocket for city mobility.",
+    features:
+      "15-inch laptop sleeve / water-resistant nylon / USB charging port / 28L / approx. 980g",
+  },
+  "c0000023-0000-4000-8000-000000000023": {
+    productName: "Pure Ceramic Mug",
+    summary:
+      "Premium ceramic mug with a clean minimalist design for everyday and gift channels.",
+    description:
+      "A premium ceramic mug with a clean minimalist design. Suitable for everyday use and gift collections. Even white porcelain and an easy-grip handle crafted with Mino ware expertise.",
+    features:
+      "Porcelain / microwave & dishwasher safe / 320ml / gift-box ready",
+  },
+  "c0000024-0000-4000-8000-000000000024": {
+    productName: "Smart Fitness Bottle",
+    summary:
+      "Vacuum-insulated sports bottle that keeps drinks hot or cold for hours.",
+    description:
+      "A vacuum-insulated sports bottle that keeps drinks hot or cold for hours. Perfect for gyms, outdoor activities, and everyday use. Leak-resistant lid with one-hand open design for workouts.",
+    features:
+      "Vacuum-insulated stainless steel / 500ml / keeps warm ~6h, cold ~12h / leak-resistant lid",
+  },
+  "c0000025-0000-4000-8000-000000000025": {
+    productName: "Eco Bamboo Organizer",
+    summary:
+      "Natural bamboo desktop organizer for tidy office supplies and accessories.",
+    description:
+      "A desktop organizer made from natural bamboo. Keeps office supplies and accessories neatly arranged. Multi-compartment tray for pens, sticky notes, and cables—ideal for home offices.",
+    features:
+      "Natural bamboo / multi-compartment tray / W28×D12×H8cm / clear-coated finish",
+  },
 
   // --- by SKU ---
   "HYC-0001": {
@@ -332,6 +377,51 @@ export const EN_CASE_CATALOG: Record<string, EnCaseCatalogEntry> = {
       "Prototype-to-mid-volume metal parts with English quotation workflows.",
     features: "CNC / sheet metal, ISO9001 factory",
   },
+  "DUM-0021": {
+    productName: "Nordic Wood Lamp",
+    summary:
+      "Scandinavian-style table lamp with a natural wood base and fabric shade for interior wholesale.",
+    description:
+      "A Scandinavian-style table lamp featuring a natural wood base and fabric shade. Perfect for living rooms, bedrooms, cafés, and modern interiors. Oak grain base with soft diffused light for calm spaces.",
+    features:
+      "Oak wood base / linen-blend fabric shade / E26 socket / 42cm height / LED bulb included",
+  },
+  "DUM-0022": {
+    productName: "Urban Travel Backpack",
+    summary:
+      "Multifunctional backpack with laptop sleeve, waterproof fabric, and USB port.",
+    description:
+      "A multifunctional backpack with a laptop compartment, waterproof fabric, and USB charging port. Ideal for commuting, school, and travel. Padded back panel and anti-theft pocket for city mobility.",
+    features:
+      "15-inch laptop sleeve / water-resistant nylon / USB charging port / 28L / approx. 980g",
+  },
+  "DUM-0023": {
+    productName: "Pure Ceramic Mug",
+    summary:
+      "Premium ceramic mug with a clean minimalist design for everyday and gift channels.",
+    description:
+      "A premium ceramic mug with a clean minimalist design. Suitable for everyday use and gift collections. Even white porcelain and an easy-grip handle crafted with Mino ware expertise.",
+    features:
+      "Porcelain / microwave & dishwasher safe / 320ml / gift-box ready",
+  },
+  "DUM-0024": {
+    productName: "Smart Fitness Bottle",
+    summary:
+      "Vacuum-insulated sports bottle that keeps drinks hot or cold for hours.",
+    description:
+      "A vacuum-insulated sports bottle that keeps drinks hot or cold for hours. Perfect for gyms, outdoor activities, and everyday use. Leak-resistant lid with one-hand open design for workouts.",
+    features:
+      "Vacuum-insulated stainless steel / 500ml / keeps warm ~6h, cold ~12h / leak-resistant lid",
+  },
+  "DUM-0025": {
+    productName: "Eco Bamboo Organizer",
+    summary:
+      "Natural bamboo desktop organizer for tidy office supplies and accessories.",
+    description:
+      "A desktop organizer made from natural bamboo. Keeps office supplies and accessories neatly arranged. Multi-compartment tray for pens, sticky notes, and cables—ideal for home offices.",
+    features:
+      "Natural bamboo / multi-compartment tray / W28×D12×H8cm / clear-coated finish",
+  },
 
   // --- by Japanese product name ---
   アオバモイスチャーローション: {
@@ -464,6 +554,11 @@ export const EN_CATEGORY_LABELS: Record<string, string> = {
   ファッション: "Fashion",
   "家電・ガジェット": "Electronics & Gadgets",
   "雑貨・ライフスタイル": "Lifestyle & Goods",
+  "ホーム・インテリア": "Home & Interior",
+  バッグ: "Bags",
+  キッチン: "Kitchen",
+  スポーツ: "Sports",
+  "ホーム・収納": "Home Storage",
   "製造・産業": "Manufacturing & Industrial",
   その他: "Other",
 };

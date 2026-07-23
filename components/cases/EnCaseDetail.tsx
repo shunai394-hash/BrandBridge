@@ -10,8 +10,9 @@ import {
   displaySampleDealLabel,
   displayTrademarkStatus,
 } from "@/lib/case-detail-display";
+import { canViewMakerCompanyName } from "@/lib/case-company-visibility";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
-import type { Case, SalesFormat, TargetCountry } from "@/lib/types";
+import type { Case, SalesFormat, SessionUser, TargetCountry } from "@/lib/types";
 
 const SALES_FORMAT_EN: Record<SalesFormat, string> = {
   wholesale: "Wholesale",
@@ -140,9 +141,15 @@ function exclusiveEn(caseItem: Case): string {
 
 type EnCaseDetailProps = {
   caseItem: Case;
+  user?: SessionUser | null;
+  alreadyApplied?: boolean;
 };
 
-export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
+export function EnCaseDetail({
+  caseItem,
+  user = null,
+  alreadyApplied = false,
+}: EnCaseDetailProps) {
   const negotiateHref = `/cases/${caseItem.id}/negotiation`;
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
@@ -155,7 +162,8 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
     description: caseItem.description,
     productFeatures: caseItem.productFeatures,
   });
-  const companyName = caseItem.makerName?.trim() || "—";
+  const showCompanyName = canViewMakerCompanyName(user, alreadyApplied);
+  const brandName = caseItem.brandName?.trim() || "";
 
   return (
     <article className="animate-fade-up" lang="en">
@@ -165,10 +173,6 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
         </Link>
       </div>
 
-      <p className="text-xs font-medium tracking-wider text-teal">
-        BrandBridge Product
-      </p>
-
       <header className="mt-3 space-y-5">
         <CaseImageGallery
           images={caseItem.images}
@@ -177,25 +181,18 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
           locale="en"
         />
 
+        {brandName ? (
+          <p className="text-sm font-medium tracking-wide text-teal">
+            {brandName}
+          </p>
+        ) : null}
+
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           {en.productName}
         </h1>
 
         <dl>
-          <InfoRow label="Product Name" value={en.productName} />
-          <InfoRow label="Company Name" value={companyName} />
-          <InfoRow
-            label="Country of Origin"
-            value={countryOfOriginEn(caseItem)}
-          />
           <InfoRow label="Category" value={en.category} />
-          <InfoRow
-            label="Sales Format"
-            value={
-              SALES_FORMAT_EN[caseItem.salesFormat] ?? caseItem.salesFormat
-            }
-          />
-          <InfoRow label="MOQ" value={moqEn(caseItem)} />
           <InfoRow
             label="Wholesale Price Range"
             value={
@@ -205,19 +202,17 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
               />
             }
           />
-          <InfoRow
-            label="Currency"
-            value={displayOptionalText(caseItem.currencies)}
-          />
-          <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
-          <InfoRow
-            label="Samples Availability"
-            value={sampleEn(caseItem.sampleAvailable)}
-          />
+          <InfoRow label="MOQ" value={moqEn(caseItem)} />
+          {showCompanyName ? (
+            <InfoRow
+              label="Company Name"
+              value={caseItem.makerName?.trim() || "—"}
+            />
+          ) : null}
         </dl>
       </header>
 
-      <ProductVideo url={caseItem.productVideoUrl} locale="en" />
+     
 
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
@@ -251,6 +246,25 @@ export function EnCaseDetail({ caseItem }: EnCaseDetailProps) {
         <InfoRow
           label="Product Strengths"
           value={displayOptionalText(caseItem.productStrengths)}
+        />
+      </DetailSection>
+
+      <DetailSection title="Sales information">
+        <InfoRow
+          label="Sales Track Record"
+          value={displayOptionalText(caseItem.salesTrackRecord)}
+        />
+        <InfoRow
+          label="Japan / US Availability"
+          value={displayOptionalText(caseItem.marketAvailabilityJpUs)}
+        />
+        <InfoRow
+          label="Suggested Retail Price"
+          value={displayOptionalText(caseItem.suggestedRetailPrice)}
+        />
+        <InfoRow
+          label="Lead Time"
+          value={displayOptionalText(caseItem.leadTime)}
         />
       </DetailSection>
 

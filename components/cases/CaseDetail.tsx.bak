@@ -140,11 +140,21 @@ export function CaseDetailView({
             label="MOQ（最低発注数量）"
             value={displayMoq(caseItem.minOrder)}
           />
-         
+          {showCompanyName ? (
+            <InfoRow
+              label="会社名"
+              value={caseItem.makerName?.trim() || "—"}
+            />
+          ) : null}
         </dl>
       </header>
 
-      
+      <ProductVideo
+        url={caseItem.productVideoUrl}
+        locale="ja"
+        poster={caseItem.productImageUrl}
+      />
+
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           商品説明

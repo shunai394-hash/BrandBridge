@@ -252,7 +252,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       inNegotiation:
         (inNegotiation.count ?? 0) + (termsReview.count ?? 0),
       contractPrep: contractPrep.count ?? 0,
-      contracted: contracted.count ?? 0,
+      contracted: dealStats.dealCount,
     },
     fees: {
       awaitingInvoice,

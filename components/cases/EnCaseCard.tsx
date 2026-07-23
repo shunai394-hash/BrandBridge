@@ -62,6 +62,7 @@ export function EnCaseCard({ caseItem, index = 0 }: EnCaseCardProps) {
             alt={en.productName}
             size="card"
             locale="en"
+            usePlaceholder
           />
         </div>
         <div className="mt-2 flex flex-wrap gap-2 text-xs">

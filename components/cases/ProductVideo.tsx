@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { parseProductVideoUrl } from "@/lib/product-video";
 
 type ProductVideoProps = {
@@ -15,7 +18,7 @@ type ProductVideoProps = {
 /**
  * Optional product intro video under the image gallery.
  * YouTube / Vimeo → embed; mp4/webm → HTML5 player; other URLs → text link.
- * Null/empty → render nothing unless showEmpty.
+ * Unplayable file videos hide the whole section (no black empty player).
  */
 export function ProductVideo({
   url,
@@ -24,6 +27,8 @@ export function ProductVideo({
   poster = null,
 }: ProductVideoProps) {
   const parsed = parseProductVideoUrl(url);
+  const [fileFailed, setFileFailed] = useState(false);
+
   if (!parsed && !showEmpty) return null;
 
   const title = locale === "en" ? "Product Video" : "商品紹介動画";
@@ -35,6 +40,7 @@ export function ProductVideo({
       : "商品紹介動画はまだ登録されていません。";
 
   if (!parsed) {
+    if (!showEmpty) return null;
     return (
       <section className="mt-8" lang={locale === "en" ? "en" : undefined}>
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
@@ -81,21 +87,36 @@ export function ProductVideo({
   }
 
   if (parsed.kind === "file") {
+    if (fileFailed) return null;
+
+    const posterUrl = poster?.trim() || undefined;
+
     return (
       <section className="mt-8" lang={locale === "en" ? "en" : undefined}>
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           {title}
         </h2>
-        <div className="mt-3 overflow-hidden rounded-lg border border-border bg-navy-deep/5 shadow-[0_8px_24px_rgba(20,32,51,0.06)]">
-          <div className="relative aspect-video w-full bg-navy-deep/10">
+        <div className="mt-3 overflow-hidden rounded-lg border border-border bg-cream shadow-[0_8px_24px_rgba(20,32,51,0.06)]">
+          <div className="relative aspect-video w-full bg-cream">
             <video
               className="absolute inset-0 h-full w-full object-contain"
               controls
               playsInline
               preload="metadata"
-              poster={poster?.trim() || undefined}
+              poster={posterUrl}
+              onError={() => setFileFailed(true)}
+              onLoadedMetadata={(event) => {
+                const el = event.currentTarget;
+                if (!Number.isFinite(el.duration) || el.duration <= 0) {
+                  setFileFailed(true);
+                }
+              }}
             >
-              <source src={parsed.href} type="video/mp4" />
+              <source
+                src={parsed.href}
+                type="video/mp4"
+                onError={() => setFileFailed(true)}
+              />
             </video>
           </div>
         </div>

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "check:preflight": "node scripts/github-preflight.mjs",
-    "admin:create": "node scripts/create-admin.mjs"
+    "admin:create": "node scripts/create-admin.mjs",
+    "seed:dummy-catalog": "node scripts/seed-dummy-catalog.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

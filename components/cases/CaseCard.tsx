@@ -31,6 +31,7 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
             src={caseItem.productImageUrl}
             alt={caseItem.productName}
             size="card"
+            usePlaceholder
           />
         </div>
         <p className="font-mono text-xs font-medium tracking-wide text-teal">

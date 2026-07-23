@@ -1,8 +1,5 @@
-/**
- * BrandBridge 全体実績（表示用）。
- * 現状は定数。後で DB 集計に差し替える場合は getPlatformStats() のみ更新する。
- * 商品ごとの応募件数とは別系統（水増し禁止）。
- */
+import { createClient } from "@/lib/supabase/server";
+
 export type PlatformStats = {
   listedProducts: number;
   activeNegotiations: number;
@@ -10,14 +7,43 @@ export type PlatformStats = {
   registeredCompanies: number;
 };
 
-/** 手動運用の実績値。DB 接続前の単一管理ポイント */
-export const PLATFORM_STATS: PlatformStats = {
-  listedProducts: 20,
-  activeNegotiations: 18,
-  closedDeals: 2,
-  registeredCompanies: 45,
-};
+export async function getPlatformStats(): Promise<PlatformStats> {
+  const supabase = await createClient();
 
-export function getPlatformStats(): PlatformStats {
-  return PLATFORM_STATS;
+  const [
+    products,
+    negotiations,
+    deals,
+    companies,
+  ] = await Promise.all([
+    supabase
+      .from("cases")
+      .select("id", { count: "exact", head: true })
+      .eq("review_status", "approved")
+      .eq("status", "open"),
+
+    supabase
+      .from("negotiations")
+      .select("id", { count: "exact", head: true })
+      .in("pipeline_status", [
+        "in_negotiation",
+        "terms_review",
+        "contract_prep",
+      ]),
+
+    supabase
+      .from("deals")
+      .select("id", { count: "exact", head: true }),
+
+    supabase
+      .from("profiles")
+      .select("id", { count: "exact", head: true }),
+  ]);
+
+  return {
+    listedProducts: products.count ?? 0,
+    activeNegotiations: negotiations.count ?? 0,
+    closedDeals: deals.count ?? 0,
+    registeredCompanies: companies.count ?? 0,
+  };
 }

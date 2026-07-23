@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
 import Script from "next/script";
+
 import { CasesRouteHardReload } from "@/components/layout/CasesRouteHardReload";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { getSiteUrl, siteConfig } from "@/lib/site";
+
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-Q6DFW7PY0N";
@@ -29,12 +31,20 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+
   title: {
     default: `${siteConfig.name} | ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
+
   description: siteConfig.description,
+
+  verification: {
+    google: "fJ3lII89FQz6e-aq-ittk-YNdqe-L-4H1MyLieClCz4",
+  },
+
   applicationName: siteConfig.name,
+
   keywords: [
     "BrandBridge",
     "商品提供企業",
@@ -46,17 +56,21 @@ export const metadata: Metadata = {
     "販路開拓",
     "商品",
   ],
+
   authors: [{ name: siteConfig.name }],
   creator: siteConfig.name,
   publisher: siteConfig.name,
+
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
+
   alternates: {
     canonical: "/",
   },
+
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
@@ -65,11 +79,13 @@ export const metadata: Metadata = {
     title: `${siteConfig.name} | ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
+
   twitter: {
     card: "summary_large_image",
     title: `${siteConfig.name} | ${siteConfig.tagline}`,
     description: siteConfig.description,
   },
+
   robots: {
     index: true,
     follow: true,
@@ -80,6 +96,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+
   category: "business",
 };
 
@@ -91,12 +108,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${shippori.variable} ${zen.variable} h-full`}>
+    <html
+      lang="ja"
+      className={`${shippori.variable} ${zen.variable} h-full`}
+    >
       <body className="flex min-h-full flex-col antialiased">
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
           strategy="afterInteractive"
         />
+
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -105,9 +126,15 @@ export default function RootLayout({
             gtag('config', '${GA_MEASUREMENT_ID}');
           `}
         </Script>
+
         <Header />
+
         <CasesRouteHardReload />
-        <main className="flex-1">{children}</main>
+
+        <main className="flex-1">
+          {children}
+        </main>
+
         <Footer />
       </body>
     </html>

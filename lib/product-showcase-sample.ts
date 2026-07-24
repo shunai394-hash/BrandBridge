@@ -1,7 +1,7 @@
 import type { Case, CaseImage } from "@/lib/types";
 
-/** Stable sample id — not a real DB case; showcase pages only. */
-export const PRODUCT_SHOWCASE_ID = "showcase-sample-aurora-serum";
+/** Stable example listing id — not a real DB case; showcase pages only. */
+export const PRODUCT_SHOWCASE_ID = "example-listing-aurora-serum";
 
 const SAMPLE_IMAGE_PATHS = [
   "/images/showcase/aurora-main.jpg",
@@ -47,8 +47,8 @@ function baseSampleCase(
   const images = sampleImages();
   return {
     id: PRODUCT_SHOWCASE_ID,
-    caseNumber: "BB-SAMPLE",
-    makerId: "showcase-maker",
+    caseNumber: "BB-EX-1042",
+    makerId: "example-maker-northstar",
     title: overrides.title,
     makerName: overrides.makerName,
     makerIndustry: "Beauty & Cosmetics",

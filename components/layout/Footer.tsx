@@ -36,20 +36,20 @@ const ja = {
 
 const en = {
   blurb:
-    "A negotiable B2B platform connecting overseas brands entering Japan with sales partners who can sell.",
-  beta: "Early beta registration open",
+    "Helping overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners.",
+  beta: "Founding manufacturers welcome",
   service: "Service",
   support: "Support",
   serviceLinks: [
     { href: "/en/cases", label: "Product Listings" },
-    { href: "/en/register/maker", label: "Register as Product Supplier" },
+    { href: "/en/register/maker", label: "List Your Brand" },
     { href: "/en/register/partner", label: "Partner Registration" },
     { href: "/en/login", label: "Login" },
   ],
   supportLinks: [
     { href: "/en/contact", label: "Contact" },
     { href: "/en/how-to-sell-in-japan", label: "How to Sell in Japan" },
-    { href: "/en/product-showcase", label: "Product Showcase Sample" },
+    { href: "/en/product-showcase", label: "Featured Brands" },
     { href: "/company", label: "Company" },
     { href: "/terms", label: "Terms of Use" },
     { href: "/privacy", label: "Privacy Policy" },

@@ -6,9 +6,9 @@ import { getSessionUser } from "@/lib/auth";
 import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
-  title: "Register Your Product",
+  title: "List Your Brand",
   description:
-    "Register your brand and product information to find Japanese sales partners on BrandBridge.",
+    "List your brand on BrandBridge for qualified Japanese distributors, retailers, wholesalers, and e-commerce partners.",
 };
 
 export const dynamic = "force-dynamic";
@@ -32,19 +32,22 @@ export default async function EnglishMakerRegisterPage() {
     <div className="mx-auto max-w-xl px-5 py-12 md:py-16">
       <header className="mb-8">
         <p className="text-xs font-medium tracking-wider text-teal">
-          FOR OVERSEAS BRANDS
+          FOR OVERSEAS MANUFACTURERS
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          Register Your Product
+          List Your Brand
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
-          Register your brand and product information to find Japanese sales
-          partners.
+          Start selling in Japan—share your company and product details so
+          qualified Japanese partners can evaluate fit and inquire.
         </p>
         <p className="mt-2 text-sm text-muted">
-          Prefer to ask first?{" "}
-          <Link href="/en/contact" className="text-teal hover:underline">
-            Contact BrandBridge
+          Prefer to learn the flow first?{" "}
+          <Link
+            href="/en/how-to-sell-in-japan"
+            className="text-teal hover:underline"
+          >
+            Learn How It Works
           </Link>
         </p>
       </header>

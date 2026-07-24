@@ -51,9 +51,9 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
 
 const copy = {
   en: {
-    eyebrow: "SAMPLE PRODUCT PAGE",
+    eyebrow: "FEATURED LISTING",
     banner:
-      "This is a sample listing so overseas product suppliers can preview how a finished BrandBridge product page looks after registration.",
+      "Example of what Japanese sales partners see when reviewing a BrandBridge product listing—images, description, and commercial terms.",
     backHome: "← Back to English home",
     metaName: "Product Name",
     company: "Company Name",
@@ -82,11 +82,11 @@ const copy = {
     incoterms: "Incoterms",
     certifications: "Certifications",
     languages: "Support languages",
-    ctaTitle: "Inquire with Japanese sales partners",
+    ctaTitle: "Ready to reach Japanese partners?",
     ctaBody:
-      "Ready to publish your own product? Register as a product supplier, or contact BrandBridge about partner matching in Japan.",
+      "Publish your own listing for distributors and retailers in Japan, or talk with our team about your market-entry goals.",
     ctaContact: "Contact BrandBridge",
-    ctaRegister: "Register Your Product",
+    ctaRegister: "List Your Brand",
   },
   ja: {
     eyebrow: "商品掲載サンプル",
@@ -165,7 +165,13 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
         </p>
       </div>
 
-      <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+      <div
+        className={
+          en
+            ? "mb-6 rounded-lg border border-teal/25 bg-teal/[0.06] px-4 py-3 text-sm text-navy"
+            : "mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+        }
+      >
         {t.banner}
       </div>
 

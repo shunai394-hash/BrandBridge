@@ -3,23 +3,77 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
-  title: "Connect global brands with Japanese sales partners",
+  title: "Find Qualified Japanese Distributors for Your Brand",
   description:
-    "BrandBridge helps overseas brands find distributors, retailers, and sales partners in Japan. Display product information and sales conditions, then start business discussions directly.",
+    "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners—with transparent commercial terms before contact.",
 };
 
-const features = [
+const partnerTypes = [
+  { title: "Retailers", hint: "Specialty & department retail" },
+  { title: "Distributors", hint: "Nationwide channel coverage" },
+  { title: "Wholesalers", hint: "Volume & regional supply" },
+  { title: "Importers", hint: "Import-ready partners" },
+  { title: "E-commerce", hint: "Online retail operators" },
+] as const;
+
+const whyJapan = [
+  "High purchasing power",
+  "Large premium consumer market",
+  "Strong demand for imported brands",
+  "Reliable long-term business environment",
+] as const;
+
+const howSteps = [
   {
-    title: "Find Japanese business partners",
-    body: "Connect with distributors, retailers, and sales partners looking for new products in Japan.",
+    step: "01",
+    title: "List your products",
+    body: "Publish the commercial details Japanese partners need to evaluate fit.",
+    details: ["MOQ", "Wholesale price", "Exclusivity", "Shipping conditions"],
   },
   {
-    title: "Display product information and sales conditions",
-    body: "Share MOQ, wholesale pricing, exclusivity, and other terms so partners can evaluate fit before contacting you.",
+    step: "02",
+    title: "Qualified Japanese partners discover your products",
+    body: "Distributors, retailers, wholesalers, and e-commerce partners browse listings that match their channels.",
+    details: null,
   },
   {
-    title: "Start business discussions directly",
-    body: "Move from discovery to inquiry and negotiation in one B2B platform—not introductions that stop at a referral.",
+    step: "03",
+    title: "Negotiate directly",
+    body: "Continue discussions on BrandBridge and decide whether each opportunity is right for your brand.",
+    details: null,
+  },
+] as const;
+
+const whyJoin = [
+  "Qualified Japanese partners",
+  "No Japanese office required",
+  "Direct wholesale opportunities",
+  "Transparent deal terms",
+] as const;
+
+const termPillars = [
+  "MOQ",
+  "Wholesale pricing",
+  "Exclusivity",
+  "Logistics",
+] as const;
+
+const faqs = [
+  {
+    q: "Is listing free?",
+    a: "Yes. BrandBridge currently charges no upfront listing fees.",
+  },
+  {
+    q: "Do I need a Japanese company?",
+    a: "No.",
+  },
+  {
+    q: "Can I choose my own distributor?",
+    a: "Yes. You decide whether to proceed with every opportunity.",
+  },
+  {
+    q: "What information is required?",
+    a: "Company, products, MOQ, wholesale pricing, and shipping.",
   },
 ] as const;
 
@@ -33,98 +87,186 @@ export default function EnglishHomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
           <p className="text-xs font-medium tracking-wider text-teal">
-            FOR OVERSEAS BRANDS
+            FOR OVERSEAS MANUFACTURERS
           </p>
           <p className="mt-5 font-[family-name:var(--font-shippori)] text-[2.5rem] leading-none tracking-wide text-white sm:text-5xl md:text-6xl">
             BrandBridge
           </p>
-          <h1 className="mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.4] text-white sm:text-3xl md:mt-8 md:text-4xl">
-            Connect global brands with Japanese sales partners.
+          <h1 className="mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.35] text-white sm:text-3xl md:mt-8 md:text-4xl">
+            Find Qualified Japanese Distributors for Your Brand
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            BrandBridge helps overseas brands find distributors, retailers, and
-            sales partners in Japan.
-          </p>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75 md:text-base">
-            Enter the Japanese market with clear product information, sales
-            conditions, and a path to negotiate with the right partners.
+            Expand your brand into Japan with vetted distributors, retailers,
+            wholesalers and e-commerce partners.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               href="/en/register/maker"
               className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto"
             >
-              Register Your Product
+              List Your Brand
             </Button>
             <Button
-              href="/en/cases"
-              variant="outline"
-              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              Browse Listings
-            </Button>
-            <Button
-              href="/en/contact"
-              variant="outline"
-              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              Contact Us
-            </Button>
-          </div>
-          <div className="mt-6">
-            <p className="text-sm font-medium tracking-wide text-teal">
-              How does it work?
-            </p>
-            <Link
               href="/en/how-to-sell-in-japan"
-              className="mt-1 inline-flex text-sm text-white/85 underline-offset-4 transition hover:text-white hover:underline"
+              variant="outline"
+              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              Learn how to sell in Japan
-            </Link>
+              Learn How It Works
+            </Button>
           </div>
         </div>
       </section>
 
       <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-12 md:py-14">
+          <h2 className="text-center font-[family-name:var(--font-shippori)] text-xl text-navy md:text-2xl">
+            Trusted Japanese Business Partners
+          </h2>
+          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 md:gap-4">
+            {partnerTypes.map((item) => (
+              <li
+                key={item.title}
+                className="rounded-lg border border-border bg-white px-3 py-5 text-center"
+              >
+                <p className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-teal/10 text-sm font-semibold text-teal-dark">
+                  {item.title.charAt(0)}
+                </p>
+                <p className="mt-3 text-sm font-medium text-navy">{item.title}</p>
+                <p className="mt-1 text-xs leading-snug text-muted">{item.hint}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <div className="grid gap-5 md:grid-cols-2 md:gap-6">
-            <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
-              <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                New to selling in Japan?
-              </h2>
-              <p className="mt-3 leading-relaxed text-muted">
-                Learn how to connect with Japanese sales partners and start
-                selling.
-              </p>
-              <div className="mt-6">
-                <Button
-                  href="/en/how-to-sell-in-japan"
-                  className="w-full sm:w-auto"
-                >
-                  Learn How to Sell in Japan
-                </Button>
-              </div>
-            </div>
-            <div className="max-w-2xl rounded-xl border border-border bg-white p-6 md:p-8">
-              <p className="text-xs font-medium tracking-wider text-teal">
-                FOR PRODUCT SUPPLIERS
-              </p>
-              <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                For Product Suppliers
-              </h2>
-              <p className="mt-3 leading-relaxed text-muted">
-                Preview how your product page will look after registration—
-                images, video, description, and deal terms.
-              </p>
-              <div className="mt-6">
-                <Button
-                  href="/en/product-showcase"
-                  className="w-full sm:w-auto"
-                >
-                  See Product Showcase Sample
-                </Button>
-              </div>
-            </div>
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Why Japan?
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Japan remains one of the strongest markets for overseas brands that
+            arrive with clear terms and the right local partners.
+          </p>
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {whyJapan.map((item) => (
+              <li
+                key={item}
+                className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
+              >
+                <span className="mt-0.5 text-teal" aria-hidden>
+                  •
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            How BrandBridge Works
+          </h2>
+          <ol className="mt-10 space-y-6">
+            {howSteps.map((item) => (
+              <li
+                key={item.step}
+                className="rounded-lg border border-border bg-white px-5 py-6 md:px-6"
+              >
+                <p className="text-xs font-medium tracking-wider text-teal">
+                  Step {item.step}
+                </p>
+                <h3 className="mt-2 font-medium text-navy md:text-lg">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {item.body}
+                </p>
+                {item.details ? (
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {item.details.map((d) => (
+                      <li
+                        key={d}
+                        className="rounded-md border border-teal/20 bg-teal/[0.06] px-2.5 py-1 text-xs font-medium text-teal-dark"
+                      >
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <p className="text-xs font-medium tracking-wider text-teal">
+            Why BrandBridge?
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Not Just an Introduction
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Unlike traditional directories, BrandBridge lets Japanese partners
+            review the commercial terms they need before contacting you.
+          </p>
+          <ul className="mt-8 flex flex-wrap gap-2">
+            {termPillars.map((item) => (
+              <li
+                key={item}
+                className="rounded-md border border-border bg-white px-3.5 py-2 text-sm font-medium text-navy"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Why Manufacturers Join
+          </h2>
+          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+            {whyJoin.map((item) => (
+              <li
+                key={item}
+                className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
+              >
+                <span className="mt-0.5 text-teal" aria-hidden>
+                  •
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-navy-deep text-white">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <p className="text-xs font-medium tracking-wider text-teal">
+            Early Access
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl md:text-3xl">
+            Founding Manufacturer Program
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">
+            We are currently onboarding our first international brands for
+            Japan.
+          </p>
+          <div className="mt-8">
+            <Button
+              href="/en/register/maker"
+              className="w-full px-6 py-3.5 text-base sm:w-auto"
+            >
+              List Your Brand
+            </Button>
           </div>
         </div>
       </section>
@@ -132,45 +274,27 @@ export default function EnglishHomePage() {
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Built for market entry into Japan
+            FAQ
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            BrandBridge is a B2B matching and negotiation platform for product
-            suppliers and Japanese sales partners—helping you explore
-            distribution, retail, and partner channels with visible terms.
-          </p>
-          <ul className="mt-10 grid gap-6 md:grid-cols-3">
-            {features.map((item) => (
-              <li
-                key={item.title}
-                className="rounded-lg border border-border bg-white px-5 py-6"
+          <dl className="mt-8 space-y-5">
+            {faqs.map((item) => (
+              <div
+                key={item.q}
+                className="rounded-lg border border-border bg-white px-5 py-5"
               >
-                <h3 className="font-medium text-navy">{item.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {item.body}
-                </p>
-              </li>
+                <dt className="font-medium text-navy">{item.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted">
+                  {item.a}
+                </dd>
+              </div>
             ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="bg-cream">
-        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Sales partner discovery &amp; deal management
-          </h2>
-          <div className="mt-6 max-w-2xl space-y-4 text-sm leading-relaxed text-muted md:text-base">
-            <p>
-              List your products so Japanese partners can review category,
-              conditions, and fit before reaching out.
-            </p>
-            <p>
-              When interest aligns, continue discussions and negotiation
-              management on the platform—from first contact toward commercial
-              next steps.
-            </p>
-          </div>
+          </dl>
+          <p className="mt-8 text-sm text-muted">
+            Prefer to ask something else?{" "}
+            <Link href="/en/contact" className="text-teal hover:underline">
+              Contact BrandBridge
+            </Link>
+          </p>
         </div>
       </section>
 
@@ -185,21 +309,25 @@ export default function EnglishHomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-5 py-16 text-center md:py-20">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl leading-snug md:text-3xl">
-            Ready to introduce your brand to Japan?
+            Start selling in Japan
           </h2>
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
+            List your brand for qualified Japanese partners—or learn the full
+            market-entry flow first.
+          </p>
           <div className="mx-auto mt-8 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
             <Button
               href="/en/register/maker"
-              className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
+              className="w-full py-3.5 text-base sm:w-auto sm:min-w-[180px]"
             >
-              Register Your Product
+              List Your Brand
             </Button>
             <Button
-              href="/en/contact"
+              href="/en/how-to-sell-in-japan"
               variant="outline"
-              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[160px]"
+              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[180px]"
             >
-              Contact Us
+              Learn How It Works
             </Button>
           </div>
           <p className="mt-6 text-sm text-white/65">

@@ -155,20 +155,20 @@ const copy = {
   en: {
     eyebrow: "USA → Japan Import Guide",
     title: "How to Sell in Japan",
-    lead: "A clear path for overseas product suppliers—from product registration to shipping and selling with Japanese partners. Understand the flow in about five minutes.",
+    lead: "A clear path for overseas manufacturers—from product listing to shipping and selling with Japanese partners. Understand the flow in about five minutes.",
     introTitle: "New to selling in Japan?",
     introBody: "Don't worry. This guide explains everything in simple steps.",
     step1Title: "The journey",
     step1Nodes: [
-      "USA Product Supplier",
-      "Register Product",
+      "Overseas Manufacturer",
+      "List Product",
       "BrandBridge",
       "Japanese Sales Partner",
       "Customers",
     ],
     step2Title: "How it works",
     step2Steps: [
-      "Register your product",
+      "List your product",
       "Japanese partners discover it",
       "Receive inquiries",
       "Negotiate",
@@ -179,9 +179,9 @@ const copy = {
     step3Title: "Who does what?",
     roles: [
       {
-        title: "Product Supplier",
+        title: "Manufacturer",
         items: [
-          "Register product",
+          "Publish product listing",
           "Present quotation and deal terms",
           "Ship products",
         ],
@@ -241,13 +241,13 @@ const copy = {
     compareUsualItems: ["Email outreach", "Trade shows", "Agency hunting"],
     compareBb: "BrandBridge",
     compareBbItems: [
-      "Free to list",
+      "List products for Japan partners",
       "Japanese companies contact you",
       "Built-in negotiation",
     ],
     whyBb: [
-      "Free product registration",
-      "Direct inquiries",
+      "Direct path to Japanese partners",
+      "Structured product inquiries",
       "MOQ negotiation",
       "Exclusive distribution discussions",
     ],
@@ -266,8 +266,8 @@ const copy = {
         a: "Usually your Japanese sales partner.",
       },
       {
-        q: "How much does it cost?",
-        a: "Registration is free.",
+        q: "How do I get started?",
+        a: "Create your BrandBridge account, publish a product listing, and Japanese partners can inquire when they see a fit.",
       },
       {
         q: "Does BrandBridge import or purchase products?",
@@ -275,12 +275,12 @@ const copy = {
       },
     ],
     ctaBadges: [
-      "Free Registration",
-      "About 5 Minutes",
+      "For Overseas Manufacturers",
+      "About 5 Minutes to Understand",
       "No Japanese Company Required",
     ],
-    finalTitle: "Ready to sell in Japan?",
-    ctaButton: "Register Product",
+    finalTitle: "Ready to start selling in Japan?",
+    ctaButton: "List Your Brand",
     ctaHref: "/en/register/maker",
   },
   ja: {
@@ -543,7 +543,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
           />
           <div className="mt-12 flex flex-wrap items-center justify-center gap-3 md:gap-4">
             <FlowNode
-              label={locale === "en" ? "Product Supplier" : "商品提供企業"}
+              label={locale === "en" ? "Manufacturer" : "商品提供企業"}
             />
             <Arrow />
             <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-2">
@@ -580,7 +580,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
             />
             <Arrow />
             <FlowNode
-              label={locale === "en" ? "Product Supplier" : "商品提供企業"}
+              label={locale === "en" ? "Manufacturer" : "商品提供企業"}
             />
           </div>
           <div className="mt-10 flex flex-wrap justify-center gap-3">

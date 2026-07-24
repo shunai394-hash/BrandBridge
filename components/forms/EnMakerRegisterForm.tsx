@@ -282,7 +282,7 @@ export function EnMakerRegisterForm() {
           </p>
         ) : null}
         <Button type="submit" className="w-full sm:w-auto" disabled={loading}>
-          {loading ? "Submitting..." : "Submit Registration"}
+          {loading ? "Submitting..." : "List Your Brand"}
         </Button>
       </form>
     </div>

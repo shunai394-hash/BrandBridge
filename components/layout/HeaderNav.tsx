@@ -54,7 +54,7 @@ function guestLinks(en: boolean) {
   if (en) {
     return [
       { href: "/en/cases", label: "Product Listings" },
-      { href: "/en/register/maker", label: "Register as Product Supplier" },
+      { href: "/en/register/maker", label: "List Your Brand" },
       { href: "/en/register/partner", label: "Partner Registration" },
       { href: "/en/login?next=/en/maker/setup", label: "Login" },
     ];

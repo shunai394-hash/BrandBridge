@@ -21,7 +21,7 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
         },
         {
           href: "/en/product-showcase",
-          label: "Product Showcase Sample",
+          label: "Featured Brands",
         },
       ]
     : [

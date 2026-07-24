@@ -23,6 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/register/maker",
     "/en/register/partner",
     "/en/how-to-sell-in-japan",
+    "/en/japan-market-for-functional-food-brands",
     "/en/product-showcase",
     "/en/negotiations",
     "/en/deals",

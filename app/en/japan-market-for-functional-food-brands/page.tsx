@@ -5,91 +5,85 @@ import { Button } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "Expand Your Functional Food Brand Into Japan | BrandBridge",
   description:
-    "Japan market entry for overseas functional food and wellness brands—reach distributors, importers, retailers, and e-commerce partners with clear MOQ, pricing, and deal terms.",
+    "BrandBridge helps overseas functional food and wellness brands explore Japan through qualified distributors, retailers, and e-commerce partners.",
 };
 
 const whyJapan = [
   {
-    title: "Premium wellness demand",
-    body: "Japanese consumers invest heavily in supplements, functional foods, and evidence-led wellness products with clear quality stories.",
+    title: "Growing health and wellness demand",
+    body: "Japanese consumers continue to invest in daily wellness—creating sustained interest in functional foods, supplements, and nutrition products with a clear value story.",
   },
   {
-    title: "Import appetite for differentiation",
-    body: "Buyers look for overseas brands that fill gaps in local assortments—clean labels, unique formats, and clinically positioned claims.",
+    title: "Functional nutrition market opportunity",
+    body: "Partners look for overseas brands that complement local assortments with differentiated formats, ingredients, and positioning.",
   },
   {
-    title: "Long-term retail relationships",
-    body: "Once a product earns trust with Japanese partners, reorder cycles and channel expansion can support durable wholesale growth.",
-  },
-  {
-    title: "Partner-led market entry",
-    body: "Qualified local partners can handle distribution, retail introductions, and often import logistics—without requiring a Japan entity first.",
-  },
-] as const;
-
-const buyerTypes = [
-  {
-    title: "Importers & specialty distributors",
-    body: "Companies that bring overseas functional foods and supplements into Japan and supply retail or wholesale networks.",
-  },
-  {
-    title: "Health & beauty retailers",
-    body: "Drugstore, specialty wellness, and premium retail buyers seeking differentiated SKUs with clear sell-through potential.",
-  },
-  {
-    title: "Wholesalers",
-    body: "Volume-oriented partners supplying regional chains, independent stores, and foodservice-adjacent channels.",
-  },
-  {
-    title: "E-commerce operators",
-    body: "Online retailers and marketplace sellers focused on supplements, functional beverages, and wellness categories.",
+    title: "Premium consumer segments",
+    body: "Quality-conscious shoppers and specialty channels reward brands that arrive with credible claims, reliable supply, and professional commercial terms.",
   },
 ] as const;
 
 const channels = [
-  "Drugstores & pharmacies",
-  "Specialty wellness / natural retail",
-  "Department store lifestyle floors",
-  "Gourmet & premium grocery",
-  "Direct-to-consumer e-commerce",
-  "Marketplace storefronts",
-  "Corporate / gift assortments (where fit)",
-] as const;
-
-const howSteps = [
   {
-    step: "01",
-    title: "List your functional food products",
-    body: "Share brand positioning, product details, and the commercial terms Japanese buyers need before they inquire.",
+    title: "Importers",
+    body: "Partners who bring overseas functional foods into Japan and connect them to domestic networks.",
   },
   {
-    step: "02",
-    title: "Qualified Japanese partners discover your listing",
-    body: "Importers, distributors, retailers, and e-commerce operators review products that match their category and channel focus.",
+    title: "Distributors",
+    body: "Channel specialists who place products with retail, wholesale, and regional accounts.",
   },
   {
-    step: "03",
-    title: "Negotiate directly on BrandBridge",
-    body: "Continue wholesale discussions in one place and decide whether each opportunity is right for your brand.",
+    title: "Specialty retailers",
+    body: "Health, beauty, and wellness retailers seeking differentiated SKUs with clear sell-through potential.",
+  },
+  {
+    title: "Fitness and wellness businesses",
+    body: "Gyms, studios, and wellness operators that recommend or retail functional nutrition products.",
+  },
+  {
+    title: "E-commerce operators",
+    body: "Online retailers ready to evaluate products with transparent wholesale and shipping conditions.",
   },
 ] as const;
 
-const requiredInfo = [
+const prepareItems = [
   {
     label: "MOQ",
     body: "Minimum order quantity so partners can judge first-order feasibility.",
   },
   {
-    label: "Pricing",
-    body: "Wholesale price range or quote process for Japan-bound orders.",
+    label: "Wholesale pricing",
+    body: "Price range or quote process for Japan-bound wholesale discussions.",
   },
   {
-    label: "Exclusivity",
+    label: "Exclusivity preference",
     body: "Whether territory or channel exclusivity is available—and under what conditions.",
   },
   {
-    label: "Shipping",
-    body: "Ship-from location, lead times, Incoterms preferences, and logistics notes.",
+    label: "Shipping conditions",
+    body: "Ship-from location, lead times, and logistics preferences partners need to plan.",
+  },
+  {
+    label: "Certifications",
+    body: "Relevant quality, safety, or compliance credentials that support buyer evaluation.",
+  },
+] as const;
+
+const howSteps = [
+  {
+    step: "1",
+    title: "List your brand and products",
+    body: "Share the commercial details Japanese partners need to evaluate fit.",
+  },
+  {
+    step: "2",
+    title: "Japanese partners review your information",
+    body: "Qualified buyers assess category, terms, and channel alignment before reaching out.",
+  },
+  {
+    step: "3",
+    title: "Discuss distribution opportunities directly",
+    body: "Continue conversations on BrandBridge and decide which opportunities to pursue.",
   },
 ] as const;
 
@@ -103,7 +97,7 @@ export default function FunctionalFoodJapanMarketPage() {
         />
         <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
           <p className="text-xs font-medium tracking-wider text-teal">
-            FUNCTIONAL FOOD &amp; WELLNESS
+            FOR OVERSEAS FUNCTIONAL FOOD BRANDS
           </p>
           <p className="mt-5 font-[family-name:var(--font-shippori)] text-[2.5rem] leading-none tracking-wide text-white sm:text-5xl md:text-6xl">
             BrandBridge
@@ -112,23 +106,16 @@ export default function FunctionalFoodJapanMarketPage() {
             Expand Your Functional Food Brand Into Japan
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            Reach qualified Japanese importers, distributors, retailers, and
-            e-commerce partners with transparent wholesale terms—built for
-            overseas functional food and wellness brands.
+            BrandBridge helps overseas functional food and wellness brands
+            explore Japan through qualified distributors, retailers, and
+            e-commerce partners.
           </p>
-          <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
+          <div className="mt-9">
             <Button
               href="/en/register/maker"
               className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto"
             >
               List Your Brand
-            </Button>
-            <Button
-              href="/en/contact"
-              variant="outline"
-              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              Contact BrandBridge
             </Button>
           </div>
         </div>
@@ -137,14 +124,9 @@ export default function FunctionalFoodJapanMarketPage() {
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Why Japan for functional food brands
+            Why Japan for Functional Food Brands
           </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Japan rewards wellness brands that arrive prepared—with clear
-            product stories, reliable supply, and commercial terms partners can
-            act on.
-          </p>
-          <ul className="mt-10 grid gap-6 md:grid-cols-2">
+          <ul className="mt-10 grid gap-6 md:grid-cols-3">
             {whyJapan.map((item) => (
               <li
                 key={item.title}
@@ -163,13 +145,14 @@ export default function FunctionalFoodJapanMarketPage() {
       <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Japanese buyer types
+            Find The Right Japanese Sales Channels
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            BrandBridge connects you with B2B partners—not end consumers.
+            Explore Japan with partners who already operate in the channels that
+            move functional food and wellness products.
           </p>
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2">
-            {buyerTypes.map((item) => (
+          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {channels.map((item) => (
               <li
                 key={item.title}
                 className="rounded-lg border border-border bg-white px-5 py-6"
@@ -187,19 +170,22 @@ export default function FunctionalFoodJapanMarketPage() {
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Potential sales channels
+            Prepare Your Product For Japanese Partners
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Depending on your category and partner fit, functional food brands
-            often enter Japan through these channels.
+            Serious conversations start when manufacturers provide the business
+            conditions partners need to evaluate opportunity.
           </p>
-          <ul className="mt-8 flex flex-wrap gap-2">
-            {channels.map((item) => (
+          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {prepareItems.map((item) => (
               <li
-                key={item}
-                className="rounded-md border border-border bg-white px-3.5 py-2 text-sm font-medium text-navy"
+                key={item.label}
+                className="rounded-lg border border-border bg-white px-5 py-6"
               >
-                {item}
+                <h3 className="font-medium text-navy">{item.label}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {item.body}
+                </p>
               </li>
             ))}
           </ul>
@@ -208,8 +194,28 @@ export default function FunctionalFoodJapanMarketPage() {
 
       <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <p className="text-xs font-medium tracking-wider text-teal">
+            Why BrandBridge Is Different
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            More Than A Product Listing
+          </h2>
+          <p className="mt-2 text-sm font-medium text-navy">
+            Not just a directory.
+          </p>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Japanese partners need clear business conditions before discussions.
+            BrandBridge organizes the information needed to start serious
+            conversations—so outreach begins with commercial context, not a cold
+            introduction.
+          </p>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            How BrandBridge works
+            How It Works
           </h2>
           <ol className="mt-10 space-y-6">
             {howSteps.map((item) => (
@@ -232,60 +238,6 @@ export default function FunctionalFoodJapanMarketPage() {
         </div>
       </section>
 
-      <section className="border-b border-border bg-surface">
-        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Product information required
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Japanese partners evaluate commercial readiness before they reach
-            out. Include these details in your listing.
-          </p>
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2">
-            {requiredInfo.map((item) => (
-              <li
-                key={item.label}
-                className="rounded-lg border border-border bg-white px-5 py-6"
-              >
-                <h3 className="font-medium text-navy">{item.label}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-muted">
-                  {item.body}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <section className="border-b border-border bg-cream">
-        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <p className="text-xs font-medium tracking-wider text-teal">
-            Why BrandBridge?
-          </p>
-          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-            Not just a directory
-          </h2>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Unlike a simple company directory, BrandBridge lets Japanese partners
-            review MOQ, wholesale pricing, exclusivity, and shipping conditions
-            before they contact you—so inquiries start with commercial context,
-            not a cold introduction.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button href="/en/register/maker" className="w-full sm:w-auto">
-              List Your Brand
-            </Button>
-            <Button
-              href="/en/contact"
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
-              Contact BrandBridge
-            </Button>
-          </div>
-        </div>
-      </section>
-
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div
           className="absolute inset-0 opacity-40"
@@ -295,30 +247,26 @@ export default function FunctionalFoodJapanMarketPage() {
           }}
           aria-hidden
         />
-        <div className="relative mx-auto max-w-6xl px-5 py-16 text-center md:py-20">
-          <h2 className="font-[family-name:var(--font-shippori)] text-2xl leading-snug md:text-3xl">
-            Ready to enter Japan&apos;s wellness market?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
-            List your functional food brand for qualified Japanese partners, or
-            contact BrandBridge with your category and goals.
+        <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-20">
+          <p className="text-xs font-medium tracking-wider text-teal">
+            Early Access
           </p>
-          <div className="mx-auto mt-8 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl md:text-3xl">
+            Early Access Manufacturer Program
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">
+            Selected overseas brands are being onboarded for Japan market
+            exploration with BrandBridge.
+          </p>
+          <div className="mt-8">
             <Button
               href="/en/register/maker"
-              className="w-full py-3.5 text-base sm:w-auto sm:min-w-[180px]"
+              className="w-full px-6 py-3.5 text-base sm:w-auto"
             >
               List Your Brand
             </Button>
-            <Button
-              href="/en/contact"
-              variant="outline"
-              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[180px]"
-            >
-              Contact BrandBridge
-            </Button>
           </div>
-          <p className="mt-6 text-sm text-white/65">
+          <p className="mt-8 text-sm text-white/65">
             <Link href="/en" className="underline-offset-2 hover:underline">
               Back to English home
             </Link>

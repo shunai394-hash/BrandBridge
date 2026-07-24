@@ -49,6 +49,10 @@ const en = {
   supportLinks: [
     { href: "/en/contact", label: "Contact" },
     { href: "/en/how-to-sell-in-japan", label: "How to Sell in Japan" },
+    {
+      href: "/en/japan-partner-demand-snapshot",
+      label: "Japan Partner Demand Snapshot",
+    },
     { href: "/en/product-showcase", label: "Featured Brands" },
     { href: "/company", label: "Company" },
     { href: "/terms", label: "Terms of Use" },

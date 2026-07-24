@@ -20,6 +20,14 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
           label: "How to Sell in Japan",
         },
         {
+          href: "/en/japan-partner-demand-snapshot",
+          label: "Japan Partner Demand Snapshot",
+        },
+        {
+          href: "/en/japan-market-for-functional-food-brands",
+          label: "Functional Food & Wellness",
+        },
+        {
           href: "/en/product-showcase",
           label: "Featured Brands",
         },

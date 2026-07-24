@@ -96,8 +96,8 @@ export default function EnglishHomePage() {
             Find Qualified Japanese Distributors for Your Brand
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            Expand your brand into Japan with vetted distributors, retailers,
-            wholesalers and e-commerce partners.
+            Expand your brand into Japan with trusted distributors, retailers,
+            wholesalers, and e-commerce partners.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
@@ -295,6 +295,58 @@ export default function EnglishHomePage() {
               Contact BrandBridge
             </Link>
           </p>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Industry Resources
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Explore Japan market entry by category. BrandBridge remains open to
+            manufacturers across industries.
+          </p>
+          <ul className="mt-8 space-y-3">
+            <li>
+              <Link
+                href="/en/japan-partner-demand-snapshot"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    Japan Partner Demand Snapshot
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    What Japanese partners look for when evaluating overseas
+                    brands—across categories.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  View guide →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/en/japan-market-for-functional-food-brands"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    Functional Food &amp; Wellness
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Japan market entry notes for overseas functional food and
+                    wellness brands.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  View guide →
+                </span>
+              </Link>
+            </li>
+          </ul>
         </div>
       </section>
 

@@ -1,5 +1,9 @@
 /** English UI copy for account pages under /en/* (JP routes unchanged). */
 
+import {
+  formatMoqEn,
+  formatWholesalePriceBandEn,
+} from "@/lib/en-listing-display";
 import type { SalesFormat, TargetCountry } from "@/lib/types";
 
 const enSalesFormatLabels: Record<SalesFormat, string> = {
@@ -31,18 +35,11 @@ export function enTargetCountryLabel(value: TargetCountry): string {
 
 /** Empty / JP sentinel → English for EN surfaces only. */
 export function enDisplayPriceBand(value: string | null | undefined): string {
-  const t = value?.trim();
-  if (!t || t === "見積条件あり") return "Quote required";
-  return t
-    .replace(/以上/g, "+")
-    .replace(/〜/g, "–")
-    .replace(/～/g, "–");
+  return formatWholesalePriceBandEn(value);
 }
 
 export function enDisplayMoq(value: string | null | undefined): string {
-  const t = value?.trim();
-  if (!t || t === "応相談") return "Negotiable";
-  return t.replace(/以上/g, "+").replace(/〜/g, "–").replace(/～/g, "–");
+  return formatMoqEn(value);
 }
 
 export const enDealsCopy = {

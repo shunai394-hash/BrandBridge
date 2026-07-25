@@ -114,6 +114,7 @@ function formatUsdApprox(range: YenRange): string {
 function isQuoteRequired(value: string | null | undefined): boolean {
   const t = value?.trim();
   if (!t) return true;
+  if (parseYenPriceBand(t)) return false;
   const normalized = displayPriceBand(t);
   return (
     normalized === PRICE_BAND_QUOTE_REQUIRED ||
@@ -121,6 +122,22 @@ function isQuoteRequired(value: string | null | undefined): boolean {
     /quote\s*required/i.test(t) ||
     /見積/.test(t)
   );
+}
+
+function quoteLabelEn(value: string): string {
+  if (/図面見積/.test(value)) return "Quotation based on drawings";
+  if (/取引ごと/.test(value)) return "Negotiated per transaction";
+  return "Quote required";
+}
+
+function formatJpyListingPrimary(range: YenRange): string {
+  if (range.type === "range") {
+    if (range.min === range.max) {
+      return `JPY ${range.min.toLocaleString("en-US")}`;
+    }
+    return `JPY ${range.min.toLocaleString("en-US")}–${range.max.toLocaleString("en-US")}`;
+  }
+  return `JPY ${range.min.toLocaleString("en-US")}+`;
 }
 
 /**
@@ -132,9 +149,11 @@ export function resolveWholesalePriceDisplay(
   locale: WholesalePriceLocale,
 ): WholesalePriceResolved {
   if (isQuoteRequired(priceBand)) {
+    const raw = priceBand?.trim() ?? "";
     return {
       kind: "single",
-      primary: locale === "en" ? "Quote required" : PRICE_BAND_QUOTE_REQUIRED,
+      primary:
+        locale === "en" ? quoteLabelEn(raw) : PRICE_BAND_QUOTE_REQUIRED,
     };
   }
 
@@ -145,26 +164,30 @@ export function resolveWholesalePriceDisplay(
       return {
         kind: "single",
         primary: raw
+          .replace(/（税別）/g, " (excluding tax)")
+          .replace(/円/g, "")
           .replace(/以上/g, "+")
-          .replace(/[〜～]/g, "–"),
+          .replace(/[〜～]/g, "–")
+          .trim(),
       };
     }
     return { kind: "single", primary: raw };
   }
 
-  const taxSuffix = /税/.test(priceBand ?? "") ? "（税別）" : "";
+  const taxSuffixJa = /税/.test(priceBand ?? "") ? "（税別）" : "";
+  const taxSuffixEn = /税/.test(priceBand ?? "") ? " (excluding tax)" : "";
 
   if (locale === "en") {
     return {
       kind: "dual",
-      primary: formatUsdPrimary(yen),
-      secondary: `${formatYenApprox(yen)}${taxSuffix ? " excl. tax" : ""}`,
+      primary: `${formatJpyListingPrimary(yen)}${taxSuffixEn}`,
+      secondary: formatUsdApprox(yen).replace(/^約\s*/, "Approx. "),
     };
   }
 
   return {
     kind: "dual",
-    primary: `${formatYenPrimary(yen)}${taxSuffix}`,
+    primary: `${formatYenPrimary(yen)}${taxSuffixJa}`,
     secondary: formatUsdApprox(yen),
   };
 }

@@ -9,10 +9,9 @@ import {
   resolveEnCatalogDisplay,
 } from "@/lib/en-case-catalog";
 import {
-  displayMoq,
-  displayPriceBand,
-  PRICE_BAND_QUOTE_REQUIRED,
-} from "@/lib/price-display";
+  formatMoqEn,
+  formatWholesalePriceBandEn,
+} from "@/lib/en-listing-display";
 import type {
   CaseStatus,
   ReviewStatus,
@@ -69,23 +68,6 @@ const STATUS_EN: Record<string, string> = {
   公開中: "Open",
   公開終了: "Closed",
 };
-
-function displayPriceBandEn(value: string | null | undefined): string {
-  const t = displayPriceBand(value);
-  if (t === PRICE_BAND_QUOTE_REQUIRED || t === "見積条件あり") {
-    return "Quote required";
-  }
-  return t
-    .replace(/以上/g, "+")
-    .replace(/〜/g, "–")
-    .replace(/～/g, "–");
-}
-
-function displayMoqEn(value: string | null | undefined): string {
-  const t = displayMoq(value);
-  if (t === "応相談") return "Negotiable";
-  return t.replace(/以上/g, "+").replace(/〜/g, "–").replace(/～/g, "–");
-}
 
 function statusLabelEn(input: {
   status: CaseStatus;
@@ -335,10 +317,10 @@ export function EnCaseList({ items }: EnCaseListProps) {
                       {SALES_FORMAT_EN[item.salesFormat] ?? item.salesFormat}
                     </td>
                     <td className="px-3 py-3 font-medium text-navy">
-                      {displayPriceBandEn(item.priceBand)}
+                      {formatWholesalePriceBandEn(item.priceBand)}
                     </td>
                     <td className="px-3 py-3">
-                      {displayMoqEn(item.minOrder)}
+                      {formatMoqEn(item.minOrder)}
                     </td>
                     <td className="px-3 py-3">
                       {applicationCount === null

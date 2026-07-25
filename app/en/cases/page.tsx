@@ -128,9 +128,9 @@ export default async function EnglishCasesPage({
       <EnCaseList items={listItems} />
 
       <p className="mt-12 text-sm text-muted">
-        Looking for the Japanese list?{" "}
+        Looking for Japanese products?{" "}
         <Link href="/cases" className="text-teal hover:underline">
-          Japanese product listings
+          Browse Japanese product listings
         </Link>
       </p>
     </div>

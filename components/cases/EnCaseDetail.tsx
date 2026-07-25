@@ -12,6 +12,7 @@ import {
 } from "@/lib/case-detail-display";
 import { canViewMakerCompanyName } from "@/lib/case-company-visibility";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
+import { formatMoqEn } from "@/lib/en-listing-display";
 import type { Case, SalesFormat, SessionUser, TargetCountry } from "@/lib/types";
 
 const SALES_FORMAT_EN: Record<SalesFormat, string> = {
@@ -61,11 +62,6 @@ function DetailSection({
   );
 }
 
-function displayMoqEn(value: string | null | undefined): string {
-  const t = value?.trim();
-  return t ? t : "Negotiable";
-}
-
 function trademarkEn(value: string | null | undefined): string {
   if (value === "registered") return "Registered";
   if (value === "pending") return "Pending";
@@ -107,13 +103,13 @@ function countryOfOriginEn(caseItem: Case): string {
 }
 
 function moqEn(caseItem: Case): string {
-  if (caseItem.minOrder?.trim()) return displayMoqEn(caseItem.minOrder);
+  if (caseItem.minOrder?.trim()) return formatMoqEn(caseItem.minOrder);
   const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
     .filter(Boolean)
     .join("\n");
   const m = blob.match(/^MOQ:\s*(.+)$/im);
-  if (m?.[1]?.trim()) return m[1].trim();
-  return "Negotiable";
+  if (m?.[1]?.trim()) return formatMoqEn(m[1]);
+  return "Negotiable MOQ";
 }
 
 function wholesaleSource(caseItem: Case): string | null {

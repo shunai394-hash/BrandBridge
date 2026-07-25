@@ -245,7 +245,7 @@ export function EnCaseList({ items }: EnCaseListProps) {
                 <th className="w-36 px-3 py-3 font-medium" scope="col">
                   Wholesale Price Range
                 </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
+                <th className="w-40 px-3 py-3 font-medium" scope="col">
                   MOQ
                 </th>
                 <th className="w-28 px-3 py-3 font-medium" scope="col">
@@ -319,7 +319,7 @@ export function EnCaseList({ items }: EnCaseListProps) {
                     <td className="px-3 py-3 font-medium text-navy">
                       {formatWholesalePriceBandEn(item.priceBand)}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="whitespace-normal break-words px-3 py-3">
                       {formatMoqEn(item.minOrder)}
                     </td>
                     <td className="px-3 py-3">

@@ -127,9 +127,12 @@ export default async function EnglishCasesPage({
 
       <EnCaseList items={listItems} />
 
-      <p className="mt-12 text-sm text-muted">
+      <p className="mt-12 max-w-full text-sm leading-relaxed text-muted break-words">
         Looking for Japanese products?{" "}
-        <Link href="/cases" className="text-teal hover:underline">
+        <Link
+          href="/cases"
+          className="inline text-teal underline-offset-2 hover:underline"
+        >
           Browse Japanese product listings
         </Link>
       </p>

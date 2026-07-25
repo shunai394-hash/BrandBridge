@@ -12,6 +12,13 @@ function formatJpyAmount(n: number): string {
   return n.toLocaleString("en-US");
 }
 
+/** Parse "1,000" / "1000" → locale-formatted count for EN labels. */
+function formatCount(raw: string): string {
+  const n = Number(raw.replace(/,/g, ""));
+  if (!Number.isFinite(n) || n <= 0) return raw.replace(/,/g, "");
+  return n.toLocaleString("en-US");
+}
+
 /** Preserve overseas currency text; translate Japanese notes only. */
 function formatForeignCurrencyPriceEn(value: string): string {
   return value
@@ -104,65 +111,65 @@ export function formatWholesalePriceBandEn(
 
 /**
  * MOQ for English listing tables.
- * e.g. "24個〜" → "24 units+"
+ * e.g. "24個〜" → "24 units+", "1,000本〜" → "1,000 bottles+"
  */
 export function formatMoqEn(value: string | null | undefined): string {
   const t = value?.trim();
   if (!t || t === "応相談") return "Negotiable MOQ";
   if (/ロット応相談/.test(t)) return "Negotiable MOQ";
   if (t === "取引ごと" || /^取引ごと/.test(t)) return "Per transaction";
-  if (/ダース単位/.test(t)) return "By dozen";
+  if (/ダース単位/.test(t)) return "Sold by dozen";
 
-  let m = t.match(/SKUあたり\s*(\d+)\s*枚\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} pcs per SKU+`;
+  let m = t.match(/SKUあたり\s*([\d,]+)\s*枚\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} pcs per SKU+`;
 
-  m = t.match(/ケース\s*(\d+)\s*本\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} bottles/case+`;
+  m = t.match(/ケース\s*([\d,]+)\s*本\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} bottles/case+`;
 
-  m = t.match(/ケース\s*(\d+)\s*袋\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} bags/case+`;
+  m = t.match(/ケース\s*([\d,]+)\s*袋\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} bags/case+`;
 
-  m = t.match(/ケース\s*(\d+)\s*個\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} units/case+`;
+  m = t.match(/ケース\s*([\d,]+)\s*個\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} units/case+`;
 
-  m = t.match(/(?:段ボール|ダンボール)\s*(\d+)\s*箱\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} carton+`;
+  m = t.match(/(?:段ボール|ダンボール)\s*([\d,]+)\s*箱\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} carton+`;
 
-  m = t.match(/(\d+)\s*セット\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} sets+`;
+  m = t.match(/([\d,]+)\s*セット\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} sets+`;
 
-  m = t.match(/(\d+)\s*冊\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} books+`;
+  m = t.match(/([\d,]+)\s*冊\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} books+`;
 
-  m = t.match(/(\d+)\s*足\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} pairs+`;
+  m = t.match(/([\d,]+)\s*足\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} pairs+`;
 
-  m = t.match(/(\d+)\s*台\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} units+`;
+  m = t.match(/([\d,]+)\s*台\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} units+`;
 
-  m = t.match(/(\d+)\s*缶\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} cans+`;
+  m = t.match(/([\d,]+)\s*缶\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} cans+`;
 
-  m = t.match(/(\d+)\s*個\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} units+`;
+  m = t.match(/([\d,]+)\s*個\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} units+`;
 
-  m = t.match(/(\d+)\s*本\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} bottles+`;
+  m = t.match(/([\d,]+)\s*本\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} bottles+`;
 
-  m = t.match(/(\d+)\s*枚\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} pcs+`;
+  m = t.match(/([\d,]+)\s*枚\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} pcs+`;
 
-  m = t.match(/(\d+)\s*袋\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} bags+`;
+  m = t.match(/([\d,]+)\s*袋\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} bags+`;
 
-  m = t.match(/(\d+)\s*箱\s*[〜～\-–—~+＋]?/u);
-  if (m) return `${m[1]} cartons+`;
+  m = t.match(/([\d,]+)\s*箱\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${formatCount(m[1])} cartons+`;
 
   return t
     .replace(/SKUあたり/g, "per SKU ")
     .replace(/ケース/g, "case ")
     .replace(/段ボール|ダンボール/g, "carton ")
-    .replace(/ダース単位/g, "By dozen")
+    .replace(/ダース単位/g, "Sold by dozen")
     .replace(/ロット応相談/g, "Negotiable MOQ")
     .replace(/取引ごと/g, "Per transaction")
     .replace(/応相談/g, "Negotiable")

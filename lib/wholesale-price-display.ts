@@ -6,6 +6,17 @@ import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display
  */
 export const APPROX_JPY_PER_USD = 150;
 
+/** True when the band is already denominated in a non-JPY currency. */
+export function isForeignCurrencyPriceBand(
+  value: string | null | undefined,
+): boolean {
+  const t = value?.trim();
+  if (!t) return false;
+  if (/\b(USD|EUR|GBP|AUD|CAD|SGD|CNY|KRW|CHF|HKD)\b/i.test(t)) return true;
+  if (/[\$€£]/.test(t) && !/円|¥/.test(t)) return true;
+  return false;
+}
+
 export type WholesalePriceLocale = "ja" | "en";
 
 export type WholesalePriceResolved =
@@ -28,20 +39,36 @@ export function parseYenPriceBand(
   const t = value?.trim();
   if (!t) return null;
 
+  // Never treat overseas currency bands as JPY (e.g. "EUR 24–40", "USD 28–35").
+  if (isForeignCurrencyPriceBand(t)) return null;
+
+  // Require ¥ or 円 so bare "24–40" / "EUR 24–40" is not parsed as yen.
   const range = t.match(
-    /¥?\s*([\d,]+)\s*円?\s*[〜～\-–—~]\s*¥?\s*([\d,]+)\s*円?/u,
+    /(?:¥\s*([\d,]+)|([\d,]+)\s*円)\s*[〜～\-–—~]\s*(?:¥\s*([\d,]+)|([\d,]+)\s*円?)/u,
   );
   if (range) {
-    const min = parseYenAmount(range[1]);
-    const max = parseYenAmount(range[2]);
+    const min = parseYenAmount(range[1] || range[2]);
+    const max = parseYenAmount(range[3] || range[4]);
     if (min != null && max != null && max >= min) {
       return { type: "range", min, max };
     }
   }
 
-  const plus = t.match(/¥?\s*([\d,]+)\s*円?\s*以上/u);
+  // "3,800〜5,200円（税別）" — yen mark only on the right side
+  const rangeRightYen = t.match(
+    /([\d,]+)\s*[〜～\-–—~]\s*([\d,]+)\s*円/u,
+  );
+  if (rangeRightYen) {
+    const min = parseYenAmount(rangeRightYen[1]);
+    const max = parseYenAmount(rangeRightYen[2]);
+    if (min != null && max != null && max >= min) {
+      return { type: "range", min, max };
+    }
+  }
+
+  const plus = t.match(/(?:¥\s*([\d,]+)|([\d,]+)\s*円)\s*以上/u);
   if (plus) {
-    const min = parseYenAmount(plus[1]);
+    const min = parseYenAmount(plus[1] || plus[2]);
     if (min != null) return { type: "minPlus", min };
   }
 
@@ -148,12 +175,28 @@ export function resolveWholesalePriceDisplay(
   priceBand: string | null | undefined,
   locale: WholesalePriceLocale,
 ): WholesalePriceResolved {
+  const rawBand = priceBand?.trim() ?? "";
+
+  if (locale === "en" && isForeignCurrencyPriceBand(rawBand)) {
+    return {
+      kind: "single",
+      primary: rawBand
+        .replace(/（FOB相談）/g, " (FOB negotiable)")
+        .replace(/\(FOB相談\)/g, " (FOB negotiable)")
+        .replace(/FOB相談/g, "FOB negotiable")
+        .replace(/（税別）/g, " (excluding tax)")
+        .replace(/応相談/g, "negotiable")
+        .replace(/[〜～]/g, "–")
+        .replace(/\s+/g, " ")
+        .trim(),
+    };
+  }
+
   if (isQuoteRequired(priceBand)) {
-    const raw = priceBand?.trim() ?? "";
     return {
       kind: "single",
       primary:
-        locale === "en" ? quoteLabelEn(raw) : PRICE_BAND_QUOTE_REQUIRED,
+        locale === "en" ? quoteLabelEn(rawBand) : PRICE_BAND_QUOTE_REQUIRED,
     };
   }
 

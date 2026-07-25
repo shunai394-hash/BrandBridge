@@ -52,10 +52,20 @@ export function formatWholesalePriceBandEn(
     return `JPY ${formatJpyAmount(yen.min)}+${excl}`;
   }
 
+  // e.g. "3,980円セット（税別）"
+  const singleYen = t.match(/([\d,]+)\s*円/u);
+  if (singleYen) {
+    const n = Number(singleYen[1].replace(/,/g, ""));
+    if (Number.isFinite(n) && n > 0) {
+      return `JPY ${n.toLocaleString("en-US")}${excl}`;
+    }
+  }
+
   return t
     .replace(/（税別）/g, " (excluding tax)")
     .replace(/\(税別\)/g, " (excluding tax)")
     .replace(/税別/g, "excluding tax")
+    .replace(/円セット/g, "")
     .replace(/円/g, "")
     .replace(/¥/g, "JPY ")
     .replace(/以上/g, "+")
@@ -81,8 +91,17 @@ export function formatMoqEn(value: string | null | undefined): string {
   m = t.match(/ケース\s*(\d+)\s*本\s*[〜～\-–—~+＋]?/u);
   if (m) return `${m[1]} bottles/case+`;
 
-  m = t.match(/段ボール\s*(\d+)\s*箱\s*[〜～\-–—~+＋]?/u);
+  m = t.match(/ケース\s*(\d+)\s*袋\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${m[1]} bags/case+`;
+
+  m = t.match(/ケース\s*(\d+)\s*個\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${m[1]} units/case+`;
+
+  m = t.match(/(?:段ボール|ダンボール)\s*(\d+)\s*箱\s*[〜～\-–—~+＋]?/u);
   if (m) return `${m[1]} carton+`;
+
+  m = t.match(/(\d+)\s*セット\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${m[1]} sets+`;
 
   m = t.match(/(\d+)\s*個\s*[〜～\-–—~+＋]?/u);
   if (m) return `${m[1]} units+`;
@@ -93,19 +112,24 @@ export function formatMoqEn(value: string | null | undefined): string {
   m = t.match(/(\d+)\s*枚\s*[〜～\-–—~+＋]?/u);
   if (m) return `${m[1]} pcs+`;
 
+  m = t.match(/(\d+)\s*袋\s*[〜～\-–—~+＋]?/u);
+  if (m) return `${m[1]} bags+`;
+
   m = t.match(/(\d+)\s*箱\s*[〜～\-–—~+＋]?/u);
   if (m) return `${m[1]} cartons+`;
 
   return t
     .replace(/SKUあたり/g, "per SKU ")
     .replace(/ケース/g, "case ")
-    .replace(/段ボール/g, "carton ")
+    .replace(/段ボール|ダンボール/g, "carton ")
     .replace(/ダース単位/g, "By dozen")
     .replace(/ロット応相談/g, "Negotiable MOQ")
     .replace(/応相談/g, "Negotiable")
+    .replace(/セット/g, " sets")
     .replace(/個/g, " units")
     .replace(/本/g, " bottles")
     .replace(/枚/g, " pcs")
+    .replace(/袋/g, " bags")
     .replace(/箱/g, " cartons")
     .replace(/以上/g, "+")
     .replace(/[〜～]/g, "+")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { parseProductVideoUrl } from "@/lib/product-video";
 
 type ProductVideoProps = {
@@ -15,9 +15,11 @@ type ProductVideoProps = {
   poster?: string | null;
 };
 
+type FileReadyState = "checking" | "ready" | "failed";
+
 /**
  * Optional product intro video under the image gallery.
- * YouTube / Vimeo → embed; mp4/webm → HTML5 player; other URLs → text link.
+ * YouTube / Vimeo → embed; mp4/webm → HTML5 player only after playability check.
  * Unplayable file videos hide the whole section (no black empty player).
  */
 export function ProductVideo({
@@ -27,7 +29,11 @@ export function ProductVideo({
   poster = null,
 }: ProductVideoProps) {
   const parsed = parseProductVideoUrl(url);
-  const [fileFailed, setFileFailed] = useState(false);
+  const [fileState, setFileState] = useState<FileReadyState>("checking");
+
+  useEffect(() => {
+    setFileState("checking");
+  }, [url]);
 
   if (!parsed && !showEmpty) return null;
 
@@ -87,42 +93,71 @@ export function ProductVideo({
   }
 
   if (parsed.kind === "file") {
-    if (fileFailed) return null;
+    if (fileState === "failed") return null;
 
     const posterUrl = poster?.trim() || undefined;
+    const markFailed = () => setFileState("failed");
+    const markReady = () => setFileState("ready");
 
     return (
-      <section className="mt-8" lang={locale === "en" ? "en" : undefined}>
-        <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-          {title}
-        </h2>
-        <div className="mt-3 overflow-hidden rounded-lg border border-border bg-cream shadow-[0_8px_24px_rgba(20,32,51,0.06)]">
-          <div className="relative aspect-video w-full bg-cream">
-            <video
-              className="absolute inset-0 h-full w-full object-contain"
-              controls
-              playsInline
-              preload="metadata"
-              poster={posterUrl}
-              onError={() => setFileFailed(true)}
-              onLoadedMetadata={(event) => {
-                const el = event.currentTarget;
-                if (!Number.isFinite(el.duration) || el.duration <= 0) {
-                  setFileFailed(true);
-                }
-              }}
-            >
-              <source
-                src={parsed.href}
-                type="video/mp4"
-                onError={() => setFileFailed(true)}
-              />
-            </video>
-          </div>
-        </div>
-      </section>
+      <>
+        {fileState === "checking" ? (
+          <video
+            className="pointer-events-none fixed left-0 top-0 h-px w-px opacity-0"
+            preload="metadata"
+            muted
+            playsInline
+            src={parsed.href}
+            tabIndex={-1}
+            aria-hidden
+            onError={markFailed}
+            onLoadedMetadata={(event) => {
+              const el = event.currentTarget;
+              if (
+                !Number.isFinite(el.duration) ||
+                el.duration <= 0 ||
+                el.videoWidth <= 0 ||
+                el.videoHeight <= 0
+              ) {
+                markFailed();
+                return;
+              }
+              markReady();
+            }}
+          />
+        ) : null}
+
+        {fileState === "ready" ? (
+          <section className="mt-8" lang={locale === "en" ? "en" : undefined}>
+            <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+              {title}
+            </h2>
+            <div className="mt-3 overflow-hidden rounded-lg border border-border bg-cream shadow-[0_8px_24px_rgba(20,32,51,0.06)]">
+              <div className="relative aspect-video w-full bg-cream">
+                <video
+                  className="absolute inset-0 h-full w-full object-contain"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster={posterUrl}
+                  onError={markFailed}
+                >
+                  <source
+                    src={parsed.href}
+                    type="video/mp4"
+                    onError={markFailed}
+                  />
+                </video>
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </>
     );
   }
+
+  // Plain external links are not an in-page playable video — hide unless showEmpty.
+  if (!showEmpty) return null;
 
   return (
     <section className="mt-8" lang={locale === "en" ? "en" : undefined}>

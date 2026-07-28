@@ -12,17 +12,9 @@ import {
 } from "@/lib/case-detail-display";
 import { canViewMakerCompanyName } from "@/lib/case-company-visibility";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
+import { brandOriginBadge } from "@/lib/en-japan-opportunity";
 import { formatMoqEn } from "@/lib/en-listing-display";
-import type { Case, SalesFormat, SessionUser, TargetCountry } from "@/lib/types";
-
-const SALES_FORMAT_EN: Record<SalesFormat, string> = {
-  wholesale: "Wholesale",
-  consignment: "Consignment",
-  agency: "Agency",
-  oem: "OEM / ODM",
-  ec: "E-commerce",
-  other: "Other",
-};
+import type { Case, SessionUser, TargetCountry } from "@/lib/types";
 
 const TARGET_MARKET_EN: Record<TargetCountry, string> = {
   JP: "Japan",
@@ -86,22 +78,6 @@ function sampleEn(value: string | null | undefined): string {
   return ja === "—" ? "—" : ja;
 }
 
-/** Prefer shipFrom; else embedded English line; else target market. */
-function countryOfOriginEn(caseItem: Case): string {
-  const fromShip = caseItem.shipFrom?.trim();
-  if (fromShip) return fromShip;
-
-  const blob = [caseItem.description, caseItem.offer, caseItem.summary]
-    .filter(Boolean)
-    .join("\n");
-  const m = blob.match(/Country of Origin:\s*(.+)/i);
-  if (m?.[1]?.trim()) return m[1].trim();
-
-  return (
-    TARGET_MARKET_EN[caseItem.targetCountry] ?? caseItem.targetCountry ?? "—"
-  );
-}
-
 function moqEn(caseItem: Case): string {
   if (caseItem.minOrder?.trim()) return formatMoqEn(caseItem.minOrder);
   const blob = [caseItem.offer, caseItem.description, caseItem.salesTerms]
@@ -159,13 +135,17 @@ export function EnCaseDetail({
     productFeatures: caseItem.productFeatures,
   });
   const showCompanyName = canViewMakerCompanyName(user, alreadyApplied);
-  const brandName = caseItem.brandName?.trim() || "";
+  const origin = brandOriginBadge({
+    shipFrom: caseItem.shipFrom,
+    targetCountry: caseItem.targetCountry,
+  });
+  const brand = caseItem.brandName?.trim() || "";
 
   return (
     <article className="animate-fade-up" lang="en">
       <div className="mb-6">
         <Link href="/en/cases" className="text-sm text-teal hover:underline">
-          ← Back to products
+          ← Back to opportunities
         </Link>
       </div>
 
@@ -177,20 +157,27 @@ export function EnCaseDetail({
           locale="en"
         />
 
-        {brandName ? (
-          <p className="text-sm font-medium tracking-wide text-teal">
-            {brandName}
-          </p>
+        {brand ? (
+          <p className="text-sm font-medium tracking-wide text-teal">{brand}</p>
         ) : null}
 
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           {en.productName}
         </h1>
 
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
+          Japan Expansion Opportunity
+          <span className="mx-2 text-border" aria-hidden="true">
+            ·
+          </span>
+          <span aria-hidden="true">{origin.flag} </span>
+          {origin.label}
+        </p>
+
         <dl>
           <InfoRow label="Category" value={en.category} />
           <InfoRow
-            label="Wholesale Price Range"
+            label="Wholesale Price"
             value={
               <WholesalePriceRange
                 priceBand={wholesaleSource(caseItem)}
@@ -208,11 +195,15 @@ export function EnCaseDetail({
         </dl>
       </header>
 
-     
+      <ProductVideo
+        url={caseItem.productVideoUrl}
+        locale="en"
+        poster={caseItem.productImageUrl}
+      />
 
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-          Product Description
+          About this brand opportunity
         </h2>
         <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
           {en.description}
@@ -222,7 +213,7 @@ export function EnCaseDetail({
       {en.features ? (
         <section className="mt-8">
           <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-            Product Features
+            Brand & product strengths
           </h2>
           <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
             {en.features}
@@ -245,7 +236,7 @@ export function EnCaseDetail({
         />
       </DetailSection>
 
-      <DetailSection title="Sales information">
+      <DetailSection title="Market background">
         <InfoRow
           label="Sales Track Record"
           value={displayOptionalText(caseItem.salesTrackRecord)}
@@ -264,13 +255,13 @@ export function EnCaseDetail({
         />
       </DetailSection>
 
-      <DetailSection title="Deal terms">
+      <DetailSection title="Partnership terms">
         <InfoRow
           label="Initial Order Terms"
           value={displayOptionalText(caseItem.initialOrderTerms)}
         />
         <InfoRow
-          label="Wholesale Price Range"
+          label="Reference wholesale range"
           value={
             <WholesalePriceRange
               priceBand={wholesaleSource(caseItem)}
@@ -291,10 +282,7 @@ export function EnCaseDetail({
           label="Trademark / License"
           value={trademarkEn(caseItem.trademarkStatus)}
         />
-        <InfoRow
-          label="Exclusive Option"
-          value={exclusiveEn(caseItem)}
-        />
+        <InfoRow label="Exclusive Option" value={exclusiveEn(caseItem)} />
       </DetailSection>
 
       <DetailSection title="International terms">
@@ -303,7 +291,7 @@ export function EnCaseDetail({
           value={displayOptionalText(caseItem.shipFrom)}
         />
         <InfoRow
-          label="Target Market"
+          label="Expansion market"
           value={
             TARGET_MARKET_EN[caseItem.targetCountry] ?? caseItem.targetCountry
           }
@@ -328,24 +316,24 @@ export function EnCaseDetail({
 
       <section className="mt-10 border-t border-border pt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
-          Start a business discussion
+          Discuss this Japan expansion opportunity
         </h2>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
-          Open a negotiation with the product supplier on BrandBridge—same flow
-          as the Japanese product detail page.
+          Connect with the brand on BrandBridge to explore distribution,
+          exclusivity, and go-to-market partnership in Japan.
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           {canStartNegotiation ? (
             <Button href={negotiateHref} prefetch={false}>
-              Start Negotiation
+              Discuss Partnership
             </Button>
           ) : (
             <p className="text-sm text-muted">
-              This product is not open for negotiation right now.
+              This opportunity is not open for discussion right now.
             </p>
           )}
           <Button href="/en/cases" variant="ghost">
-            Back to listings
+            Back to opportunities
           </Button>
         </div>
       </section>

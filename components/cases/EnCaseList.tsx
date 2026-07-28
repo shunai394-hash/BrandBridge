@@ -9,9 +9,13 @@ import {
   resolveEnCatalogDisplay,
 } from "@/lib/en-case-catalog";
 import {
-  formatMoqEn,
-  formatWholesalePriceBandEn,
-} from "@/lib/en-listing-display";
+  brandDisplayName,
+  brandOriginBadge,
+  lookingForLabel,
+  opportunityMoqLabel,
+  partnershipLabel,
+  targetChannelsLabel,
+} from "@/lib/en-japan-opportunity";
 import type {
   CaseStatus,
   ReviewStatus,
@@ -26,6 +30,9 @@ export type EnCaseListItem = {
   sku: string | null;
   summary: string;
   makerName: string;
+  brandName: string | null;
+  shipFrom: string | null;
+  partnerChannels: string | null;
   category: string;
   targetCountry: TargetCountry;
   salesFormat: SalesFormat;
@@ -39,25 +46,6 @@ export type EnCaseListItem = {
 type CaseMeta = {
   applicationCount: number;
   hasDeal: boolean;
-};
-
-const SALES_FORMAT_EN: Record<SalesFormat, string> = {
-  wholesale: "Wholesale",
-  consignment: "Consignment",
-  agency: "Agency",
-  oem: "OEM / ODM",
-  ec: "E-commerce",
-  other: "Other",
-};
-
-const TARGET_MARKET_EN: Record<TargetCountry, string> = {
-  JP: "Japan",
-  US: "United States",
-  CN: "China",
-  ASEAN: "ASEAN",
-  EU: "Europe",
-  GLOBAL: "Global",
-  OTHER: "Other",
 };
 
 const STATUS_EN: Record<string, string> = {
@@ -104,8 +92,7 @@ type EnCaseListProps = {
 };
 
 /**
- * English /en/cases table — same columns as Japanese CaseList, English labels only.
- * No product images / card catalog UI.
+ * English /en/cases — Japan expansion opportunities (display framing only).
  */
 export function EnCaseList({ items }: EnCaseListProps) {
   const [keyword, setKeyword] = useState("");
@@ -183,12 +170,19 @@ export function EnCaseList({ items }: EnCaseListProps) {
         category: item.category,
         summary: item.summary,
       });
+      const brand = brandDisplayName({
+        brandName: item.brandName,
+        productName: en.productName,
+        makerName: item.makerName,
+      });
       return (
+        brand.toLowerCase().includes(q) ||
         en.productName.toLowerCase().includes(q) ||
         item.productName.toLowerCase().includes(q) ||
         (item.sku?.toLowerCase().includes(q) ?? false) ||
         en.category.toLowerCase().includes(q) ||
-        item.makerName.toLowerCase().includes(q)
+        item.makerName.toLowerCase().includes(q) ||
+        (item.brandName?.toLowerCase().includes(q) ?? false)
       );
     });
   }, [items, keyword]);
@@ -196,7 +190,7 @@ export function EnCaseList({ items }: EnCaseListProps) {
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-sm text-muted">
-        No open products yet.
+        No open Japan expansion opportunities yet.
       </div>
     );
   }
@@ -209,155 +203,146 @@ export function EnCaseList({ items }: EnCaseListProps) {
           type="search"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="SKU, product name, category…"
+          placeholder="Brand, category, SKU…"
           className="w-full rounded-md border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20"
         />
       </label>
 
       <p className="text-sm text-muted">
-        {filtered.length} product{filtered.length === 1 ? "" : "s"}
+        {filtered.length === 1
+          ? "1 opportunity"
+          : `${filtered.length} opportunities`}
       </p>
 
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-surface px-5 py-10 text-center text-sm text-muted">
-          No products match your search.
+          No opportunities match your search.
         </div>
       ) : (
-        <div className="w-full overflow-x-auto rounded-lg border border-border bg-surface">
-          <table className="w-full min-w-[72rem] table-fixed text-left text-sm">
-            <thead className="border-b border-border bg-cream/50 text-xs text-muted">
-              <tr>
-                <th className="w-[9rem] px-3 py-3 font-medium" scope="col">
-                  SKU
-                </th>
-                <th className="px-3 py-3 font-medium" scope="col">
-                  Product Name
-                </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
-                  Category
-                </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
-                  Country of Origin
-                </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
-                  Sales Format
-                </th>
-                <th className="w-36 px-3 py-3 font-medium" scope="col">
-                  Wholesale Price Range
-                </th>
-                <th className="w-40 px-3 py-3 font-medium" scope="col">
-                  MOQ
-                </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
-                  Application Count
-                </th>
-                <th className="w-28 px-3 py-3 font-medium" scope="col">
-                  Status
-                </th>
-                <th className="w-48 px-3 py-3 font-medium" scope="col">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item) => {
-                const en = resolveEnCatalogDisplay({
-                  id: item.id,
-                  sku: item.sku,
-                  productName: item.productName,
-                  category: item.category,
-                  summary: item.summary,
-                });
-                const applicationCount = apiMeta
-                  ? (apiMeta[item.id]?.applicationCount ?? 0)
-                  : null;
-                const hasDeal = apiMeta
-                  ? Boolean(apiMeta[item.id]?.hasDeal)
-                  : false;
-                const status = apiMeta
-                  ? statusLabelEn({
-                      status: item.status,
-                      reviewStatus: item.reviewStatus,
-                      hasDeal: apiMeta[item.id]?.hasDeal,
-                    })
-                  : "…";
-                const sku = item.sku?.trim() || "";
-                const detailHref = `/en/cases/${item.id}`;
-                const negotiateHref = `/cases/${item.id}/negotiation`;
+        <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((item) => {
+            const en = resolveEnCatalogDisplay({
+              id: item.id,
+              sku: item.sku,
+              productName: item.productName,
+              category: item.category,
+              summary: item.summary,
+            });
+            const origin = brandOriginBadge({
+              shipFrom: item.shipFrom,
+              targetCountry: item.targetCountry,
+            });
+            const brand = brandDisplayName({
+              brandName: item.brandName,
+              productName: en.productName,
+              makerName: item.makerName,
+            });
+            const lookingFor = lookingForLabel(item.salesFormat);
+            const partnership = partnershipLabel({
+              salesFormat: item.salesFormat,
+              isExclusive: item.isExclusive,
+            });
+            const category = enCategoryLabel(item.category);
+            const moq = opportunityMoqLabel(item.minOrder);
+            const target = targetChannelsLabel({
+              partnerChannels: item.partnerChannels,
+              salesFormat: item.salesFormat,
+            });
+            const hasDeal = apiMeta
+              ? Boolean(apiMeta[item.id]?.hasDeal)
+              : false;
+            const status = apiMeta
+              ? statusLabelEn({
+                  status: item.status,
+                  reviewStatus: item.reviewStatus,
+                  hasDeal: apiMeta[item.id]?.hasDeal,
+                })
+              : "…";
+            const detailHref = `/en/cases/${item.id}`;
+            const negotiateHref = `/cases/${item.id}/negotiation`;
 
-                return (
-                  <tr
-                    key={item.id}
-                    className="border-b border-border last:border-0"
-                    data-product-id={item.id}
-                    data-has-deal={
-                      apiMeta ? (hasDeal ? "1" : "0") : undefined
-                    }
-                  >
-                    <td className="px-3 py-3 font-mono text-xs font-medium text-teal">
-                      {sku || "—"}
-                    </td>
-                    <td className="px-3 py-3">
-                      <Link
-                        href={detailHref}
-                        prefetch={false}
-                        className="font-medium text-navy hover:text-teal hover:underline"
-                      >
-                        {en.productName}
-                      </Link>
-                    </td>
-                    <td className="px-3 py-3">
-                      {enCategoryLabel(item.category)}
-                    </td>
-                    <td className="px-3 py-3">
-                      {TARGET_MARKET_EN[item.targetCountry] ??
-                        item.targetCountry}
-                    </td>
-                    <td className="px-3 py-3">
-                      {SALES_FORMAT_EN[item.salesFormat] ?? item.salesFormat}
-                    </td>
-                    <td className="px-3 py-3 font-medium text-navy">
-                      {formatWholesalePriceBandEn(item.priceBand)}
-                    </td>
-                    <td className="whitespace-normal break-words px-3 py-3">
-                      {formatMoqEn(item.minOrder)}
-                    </td>
-                    <td className="px-3 py-3">
-                      {applicationCount === null
-                        ? "…"
-                        : String(applicationCount)}
-                    </td>
-                    <td className="px-3 py-3" data-status={status}>
-                      {status === "Deal closed" ? (
-                        <span className="font-medium text-red-600">
-                          {status}
-                        </span>
-                      ) : status === "Open" ? (
-                        <span className="text-teal">{status}</span>
-                      ) : (
-                        <span className="text-navy">{status}</span>
-                      )}
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Link
-                          href={detailHref}
-                          prefetch={false}
-                          className="text-sm font-medium text-teal hover:underline"
-                        >
-                          View Details
-                        </Link>
-                        <Button href={negotiateHref} prefetch={false}>
-                          Start Negotiation
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            return (
+              <li key={item.id}>
+                <article
+                  className="flex h-full flex-col rounded-lg border border-border bg-surface p-5 transition duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[0_12px_32px_rgba(20,32,51,0.08)]"
+                  data-product-id={item.id}
+                  data-has-deal={
+                    apiMeta ? (hasDeal ? "1" : "0") : undefined
+                  }
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-navy">
+                      <span aria-hidden="true">{origin.flag} </span>
+                      {origin.label}
+                    </p>
+                    <span
+                      className={
+                        status === "Deal closed"
+                          ? "text-xs font-medium text-red-600"
+                          : status === "Open"
+                            ? "text-xs text-teal"
+                            : "text-xs text-muted"
+                      }
+                      data-status={status}
+                    >
+                      {status}
+                    </span>
+                  </div>
+
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+                    Japan Expansion Opportunity
+                  </p>
+
+                  <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-xl leading-snug text-navy">
+                    <Link
+                      href={detailHref}
+                      prefetch={false}
+                      className="hover:text-teal hover:underline"
+                    >
+                      {brand}
+                    </Link>
+                  </h2>
+
+                  <dl className="mt-4 flex-1 space-y-2.5 text-sm">
+                    <div className="grid grid-cols-[6.5rem_1fr] gap-x-2 gap-y-1">
+                      <dt className="text-muted">Brand</dt>
+                      <dd className="font-medium text-navy">{brand}</dd>
+                      <dt className="text-muted">Looking for</dt>
+                      <dd className="text-navy">{lookingFor}</dd>
+                      <dt className="text-muted">Partnership</dt>
+                      <dd className="text-navy">{partnership}</dd>
+                      <dt className="text-muted">Category</dt>
+                      <dd className="text-navy">{category}</dd>
+                      <dt className="text-muted">MOQ</dt>
+                      <dd className="text-navy">{moq}</dd>
+                      <dt className="text-muted">Target</dt>
+                      <dd className="text-navy">{target}</dd>
+                    </div>
+                  </dl>
+
+                  {en.summary ? (
+                    <p className="mt-4 line-clamp-2 text-sm leading-relaxed text-foreground/80">
+                      {en.summary}
+                    </p>
+                  ) : null}
+
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={detailHref}
+                      prefetch={false}
+                      className="text-sm font-medium text-teal hover:underline"
+                    >
+                      View Opportunity
+                    </Link>
+                    <Button href={negotiateHref} prefetch={false}>
+                      Discuss Partnership
+                    </Button>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

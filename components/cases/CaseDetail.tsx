@@ -19,11 +19,7 @@ import {
   displayPriceCondition,
 } from "@/lib/price-display";
 import type { Case, SessionUser } from "@/lib/types";
-import {
-  reviewStatusLabels,
-  salesFormatLabel,
-  targetCountryLabel,
-} from "@/lib/types";
+import { reviewStatusLabels, targetCountryLabel } from "@/lib/types";
 
 type CaseDetailProps = {
   caseItem: Case;
@@ -128,7 +124,7 @@ export function CaseDetailView({
         <dl>
           <InfoRow label="カテゴリ" value={caseItem.category} />
           <InfoRow
-            label="参考卸価格帯"
+            label="参考卸価格"
             value={
               <WholesalePriceRange
                 priceBand={caseItem.priceBand}
@@ -140,11 +136,21 @@ export function CaseDetailView({
             label="MOQ（最低発注数量）"
             value={displayMoq(caseItem.minOrder)}
           />
-         
+          {showCompanyName ? (
+            <InfoRow
+              label="会社名"
+              value={caseItem.makerName?.trim() || "—"}
+            />
+          ) : null}
         </dl>
       </header>
 
-      
+      <ProductVideo
+        url={caseItem.productVideoUrl}
+        locale="ja"
+        poster={caseItem.productImageUrl}
+      />
+
       <section className="mt-8">
         <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
           商品説明

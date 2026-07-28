@@ -19,7 +19,7 @@ export async function generateMetadata({
   const caseItem = await getCaseById(id);
 
   if (!caseItem) {
-    return { title: "Product not found" };
+    return { title: "Opportunity not found" };
   }
 
   const en = resolveEnCatalogDisplay({
@@ -30,10 +30,13 @@ export async function generateMetadata({
     summary: caseItem.summary,
     description: caseItem.description,
   });
+  const brand = caseItem.brandName?.trim() || en.productName;
 
   return {
-    title: en.productName,
-    description: en.summary,
+    title: `${brand} — ${en.productName}`,
+    description:
+      en.summary ||
+      `${en.productName} is seeking a Japanese sales partner on BrandBridge.`,
   };
 }
 

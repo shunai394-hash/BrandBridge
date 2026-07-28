@@ -3,14 +3,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { getSessionUser } from "@/lib/auth";
-import {
-  enFavoritesCopy,
-  enSalesFormatLabel,
-  enTargetCountryLabel,
-  enDisplayMoq,
-  enDisplayPriceBand,
-} from "@/lib/en-account-ui";
+import { enFavoritesCopy } from "@/lib/en-account-ui";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
+import {
+  brandDisplayName,
+  brandOriginBadge,
+  lookingForLabel,
+  opportunityMoqLabel,
+  partnershipLabel,
+  targetChannelsLabel,
+} from "@/lib/en-japan-opportunity";
 import { listFavoriteCases } from "@/lib/favorites";
 
 export const metadata: Metadata = {
@@ -60,6 +62,15 @@ export default async function EnglishFavoritesPage() {
               summary: item.summary,
               description: item.description,
             });
+            const origin = brandOriginBadge({
+              shipFrom: item.shipFrom,
+              targetCountry: item.targetCountry,
+            });
+            const brand = brandDisplayName({
+              brandName: item.brandName,
+              productName: en.productName,
+              makerName: item.makerName,
+            });
             return (
               <article
                 key={item.id}
@@ -69,29 +80,40 @@ export default async function EnglishFavoritesPage() {
                   <div className="mb-3">
                     <ProductCaseImage
                       src={item.productImageUrl}
-                      alt={en.productName}
+                      alt={brand}
                       size="card"
                       locale="en"
                     />
                   </div>
-                  <p className="font-mono text-xs font-medium tracking-wide text-teal">
-                    SKU: {item.sku?.trim() || "—"}
+                  <p className="text-sm font-medium text-navy">
+                    <span aria-hidden="true">{origin.flag} </span>
+                    {origin.label}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+                    Japan Expansion Opportunity
                   </p>
                   <h3 className="mt-2 font-[family-name:var(--font-shippori)] text-lg text-navy group-hover:text-teal">
-                    {en.productName}
+                    {brand}
                   </h3>
                   <p className="mt-2 line-clamp-2 text-sm text-muted">
                     {en.summary || item.summary}
                   </p>
-                  <p className="mt-2 text-xs text-muted">
-                    {enTargetCountryLabel(item.targetCountry)} ·{" "}
-                    {enSalesFormatLabel(item.salesFormat)} · Wholesale:{" "}
-                    {enDisplayPriceBand(item.priceBand)} · MOQ:{" "}
-                    {enDisplayMoq(item.minOrder)}
+                  <p className="mt-2 text-xs leading-relaxed text-muted">
+                    Looking for: {lookingForLabel(item.salesFormat)} ·{" "}
+                    Partnership:{" "}
+                    {partnershipLabel({
+                      salesFormat: item.salesFormat,
+                      isExclusive: item.isExclusive,
+                    })}{" "}
+                    · MOQ: {opportunityMoqLabel(item.minOrder)} · Target:{" "}
+                    {targetChannelsLabel({
+                      partnerChannels: item.partnerChannels,
+                      salesFormat: item.salesFormat,
+                    })}
                   </p>
                   <div className="mt-4 flex items-center justify-between text-sm">
                     <span className="font-medium text-teal group-hover:underline">
-                      {t.viewDetails} →
+                      View Opportunity →
                     </span>
                     <span className="text-xs text-muted">
                       {t.listed} {formatDate(item.createdAt)}

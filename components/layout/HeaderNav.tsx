@@ -53,7 +53,7 @@ function usesHardNav(href: string): boolean {
 function guestLinks(en: boolean) {
   if (en) {
     return [
-      { href: "/en/cases", label: "Product Listings" },
+      { href: "/en/cases", label: "Opportunities" },
       { href: "/en/register/maker", label: "List Your Brand" },
       { href: "/en/register/partner", label: "Partner Registration" },
       { href: "/en/login?next=/en/maker/setup", label: "Login" },
@@ -78,7 +78,7 @@ function userLinks(
     if (en) {
       return [
         { href: "/admin", label: "Admin" },
-        { href: "/en/cases", label: "Product Listings" },
+        { href: "/en/cases", label: "Opportunities" },
         { href: "/en/deals", label: "Deals" },
         { href: "/en/favorites", label: "Favorites" },
         { href: "/en/profile", label: "My Profile" },
@@ -107,7 +107,7 @@ function userLinks(
 
   const links = en
     ? [
-        { href: "/en/cases", label: "Product Listings" },
+        { href: "/en/cases", label: "Opportunities" },
         { href: "/en/negotiations", label: negoLabel },
         { href: "/en/deals", label: "Deals" },
         { href: "/en/favorites", label: "Favorites" },

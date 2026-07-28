@@ -22,11 +22,11 @@ export async function DummyCatalogShowcase({
     <section className="mt-16 border-t border-border pt-12">
       <div className="mb-6">
         <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy">
-          {en ? "Sample catalog products" : "サンプル商品カタログ"}
+          {en ? "Sample Japan expansion opportunities" : "サンプル商品カタログ"}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
           {en
-            ? "Fictional demo listings for layout and detail-page previews. Open any product for the full listing page."
+            ? "Fictional demo brands seeking Japanese partners—for layout and detail-page previews."
             : "レイアウト・詳細ページ確認用の架空デモ商品です。各商品から詳細ページを開けます。"}
         </p>
       </div>
@@ -44,9 +44,9 @@ export async function DummyCatalogShowcase({
       <p className="mt-6 text-sm text-muted">
         {en ? (
           <>
-            Browse all open listings on{" "}
+            Browse all open opportunities on{" "}
             <Link href="/en/cases" className="font-medium text-teal hover:underline">
-              Product Listings
+              Japan Expansion Opportunities
             </Link>
             .
           </>

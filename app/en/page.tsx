@@ -1,13 +1,19 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Find Qualified Japanese Distributors for Your Brand",
   description:
-    "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners—with transparent commercial terms before contact.",
+    "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners with transparent commercial terms before contact.",
+  alternates: {
+    canonical: "/en",
+    languages: {
+      en: "/en",
+      ja: "/",
+    },
+  },
 };
-
 const partnerTypes = [
   { title: "Retailers", hint: "Specialty & department retail" },
   { title: "Distributors", hint: "Nationwide channel coverage" },
@@ -155,7 +161,7 @@ export default function EnglishHomePage() {
                 className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
                 <span className="mt-0.5 text-teal" aria-hidden>
-                  •
+                  窶｢
                 </span>
                 <span>{item}</span>
               </li>
@@ -239,7 +245,7 @@ export default function EnglishHomePage() {
                 className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
                 <span className="mt-0.5 text-teal" aria-hidden>
-                  •
+                  窶｢
                 </span>
                 <span>{item}</span>
               </li>
@@ -319,12 +325,11 @@ export default function EnglishHomePage() {
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
                     What Japanese partners look for when evaluating overseas
-                    brands—across categories.
+                    brands窶蚤cross categories.
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide →
-                </span>
+                  View guide 竊・                </span>
               </Link>
             </li>
             <li>
@@ -342,8 +347,7 @@ export default function EnglishHomePage() {
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide →
-                </span>
+                  View guide 竊・                </span>
               </Link>
             </li>
           </ul>
@@ -364,7 +368,7 @@ export default function EnglishHomePage() {
             Start selling in Japan
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
-            List your brand for qualified Japanese partners—or learn the full
+            List your brand for qualified Japanese partners窶俳r learn the full
             market-entry flow first.
           </p>
           <div className="mx-auto mt-8 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
@@ -392,3 +396,5 @@ export default function EnglishHomePage() {
     </div>
   );
 }
+
+

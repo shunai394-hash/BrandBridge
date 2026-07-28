@@ -7,6 +7,7 @@ import {
 } from "@/components/cases/EnCaseList";
 import { listMyCases, listOpenCases } from "@/lib/cases";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
+import { brandDisplayName } from "@/lib/en-japan-opportunity";
 import type { Case } from "@/lib/types";
 
 function toListItem(item: Case): EnCaseListItem {
@@ -17,6 +18,9 @@ function toListItem(item: Case): EnCaseListItem {
     sku: item.sku,
     summary: item.summary,
     makerName: item.makerName,
+    brandName: item.brandName,
+    shipFrom: item.shipFrom,
+    partnerChannels: item.partnerChannels,
     category: item.category,
     targetCountry: item.targetCountry,
     salesFormat: item.salesFormat,
@@ -29,9 +33,9 @@ function toListItem(item: Case): EnCaseListItem {
 }
 
 export const metadata: Metadata = {
-  title: "Product Listings",
+  title: "Japan Expansion Opportunities",
   description:
-    "Browse open product cases on BrandBridge—SKU, sales format, wholesale range, and MOQ—to understand partner opportunities in Japan.",
+    "Browse overseas brands seeking Japanese distributors, retailers, and e-commerce partners—Japan expansion opportunities on BrandBridge.",
 };
 
 export const dynamic = "force-dynamic";
@@ -68,25 +72,29 @@ export default async function EnglishCasesPage({
       myCases.find((c) => c.id === createdId)
     : undefined;
   const createdLabel = createdCase
-    ? resolveEnCatalogDisplay({
-        id: createdCase.id,
-        sku: createdCase.sku,
-        productName: createdCase.productName,
-        category: createdCase.category,
-        summary: createdCase.summary,
-      }).productName
+    ? brandDisplayName({
+        brandName: createdCase.brandName,
+        productName: resolveEnCatalogDisplay({
+          id: createdCase.id,
+          sku: createdCase.sku,
+          productName: createdCase.productName,
+          category: createdCase.category,
+          summary: createdCase.summary,
+        }).productName,
+        makerName: createdCase.makerName,
+      })
     : null;
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          Product Listings
+          Japan Expansion Opportunities
         </h1>
         <p className="mt-3 max-w-3xl text-muted">
-          Open product cases on BrandBridge. Review SKU, category, sales format,
-          wholesale range, and MOQ—then open details or start a negotiation with
-          Japanese sales partners.
+          Overseas brands looking for Japanese sales partners—distributors,
+          retailers, and e-commerce partners. Review brand, partnership type,
+          category, MOQ, and target channels, then open a discussion.
         </p>
       </header>
 
@@ -101,16 +109,18 @@ export default async function EnglishCasesPage({
         >
           {createdCase ? (
             <>
-              <p className="font-medium text-navy">Product listing saved</p>
+              <p className="font-medium text-navy">
+                Brand opportunity saved
+              </p>
               <p className="mt-1 text-sm text-muted">
                 <Link
                   href={`/en/cases/${createdId}`}
                   className="text-teal hover:underline"
                 >
-                  {createdLabel || "View product"}
+                  {createdLabel || "View opportunity"}
                 </Link>
                 {" · "}
-                Your listing is on the English product list
+                Your brand is listed among Japan expansion opportunities
                 {createdCase.reviewStatus === "pending_review"
                   ? " (pending review — visible to you)."
                   : "."}
@@ -118,7 +128,7 @@ export default async function EnglishCasesPage({
             </>
           ) : (
             <p className="text-sm text-muted">
-              Listing ID {createdId} was not found yet. It may still be
+              Opportunity ID {createdId} was not found yet. It may still be
               processing or awaiting approval.
             </p>
           )}
@@ -128,12 +138,12 @@ export default async function EnglishCasesPage({
       <EnCaseList items={listItems} />
 
       <p className="mt-12 max-w-full text-sm leading-relaxed text-muted break-words">
-        Looking for Japanese products?{" "}
+        Looking for Japanese brand opportunities?{" "}
         <Link
           href="/cases"
           className="inline text-teal underline-offset-2 hover:underline"
         >
-          Browse Japanese product listings
+          Browse Japanese listings
         </Link>
       </p>
     </div>

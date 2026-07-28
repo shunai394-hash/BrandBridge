@@ -909,7 +909,7 @@ update public.cases set sku = 'DUM-0025' where id = 'c0000025-0000-4000-8000-000
 -- Full enrichment + media for dummy catalog products (no blanks)
 update public.cases set
   product_image_url = '/images/dummy/dum-0021-main.png',
-  product_video_url = '/videos/showcase/demo-product-intro.mp4',
+  product_video_url = null,
   brand_name = 'LUMINA NORD',
   brand_overview = 'LUMINA NORDは北欧の住空間をテーマにした照明ブランドです。素材感と控えめな造形を重視し、インテリアショップ向けに展開しています。',
   product_strengths = '天然木の質感と組み立て簡単設計。カフェ・ホテル客室への導入事例あり。梱包は破損率低減の二層構造。',
@@ -935,7 +935,7 @@ where id = 'c0000021-0000-4000-8000-000000000021';
 
 update public.cases set
   product_image_url = '/images/dummy/dum-0022-main.png',
-  product_video_url = '/videos/showcase/demo-product-intro.mp4',
+  product_video_url = null,
   brand_name = 'TRAILPATH',
   brand_overview = 'TRAILPATHは都市と短距離旅行をつなぐバッグブランドです。機能性とミニマルな外観を両立したラインナップを展開しています。',
   product_strengths = 'ビジネスとトラベルの兼用設計。カラー3色展開で店頭VMDしやすい。英語取扱説明書同梱。',
@@ -961,7 +961,7 @@ where id = 'c0000022-0000-4000-8000-000000000022';
 
 update public.cases set
   product_image_url = '/images/dummy/dum-0023-main.png',
-  product_video_url = '/videos/showcase/demo-product-intro.mp4',
+  product_video_url = null,
   brand_name = 'PUREFORM',
   brand_overview = 'PUREFORMは日常のテーブルを整える磁器ブランドです。余計な装飾を排し、長く使える形と質感を追求しています。',
   product_strengths = '割れにくい厚み設計と安定した量産品質。季節ギフトセットへの組み込みが容易。',
@@ -987,7 +987,7 @@ where id = 'c0000023-0000-4000-8000-000000000023';
 
 update public.cases set
   product_image_url = '/images/dummy/dum-0024-main.png',
-  product_video_url = '/videos/showcase/demo-product-intro.mp4',
+  product_video_url = null,
   brand_name = 'HYDROFIT',
   brand_overview = 'HYDROFITはトレーニングシーン向けハイドレーションブランドです。機能性と軽量感を両立したボトルを展開しています。',
   product_strengths = 'ジムロッカーに収まるスリム形状。粉体塗装の指紋がつきにくい仕上げ。カラー5色。',
@@ -1013,7 +1013,7 @@ where id = 'c0000024-0000-4000-8000-000000000024';
 
 update public.cases set
   product_image_url = '/images/dummy/dum-0025-main.png',
-  product_video_url = '/videos/showcase/demo-product-intro.mp4',
+  product_video_url = null,
   brand_name = 'BAMBOO NEST',
   brand_overview = 'BAMBOO NESTは竹素材のデスクまわり製品に特化したブランドです。サステナブル素材と実用的な収納設計を組み合わせています。',
   product_strengths = '軽量で組み立て不要。ギフト需要向けクラフト箱対応。FSC認証竹材を使用。',

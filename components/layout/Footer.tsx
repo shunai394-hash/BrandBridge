@@ -41,7 +41,7 @@ const en = {
   service: "Service",
   support: "Support",
   serviceLinks: [
-    { href: "/en/cases", label: "Product Listings" },
+    { href: "/en/cases", label: "Japan Expansion Opportunities" },
     { href: "/en/register/maker", label: "List Your Brand" },
     { href: "/en/register/partner", label: "Partner Registration" },
     { href: "/en/login", label: "Login" },

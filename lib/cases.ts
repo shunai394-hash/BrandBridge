@@ -494,21 +494,44 @@ export async function createCase(
 
     const supabase = await createClient();
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  data: { user },
+} = await supabase.auth.getUser();
 
-    if (!user) {
-      console.error("[createCase] no auth user");
-      return { error: "ログインセッションが無効です" };
-    }
-    if (user.id !== makerId) {
-      console.error("[createCase] maker_id mismatch", {
-        authUid: user.id,
-        makerId,
-      });
-      return { error: "maker_id 縺ｨ auth.uid() 縺御ｸ閾ｴ縺励∪縺帙ｓ" };
+if (!user) {
+  console.error("[createCase] no auth user");
+  return { error: "ログインセッションが無効です" };
+}
+
+if (user.id !== makerId) {
+  console.error("[createCase] maker_id mismatch", {
+    authUid: user.id,
+    makerId,
+  });
+  return { error: "maker_id 縺ｨ auth.uid() 縺御ｸ閾ｴ縺励∪縺帙ｓ" };
+}
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const plan = profile?.plan ?? "free";
+
+    const { count: caseCount, error: countError } = await supabase
+      .from("cases")
+      .select("id", { count: "exact", head: true })
+      .eq("maker_id", makerId);
+
+    if (countError) {
+      return { error: "商品登録数の確認に失敗しました" };
     }
 
+    if (plan === "free" && (caseCount ?? 0) >= 3) {
+      return {
+        error:
+          "無料プランの商品登録上限（3件）に達しています。追加登録には有料プランが必要です。",
+      };
+    }
     const imageUrl = normalized.productImageUrl?.trim() || null;
     const videoUrl = normalized.productVideoUrl?.trim() || null;
 

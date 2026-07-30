@@ -6,19 +6,36 @@ export function StripeCheckoutButton() {
   const [loading, setLoading] = useState(false);
 
   async function handleCheckout() {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-    });
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.url) {
-      window.location.href = data.url;
+      console.log("checkout response:", data);
+
+      if (!res.ok) {
+        alert(data.error || "決済エラー");
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+        return;
+      }
+
+      alert("Stripe URLが取得できませんでした");
+
+    } catch (error) {
+      console.error(error);
+      alert("通信エラーが発生しました");
+
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
 
   return (

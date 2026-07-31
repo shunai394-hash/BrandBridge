@@ -16,11 +16,10 @@ export default async function MakerSetupPage() {
   if (!user) {
     redirect("/login?next=/maker/setup");
   }
-  const profile = await getProfileById(user.id);
-
-  if (profile?.is_maker && profile?.onboarding_completed) {
-    redirect("/maker/registration-complete");
-  }
+  // This setup page is also used by existing Partner + Maker users
+  // when they add another product/case.
+  // Do not redirect based on onboarding_completed here.
+  // The setup form creates the new case independently.
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">

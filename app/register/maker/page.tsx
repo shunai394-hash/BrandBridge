@@ -17,12 +17,9 @@ export default async function MakerRegisterPage() {
   const user = await getSessionUser();
   console.log("[MakerRegisterPage] session user:", user);
   if (user) {
-    const profile = await getProfileById(user.id);
-
-    if (profile?.is_maker && profile?.onboarding_completed) {
-      redirect("/maker/registration-complete");
-    }
-
+    // Existing authenticated users can add Maker capability.
+    // Do not use onboarding_completed here: it represents initial onboarding,
+    // not whether the user is allowed to create another Maker case.
     redirect("/maker/setup");
   }
 

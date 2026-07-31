@@ -15,15 +15,15 @@ export const dynamic = "force-dynamic";
 
 export default async function MakerRegisterPage() {
   const user = await getSessionUser();
+  console.log("[MakerRegisterPage] session user:", user);
   if (user) {
-    if (user.isMaker) {
-      const profile = await getProfileById(user.id);
-      if (profile?.onboarding_completed) {
-        redirect("/maker/registration-complete");
-      }
-      redirect("/maker/setup");
+    const profile = await getProfileById(user.id);
+
+    if (profile?.is_maker && profile?.onboarding_completed) {
+      redirect("/maker/registration-complete");
     }
-    redirect("/cases");
+
+    redirect("/maker/setup");
   }
 
   return (

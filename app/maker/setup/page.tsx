@@ -16,12 +16,9 @@ export default async function MakerSetupPage() {
   if (!user) {
     redirect("/login?next=/maker/setup");
   }
-  if (!user.isMaker) {
-    redirect("/cases");
-  }
-
   const profile = await getProfileById(user.id);
-  if (profile?.onboarding_completed) {
+
+  if (profile?.is_maker && profile?.onboarding_completed) {
     redirect("/maker/registration-complete");
   }
 

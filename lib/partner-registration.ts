@@ -42,8 +42,11 @@ export function partnerProfilePayloadFromDraft(draft: PartnerProfileDraftMeta) {
     description: draft.selfPr.trim() || null,
     strength:
       draft.salesGenres.length > 0
-        ? `得意ジャンル: ${draft.salesGenres.join(" / ")}`
+        ? `蠕玲э繧ｸ繝｣繝ｳ繝ｫ: ${draft.salesGenres.join(" / ")}`
         : null,
     onboarding_completed: true,
+      is_partner: true,
   };
 }
+
+

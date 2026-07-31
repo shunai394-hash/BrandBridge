@@ -174,7 +174,7 @@ export async function completeEnMakerSetupAction(
       return {
         error:
           imgError?.message ??
-          "Product image URL could not be saved. The listing was created—set the image again from edit if needed.",
+          "Product image URL could not be saved. The listing was created窶敗et the image again from edit if needed.",
       };
     }
   }
@@ -194,13 +194,13 @@ export async function completeEnMakerSetupAction(
         caseId: result.id,
         message: galleryError.message,
       });
-      // Listing exists; gallery can be fixed from edit — do not fail the whole setup.
+      // Listing exists; gallery can be fixed from edit 窶・do not fail the whole setup.
     }
   }
 
   await supabase
     .from("profiles")
-    .update({ onboarding_completed: true })
+    .update({ onboarding_completed: true, is_maker: true })
     .eq("id", maker.id);
 
   const completePath = `/en/products?created=${encodeURIComponent(result.id)}`;
@@ -214,3 +214,4 @@ export async function completeEnMakerSetupAction(
   revalidatePath(`/cases/${result.id}`);
   redirect(completePath);
 }
+

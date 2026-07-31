@@ -80,6 +80,8 @@ export async function diagnoseAdminAccess(): Promise<AdminAccessDiagnosis> {
         role: "admin",
         companyName: profile.company_name,
         isActive: true,
+          isMaker: profile.is_maker === true,
+          isPartner: profile.is_partner === true,
       },
     };
   } catch (error) {
@@ -126,6 +128,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     role: profile.role as UserRole,
     companyName: profile.company_name,
     isActive: profile.is_active !== false,
+    isMaker: profile.is_maker === true,
+    isPartner: profile.is_partner === true,
   };
 }
 
@@ -141,7 +145,7 @@ export async function requireMaker(): Promise<SessionUser> {
     throw new Error("UNAUTHORIZED");
   }
   assertActive(session);
-  if (session.role !== "maker") {
+  if (!session.isMaker) {
     throw new Error("FORBIDDEN_MAKER_ONLY");
   }
   return session;
@@ -153,7 +157,7 @@ export async function requirePartner(): Promise<SessionUser> {
     throw new Error("UNAUTHORIZED");
   }
   assertActive(session);
-  if (session.role !== "partner") {
+  if (!session.isPartner) {
     throw new Error("FORBIDDEN_PARTNER_ONLY");
   }
   return session;

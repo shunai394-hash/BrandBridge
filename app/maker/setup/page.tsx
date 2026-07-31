@@ -16,7 +16,7 @@ export default async function MakerSetupPage() {
   if (!user) {
     redirect("/login?next=/maker/setup");
   }
-  if (user.role !== "maker") {
+  if (!user.isMaker) {
     redirect("/cases");
   }
 

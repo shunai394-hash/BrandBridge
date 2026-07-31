@@ -156,6 +156,8 @@ export type Profile = {
   preferred_deal_types: string | null;
   onboarding_completed?: boolean;
   is_active?: boolean;
+    is_maker?: boolean;
+    is_partner?: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -613,6 +615,8 @@ export type SessionUser = {
   role: UserRole;
   companyName: string;
   isActive: boolean;
+  isMaker: boolean;
+  isPartner: boolean;
 };
 
 export const reviewStatusLabels: Record<ReviewStatus, string> = {

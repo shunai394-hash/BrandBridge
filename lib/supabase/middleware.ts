@@ -5,6 +5,7 @@ import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
 function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   return Boolean(
     url &&
       key &&
@@ -13,15 +14,11 @@ function isSupabaseConfigured() {
   );
 }
 
-/**
- * Refresh the auth session on every matched request and write updated
- * cookies (access + refresh tokens) back to the browser.
- */
 export async function updateSession(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
-  // Expose pathname to Server Components (e.g. admin layout login next=).
+
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
-  // Dev-only UI check on the same path (no redirect to another page).
+
   if (
     process.env.NODE_ENV === "development" &&
     request.nextUrl.searchParams.get("bb_ui_probe") === "1"
@@ -31,12 +28,16 @@ export async function updateSession(request: NextRequest) {
 
   if (!isSupabaseConfigured()) {
     return NextResponse.next({
-      request: { headers: requestHeaders },
+      request: {
+        headers: requestHeaders,
+      },
     });
   }
 
   let supabaseResponse = NextResponse.next({
-    request: { headers: requestHeaders },
+    request: {
+      headers: requestHeaders,
+    },
   });
 
   const supabase = createServerClient(
@@ -44,32 +45,35 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookieOptions: AUTH_COOKIE_OPTIONS,
+
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet, headers) {
-          cookiesToSet.forEach(({ name, value }) => {
+
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
           });
+
           supabaseResponse = NextResponse.next({
-            request: { headers: requestHeaders },
+            request: {
+              headers: requestHeaders,
+            },
           });
+
           cookiesToSet.forEach(({ name, value, options }) => {
             supabaseResponse.cookies.set(name, value, options);
-          });
-          Object.entries(headers).forEach(([key, value]) => {
-            supabaseResponse.headers.set(key, value);
           });
         },
       },
     },
   );
 
-  // Validates JWT and refreshes when expired — keeps session across restarts
   await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+
   if (
     path.startsWith("/admin") ||
     path === "/cases" ||

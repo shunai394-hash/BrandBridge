@@ -1,6 +1,5 @@
 ﻿import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { createClient } from "@/lib/supabase/server";
 
 function getStripe(): Stripe {
   const apiKey = process.env.STRIPE_SECRET_KEY;
@@ -13,61 +12,90 @@ function getStripe(): Stripe {
 }
 
 export async function POST() {
+  console.log("[Stripe Checkout] Starting checkout...");
+
   try {
-    console.log(
-      "STRIPE_SECRET_KEY prefix:",
-      process.env.STRIPE_SECRET_KEY?.substring(0, 12)
-    );
+    const priceId = process.env.STRIPE_GROWTH_PRICE_ID;
 
-    const supabase = await createClient();
+    if (!priceId) {
+      console.error(
+        "[Stripe Checkout] STRIPE_GROWTH_PRICE_ID is missing",
+      );
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError) {
       return NextResponse.json(
-        { error: authError.message },
-        { status: 401 }
+        {
+          error: "Stripe Price IDが設定されていません",
+        },
+        { status: 500 },
       );
     }
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "ログインしてください" },
-        { status: 401 }
-      );
-    }
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const stripe = getStripe();
 
+    console.log("[Stripe Checkout] Creating session...");
+    console.log("[Stripe Checkout] Price ID:", priceId);
+    console.log("[Stripe Checkout] App URL:", appUrl);
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      client_reference_id: user.id,
+
       line_items: [
         {
-          price: process.env.STRIPE_GROWTH_PRICE_ID!,
+          price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/pricing?canceled=true`,
+
+      success_url:
+        `${appUrl}/pricing?success=true`,
+
+      cancel_url:
+        `${appUrl}/pricing?canceled=true`,
     });
+
+    console.log(
+      "[Stripe Checkout] Session created:",
+      session.id,
+    );
+
+    console.log(
+      "[Stripe Checkout] URL:",
+      session.url,
+    );
+
+    if (!session.url) {
+      return NextResponse.json(
+        {
+          error:
+            "Stripe Checkout URLを取得できませんでした",
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       url: session.url,
     });
-
   } catch (error) {
-    console.error("Stripe checkout error:", error);
+    console.error(
+      "[Stripe Checkout] Unexpected error:",
+      error,
+    );
+
+    const message =
+      error instanceof Error
+        ? error.message
+        : String(error);
 
     return NextResponse.json(
       {
         error: "Stripe決済作成エラー",
-        detail: error instanceof Error ? error.message : String(error),
+        detail: message,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

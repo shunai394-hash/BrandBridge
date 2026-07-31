@@ -185,7 +185,7 @@ export async function completeMakerSetupAction(
 
   const { error: onboardError } = await supabase
     .from("profiles")
-    .update({ onboarding_completed: true })
+    .update({ onboarding_completed: true, is_maker: true })
     .eq("id", maker.id);
 
   if (onboardError) {

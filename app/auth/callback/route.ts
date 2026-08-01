@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+﻿import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   isIntentRole,
@@ -104,7 +104,23 @@ export async function GET(request: NextRequest) {
     },
   );
 
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  console.log("[auth/callback] BEFORE exchange", {
+    codePresent: Boolean(code),
+    cookieNames: request.cookies.getAll().map((c) => c.name),
+  });
+
+  const { data: exchangeData, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  console.log("[auth/callback] AFTER exchange", {
+    error: error?.message ?? null,
+    userId: exchangeData.user?.id ?? null,
+    userEmail: exchangeData.user?.email ?? null,
+    cookieJar: cookieJar.map((c) => ({
+      name: c.name,
+      hasValue: Boolean(c.value),
+      maxAge: c.options?.maxAge,
+    })),
+  });
   if (error) {
     console.error("[auth/callback] exchange failed", error.message);
     const hint = mapExchangeError(error.message);
@@ -148,23 +164,14 @@ function redirectWithSessionCookies(
         ? options.maxAge
         : AUTH_COOKIE_OPTIONS.maxAge;
 
-    if (!value) {
-      response.cookies.set(name, "", {
-        path: AUTH_COOKIE_OPTIONS.path,
-        sameSite: AUTH_COOKIE_OPTIONS.sameSite,
-        secure: AUTH_COOKIE_OPTIONS.secure,
-        httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
-        maxAge: 0,
-      });
-    } else {
-      response.cookies.set(name, value, {
-        path: AUTH_COOKIE_OPTIONS.path,
-        sameSite: AUTH_COOKIE_OPTIONS.sameSite,
-        secure: AUTH_COOKIE_OPTIONS.secure,
-        httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
-        maxAge,
-      });
-    }
+    response.cookies.set(name, value, {
+      ...options,
+      path: AUTH_COOKIE_OPTIONS.path,
+      sameSite: AUTH_COOKIE_OPTIONS.sameSite,
+      secure: AUTH_COOKIE_OPTIONS.secure,
+      httpOnly: AUTH_COOKIE_OPTIONS.httpOnly,
+      maxAge: value ? maxAge : 0,
+    });
   }
 
   for (const [key, value] of Object.entries(headers)) {
@@ -283,7 +290,7 @@ async function resolvePostAuthPath(
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role, onboarding_completed, is_active")
+    .select("role, onboarding_completed, is_active, is_maker, is_partner")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -295,14 +302,24 @@ async function resolvePostAuthPath(
     (profile?.role as string | undefined) ??
     (user.user_metadata?.role as string | undefined);
   const completed = profile?.onboarding_completed === true;
+  const isMaker = profile?.is_maker === true;
+  const isPartner = profile?.is_partner === true;
 
   return resolveRoleDestination({
     role,
     onboardingCompleted: completed,
     requestedNext,
+    isMaker,
+    isPartner,
     registrationLocale:
       (user.user_metadata?.registration_locale as string | undefined) ?? null,
     registrationSource:
       (user.user_metadata?.registration_source as string | undefined) ?? null,
   });
 }
+
+
+
+
+
+

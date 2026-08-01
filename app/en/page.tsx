@@ -277,6 +277,66 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
+      <section id="pricing" className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <p className="text-xs font-medium tracking-wider text-teal">
+            Pricing
+          </p>
+          <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Simple, Transparent Pricing
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Start listing your products with no upfront cost during the current beta period.
+          </p>
+
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <div className="rounded-lg border border-teal/30 bg-white p-6 shadow-sm">
+              <p className="text-sm font-medium tracking-wide text-teal">
+                Beta Period
+              </p>
+              <p className="mt-3 font-[family-name:var(--font-shippori)] text-3xl text-navy">
+                Free
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-navy">
+                <li>✓ Free product listings</li>
+                <li>✓ Unlimited product listings</li>
+                <li>✓ No monthly subscription fee</li>
+                <li>✓ No listing fee</li>
+                <li>✓ 0% transaction fee during the beta period</li>
+              </ul>
+            </div>
+
+            <div className="rounded-lg border border-border bg-white p-6">
+              <p className="text-sm font-medium tracking-wide text-teal">
+                After Official Launch
+              </p>
+              <p className="mt-3 font-[family-name:var(--font-shippori)] text-3xl text-navy">
+                8%
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                of the initial transaction value
+              </p>
+              <ul className="mt-6 space-y-3 text-sm text-navy">
+                <li>✓ Paid by the product provider</li>
+                <li>✓ No transaction fee for Japanese sales partners</li>
+              </ul>
+              <p className="mt-6 text-xs leading-relaxed text-muted">
+                The official launch date will be announced separately in advance.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <Button
+              href="/en/register/maker"
+              className="px-6 py-3.5 text-base"
+            >
+              List Your Products for Free
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
@@ -396,5 +456,6 @@ export default function EnglishHomePage() {
     </div>
   );
 }
+
 
 

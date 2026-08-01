@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type { Profile, SessionUser, UserRole } from "@/lib/types";
 
 export type AdminAccessDiagnosis =
@@ -101,7 +101,15 @@ export async function getCurrentProfile(): Promise<Profile | null> {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) return null;
+    if (!user) {
+      console.log("[getCurrentProfile] NO AUTH USER");
+      return null;
+    }
+
+    console.log("[getCurrentProfile] auth user:", {
+      id: user.id,
+      email: user.email,
+    });
 
     const { data, error } = await supabase
       .from("profiles")
@@ -109,7 +117,23 @@ export async function getCurrentProfile(): Promise<Profile | null> {
       .eq("id", user.id)
       .maybeSingle();
 
-    if (error || !data) return null;
+    if (error || !data) {
+      console.log("[getCurrentProfile] PROFILE ERROR:", {
+        error: error?.message,
+        code: error?.code,
+        details: error?.details,
+      });
+      return null;
+    }
+
+    console.log("[getCurrentProfile] profile:", {
+      id: data.id,
+      email: data.email,
+      is_partner: data.is_partner,
+      is_maker: data.is_maker,
+      is_active: data.is_active,
+      role: data.role,
+    });
     return data as Profile;
   } catch (error) {
     console.error("[getCurrentProfile]", error);

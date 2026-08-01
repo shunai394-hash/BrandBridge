@@ -1,4 +1,4 @@
-import { MessageForm } from "@/components/negotiations/MessageForm";
+﻿import { MessageForm } from "@/components/negotiations/MessageForm";
 import {
   negotiationDetailCopy,
   type NegotiationUiLocale,
@@ -8,11 +8,8 @@ import type { MessageView } from "@/lib/types";
 type MessageThreadProps = {
   negotiationId: string;
   messages: MessageView[];
-  initialMessage?: string | null;
-  initialFrom?: string;
-  initialAt?: string;
   canReply: boolean;
-  /** Default Japanese — Japanese routes unchanged. */
+  /** Default Japanese 窶・Japanese routes unchanged. */
   locale?: NegotiationUiLocale;
 };
 
@@ -36,9 +33,6 @@ function formatBytes(bytes: number | null | undefined) {
 export function MessageThread({
   negotiationId,
   messages,
-  initialMessage,
-  initialFrom,
-  initialAt,
   canReply,
   locale = "ja",
 }: MessageThreadProps) {
@@ -49,21 +43,6 @@ export function MessageThread({
       <h2 className="text-xl text-navy">{t.thread}</h2>
 
       <div className="mt-4 space-y-3">
-        {initialMessage ? (
-          <article className="rounded-lg border border-border bg-surface p-4">
-            <p className="text-xs text-muted">
-              From: {initialFrom || t.partnerFallback}
-            </p>
-
-            {initialAt ? (
-              <p className="text-xs text-muted">
-                {formatDateTime(initialAt, locale)}
-              </p>
-            ) : null}
-
-            <p className="mt-3 whitespace-pre-wrap">{initialMessage}</p>
-          </article>
-        ) : null}
 
         {messages.map((message) => {
           const sizeLabel = formatBytes(message.attachment?.size ?? null);
@@ -137,3 +116,4 @@ export function MessageThread({
     </section>
   );
 }
+

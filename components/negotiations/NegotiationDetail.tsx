@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ type NegotiationDetailProps = {
   item: NegotiationListItem;
   user: SessionUser;
   messages: MessageView[];
-  /** Default Japanese — Japanese routes unchanged. */
+  /** Default Japanese 窶・Japanese routes unchanged. */
   locale?: NegotiationUiLocale;
 };
 
@@ -100,7 +100,7 @@ export function NegotiationDetail({
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3 border-t border-border pt-4">
           <div className="min-w-0">
             <p className="font-mono text-sm font-medium text-teal">
-              {t.sku} {item.productSku?.trim() || "—"}
+              {t.sku} {item.productSku?.trim() || "-"}
             </p>
             <p className="mt-1 text-base font-medium text-navy">
               {item.productName}
@@ -133,7 +133,7 @@ export function NegotiationDetail({
               <Link href={caseHref} className="text-teal hover:underline">
                 {t.openProduct}
               </Link>
-              <span className="mx-2 text-muted">·</span>
+              <span className="mx-2 text-muted">ﾂｷ</span>
               <span className="text-muted">
                 {en
                   ? enCategoryLabel(item.caseCategory)
@@ -142,9 +142,9 @@ export function NegotiationDetail({
                   ? ` / ${
                       en
                         ? ({
-                            全国: "Japan (nationwide)",
-                            特定地域: "Specific regions in Japan",
-                            オンライン中心: "Online-focused",
+                            蜈ｨ蝗ｽ: "Japan (nationwide)",
+                            specific: "Specific regions in Japan",
+                            online: "Online-focused",
                           }[item.caseRegion] ?? item.caseRegion)
                         : item.caseRegion
                     }`
@@ -200,12 +200,12 @@ export function NegotiationDetail({
       <MessageThread
         negotiationId={item.id}
         messages={canReply ? messages : []}
-        initialMessage={item.initialMessage}
-        initialFrom={item.partnerCompanyName}
-        initialAt={item.createdAt}
         canReply={canReply}
         locale={locale}
       />
     </article>
   );
 }
+
+
+

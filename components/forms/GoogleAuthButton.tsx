@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -72,7 +72,15 @@ export function GoogleAuthButton({
     }
 
     try {
+      console.log("[GoogleAuthButton] CLICKED", {
+        nextPath,
+        intentRole,
+        origin: window.location.origin,
+      });
+
       const supabase = createClient();
+      console.log("[GoogleAuthButton] START OAuth", callback.toString());
+
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -81,6 +89,8 @@ export function GoogleAuthButton({
           // keep the user signed in; Google UI only appears when needed.
         },
       });
+
+      console.log("[GoogleAuthButton] OAuth RESULT", oauthError);
 
       if (oauthError) {
         setError(mapGoogleOAuthError(oauthError.message, en));
@@ -140,3 +150,6 @@ function GoogleIcon() {
     </svg>
   );
 }
+
+
+

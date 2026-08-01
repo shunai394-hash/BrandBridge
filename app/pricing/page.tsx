@@ -19,7 +19,7 @@ const partnerFreeFeatures = [
 
 const starterFeatures = [
   "企業プロフィール登録",
-  "商品登録（3件まで）",
+  "商品登録数 無制限",
   "商品情報掲載",
   "販売パートナーからの問い合わせ受付",
   "基本商談管理",

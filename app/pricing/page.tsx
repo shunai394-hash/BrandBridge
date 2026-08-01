@@ -211,7 +211,7 @@ export default function PricingPage() {
               </p>
 
               <p className="mt-2 text-sm leading-relaxed text-muted">
-                正式リリース後は、初回成約時の成約額に対して8%の手数料を予定しています。
+                正式リリース後は、商品提供企業が初回成約額の8%を成約手数料として負担します。販売パートナーに成約手数料は発生しません。
               </p>
             </div>
           </div>
@@ -259,3 +259,4 @@ export default function PricingPage() {
     </div>
   );
 }
+

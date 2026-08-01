@@ -11,12 +11,12 @@ function isEnglishPath(pathname: string | null | undefined): boolean {
 
 const ja = {
   blurb:
-    "日本進出したい海外ブランドと売れる販売パートナーをつなぐ、交渉可能なBtoB商談プラットフォーム。",
-  beta: "ベータ先行登録受付中",
+    "日本進出を目指す海外ブランドと、販売パートナーをつなぐBtoBプラットフォーム。",
+  beta: "現在ベータ版として運営中",
   service: "サービス",
   support: "サポート",
   serviceLinks: [
-    { href: "/cases", label: "商品一覧" },
+    { href: "/cases", label: "案件一覧" },
     { href: "/for-makers", label: ROLE_DISPLAY.makerForPage },
     { href: "/for-partners", label: "販売パートナーの方へ" },
     { href: "/pricing", label: "料金プラン" },
@@ -112,7 +112,10 @@ export function Footer() {
             <ul className="space-y-2">
               {t.supportLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="transition hover:text-white">
+                  <Link
+                    href={item.href}
+                    className="transition hover:text-white"
+                  >
                     {item.label}
                   </Link>
                 </li>

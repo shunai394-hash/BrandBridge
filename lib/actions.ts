@@ -64,6 +64,23 @@ import type {
 function authErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : "";
 }
+async function requireMakerOrPartner() {
+  const session = await getSessionUser();
+
+  if (!session) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  if (!session.isActive) {
+    throw new Error("ACCOUNT_INACTIVE");
+  }
+
+  if (!session.isMaker && !session.isPartner) {
+    throw new Error("FORBIDDEN_MAKER_OR_PARTNER_ONLY");
+  }
+
+  return session;
+}
 
 /** Auth-only setup save. Never calls signUp / signIn. */
 export async function completeMakerSetupAction(
@@ -71,7 +88,7 @@ export async function completeMakerSetupAction(
 ): Promise<{ error: string } | void> {
   let maker;
   try {
-    maker = await requireMaker();
+    maker = await requireMakerOrPartner();
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") {
@@ -116,7 +133,6 @@ export async function completeMakerSetupAction(
   const { data: updated, error: profileError } = await supabase
     .from("profiles")
     .update({
-      role: "maker",
       company_name: input.companyName.trim(),
       contact_name: input.contactName.trim(),
       industry: input.industry,
@@ -186,7 +202,7 @@ export async function completeMakerSetupAction(
 
   const { error: onboardError } = await supabase
     .from("profiles")
-    .update({ role: "maker", onboarding_completed: true, is_maker: true })
+    .update({ onboarding_completed: true })
     .eq("id", maker.id);
 
   if (onboardError) {
@@ -260,7 +276,7 @@ export async function createCaseAction(
 ): Promise<{ error: string } | void> {
   let maker;
   try {
-    maker = await requireMaker();
+    maker = await requireMakerOrPartner();
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") redirect("/login");
@@ -913,7 +929,4 @@ export async function signOutAction() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }
-
-
-
 

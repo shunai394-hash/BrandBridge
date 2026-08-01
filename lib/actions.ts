@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -116,6 +116,7 @@ export async function completeMakerSetupAction(
   const { data: updated, error: profileError } = await supabase
     .from("profiles")
     .update({
+      role: "maker",
       company_name: input.companyName.trim(),
       contact_name: input.contactName.trim(),
       industry: input.industry,
@@ -185,7 +186,7 @@ export async function completeMakerSetupAction(
 
   const { error: onboardError } = await supabase
     .from("profiles")
-    .update({ onboarding_completed: true, is_maker: true })
+    .update({ role: "maker", onboarding_completed: true, is_maker: true })
     .eq("id", maker.id);
 
   if (onboardError) {
@@ -912,3 +913,7 @@ export async function signOutAction() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }
+
+
+
+

@@ -50,6 +50,7 @@ export function NegotiationDetail({
   const [termsLoading, setTermsLoading] = useState(false);
   const [error, setError] = useState("");
   const [termsError, setTermsError] = useState("");
+  const [termsSavedMessage, setTermsSavedMessage] = useState("");
 
   const [salesRegion, setSalesRegion] = useState(
     terms?.salesRegion ?? "",
@@ -110,6 +111,7 @@ export function NegotiationDetail({
     status: "draft" | "submitted",
   ) {
     setTermsError("");
+    setTermsSavedMessage("");
     setTermsLoading(true);
 
     const result = await upsertNegotiationTermsAction({
@@ -137,6 +139,16 @@ export function NegotiationDetail({
       );
       return;
     }
+
+    setTermsSavedMessage(
+      status === "draft"
+        ? en
+          ? "Draft saved successfully."
+          : "???????????"
+        : en
+          ? "Terms have been presented to the other party."
+          : "?????????????",
+    );
 
     router.refresh();
   }

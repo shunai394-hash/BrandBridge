@@ -145,10 +145,10 @@ export function NegotiationDetail({
       status === "draft"
         ? en
           ? "Draft saved successfully."
-          : "???????????"
+          : "下書きを保存しました。"
         : en
           ? "Terms have been presented to the other party."
-          : "?????????????",
+          : "条件を相手に提示しました。",
     );
 
     router.refresh();
@@ -440,6 +440,8 @@ export function NegotiationDetail({
     </article>
   );
 }
+
+
 
 
 

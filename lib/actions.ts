@@ -28,6 +28,7 @@ import {
   getNegotiationById,
   markNegotiationRead,
   updatePipelineStatus,
+  upsertNegotiationTerms,
 } from "@/lib/negotiations";
 import { createClient } from "@/lib/supabase/server";
 import type {
@@ -744,19 +745,31 @@ export async function upsertNegotiationTermsAction(input: {
   notes: string;
   status: "draft" | "submitted";
 }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "ログインが必要です" };
+  let user;
+  try {
+    user = await requireActiveUser();
+  } catch (e) {
+    const message = authErrorMessage(e);
+    if (message === "UNAUTHORIZED") redirect("/login");
+    return { error: "アカウントが停止されています" };
   }
 
+  const supabase = await createClient();
+
+  // negotiations には maker_id がないため、
+  // case_id -> cases.maker_id でメーカーを確認する。
   const { data: negotiation, error: negotiationError } = await supabase
     .from("negotiations")
-    .select("id, maker_id, partner_id")
+    .select(
+      `
+      id,
+      partner_id,
+      case_id,
+      cases!case_id (
+        maker_id
+      )
+      `,
+    )
     .eq("id", input.negotiationId)
     .maybeSingle();
 
@@ -768,42 +781,51 @@ export async function upsertNegotiationTermsAction(input: {
     return { error: "交渉が見つかりません" };
   }
 
-  if (
-    user.id !== negotiation.maker_id &&
-    user.id !== negotiation.partner_id
-  ) {
+  const caseRow = Array.isArray(negotiation.cases)
+    ? negotiation.cases[0]
+    : negotiation.cases;
+
+  const makerId = caseRow?.maker_id ?? null;
+  const partnerId = negotiation.partner_id as string;
+
+  if (user.id !== makerId && user.id !== partnerId) {
     return { error: "この条件シートを編集する権限がありません" };
   }
 
-  const { data: existing } = await supabase
-    .from("negotiation_terms")
-    .select("id, created_by")
-    .eq("negotiation_id", input.negotiationId)
-    .maybeSingle();
-
-  const payload = {
-    negotiation_id: input.negotiationId,
-    sales_region: input.salesRegion || null,
-    sales_channel: input.salesChannel || null,
-    wholesale_price: input.wholesalePrice,
+  const result = await upsertNegotiationTerms({
+    negotiationId: input.negotiationId,
+    salesRegion: input.salesRegion,
+    salesChannel: input.salesChannel,
+    wholesalePrice: input.wholesalePrice,
     moq: input.moq,
-    lead_time: input.leadTime || null,
-    payment_terms: input.paymentTerms || null,
-    exclusive_sales: input.exclusiveSales,
-    notes: input.notes || null,
-    status,
-    created_by: existing?.created_by ?? user.id,
-  };
+    leadTime: input.leadTime,
+    paymentTerms: input.paymentTerms,
+    exclusiveSales: input.exclusiveSales,
+    notes: input.notes,
+    status: input.status,
+    createdBy: user.id,
+  });
 
-  const { error } = await supabase
-    .from("negotiation_terms")
-    .upsert(payload, {
-      onConflict: "negotiation_id",
-    });
-
-  if (error) {
-    return { error: error.message };
+  if (result.error) {
+    return { error: result.error };
   }
+
+  if (input.status === "submitted") {
+    const pipelineResult = await updatePipelineStatus(
+      input.negotiationId,
+      "terms_review",
+    );
+
+    if (pipelineResult.error) {
+      return { error: pipelineResult.error };
+    }
+  }
+
+  revalidatePath("/negotiations");
+  revalidatePath(`/negotiations/${input.negotiationId}`);
+  revalidatePath("/en/negotiations");
+  revalidatePath(`/en/negotiations/${input.negotiationId}`);
+  revalidatePath("/admin/negotiations");
 
   return {};
 }

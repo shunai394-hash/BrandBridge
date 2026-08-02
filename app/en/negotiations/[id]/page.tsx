@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { NegotiationDetail } from "@/components/negotiations/NegotiationDetail";
 import { getSessionUser } from "@/lib/auth";
@@ -57,9 +57,17 @@ export default async function EnglishNegotiationDetailPage({
         item={item}
         user={user}
         messages={messages}
-        terms={termsResult.data ?? null}
+        terms={
+          termsResult.data
+            ? {
+                ...termsResult.data,
+                wholesalePrice: termsResult.data.wholesale_price,
+              }
+            : null
+        }
         locale="en"
       />
     </div>
   );
 }
+

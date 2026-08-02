@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/auth";
 import { listMessages } from "@/lib/messages";
 import {
   getNegotiationById,
+  getNegotiationTerms,
   markNegotiationRead,
 } from "@/lib/negotiations";
 
@@ -48,10 +49,16 @@ export default async function NegotiationDetailPage({
   await markNegotiationRead(item.id, user.id);
 
   const messages = await listMessages(item.id, user.id);
+  const termsResult = await getNegotiationTerms(item.id);
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
-      <NegotiationDetail item={item} user={user} messages={messages} />
+      <NegotiationDetail
+        item={item}
+        user={user}
+        messages={messages}
+        terms={termsResult.data ?? null}
+      />
     </div>
   );
 }

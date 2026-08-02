@@ -477,19 +477,96 @@ export async function updateNegotiationStatus(
   return {};
 }
 
+export async function getNegotiationTerms(
+  negotiationId: string,
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("negotiation_terms")
+    .select("*")
+    .eq("negotiation_id", negotiationId)
+    .maybeSingle();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data };
+}
+
+export async function upsertNegotiationTerms(input: {
+  negotiationId: string;
+  salesRegion?: string | null;
+  salesChannel?: string | null;
+  wholesalePrice?: number | null;
+  moq?: number | null;
+  leadTime?: string | null;
+  paymentTerms?: string | null;
+  exclusiveSales?: boolean;
+  notes?: string | null;
+  status?: "draft" | "submitted" | "revision_requested" | "agreed";
+  createdBy: string;
+}) {
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("negotiation_terms")
+    .select("id, created_by")
+    .eq("negotiation_id", input.negotiationId)
+    .maybeSingle();
+
+  const payload = {
+    negotiation_id: input.negotiationId,
+    sales_region: input.salesRegion ?? null,
+    sales_channel: input.salesChannel ?? null,
+    wholesale_price: input.wholesalePrice ?? null,
+    moq: input.moq ?? null,
+    lead_time: input.leadTime ?? null,
+    payment_terms: input.paymentTerms ?? null,
+    exclusive_sales: input.exclusiveSales ?? false,
+    notes: input.notes ?? null,
+    status: input.status ?? "draft",
+    created_by: existing?.created_by ?? input.createdBy,
+  };
+
+  const { data, error } = await supabase
+    .from("negotiation_terms")
+    .upsert(payload, {
+      onConflict: "negotiation_id",
+    })
+    .select("*")
+    .single();
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data };
+}
+
 export async function updatePipelineStatus(
   id: string,
   pipelineStatus: PipelineStatus,
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { error } = await supabase
+
+  const { data, error } = await supabase
     .from("negotiations")
     .update({ pipeline_status: pipelineStatus })
     .eq("id", id)
-    .eq("application_status", "accepted");
+    .eq("application_status", "accepted")
+    .select("id, pipeline_status")
+    .maybeSingle();
 
   if (error) {
     return { error: error.message };
+  }
+
+  if (!data) {
+    return {
+      error: "パイプラインステータスを更新できませんでした",
+    };
   }
 
   return {};

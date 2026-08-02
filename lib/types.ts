@@ -65,6 +65,39 @@ export type NegotiationListItem = {
   lastMessageAt?: string | null;
 };
 
+export type NegotiationTermStatus =
+  | "draft"
+  | "submitted"
+  | "revision_requested"
+  | "agreed";
+
+export type NegotiationTerms = {
+  id: string;
+  negotiationId: string;
+
+  salesRegion: string | null;
+  salesChannel: string | null;
+
+  wholesalePrice: number | null;
+  moq: number | null;
+
+  leadTime: string | null;
+  paymentTerms: string | null;
+
+  exclusiveSales: boolean;
+  notes: string | null;
+
+  status: NegotiationTermStatus;
+
+  createdBy: string;
+
+  makerConfirmedAt: string | null;
+  partnerConfirmedAt: string | null;
+
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Deal = {
   id: string;
   negotiationId: string;

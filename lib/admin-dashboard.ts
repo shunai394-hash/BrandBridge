@@ -8,6 +8,7 @@ export type AdminDashboardMetricKey =
   | "products.published"
   | "products.unpublished"
   | "negotiations.inNegotiation"
+  | "negotiations.termsReview"
   | "negotiations.contractPrep"
   | "negotiations.contracted"
   | "fees.awaitingInvoice"
@@ -34,6 +35,7 @@ export type AdminDashboardStats = {
   };
   negotiations: {
     inNegotiation: number;
+    termsReview: number;
     contractPrep: number;
     contracted: number;
   };
@@ -106,6 +108,16 @@ export const adminDashboardSections: AdminDashboardSectionDef[] = [
         getValue: (s) => ({
           kind: "count",
           value: s.negotiations.inNegotiation,
+        }),
+      },
+      {
+        key: "negotiations.termsReview",
+        section: "negotiations",
+        label: "条件確認",
+        href: "/admin/negotiations?pipeline=terms_review",
+        getValue: (s) => ({
+          kind: "count",
+          value: s.negotiations.termsReview,
         }),
       },
       {
@@ -249,8 +261,8 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       unpublished: unpublished.count ?? 0,
     },
     negotiations: {
-      inNegotiation:
-        (inNegotiation.count ?? 0) + (termsReview.count ?? 0),
+      inNegotiation: inNegotiation.count ?? 0,
+      termsReview: termsReview.count ?? 0,
       contractPrep: contractPrep.count ?? 0,
       contracted: dealStats.dealCount,
     },

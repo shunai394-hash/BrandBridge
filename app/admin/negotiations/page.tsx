@@ -9,11 +9,23 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminNegotiationsPage() {
+type AdminNegotiationsPageProps = {
+  searchParams: Promise<{ pipeline?: string }>;
+};
+
+export default async function AdminNegotiationsPage({
+  searchParams,
+}: AdminNegotiationsPageProps) {
+  const { pipeline } = await searchParams;
   const [items, defaultCommissionRate] = await Promise.all([
     listAdminNegotiations(),
     getDefaultCommissionRate(),
   ]);
+
+  const filteredItems =
+    pipeline === "terms_review"
+      ? items.filter((item) => item.pipelineStatus === "terms_review")
+      : items;
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -24,7 +36,7 @@ export default async function AdminNegotiationsPage() {
         パイプライン管理と成約化（成約金額・仲介手数料の登録）を行います。
       </p>
       <AdminNegotiationBoard
-        items={items}
+        items={filteredItems}
         defaultCommissionRate={defaultCommissionRate}
       />
     </div>

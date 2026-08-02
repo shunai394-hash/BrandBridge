@@ -732,6 +732,82 @@ export async function toggleFavoriteAction(
   return { favorited: result.favorited };
 }
 
+export async function upsertNegotiationTermsAction(input: {
+  negotiationId: string;
+  salesRegion: string;
+  salesChannel: string;
+  wholesalePrice: number | null;
+  moq: number | null;
+  leadTime: string;
+  paymentTerms: string;
+  exclusiveSales: boolean;
+  notes: string;
+  status: "draft" | "submitted";
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "ログインが必要です" };
+  }
+
+  const { data: negotiation, error: negotiationError } = await supabase
+    .from("negotiations")
+    .select("id, maker_id, partner_id")
+    .eq("id", input.negotiationId)
+    .maybeSingle();
+
+  if (negotiationError) {
+    return { error: negotiationError.message };
+  }
+
+  if (!negotiation) {
+    return { error: "交渉が見つかりません" };
+  }
+
+  if (
+    user.id !== negotiation.maker_id &&
+    user.id !== negotiation.partner_id
+  ) {
+    return { error: "この条件シートを編集する権限がありません" };
+  }
+
+  const { data: existing } = await supabase
+    .from("negotiation_terms")
+    .select("id, created_by")
+    .eq("negotiation_id", input.negotiationId)
+    .maybeSingle();
+
+  const payload = {
+    negotiation_id: input.negotiationId,
+    sales_region: input.salesRegion || null,
+    sales_channel: input.salesChannel || null,
+    wholesale_price: input.wholesalePrice,
+    moq: input.moq,
+    lead_time: input.leadTime || null,
+    payment_terms: input.paymentTerms || null,
+    exclusive_sales: input.exclusiveSales,
+    notes: input.notes || null,
+    status,
+    created_by: existing?.created_by ?? user.id,
+  };
+
+  const { error } = await supabase
+    .from("negotiation_terms")
+    .upsert(payload, {
+      onConflict: "negotiation_id",
+    });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {};
+}
+
 export async function updatePipelineStatusAction(input: {
   negotiationId: string;
   pipelineStatus: PipelineStatus;

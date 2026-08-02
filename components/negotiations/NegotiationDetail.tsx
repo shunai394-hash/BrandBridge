@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { updatePipelineStatusAction } from "@/lib/actions";
+import {
+  updatePipelineStatusAction,
+  upsertNegotiationTermsAction,
+} from "@/lib/actions";
 import { MessageThread } from "@/components/negotiations/MessageThread";
 import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
@@ -17,6 +20,7 @@ import { enCategoryLabel } from "@/lib/en-case-catalog";
 import type {
   MessageView,
   NegotiationListItem,
+  NegotiationTerms,
   PipelineStatus,
   SessionUser,
 } from "@/lib/types";
@@ -29,6 +33,7 @@ type NegotiationDetailProps = {
   item: NegotiationListItem;
   user: SessionUser;
   messages: MessageView[];
+  terms: NegotiationTerms | null;
   /** Default Japanese 窶・Japanese routes unchanged. */
   locale?: NegotiationUiLocale;
 };
@@ -37,11 +42,39 @@ export function NegotiationDetail({
   item,
   user,
   messages,
+  terms,
   locale = "ja",
 }: NegotiationDetailProps) {
   const router = useRouter();
   const [pipelineLoading, setPipelineLoading] = useState(false);
+  const [termsLoading, setTermsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [termsError, setTermsError] = useState("");
+
+  const [salesRegion, setSalesRegion] = useState(
+    terms?.salesRegion ?? "",
+  );
+  const [salesChannel, setSalesChannel] = useState(
+    terms?.salesChannel ?? "",
+  );
+  const [wholesalePrice, setWholesalePrice] = useState(
+    terms?.wholesalePrice?.toString() ?? "",
+  );
+  const [moq, setMoq] = useState(
+    terms?.moq?.toString() ?? "",
+  );
+  const [leadTime, setLeadTime] = useState(
+    terms?.leadTime ?? "",
+  );
+  const [paymentTerms, setPaymentTerms] = useState(
+    terms?.paymentTerms ?? "",
+  );
+  const [exclusiveSales, setExclusiveSales] = useState(
+    terms?.exclusiveSales ?? false,
+  );
+  const [notes, setNotes] = useState(
+    terms?.notes ?? "",
+  );
   const t = negotiationDetailCopy[locale];
   const en = locale === "en";
 
@@ -70,6 +103,41 @@ export function NegotiationDetail({
       setError(en ? toEnglishActionError(result.error) : result.error);
       return;
     }
+    router.refresh();
+  }
+
+  async function handleSaveTerms(
+    status: "draft" | "submitted",
+  ) {
+    setTermsError("");
+    setTermsLoading(true);
+
+    const result = await upsertNegotiationTermsAction({
+      negotiationId: item.id,
+      salesRegion,
+      salesChannel,
+      wholesalePrice: wholesalePrice
+        ? Number(wholesalePrice)
+        : null,
+      moq: moq
+        ? Number(moq)
+        : null,
+      leadTime,
+      paymentTerms,
+      exclusiveSales,
+      notes,
+      status,
+    });
+
+    setTermsLoading(false);
+
+    if (result.error) {
+      setTermsError(
+        en ? toEnglishActionError(result.error) : result.error,
+      );
+      return;
+    }
+
     router.refresh();
   }
 
@@ -186,6 +254,154 @@ export function NegotiationDetail({
               </Link>
             </p>
           ) : null}
+        </section>
+      ) : null}
+
+      {!isClosed ? (
+        <section className="mt-6 rounded-lg border border-border bg-surface p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                条件シート
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                取引条件を入力し、相手に提示します。
+              </p>
+            </div>
+
+            {terms ? (
+              <span className="rounded-full border border-border px-3 py-1 text-xs text-muted">
+                {terms.status === "draft"
+                  ? "下書き"
+                  : terms.status === "submitted"
+                    ? "条件提示中"
+                    : terms.status === "revision_requested"
+                      ? "修正依頼"
+                      : "合意済み"}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">販売地域</span>
+              <input
+                className="rounded-md border border-border px-3 py-2"
+                value={salesRegion}
+                onChange={(e) => setSalesRegion(e.target.value)}
+                placeholder="例：日本全国"
+                disabled={termsLoading}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">販売チャネル</span>
+              <input
+                className="rounded-md border border-border px-3 py-2"
+                value={salesChannel}
+                onChange={(e) => setSalesChannel(e.target.value)}
+                placeholder="例：EC・小売店"
+                disabled={termsLoading}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">卸価格</span>
+              <input
+                type="number"
+                min="0"
+                className="rounded-md border border-border px-3 py-2"
+                value={wholesalePrice}
+                onChange={(e) => setWholesalePrice(e.target.value)}
+                placeholder="例：5000"
+                disabled={termsLoading}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">MOQ</span>
+              <input
+                type="number"
+                min="0"
+                className="rounded-md border border-border px-3 py-2"
+                value={moq}
+                onChange={(e) => setMoq(e.target.value)}
+                placeholder="例：100"
+                disabled={termsLoading}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">リードタイム</span>
+              <input
+                className="rounded-md border border-border px-3 py-2"
+                value={leadTime}
+                onChange={(e) => setLeadTime(e.target.value)}
+                placeholder="例：発注後30日"
+                disabled={termsLoading}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm">
+              <span className="font-medium text-navy">支払条件</span>
+              <input
+                className="rounded-md border border-border px-3 py-2"
+                value={paymentTerms}
+                onChange={(e) => setPaymentTerms(e.target.value)}
+                placeholder="例：月末締め翌月末払い"
+                disabled={termsLoading}
+              />
+            </label>
+          </div>
+
+          <label className="mt-4 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={exclusiveSales}
+              onChange={(e) => setExclusiveSales(e.target.checked)}
+              disabled={termsLoading}
+            />
+            <span className="font-medium text-navy">
+              独占販売を希望する
+            </span>
+          </label>
+
+          <label className="mt-4 flex flex-col gap-1.5 text-sm">
+            <span className="font-medium text-navy">備考</span>
+            <textarea
+              className="min-h-24 rounded-md border border-border px-3 py-2"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="その他の取引条件や補足事項"
+              disabled={termsLoading}
+            />
+          </label>
+
+          {termsError ? (
+            <p className="mt-4 text-sm text-red-600">
+              {termsError}
+            </p>
+          ) : null}
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-navy hover:bg-surface-muted disabled:opacity-50"
+              disabled={termsLoading}
+              onClick={() => handleSaveTerms("draft")}
+            >
+              {termsLoading ? "保存中..." : "下書き保存"}
+            </button>
+
+            <button
+              type="button"
+              className="rounded-md bg-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              disabled={termsLoading}
+              onClick={() => handleSaveTerms("submitted")}
+            >
+              {termsLoading ? "保存中..." : "条件を提示"}
+            </button>
+          </div>
         </section>
       ) : null}
 

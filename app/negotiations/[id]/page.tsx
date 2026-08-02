@@ -64,6 +64,9 @@ export default async function NegotiationDetailPage({
                 wholesalePrice: termsResult.data.wholesale_price,
                 salesRegion: termsResult.data.sales_region,
                 salesChannel: termsResult.data.sales_channel,
+                leadTime: termsResult.data.lead_time,
+                paymentTerms: termsResult.data.payment_terms,
+                exclusiveSales: termsResult.data.exclusive_sales,
               }
             : null
         }
@@ -71,6 +74,7 @@ export default async function NegotiationDetailPage({
     </div>
   );
 }
+
 
 
 

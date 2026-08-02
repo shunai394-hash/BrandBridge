@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type {
   ApplicationStatus,
   NegotiationListItem,
@@ -489,6 +489,13 @@ export async function getNegotiationTerms(
     .maybeSingle();
 
   if (error) {
+    console.error("[upsertNegotiationTerms ERROR]", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+
     return { error: error.message };
   }
 
@@ -539,6 +546,13 @@ export async function upsertNegotiationTerms(input: {
     .single();
 
   if (error) {
+    console.error("[upsertNegotiationTerms ERROR]", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+
     return { error: error.message };
   }
 
@@ -560,6 +574,13 @@ export async function updatePipelineStatus(
     .maybeSingle();
 
   if (error) {
+    console.error("[upsertNegotiationTerms ERROR]", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint,
+    });
+
     return { error: error.message };
   }
 
@@ -571,3 +592,5 @@ export async function updatePipelineStatus(
 
   return {};
 }
+
+

@@ -828,7 +828,7 @@ export async function upsertNegotiationTermsAction(input: {
       .select("id")
       .eq("negotiation_id", input.negotiationId)
       .eq("sender_id", user.id)
-      .eq("body", "???????????????????????????")
+      .eq("body", "条件シートが提示されました。内容をご確認ください。")
       .limit(1)
       .maybeSingle();
 
@@ -840,8 +840,8 @@ export async function upsertNegotiationTermsAction(input: {
       const messageResult = await sendMessage({
         negotiationId: input.negotiationId,
         senderId: user.id,
-        body: "???????????????????????????",
-        topic: "???????",
+        body: "条件シートが提示されました。内容をご確認ください。",
+        topic: "条件シート",
       });
 
       if ("error" in messageResult) {
@@ -1056,4 +1056,13 @@ export async function signOutAction() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }
+
+
+
+
+
+
+
+
+
 

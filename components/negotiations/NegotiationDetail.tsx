@@ -110,6 +110,7 @@ export function NegotiationDetail({
   async function handleSaveTerms(
     status: "draft" | "submitted",
   ) {
+    console.log("[HANDLE SAVE TERMS]", status);
     setTermsError("");
     setTermsSavedMessage("");
     setTermsLoading(true);
@@ -395,12 +396,17 @@ export function NegotiationDetail({
             </p>
           ) : null}
 
+          {termsSavedMessage ? (
+            <p className="mt-4 text-sm text-teal">
+              {termsSavedMessage}
+            </p>
+          ) : null}
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               type="button"
               className="rounded-md border border-border px-4 py-2 text-sm font-medium text-navy hover:bg-surface-muted disabled:opacity-50"
               disabled={termsLoading}
-              onClick={() => handleSaveTerms("draft")}
+              onClick={() => { console.log("DRAFT CLICK"); handleSaveTerms("draft"); }}
             >
               {termsLoading ? "保存中..." : "下書き保存"}
             </button>
@@ -409,7 +415,7 @@ export function NegotiationDetail({
               type="button"
               className="rounded-md bg-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
               disabled={termsLoading}
-              onClick={() => handleSaveTerms("submitted")}
+              onClick={() => { console.log("SUBMITTED CLICK"); handleSaveTerms("submitted"); }}
             >
               {termsLoading ? "保存中..." : "条件を提示"}
             </button>
@@ -434,6 +440,17 @@ export function NegotiationDetail({
     </article>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

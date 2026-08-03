@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useId, useRef, useState } from "react";
@@ -9,7 +9,6 @@ import {
   startNegotiationDraftAction,
 } from "@/lib/negotiation-start-action";
 import { uploadNegotiationAttachment } from "@/lib/negotiation-attachment-upload";
-import { Button } from "@/components/ui/Button";
 import type { ApplicationStatus, SessionUser } from "@/lib/types";
 
 type ExistingThread = {
@@ -18,23 +17,28 @@ type ExistingThread = {
   applicationStatus: ApplicationStatus;
 };
 
-type NegotiationFormProps = {
+type NegotiationStartFormProps = {
   caseId: string;
   caseNumber: string;
   productName: string;
+  productSku?: string | null;
   user: SessionUser | null;
   existingThreads?: ExistingThread[];
 };
 
 const statusLabel: Record<ApplicationStatus, string> = {
-  pending: "審査中",
-  accepted: "承認済み",
-  rejected: "却下",
+  pending: "準備中",
+  accepted: "交渉中",
+  rejected: "終了",
 };
+
 const TOPIC_MAX = 120;
 
 const fieldClass =
   "w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm text-foreground outline-none transition focus:border-teal focus:ring-2 focus:ring-teal/20";
+
+const submitButtonClass =
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md bg-teal px-5 py-2.5 text-sm font-medium tracking-wide text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition-all duration-200 hover:bg-teal-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -43,16 +47,17 @@ function formatBytes(bytes: number) {
 }
 
 /**
- * Email-style negotiation start form.
- * Fields: 件名 (required) / 本文 / 添付 → startNegotiationAction({ topic, body, attachment })
+ * New negotiation-start form (email style).
+ * Plain HTML submit button — does not use components/ui/Button.
  */
-export function NegotiationForm({
+export function NegotiationStartForm({
   caseId,
   caseNumber,
   productName,
+  productSku = null,
   user,
   existingThreads = [],
-}: NegotiationFormProps) {
+}: NegotiationStartFormProps) {
   const router = useRouter();
   const topicId = useId();
   const bodyId = useId();
@@ -68,6 +73,8 @@ export function NegotiationForm({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (loading) return;
+
     setError("");
     setDebugLogs([]);
 
@@ -143,7 +150,7 @@ export function NegotiationForm({
       if (!result.ok || !result.id || !result.messageId) {
         setError(
           result.error ||
-            "メッセージが作成されませんでした。送信を中止しました。",
+            "messages が作成されませんでした。遷移を中止しました。",
         );
         return;
       }
@@ -171,21 +178,22 @@ export function NegotiationForm({
           交渉を申し込むには、販売パートナーとしてログインしてください。
         </p>
         <div className="mt-4">
-          <Button
+          <a
             href={`/login?next=${encodeURIComponent(`/cases/${caseId}/negotiation`)}`}
+            className={submitButtonClass}
           >
             ログインして申し込む
-          </Button>
+          </a>
         </div>
       </div>
     );
   }
 
-  if (!user.isPartner) {
+  if (user.role === "maker") {
     return (
       <div className="rounded-lg border border-border bg-surface p-6">
         <p className="text-sm text-muted">
-          商品提供企業アカウントでは交渉申請はできません。販売パートナーとして登録・ログインしてください。
+          商品提供企業アカウントでは交渉申込はできません。販売パートナーとして登録・ログインしてください。
         </p>
       </div>
     );
@@ -193,21 +201,26 @@ export function NegotiationForm({
 
   return (
     <section
-      data-testid="negotiation-email-form"
-      data-form-version="email-v2"
+      data-testid="negotiation-start-form"
+      data-form-version="start-v1"
       className="overflow-hidden rounded-lg border-2 border-teal/40 bg-white shadow-sm"
     >
       <div className="border-b border-teal/20 bg-teal/5 px-5 py-3 md:px-6">
         <p className="text-xs font-semibold tracking-wide text-teal">
-          メール形式 ・ 新規メッセージ
+          メール形式 · 新規メッセージ
         </p>
         <p className="mt-0.5 text-sm text-muted">
           件名・本文・添付を送信して交渉スレッドを開始します
         </p>
       </div>
 
-      {/* Email meta header */}
       <div className="space-y-0 border-b border-border text-sm">
+        <div className="grid grid-cols-[7.5rem_1fr] items-center gap-2 border-b border-border/70 px-5 py-2.5 md:px-6">
+          <span className="text-muted">商品コード（SKU）</span>
+          <span className="font-mono font-medium text-teal">
+            {productSku?.trim() || "—"}
+          </span>
+        </div>
         <div className="grid grid-cols-[7.5rem_1fr] items-center gap-2 px-5 py-2.5 md:px-6">
           <span className="text-muted">商品名</span>
           <span className="font-medium text-navy">{productName}</span>
@@ -238,13 +251,12 @@ export function NegotiationForm({
       ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-0">
-        {/* 件名 — required */}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={topicId}
             className="pt-2.5 text-sm font-semibold text-navy"
           >
-            件名<span className="text-red-600">*</span>
+            件名 <span className="text-red-600">*</span>
           </label>
           <div>
             <input
@@ -258,15 +270,14 @@ export function NegotiationForm({
               placeholder="例: 初回ロット条件について"
               className={fieldClass}
               autoComplete="off"
+              data-testid="negotiation-start-topic"
             />
             <p className="mt-1 text-xs text-muted">
-              必須 ・ {topic.trim().length}/{TOPIC_MAX} ・ negotiations.topic /
-              messages.topic
+              必須 · {topic.trim().length}/{TOPIC_MAX}
             </p>
           </div>
         </div>
 
-        {/* 本文 */}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={bodyId}
@@ -281,13 +292,13 @@ export function NegotiationForm({
               rows={8}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="例: 希望条件・取り扱いチャネル・質問事項など"
+              placeholder="ご提案内容・取り扱いチャネル・希望条件など"
               className={`${fieldClass} min-h-[10rem] resize-y`}
+              data-testid="negotiation-start-body"
             />
           </div>
         </div>
 
-        {/* 添付 */}
         <div className="grid grid-cols-1 gap-1.5 border-b border-border px-5 py-4 md:grid-cols-[5rem_1fr] md:items-start md:gap-3 md:px-6">
           <label
             htmlFor={fileId}
@@ -304,24 +315,35 @@ export function NegotiationForm({
               accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.doc,.docx,.xls,.xlsx,.txt,.csv,application/pdf,image/*"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="block w-full max-w-md cursor-pointer text-sm text-muted file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-teal/10 file:px-3 file:py-2 file:text-sm file:font-medium file:text-teal hover:file:bg-teal/15"
+              data-testid="negotiation-start-file"
             />
             <p className="mt-1.5 text-xs text-muted">
               PDF / 画像 / Word / Excel / テキスト / CSV（最大10MB）
             </p>
             {file ? (
-              <p className="mt-2 text-sm text-navy">
-                選択中: {file.name}（{formatBytes(file.size)}）
+              <div
+                className="mt-2 rounded-md border border-teal/25 bg-teal/[0.06] px-3 py-2.5"
+                data-testid="negotiation-start-file-ready"
+              >
+                <p className="text-sm font-medium text-navy">📎 添付済み</p>
+                <p className="mt-0.5 break-all text-sm text-foreground">
+                  {file.name}
+                </p>
+                <p className="mt-0.5 text-xs text-muted">
+                  {formatBytes(file.size)}
+                </p>
+                <p className="mt-1 text-xs text-teal">アップロード準備完了</p>
                 <button
                   type="button"
-                  className="ml-2 text-xs text-muted underline"
+                  className="mt-1.5 cursor-pointer text-xs text-muted underline hover:text-navy"
                   onClick={() => {
                     setFile(null);
                     if (fileRef.current) fileRef.current.value = "";
                   }}
                 >
-                  解除
+                  添付をやめる
                 </button>
-              </p>
+              </div>
             ) : null}
           </div>
         </div>
@@ -348,17 +370,22 @@ export function NegotiationForm({
           ) : null}
 
           <div className="flex flex-wrap gap-3">
-            <Button type="submit" disabled={loading}>
+            <button
+              type="submit"
+              className={submitButtonClass}
+              data-testid="negotiation-start-submit"
+            >
               {loading ? "送信中..." : "送信して交渉を開始"}
-            </Button>
-            <Button href={`/cases/${caseId}`} variant="outline" type="button">
+            </button>
+            <a
+              href={`/cases/${caseId}`}
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-border bg-transparent px-5 py-2.5 text-sm font-medium tracking-wide text-navy transition-all duration-200 hover:border-teal hover:text-teal"
+            >
               キャンセル
-            </Button>
+            </a>
           </div>
         </div>
       </form>
     </section>
   );
 }
-
-

@@ -1,4 +1,4 @@
-import { createBrowserClient } from "@supabase/ssr";
+﻿import { createBrowserClient } from "@supabase/ssr";
 import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
 
 export function createClient() {
@@ -11,7 +11,6 @@ export function createClient() {
     );
   }
 
-  // Singleton + cookie storage: one in-memory client, durable cookies for restarts
   return createBrowserClient(url, key, {
     isSingleton: true,
     cookieOptions: AUTH_COOKIE_OPTIONS,

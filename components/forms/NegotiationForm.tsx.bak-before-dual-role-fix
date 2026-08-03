@@ -181,7 +181,7 @@ export function NegotiationForm({
     );
   }
 
-  if (!user.isPartner) {
+  if (user.role === "maker") {
     return (
       <div className="rounded-lg border border-border bg-surface p-6">
         <p className="text-sm text-muted">
@@ -360,5 +360,4 @@ export function NegotiationForm({
     </section>
   );
 }
-
 

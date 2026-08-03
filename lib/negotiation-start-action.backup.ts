@@ -67,31 +67,27 @@ export async function startNegotiationAction(input: {
   });
 
   if (input.topic == null || input.topic === undefined) {
-    return { ok: false, error: "TOPIC_REQUIRED", logs };
+    log("FAIL topic is null/undefined");
+    return { ok: false, error: "莉ｶ蜷阪′譛ｪ險ｭ螳壹〒縺呻ｼ・opic null/undefined・・, logs };
   }
 
   let partner;
   try {
-    partner = await getSessionUser();
-    if (!partner) {
-      log("FAIL getSessionUser returned null");
-      return { ok: false, error: "LOGIN_REQUIRED", logs };
-    }
+    partner = await requirePartner();
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") {
       return { ok: false, error: "LOGIN_REQUIRED", logs };
     }
     if (message === "ACCOUNT_INACTIVE") {
-      return { ok: false, error: "ACCOUNT_INACTIVE", logs };
+      return { ok: false, error: "繧｢繧ｫ繧ｦ繝ｳ繝医′蛛懈ｭ｢縺輔ｌ縺ｦ縺・∪縺・, logs };
     }
     return {
       ok: false,
-      error: "PARTNER_ONLY",
+      error: "雋ｩ螢ｲ繝代・繝医リ繝ｼ縺ｮ縺ｿ莠､貂峨ｒ逕ｳ縺苓ｾｼ繧√∪縺・,
       logs,
     };
   }
-
 
   const topic = String(input.topic).trim();
   if (!topic) {
@@ -188,7 +184,8 @@ export async function startNegotiationAction(input: {
     });
     return {
       ok: false,
-      error: "NEGOTIATION_TOPIC_MISSING",
+      error:
+        "negotiations.topic 縺御ｿ晏ｭ倥＆繧後∪縺帙ｓ縺ｧ縺励◆・・ull 縺ｾ縺溘・荳堺ｸ閾ｴ・・,
       id: negotiationId,
       logs,
     };
@@ -199,7 +196,7 @@ export async function startNegotiationAction(input: {
     if (!input.attachment.path.startsWith(expectedPrefix)) {
       return {
         ok: false,
-        error: "INVALID_ATTACHMENT_PATH",
+        error: "豺ｻ莉倥ヵ繧｡繧､繝ｫ縺ｮ繝代せ縺御ｸ肴ｭ｣縺ｧ縺・,
         id: negotiationId,
         logs,
       };
@@ -259,7 +256,7 @@ export async function startNegotiationAction(input: {
   if (msgError || !msg) {
     return {
       ok: false,
-      error: "MESSAGE_INSERT_FAILED",
+      error: `messages INSERT 螟ｱ謨・ ${msgError?.message ?? "unknown"}・・egotiation_id=${negotiationId}・荏,
       id: negotiationId,
       logs,
     };
@@ -272,7 +269,7 @@ export async function startNegotiationAction(input: {
     });
     return {
       ok: false,
-      error: "MESSAGE_TOPIC_MISSING",
+      error: "messages.topic 縺御ｿ晏ｭ倥＆繧後∪縺帙ｓ縺ｧ縺励◆・・ull 縺ｾ縺溘・荳堺ｸ閾ｴ・・,
       id: negotiationId,
       messageId: msg.id as string,
       logs,
@@ -290,7 +287,7 @@ export async function startNegotiationAction(input: {
     log("message verify FAIL", { error: verifyError?.message });
     return {
       ok: false,
-      error: "MESSAGE_VERIFY_FAILED",
+      error: "messages INSERT 蠕後・遒ｺ隱阪↓螟ｱ謨励＠縺ｾ縺励◆",
       id: negotiationId,
       logs,
     };
@@ -335,11 +332,7 @@ export async function startNegotiationDraftAction(input: {
 
   let partner;
   try {
-    partner = await getSessionUser();
-    if (!partner) {
-      log("FAIL getSessionUser returned null");
-      return { ok: false, error: "LOGIN_REQUIRED", logs };
-    }
+    partner = await requirePartner();
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") {
@@ -347,7 +340,7 @@ export async function startNegotiationDraftAction(input: {
     }
     return {
       ok: false,
-      error: "PARTNER_ONLY",
+      error: "雋ｩ螢ｲ繝代・繝医リ繝ｼ縺ｮ縺ｿ莠､貂峨ｒ逕ｳ縺苓ｾｼ繧√∪縺・,
       logs,
     };
   }
@@ -404,7 +397,7 @@ export async function startNegotiationDraftAction(input: {
   if (!nego.topic || String(nego.topic).trim() !== topic) {
     return {
       ok: false,
-      error: "NEGOTIATION_TOPIC_MISSING",
+      error: "negotiations.topic 縺御ｿ晏ｭ倥＆繧後∪縺帙ｓ縺ｧ縺励◆",
       id: nego.id as string,
       logs,
     };
@@ -436,11 +429,7 @@ export async function completeNegotiationOpeningAction(input: {
 
   let partner;
   try {
-    partner = await getSessionUser();
-    if (!partner) {
-      log("FAIL getSessionUser returned null");
-      return { ok: false, error: "LOGIN_REQUIRED", logs };
-    }
+    partner = await requirePartner();
   } catch (e) {
     const message = authErrorMessage(e);
     if (message === "UNAUTHORIZED") {
@@ -448,7 +437,7 @@ export async function completeNegotiationOpeningAction(input: {
     }
     return {
       ok: false,
-      error: "PARTNER_ONLY",
+      error: "雋ｩ螢ｲ繝代・繝医リ繝ｼ縺ｮ縺ｿ莠､貂峨ｒ逕ｳ縺苓ｾｼ繧√∪縺・,
       logs,
     };
   }
@@ -516,7 +505,7 @@ export async function completeNegotiationOpeningAction(input: {
   if (input.attachment?.path) {
     const expectedPrefix = `${input.negotiationId}/${partner.id}/`;
     if (!input.attachment.path.startsWith(expectedPrefix)) {
-      return { ok: false, error: "INVALID_ATTACHMENT_PATH", logs };
+      return { ok: false, error: "豺ｻ莉倥ヵ繧｡繧､繝ｫ縺ｮ繝代せ縺御ｸ肴ｭ｣縺ｧ縺・, logs };
     }
   }
 
@@ -579,17 +568,5 @@ export async function completeNegotiationOpeningAction(input: {
     logs,
   };
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 

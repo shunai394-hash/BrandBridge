@@ -1,0 +1,358 @@
+﻿"use client";
+
+import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
+import { GoogleAuthButton } from "@/components/forms/GoogleAuthButton";
+import { createClient } from "@/lib/supabase/client";
+import {
+  isSafeAppPath,
+  resolveRoleDestination,
+} from "@/lib/auth-flow";
+
+type LoginFormProps = {
+  nextPath?: string;
+  initialError?: string;
+  initialKind?: "login" | "permission" | "";
+  /** Default Japanese (/login). English UI for /en/login only. */
+  locale?: "ja" | "en";
+};
+
+function authEnvOk(en: boolean): { ok: true } | { ok: false; message: string } {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url || !key) {
+    return {
+      ok: false,
+      message: en
+        ? "Supabase URL / anon key is not configured."
+        : "NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY 縺梧悴險ｭ螳壹〒縺・,
+    };
+  }
+  if (url.includes("placeholder") || key.includes("placeholder")) {
+    return {
+      ok: false,
+      message: en
+        ? "Supabase is still using placeholder credentials. Set the production URL and anon key."
+        : "Supabase 縺・placeholder 險ｭ螳壹・縺ｾ縺ｾ縺ｧ縺吶よ悽逡ｪ縺ｮ URL / anon key 繧定ｨｭ螳壹＠縺ｦ縺上□縺輔＞",
+    };
+  }
+  return { ok: true };
+}
+
+export function LoginForm({
+  nextPath,
+  initialError,
+  initialKind,
+  locale = "ja",
+}: LoginFormProps) {
+  const en = locale === "en";
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(
+    initialKind !== "permission" ? (initialError ?? "") : "",
+  );
+  const [info, setInfo] = useState(
+    initialKind === "permission" ? (initialError ?? "") : "",
+  );
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    
+    console.log("LOGIN BUTTON CLICKED");console.log("[LOGIN] submit");
+
+    setError("");
+    setInfo("");
+    setLoading(true);
+
+    try {
+      const env = authEnvOk(en);
+      if (!env.ok) {
+        console.log("[LOGIN] error message=" + env.message + " status=env");
+        setError(env.message);
+        return;
+      }
+
+      const supabase = createClient();
+      const wantsAdmin = isSafeAppPath(nextPath) && nextPath.startsWith("/admin");
+
+      console.log("[LOGIN] auth start");
+      const { data: signInData, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+      if (signInError) {
+        const message = signInError.message || "unknown error";
+        const status = String(signInError.status ?? "");
+        console.log(`[LOGIN] error message=${message} status=${status}`);
+        setError(
+          `Auth error: ${message}${status ? ` (status=${status})` : ""}`,
+        );
+        return;
+      }
+
+      if (!signInData.user) {
+        console.log("[LOGIN] error message=no user returned status=");
+        setError(
+          en
+            ? "Auth error: no user returned"
+            : "Auth error: user 縺瑚ｿ斐▲縺ｦ縺阪∪縺帙ｓ縺ｧ縺励◆",
+        );
+        return;
+      }
+
+      // Email confirmation required for password login
+      if (!signInData.user.email_confirmed_at) {
+        await supabase.auth.signOut();
+        setError(
+          en
+            ? "Email not confirmed yet. Open the link in your confirmation email, then sign in."
+            : "繝｡繝ｼ繝ｫ隱崎ｨｼ縺悟ｮ御ｺ・＠縺ｦ縺・∪縺帙ｓ縲ら｢ｺ隱阪Γ繝ｼ繝ｫ縺ｮ繝ｪ繝ｳ繧ｯ繧帝幕縺・※縺九ｉ繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・,
+        );
+        return;
+      }
+
+      console.log(`[LOGIN] success user.id=${signInData.user.id}`);
+
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.user) {
+        const message = sessionError?.message ?? "session is null";
+        console.log(`[LOGIN] error message=${message} status=session`);
+        setError(
+          `Auth error (session): ${message} / user.id=${signInData.user.id}`,
+        );
+        return;
+      }
+
+      const authUserId = session.user.id;
+
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, role, onboarding_completed, is_active, email")
+        .eq("id", authUserId)
+        .maybeSingle();
+
+      if (profileError) {
+        console.log(
+          `[LOGIN] error message=${profileError.message} status=profiles`,
+        );
+        setError(
+          `profiles error: ${profileError.message} / user.id=${authUserId}`,
+        );
+        return;
+      }
+
+      if (!profile) {
+        console.log(
+          `[LOGIN] error message=no profile status=profiles user.id=${authUserId}`,
+        );
+        setError(
+          en
+            ? `profiles error: no profile row for user.id=${authUserId}`
+            : `profiles error: user.id=${authUserId} 縺ｫ蟇ｾ蠢懊☆繧・profiles 陦後′縺ゅｊ縺ｾ縺帙ｓ`,
+        );
+        return;
+      }
+
+      if (profile.is_active === false) {
+        console.log(
+          `[LOGIN] error message=inactive status=permission user.id=${authUserId}`,
+        );
+        setError(
+          en
+            ? `role error: account suspended (is_active=false) / user.id=${authUserId} / role=${profile.role}`
+            : `role error: 繧｢繧ｫ繧ｦ繝ｳ繝亥●豁｢荳ｭ (is_active=false) / user.id=${authUserId} / role=${profile.role}`,
+        );
+        return;
+      }
+
+      const role = String(profile.role);
+      console.log(`[LOGIN] profile ok user.id=${authUserId} role=${role}`);
+
+      if (wantsAdmin && role !== "admin") {
+        console.log(
+          `[LOGIN] error message=role insufficient status=permission role=${role}`,
+        );
+        setInfo(
+          en
+            ? [
+                "Auth login succeeded.",
+                `user.id=${authUserId}`,
+                `profiles.role=${role}`,
+                "Required role=admin",
+                `update public.profiles set role='admin', is_active=true where id='${authUserId}';`,
+              ].join("\n")
+            : [
+                "Auth login 縺ｯ謌仙粥縺励※縺・∪縺吶・,
+                `user.id=${authUserId}`,
+                `profiles.role=${role}`,
+                "蠢・ｦ√↑ role=admin",
+                `update public.profiles set role='admin', is_active=true where id='${authUserId}';`,
+              ].join("\n"),
+        );
+        setError(
+          en
+            ? `role error: current role=${role} (not an Auth error)`
+            : `role error: 迴ｾ蝨ｨ縺ｮ role=${role}・・uth error 縺ｧ縺ｯ縺ゅｊ縺ｾ縺帙ｓ・荏,
+        );
+        return;
+      }
+
+      const destination = resolveRoleDestination({
+        role,
+        onboardingCompleted: profile.onboarding_completed === true,
+        requestedNext: wantsAdmin ? nextPath : nextPath,
+        registrationLocale:
+          (session.user.user_metadata?.registration_locale as
+            | string
+            | undefined) ?? null,
+        registrationSource:
+          (session.user.user_metadata?.registration_source as
+            | string
+            | undefined) ?? null,
+      });
+
+      console.log(`[LOGIN] redirect -> ${destination}`);
+      window.location.assign(destination);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.log(`[LOGIN] error message=${message} status=exception`);
+      setError(
+        en ? `Unexpected error: ${message}` : `莠域悄縺励↑縺・お繝ｩ繝ｼ: ${message}`,
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="animate-fade-up space-y-5" lang={en ? "en" : undefined}>
+      {isSafeAppPath(nextPath) && nextPath.startsWith("/admin") ? (
+        <p className="rounded-md border border-teal/30 bg-cream px-3 py-2 text-xs text-muted">
+          {en
+            ? "Admin login. Errors are shown in red."
+            : "邂｡逅・判髱｢繝ｭ繧ｰ繧､繝ｳ縺ｧ縺吶ょ､ｱ謨礼炊逕ｱ縺ｯ蠢・★襍､譁・ｭ励〒陦ｨ遉ｺ縺輔ｌ縺ｾ縺吶・}
+        </p>
+      ) : null}
+
+      <GoogleAuthButton
+        nextPath={
+          isSafeAppPath(nextPath)
+            ? nextPath
+            : en
+              ? "/en/cases"
+              : "/cases"
+        }
+        label={en ? "Continue with Google" : "Google縺ｧ繝ｭ繧ｰ繧､繝ｳ"}
+        locale={en ? "en" : "ja"}
+      />
+
+      <div className="flex items-center gap-3 text-xs text-muted">
+        <span className="h-px flex-1 bg-navy/15" />
+        {en ? "or email" : "縺ｾ縺溘・繝｡繝ｼ繝ｫ"}
+        <span className="h-px flex-1 bg-navy/15" />
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        method="post"
+        action="#"
+        className="space-y-5"
+      >
+        <Input
+          label={en ? "Email" : "繝｡繝ｼ繝ｫ繧｢繝峨Ξ繧ｹ"}
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <PasswordInput
+          label={en ? "Password" : "繝代せ繝ｯ繝ｼ繝・}
+          name="password"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <p className="text-right text-sm">
+          {en ? (
+            <Link href="/en/contact" className="text-teal hover:underline">
+              Need help signing in? Contact us
+            </Link>
+          ) : (
+            <Link href="/login/forgot" className="text-teal hover:underline">
+              繝代せ繝ｯ繝ｼ繝峨ｒ縺雁ｿ倥ｌ縺ｮ譁ｹ
+            </Link>
+          )}
+        </p>
+        {loading ? (
+          <p className="text-sm text-muted">
+            {en ? "Signing in窶ｦ" : "繝ｭ繧ｰ繧､繝ｳ蜃ｦ逅・ｸｭ窶ｦ・医さ繝ｳ繧ｽ繝ｼ繝ｫ縺ｫ [LOGIN] 繝ｭ繧ｰ・・}
+          </p>
+        ) : null}
+        {error ? (
+          <p
+            className="whitespace-pre-wrap rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700"
+            role="alert"
+          >
+            {error}
+          </p>
+        ) : null}
+        {info ? (
+          <p
+            className="whitespace-pre-wrap rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950"
+            role="status"
+          >
+            {info}
+          </p>
+        ) : null}
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading
+            ? en
+              ? "Signing in..."
+              : "繝ｭ繧ｰ繧､繝ｳ荳ｭ..."
+            : en
+              ? "Login"
+              : "繝ｭ繧ｰ繧､繝ｳ"}
+        </Button>
+      </form>
+
+      <p className="text-center text-sm text-muted">
+        {en ? (
+          <>
+            New here?{" "}
+            <Link
+              href="/en/register/maker"
+              className="text-teal hover:underline"
+            >
+              Register your product
+            </Link>
+          </>
+        ) : (
+          <>
+            繧｢繧ｫ繧ｦ繝ｳ繝医ｒ縺頑戟縺｡縺ｧ縺ｪ縺・婿縺ｯ{" "}
+            <Link href="/register/maker" className="text-teal hover:underline">
+              蝠・刀謠蝉ｾ帑ｼ∵･ｭ縺ｨ縺励※逋ｻ骭ｲ
+            </Link>
+            {" / "}
+            <Link href="/register/partner" className="text-teal hover:underline">
+              繝代・繝医リ繝ｼ逋ｻ骭ｲ
+            </Link>
+          </>
+        )}
+      </p>
+    </div>
+  );
+}
+

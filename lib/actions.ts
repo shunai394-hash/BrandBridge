@@ -139,6 +139,7 @@ export async function completeMakerSetupAction(
       industry: input.industry,
       description: input.companyOverview.trim(),
       product_overview: input.productSummary.trim(),
+      is_maker: true,
     })
     .eq("id", maker.id)
     .select("id")

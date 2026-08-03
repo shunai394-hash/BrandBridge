@@ -336,10 +336,8 @@ export async function listNegotiationsForUser(
     .from("negotiations")
     .select(negotiationSelect)
     .order("updated_at", { ascending: false });
-
-  if (user.role === "partner") {
-    query = query.eq("partner_id", user.id);
-  }
+  // A user can have both maker and partner roles.
+  // Keep the query broad here and filter by actual participation below.
 
   const { data, error } = await query;
 
@@ -353,9 +351,12 @@ export async function listNegotiationsForUser(
 
   const mapped = rows
     .map((row) => mapNegotiation(row, user.role, dealSet.has(row.id)))
-    .filter((item) =>
-      user.role === "maker" ? item.makerId === user.id : true,
-    );
+    .filter((item) => {
+      const isMakerParty = user.isMaker && item.makerId === user.id;
+      const isPartnerParty = user.isPartner && item.partnerId === user.id;
+
+      return isMakerParty || isPartnerParty;
+    });
 
   const enriched = await enrichInboxFields(mapped, user.id, user.role);
   const withSku = await attachProductSkus(enriched);
@@ -412,10 +413,9 @@ export async function getNegotiationById(
     return withSku;
   }
 
-  const isParty =
-    user.role === "partner"
-      ? item.partnerId === user.id
-      : item.makerId === user.id;
+  const isMakerParty = user.isMaker && item.makerId === user.id;
+  const isPartnerParty = user.isPartner && item.partnerId === user.id;
+  const isParty = isMakerParty || isPartnerParty;
 
   if (!isParty) return null;
 
@@ -592,5 +592,9 @@ export async function updatePipelineStatus(
 
   return {};
 }
+
+
+
+
 
 

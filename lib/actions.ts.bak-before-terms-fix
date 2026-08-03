@@ -828,7 +828,7 @@ export async function upsertNegotiationTermsAction(input: {
       .select("id")
       .eq("negotiation_id", input.negotiationId)
       .eq("sender_id", user.id)
-      .eq("body", "条件シートが提示されました。内容をご確認ください。")
+      .eq("body", "???????????????????????????")
       .limit(1)
       .maybeSingle();
 
@@ -840,8 +840,8 @@ export async function upsertNegotiationTermsAction(input: {
       const messageResult = await sendMessage({
         negotiationId: input.negotiationId,
         senderId: user.id,
-        body: "条件シートが提示されました。内容をご確認ください。",
-        topic: "条件シート",
+        body: "???????????????????????????",
+        topic: "???????",
       });
 
       if ("error" in messageResult) {
@@ -1056,95 +1056,4 @@ export async function signOutAction() {
   await supabase.auth.signOut({ scope: "local" });
   redirect("/");
 }
-
-
-
-
-
-
-
-
-
-
-
-export async function confirmNegotiationTermsAction(input: {
-  negotiationId: string;
-}) {
-  let user;
-  try {
-    user = await requireActiveUser();
-  } catch (e) {
-    const message = authErrorMessage(e);
-    if (message === "UNAUTHORIZED") redirect("/login");
-    return { error: "アカウントが停止されています" };
-  }
-
-  const supabase = await createClient();
-
-  const { data: negotiation, error } = await supabase
-    .from("negotiations")
-    .select(`
-      id,
-      partner_id,
-      case_id,
-      cases!case_id (
-        maker_id
-      )
-    `)
-    .eq("id", input.negotiationId)
-    .maybeSingle();
-
-  if (error || !negotiation) {
-    return { error: "交渉が見つかりません" };
-  }
-
-  const caseRow = Array.isArray(negotiation.cases)
-    ? negotiation.cases[0]
-    : negotiation.cases;
-
-  const update: Record<string, unknown> = {};
-
-  if (user.id === caseRow?.maker_id) {
-    update.maker_confirmed_at = new Date().toISOString();
-  }
-
-  if (user.id === negotiation.partner_id) {
-    update.partner_confirmed_at = new Date().toISOString();
-  }
-
-  if (Object.keys(update).length === 0) {
-    return { error: "権限がありません" };
-  }
-
-  const { data: terms, error: updateError } = await supabase
-    .from("negotiation_terms")
-    .update(update)
-    .eq("negotiation_id", input.negotiationId)
-    .select("*")
-    .single();
-
-  if (updateError) {
-    return { error: updateError.message };
-  }
-
-  if (terms.maker_confirmed_at && terms.partner_confirmed_at) {
-    await supabase
-      .from("negotiation_terms")
-      .update({
-        status: "agreed",
-      })
-      .eq("negotiation_id", input.negotiationId);
-
-    await updatePipelineStatus(
-      input.negotiationId,
-      "contract_prep",
-    );
-  }
-
-  revalidatePath(`/negotiations/${input.negotiationId}`);
-
-  return {};
-}
-
-
 

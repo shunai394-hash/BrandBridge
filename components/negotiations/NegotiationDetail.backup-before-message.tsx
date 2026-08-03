@@ -6,7 +6,6 @@ import { useState } from "react";
 import {
   updatePipelineStatusAction,
   upsertNegotiationTermsAction,
-  confirmNegotiationTermsAction,
 } from "@/lib/actions";
 import { MessageThread } from "@/components/negotiations/MessageThread";
 import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
@@ -146,35 +145,15 @@ export function NegotiationDetail({
       status === "draft"
         ? en
           ? "Draft saved successfully."
-          : "下書きを保存しました。"
+          : "???????????"
         : en
           ? "Terms have been presented to the other party."
-          : "条件を相手に提示しました。",
+          : "?????????????",
     );
 
     router.refresh();
   }
 
-
-  async function handleConfirmTerms() {
-    setTermsError("");
-    setTermsLoading(true);
-
-    const result = await confirmNegotiationTermsAction({
-      negotiationId: item.id,
-    });
-
-    setTermsLoading(false);
-
-    if (result.error) {
-      setTermsError(
-        en ? toEnglishActionError(result.error) : result.error,
-      );
-      return;
-    }
-
-    router.refresh();
-  }
   const counterpartHref =
     user.role === "maker"
       ? item.partnerId
@@ -417,17 +396,12 @@ export function NegotiationDetail({
             </p>
           ) : null}
 
-          {termsSavedMessage ? (
-            <p className="mt-4 text-sm text-teal">
-              {termsSavedMessage}
-            </p>
-          ) : null}
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               type="button"
               className="rounded-md border border-border px-4 py-2 text-sm font-medium text-navy hover:bg-surface-muted disabled:opacity-50"
               disabled={termsLoading}
-              onClick={() => { console.log("DRAFT CLICK"); handleSaveTerms("draft"); }}
+              onClick={() => handleSaveTerms("draft")}
             >
               {termsLoading ? "保存中..." : "下書き保存"}
             </button>
@@ -436,7 +410,7 @@ export function NegotiationDetail({
               type="button"
               className="rounded-md bg-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
               disabled={termsLoading}
-              onClick={() => { console.log("SUBMITTED CLICK"); handleSaveTerms("submitted"); }}
+              onClick={() => handleSaveTerms("submitted")}
             >
               {termsLoading ? "保存中..." : "条件を提示"}
             </button>
@@ -461,20 +435,6 @@ export function NegotiationDetail({
     </article>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -273,11 +273,17 @@ export function NegotiationDetail({
                 handlePipelineChange(e.target.value as PipelineStatus)
               }
             >
-              {pipelineStatusOptions.map((s) => (
-                <option key={s} value={s}>
-                  {en ? pipelineStatusLabelsEn[s] : pipelineStatusLabels[s]}
-                </option>
-              ))}
+              {pipelineStatusOptions
+                .filter((s) =>
+                  user.role === "admin"
+                    ? true
+                    : s !== "won" && s !== "closed"
+                )
+                .map((s) => (
+                  <option key={s} value={s}>
+                    {en ? pipelineStatusLabelsEn[s] : pipelineStatusLabels[s]}
+                  </option>
+                ))}
             </select>
           </label>
           {item.hasDeal ? (
@@ -441,6 +447,19 @@ export function NegotiationDetail({
               {termsLoading ? "保存中..." : "条件を提示"}
             </button>
           </div>
+
+          {terms?.status === "submitted" &&
+            ((user.role === "maker" && !terms.makerConfirmedAt) ||
+              (user.role === "partner" && !terms.partnerConfirmedAt)) ? (
+            <button
+              type="button"
+              className="mt-4 rounded-md bg-teal px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              disabled={termsLoading}
+              onClick={handleConfirmTerms}
+            >
+              {termsLoading ? "確認中..." : "この条件で合意する"}
+            </button>
+          ) : null}
         </section>
       ) : null}
 
@@ -461,6 +480,12 @@ export function NegotiationDetail({
     </article>
   );
 }
+
+
+
+
+
+
 
 
 

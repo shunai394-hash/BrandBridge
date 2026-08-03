@@ -1,4 +1,4 @@
-export type UserRole = "maker" | "partner" | "admin";
+﻿export type UserRole = "maker" | "partner" | "admin";
 
 export type CaseStatus = "open" | "closed";
 
@@ -742,3 +742,4 @@ export function salesFormatLabel(value: SalesFormat): string {
 export function targetCountryLabel(value: TargetCountry): string {
   return targetCountryOptions.find((o) => o.value === value)?.label ?? value;
 }
+

@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+﻿import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
 
@@ -52,7 +52,7 @@ export async function updateSession(request: NextRequest) {
         },
 
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
+          cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value);
           });
 
@@ -70,7 +70,18 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  console.log("[MIDDLEWARE AUTH]", {
+    path: request.nextUrl.pathname,
+    userId: user?.id ?? null,
+    email: user?.email ?? null,
+    authError: authError?.message ?? null,
+    cookies: request.cookies.getAll().map((cookie) => cookie.name),
+  });
 
   const path = request.nextUrl.pathname;
 
@@ -88,3 +99,4 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse;
 }
+

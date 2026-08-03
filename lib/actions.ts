@@ -881,6 +881,16 @@ export async function updatePipelineStatusAction(input: {
     return { error: "終了した交渉のステータスは変更できません" };
   }
 
+  // 成約・終了ステータスは管理者専用
+  if (
+    (input.pipelineStatus === "won" ||
+      input.pipelineStatus === "closed") &&
+    user.role !== "admin"
+  ) {
+    return {
+      error: "成約・終了ステータスへの変更は管理者のみ可能です",
+    };
+  }
   const result = await updatePipelineStatus(
     input.negotiationId,
     input.pipelineStatus,
@@ -1081,6 +1091,11 @@ export async function confirmNegotiationTermsAction(input: {
 
   const supabase = await createClient();
 
+  console.log("[confirmNegotiationTermsAction] START", {
+    negotiationId: input.negotiationId,
+    userId: user.id,
+  });
+
   const { data: negotiation, error } = await supabase
     .from("negotiations")
     .select(`
@@ -1116,6 +1131,11 @@ export async function confirmNegotiationTermsAction(input: {
     return { error: "権限がありません" };
   }
 
+  console.log("[confirmNegotiationTermsAction] UPDATE", {
+    negotiationId: input.negotiationId,
+    update,
+  });
+
   const { data: terms, error: updateError } = await supabase
     .from("negotiation_terms")
     .update(update)
@@ -1145,6 +1165,11 @@ export async function confirmNegotiationTermsAction(input: {
 
   return {};
 }
+
+
+
+
+
 
 
 

@@ -447,8 +447,7 @@ export function NegotiationDetail({
               {termsLoading ? "保存中..." : "条件を提示"}
             </button>
           </div>
-
-          {terms?.status === "submitted" &&
+{terms?.status === "submitted" &&
             ((user.role === "maker" && !terms.makerConfirmedAt) ||
               (user.role === "partner" && !terms.partnerConfirmedAt)) ? (
             <button
@@ -480,6 +479,8 @@ export function NegotiationDetail({
     </article>
   );
 }
+
+
 
 
 

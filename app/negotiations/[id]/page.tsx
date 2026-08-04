@@ -61,12 +61,18 @@ export default async function NegotiationDetailPage({
           termsResult.data
             ? {
                 ...termsResult.data,
+                negotiationId: termsResult.data.negotiation_id,
                 wholesalePrice: termsResult.data.wholesale_price,
                 salesRegion: termsResult.data.sales_region,
                 salesChannel: termsResult.data.sales_channel,
                 leadTime: termsResult.data.lead_time,
                 paymentTerms: termsResult.data.payment_terms,
                 exclusiveSales: termsResult.data.exclusive_sales,
+                makerConfirmedAt: termsResult.data.maker_confirmed_at,
+                partnerConfirmedAt: termsResult.data.partner_confirmed_at,
+                createdBy: termsResult.data.created_by,
+                createdAt: termsResult.data.created_at,
+                updatedAt: termsResult.data.updated_at,
               }
             : null
         }
@@ -74,6 +80,8 @@ export default async function NegotiationDetailPage({
     </div>
   );
 }
+
+
 
 
 

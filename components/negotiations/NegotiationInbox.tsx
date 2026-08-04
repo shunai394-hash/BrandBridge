@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ type NegotiationInboxProps = {
   items: NegotiationListItem[];
   /** Role-specific empty hint (overrides locale default when set) */
   emptyHint?: string;
-  /** Default Japanese — Japanese routes unchanged. */
+  /** Default Japanese 窶・Japanese routes unchanged. */
   locale?: NegotiationUiLocale;
 };
 
@@ -147,17 +147,17 @@ export function NegotiationInbox({
                       </div>
                       <p className="mt-0.5 truncate text-xs text-muted">
                         <span className="font-mono text-teal">
-                          {t.sku}: {item.productSku?.trim() || "—"}
+                          {t.sku}: {item.productSku?.trim() || "未設定"}
                         </span>
-                        <span className="mx-1.5">·</span>
+                        <span className="mx-1.5">・</span>
                         {item.productName}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted">
-                        {t.counterpart}: {item.counterpartName}
+                        商品提供者: {item.makerCompanyName} ・ パートナー: {item.partnerCompanyName}
                         {hasUnread
-                          ? ` · ${t.unreadCount(item.unreadCount ?? 0)}`
+                          ? ` ・ ${t.unreadCount(item.unreadCount ?? 0)}`
                           : item.messageCount
-                            ? ` · ${t.messageCount(item.messageCount)}`
+                            ? ` ・ ${t.messageCount(item.messageCount)}`
                             : ""}
                       </p>
                       <p
@@ -197,3 +197,5 @@ export function NegotiationInbox({
     </div>
   );
 }
+
+

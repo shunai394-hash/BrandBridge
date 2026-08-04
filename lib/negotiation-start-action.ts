@@ -120,6 +120,17 @@ export async function startNegotiationAction(input: {
 
   const supabase = await createClient();
 
+  const { data: authData, error: authError } =
+  await supabase.auth.getUser();
+
+  log("INSERT直前 AUTH CHECK", {
+    authUserId: authData.user?.id ?? null,
+    authEmail: authData.user?.email ?? null,
+    authError: authError?.message ?? null,
+    partnerId: partner.id,
+    sameId: authData.user?.id === partner.id,
+  });
+
   // ----- 0) applications INSERT (必要条件数の正) -----
   const { error: appError } = await supabase.from("applications").insert({
     case_id: input.caseId,
@@ -579,6 +590,9 @@ export async function completeNegotiationOpeningAction(input: {
     logs,
   };
 }
+
+
+
 
 
 

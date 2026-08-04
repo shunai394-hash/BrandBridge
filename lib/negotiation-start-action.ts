@@ -96,7 +96,7 @@ export async function startNegotiationAction(input: {
   const topic = String(input.topic).trim();
   if (!topic) {
     log("FAIL topic empty after trim");
-    return { ok: false, error: "莉ｶ蜷阪ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞", logs };
+    return { ok: false, error: "件名を入力してください", logs };
   }
   if (topic.length > TOPIC_MAX) {
     return {
@@ -120,7 +120,7 @@ export async function startNegotiationAction(input: {
 
   const supabase = await createClient();
 
-  // ----- 0) applications INSERT (蠢懷供莉ｶ謨ｰ縺ｮ豁｣) -----
+  // ----- 0) applications INSERT (必要条件数の正) -----
   const { error: appError } = await supabase.from("applications").insert({
     case_id: input.caseId,
     partner_id: partner.id,
@@ -353,7 +353,7 @@ export async function startNegotiationDraftAction(input: {
   }
 
   const topic = input.topic.trim();
-  if (!topic) return { ok: false, error: "莉ｶ蜷阪ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞", logs };
+  if (!topic) return { ok: false, error: "件名を入力してください", logs };
   if (topic.length > TOPIC_MAX) {
     return { ok: false, error: `莉ｶ蜷阪・${TOPIC_MAX}譁・ｭ嶺ｻ･蜀・↓縺励※縺上□縺輔＞`, logs };
   }
@@ -454,7 +454,7 @@ export async function completeNegotiationOpeningAction(input: {
   }
 
   const topic = input.topic.trim();
-  if (!topic) return { ok: false, error: "莉ｶ蜷阪ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞", logs };
+  if (!topic) return { ok: false, error: "件名を入力してください", logs };
 
   const hasAttachment = Boolean(input.attachment?.path);
   const body =
@@ -579,6 +579,8 @@ export async function completeNegotiationOpeningAction(input: {
     logs,
   };
 }
+
+
 
 
 

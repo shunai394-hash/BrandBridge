@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useId, useRef, useState } from "react";
@@ -27,8 +27,8 @@ type NegotiationStartFormProps = {
 };
 
 const statusLabel: Record<ApplicationStatus, string> = {
-  pending: "貅門ｙ荳ｭ",
-  accepted: "莠､貂我ｸｭ",
+  pending: "申請中",
+  accepted: "商談中",
   rejected: "却下",
 };
 
@@ -80,11 +80,11 @@ export function NegotiationStartForm({
 
     const trimmedTopic = topic.trim();
     if (!trimmedTopic) {
-      setError("莉ｶ蜷阪ｒ蜈･蜉帙＠縺ｦ縺上□縺輔＞");
+      setError("件名を入力してください");
       return;
     }
     if (trimmedTopic.length > TOPIC_MAX) {
-      setError(`莉ｶ蜷阪・${TOPIC_MAX}譁・ｭ嶺ｻ･蜀・↓縺励※縺上□縺輔＞`);
+      setError(`件名は${TOPIC_MAX}文字以内で入力してください`);
       return;
     }
 
@@ -107,7 +107,7 @@ export function NegotiationStartForm({
           return;
         }
         if (!draft.ok || !draft.id) {
-          setError(draft.error || "negotiations INSERT 縺ｫ螟ｱ謨励＠縺ｾ縺励◆");
+          setError(draft.error || "negotiations INSERT に失敗しました");
           return;
         }
 
@@ -164,7 +164,7 @@ export function NegotiationStartForm({
       router.refresh();
     } catch (err) {
       setError(
-        `騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆: ${err instanceof Error ? err.message : String(err)}`,
+        `送信に失敗しました: ${err instanceof Error ? err.message : String(err)}`,
       );
     } finally {
       setLoading(false);
@@ -175,14 +175,14 @@ export function NegotiationStartForm({
     return (
       <div className="rounded-lg border border-teal/25 bg-cream/70 p-6">
         <p className="text-sm leading-relaxed text-muted">
-          莠､貂峨ｒ逕ｳ縺苓ｾｼ繧縺ｫ縺ｯ縲∬ｲｩ螢ｲ繝代・繝医リ繝ｼ縺ｨ縺励※繝ｭ繧ｰ繧､繝ｳ縺励※縺上□縺輔＞縲・
+          交渉を申し込むには、販売パートナーとしてログインしてください
         </p>
         <div className="mt-4">
           <a
             href={`/login?next=${encodeURIComponent(`/cases/${caseId}/negotiation`)}`}
             className={submitButtonClass}
           >
-            繝ｭ繧ｰ繧､繝ｳ縺励※逕ｳ縺苓ｾｼ繧
+            ログインして申し込む
           </a>
         </div>
       </div>
@@ -198,10 +198,10 @@ export function NegotiationStartForm({
     >
       <div className="border-b border-teal/20 bg-teal/5 px-5 py-3 md:px-6">
         <p className="text-xs font-semibold tracking-wide text-teal">
-          繝｡繝ｼ繝ｫ蠖｢蠑・ﾂｷ 譁ｰ隕上Γ繝・そ繝ｼ繧ｸ
+          メール形式・新規メッセージ
         </p>
         <p className="mt-0.5 text-sm text-muted">
-          莉ｶ蜷阪・譛ｬ譁・・豺ｻ莉倥ｒ騾∽ｿ｡縺励※莠､貂峨せ繝ｬ繝・ラ繧帝幕蟋九＠縺ｾ縺・
+          件名・本文・添付を送信して商談スレッドを開始します
         </p>
       </div>
 
@@ -245,7 +245,7 @@ export function NegotiationStartForm({
             htmlFor={topicId}
             className="pt-2.5 text-sm font-semibold text-navy"
           >
-            莉ｶ蜷・<span className="text-red-600">*</span>
+            件名<span className="text-red-600">*</span>
           </label>
           <div>
             <input
@@ -256,13 +256,13 @@ export function NegotiationStartForm({
               maxLength={TOPIC_MAX}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="萓・ 蛻晏屓繝ｭ繝・ヨ譚｡莉ｶ縺ｫ縺､縺・※"
+              placeholder="例：初回ロット条件について"
               className={fieldClass}
               autoComplete="off"
               data-testid="negotiation-start-topic"
             />
             <p className="mt-1 text-xs text-muted">
-              蠢・・ﾂｷ {topic.trim().length}/{TOPIC_MAX}
+              必須・文字数 {topic.trim().length}/{TOPIC_MAX}
             </p>
           </div>
         </div>
@@ -272,7 +272,7 @@ export function NegotiationStartForm({
             htmlFor={bodyId}
             className="pt-2.5 text-sm font-semibold text-navy"
           >
-            譛ｬ譁・
+            本文
           </label>
           <div>
             <textarea
@@ -281,7 +281,7 @@ export function NegotiationStartForm({
               rows={8}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="縺疲署譯亥・螳ｹ繝ｻ蜿悶ｊ謇ｱ縺・メ繝｣繝阪Ν繝ｻ蟶梧悍譚｡莉ｶ縺ｪ縺ｩ"
+              placeholder="詳細内容・取り扱いチャネル・希望条件など"
               className={`${fieldClass} min-h-[10rem] resize-y`}
               data-testid="negotiation-start-body"
             />
@@ -293,7 +293,7 @@ export function NegotiationStartForm({
             htmlFor={fileId}
             className="pt-1 text-sm font-semibold text-navy"
           >
-            豺ｻ莉・
+            添付
           </label>
           <div>
             <input
@@ -307,14 +307,14 @@ export function NegotiationStartForm({
               data-testid="negotiation-start-file"
             />
             <p className="mt-1.5 text-xs text-muted">
-              PDF / 逕ｻ蜒・/ Word / Excel / 繝・く繧ｹ繝・/ CSV・域怙螟ｧ10MB・・
+              PDF / 画像/ Word / Excel / テキスト/ CSV（最大10MB）
             </p>
             {file ? (
               <div
                 className="mt-2 rounded-md border border-teal/25 bg-teal/[0.06] px-3 py-2.5"
                 data-testid="negotiation-start-file-ready"
               >
-                <p className="text-sm font-medium text-navy">梼 豺ｻ莉俶ｸ医∩</p>
+                <p className="text-sm font-medium text-navy">添付済み</p>
                 <p className="mt-0.5 break-all text-sm text-foreground">
                   {file.name}
                 </p>
@@ -330,7 +330,7 @@ export function NegotiationStartForm({
                     if (fileRef.current) fileRef.current.value = "";
                   }}
                 >
-                  豺ｻ莉倥ｒ繧・ａ繧・
+                  添付を削除
                 </button>
               </div>
             ) : null}
@@ -350,7 +350,7 @@ export function NegotiationStartForm({
               open
             >
               <summary className="cursor-pointer text-xs font-semibold text-navy">
-                [negotiation-start] 繝ｭ繧ｰ
+                [negotiation-start] ログ
               </summary>
               <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-all text-[11px] text-navy">
                 {debugLogs.join("\n")}
@@ -370,7 +370,7 @@ export function NegotiationStartForm({
               href={`/cases/${caseId}`}
               className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-border bg-transparent px-5 py-2.5 text-sm font-medium tracking-wide text-navy transition-all duration-200 hover:border-teal hover:text-teal"
             >
-              繧ｭ繝｣繝ｳ繧ｻ繝ｫ
+              キャンセル
             </a>
           </div>
         </div>
@@ -378,6 +378,10 @@ export function NegotiationStartForm({
     </section>
   );
 }
+
+
+
+
 
 
 

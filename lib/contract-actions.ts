@@ -100,7 +100,9 @@ export async function generateContractPdf(dealId: string) {
   const pdf = await buildContractPdf({
     maker: data.maker?.company_name ?? "",
     partner:
-      data.partner?.company_name ?? "",
+      (Array.isArray(data.partner)
+        ? data.partner[0]?.company_name
+        : (data.partner as { company_name?: string } | null)?.company_name) ?? "",
 
     agreed_product_name: data.agreed_product_name,
     agreed_wholesale_price: data.agreed_wholesale_price,
@@ -182,7 +184,9 @@ export async function generateNegotiationTermsPdf(
   const pdf = await buildContractPdf({
     maker: maker?.company_name ?? "",
     partner:
-      data.partner?.company_name ?? "",
+      (Array.isArray(data.partner)
+        ? data.partner[0]?.company_name
+        : (data.partner as { company_name?: string } | null)?.company_name) ?? "",
 
     agreed_product_name:
       caseRow?.product_name ?? caseRow?.title ?? "",
@@ -222,6 +226,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

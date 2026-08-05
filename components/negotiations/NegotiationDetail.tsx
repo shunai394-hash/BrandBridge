@@ -9,6 +9,7 @@ import {
   confirmNegotiationTermsAction,
 } from "@/lib/actions";
 import { MessageThread } from "@/components/negotiations/MessageThread";
+import { generateNegotiationTermsPdf } from "@/lib/contract-actions";
 import { PipelineStatusBadge } from "@/components/negotiations/NegotiationStatusBadge";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
 import {
@@ -155,6 +156,33 @@ export function NegotiationDetail({
     router.refresh();
   }
 
+
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  async function handleOpenPdf() {
+    setPdfLoading(true);
+
+    try {
+      const pdf = await generateNegotiationTermsPdf(item.id);
+
+      const blob = new Blob(
+        [new Uint8Array(pdf)],
+        { type: "application/pdf" }
+      );
+
+      const url = URL.createObjectURL(blob);
+
+      window.open(url, "_blank");
+    } catch (e) {
+      setTermsError(
+        e instanceof Error
+          ? e.message
+          : "PDF生成に失敗しました"
+      );
+    }
+
+    setPdfLoading(false);
+  }
 
   async function handleConfirmTerms() {
     setTermsError("");
@@ -428,6 +456,17 @@ export function NegotiationDetail({
               {termsSavedMessage}
             </p>
           ) : null}
+
+          <button
+            type="button"
+            className="mt-4 rounded-md border border-border px-4 py-2 text-sm font-medium text-navy hover:bg-surface-muted disabled:opacity-50"
+            disabled={pdfLoading}
+            onClick={handleOpenPdf}
+          >
+            {pdfLoading
+              ? "PDF生成中..."
+              : "取引条件確認書 PDFを開く"}
+          </button>
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               type="button"
@@ -479,6 +518,13 @@ export function NegotiationDetail({
     </article>
   );
 }
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { getAdminDashboardStats } from "@/lib/admin-dashboard";
 import type {
   ApplicationStatus,
@@ -59,7 +59,7 @@ export type AdminNegotiationListItem = {
   caseTitle: string;
   makerName: string;
   partnerName: string;
-  hasDeal: boolean;
+  hasDealRecord: boolean;
 };
 
 /** Kept for compatibility; dashboard UI uses getAdminDashboardStats. */
@@ -366,7 +366,8 @@ export async function listAdminNegotiations(): Promise<
       partnerName:
         (partnerProfile as { company_name?: string } | null)?.company_name ??
         "パートナー",
-      hasDeal: dealSet.has(row.id as string),
+      hasDealRecord: dealSet.has(row.id as string),
     };
   });
 }
+

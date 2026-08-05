@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type { CreateDealInput, Deal } from "@/lib/types";
 
 type DealRow = {
@@ -202,10 +202,6 @@ export async function createDealFromNegotiation(
     return { error: error?.message ?? "成約の登録に失敗しました" };
   }
 
-  await supabase
-    .from("negotiations")
-    .update({ pipeline_status: "won" })
-    .eq("id", input.negotiationId);
-
   return { id: data.id as string };
 }
+

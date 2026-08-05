@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  createDealAction,
   updateCommissionRateAction,
   updatePipelineStatusAction,
 } from "@/lib/actions";
@@ -43,18 +42,7 @@ export function AdminNegotiationBoard({
   const [rateLoading, setRateLoading] = useState(false);
   const [error, setError] = useState("");
   const [pipelineLoading, setPipelineLoading] = useState<string | null>(null);
-  const [dealOpenId, setDealOpenId] = useState<string | null>(null);
-  const [dealAmount, setDealAmount] = useState("");
-  const [dealNote, setDealNote] = useState("");
-  const [dealRate, setDealRate] = useState(String(defaultCommissionRate));
-  const [dealLoading, setDealLoading] = useState(false);
 
-  const previewCommission = useMemo(() => {
-    const amount = Number(dealAmount);
-    const r = Number(dealRate);
-    if (Number.isNaN(amount) || Number.isNaN(r)) return 0;
-    return Math.round(amount * (r / 100));
-  }, [dealAmount, dealRate]);
 
   async function saveRate(e: FormEvent) {
     e.preventDefault();
@@ -84,27 +72,6 @@ export function AdminNegotiationBoard({
     router.refresh();
   }
 
-  async function submitDeal(e: FormEvent) {
-    e.preventDefault();
-    if (!dealOpenId) return;
-    setError("");
-    setDealLoading(true);
-    const result = await createDealAction({
-      negotiationId: dealOpenId,
-      dealAmount: Number(dealAmount),
-      commissionRate: Number(dealRate),
-      commissionNote: dealNote,
-    });
-    setDealLoading(false);
-    if (result.error) {
-      setError(result.error);
-      return;
-    }
-    setDealOpenId(null);
-    setDealAmount("");
-    setDealNote("");
-    router.refresh();
-  }
 
   return (
     <div className="space-y-8">
@@ -127,7 +94,7 @@ export function AdminNegotiationBoard({
         <Button type="submit" disabled={rateLoading}>
           {rateLoading ? "保存中..." : "手数料率を保存"}
         </Button>
-        <p className="text-xs text-muted">初期値 5%。成約化時のデフォルトに使います。</p>
+        <p className="text-xs text-muted">初期値 5%。契約成立後の手数料計算に使います。</p>
       </form>
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
@@ -157,11 +124,11 @@ export function AdminNegotiationBoard({
                   <div className="mt-2 flex flex-wrap gap-2">
                     <NegotiationStatusBadge status={item.applicationStatus} />
                     <PipelineStatusBadge status={item.pipelineStatus} />
-                    {item.hasDeal ? (
+                    {item.pipelineStatus === "won" ? (
                       <span className="rounded border border-teal/30 bg-teal/10 px-2 py-0.5 text-xs text-teal-dark">
-                        成約登録済
-                      </span>
-                    ) : null}
+成約済
+</span>
+) : null}
                   </div>
                 </div>
               </div>
@@ -188,74 +155,20 @@ export function AdminNegotiationBoard({
                       ))}
                     </select>
                   </label>
-                  {!item.hasDeal ? (
+                  {item.pipelineStatus !== "won" ? (
                     <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setDealOpenId(item.id);
-                        setDealRate(String(defaultCommissionRate));
-                      }}
+type="button"
+variant="outline"
+onClick={() => changePipeline(item.id, "contract_prep")}
                     >
-                      成約化
-                    </Button>
-                  ) : (
+契約準備へ進む
+</Button>
+) : (
                     <Button href="/deals" variant="ghost">
-                      成約一覧へ
-                    </Button>
-                  )}
+成約一覧へ
+</Button>
+)}
                 </div>
-              ) : null}
-
-              {dealOpenId === item.id ? (
-                <form
-                  onSubmit={submitDeal}
-                  className="mt-4 space-y-3 rounded-md border border-teal/25 bg-cream/60 p-4"
-                >
-                  <p className="text-sm font-medium text-navy">成約登録</p>
-                  <Input
-                    label="成約金額（円）"
-                    name="dealAmount"
-                    type="number"
-                    min={0}
-                    required
-                    value={dealAmount}
-                    onChange={(e) => setDealAmount(e.target.value)}
-                  />
-                  <Input
-                    label="手数料率（%）"
-                    name="commissionRate"
-                    type="number"
-                    min={0}
-                    max={100}
-                    step={0.01}
-                    required
-                    value={dealRate}
-                    onChange={(e) => setDealRate(e.target.value)}
-                  />
-                  <p className="text-xs text-muted">
-                    手数料見込: {formatYen(previewCommission)}
-                  </p>
-                  <TextArea
-                    label="手数料メモ（任意）"
-                    name="commissionNote"
-                    rows={2}
-                    value={dealNote}
-                    onChange={(e) => setDealNote(e.target.value)}
-                  />
-                  <div className="flex gap-2">
-                    <Button type="submit" disabled={dealLoading}>
-                      {dealLoading ? "登録中..." : "成約として登録"}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setDealOpenId(null)}
-                    >
-                      キャンセル
-                    </Button>
-                  </div>
-                </form>
               ) : null}
             </li>
           ))}
@@ -264,3 +177,9 @@ export function AdminNegotiationBoard({
     </div>
   );
 }
+
+
+
+
+
+

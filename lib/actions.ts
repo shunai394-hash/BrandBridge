@@ -1158,7 +1158,7 @@ export async function confirmNegotiationTermsAction(input: {
 
     await updatePipelineStatus(
       input.negotiationId,
-      "contract_prep",
+      "won",
     );
   }
 
@@ -1166,6 +1166,8 @@ export async function confirmNegotiationTermsAction(input: {
 
   return {};
 }
+
+
 
 
 

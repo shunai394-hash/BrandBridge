@@ -5,7 +5,12 @@ export async function getAdminContracts() {
 
   const { data, error } = await supabase
     .from("deals")
-    .select("*")
+    .select(`
+      *,
+      negotiations (
+        pipeline_status
+      )
+    `)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -24,7 +29,12 @@ export async function getAdminContract(id?: string) {
 
   const { data, error } = await supabase
     .from("deals")
-    .select("*")
+    .select(`
+      *,
+      negotiations (
+        pipeline_status
+      )
+    `)
     .eq("id", id)
     .single();
 

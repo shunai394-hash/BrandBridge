@@ -100,7 +100,7 @@ export async function generateContractPdf(dealId: string) {
   const pdf = await buildContractPdf({
     maker: data.maker?.company_name ?? "",
     partner:
-      data.partner?.[0]?.company_name ?? "",
+      data.partner?.company_name ?? "",
 
     agreed_product_name: data.agreed_product_name,
     agreed_wholesale_price: data.agreed_wholesale_price,
@@ -145,7 +145,7 @@ export async function generateNegotiationTermsPdf(
         wholesale_price,
         moq,
         payment_terms,
-        shipping_terms,
+        lead_time,
         exclusive_sales,
         notes,
         maker_confirmed_at,
@@ -182,7 +182,7 @@ export async function generateNegotiationTermsPdf(
   const pdf = await buildContractPdf({
     maker: maker?.company_name ?? "",
     partner:
-      data.partner?.[0]?.company_name ?? "",
+      data.partner?.company_name ?? "",
 
     agreed_product_name:
       caseRow?.product_name ?? caseRow?.title ?? "",
@@ -202,7 +202,7 @@ export async function generateNegotiationTermsPdf(
         : "Non-exclusive",
 
     agreed_shipping_terms:
-      terms.shipping_terms,
+      terms.lead_time,
 
     agreed_payment_terms:
       terms.payment_terms,
@@ -222,6 +222,10 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
+
+
+
 
 
 

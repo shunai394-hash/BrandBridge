@@ -5,12 +5,7 @@ export async function getAdminContracts() {
 
   const { data, error } = await supabase
     .from("deals")
-    .select(`
-      *,
-      negotiations (
-        pipeline_status
-      )
-    `)
+    .select("*")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -20,17 +15,16 @@ export async function getAdminContracts() {
   return data ?? [];
 }
 
-export async function getAdminContract(id: string) {
+export async function getAdminContract(id?: string) {
+  if (!id) {
+    throw new Error("Contract ID is missing");
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("deals")
-    .select(`
-      *,
-      negotiations (
-        pipeline_status
-      )
-    `)
+    .select("*")
     .eq("id", id)
     .single();
 

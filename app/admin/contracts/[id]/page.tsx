@@ -7,9 +7,11 @@ export const dynamic = "force-dynamic";
 export default async function ContractDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const contract = await getAdminContract(params.id);
+  const { id } = await params;
+
+  const contract = await getAdminContract(id);
 
   if (!contract) {
     notFound();
@@ -26,10 +28,13 @@ export default async function ContractDetailPage({
           契約ID: {contract.id}
         </p>
 
+        <p className="mt-4">
+          金額: {contract.deal_amount} {contract.deal_currency}
+        </p>
+
         <div className="mt-6">
           <ContractStatusSelect
-
-            status={contract.status}
+            status={contract.status ?? "preparing"}
           />
         </div>
       </div>

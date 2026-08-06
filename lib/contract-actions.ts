@@ -129,6 +129,8 @@ export async function generateContractPdf(dealId: string) {
 export async function generateNegotiationTermsPdf(
   negotiationId: string
 ) {
+  console.log("[NEGOTIATION PDF START]", negotiationId);
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -160,6 +162,8 @@ export async function generateNegotiationTermsPdf(
     .single();
 
   if (error || !data) {
+    console.error("[NEGOTIATION FETCH ERROR]", error);
+
     throw new Error(
       error?.message ?? "交渉条件データがありません"
     );
@@ -248,6 +252,8 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
+
 
 
 

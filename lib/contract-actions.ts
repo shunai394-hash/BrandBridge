@@ -97,6 +97,8 @@ export async function generateContractPdf(dealId: string) {
     throw new Error(error?.message ?? "契約データがありません");
   }
 
+  console.log("[PDF BUILD START]");
+
   const pdf = await buildContractPdf({
     maker: data.maker?.company_name ?? "",
     partner:
@@ -197,6 +199,8 @@ export async function generateNegotiationTermsPdf(
         .single()
     : { data: null };
 
+  console.log("[PDF BUILD START]");
+
   const pdf = await buildContractPdf({
     maker: maker?.company_name ?? "",
     partner:
@@ -242,6 +246,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

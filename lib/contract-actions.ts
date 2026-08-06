@@ -175,11 +175,13 @@ export async function generateNegotiationTermsPdf(
     throw new Error("取引条件がありません");
   }
 
-  const { data: maker } = await supabase
-    .from("profiles")
-    .select("company_name")
-    .eq("id", caseRow?.maker_id)
-    .single();
+  const { data: maker } = caseRow?.maker_id
+    ? await supabase
+        .from("profiles")
+        .select("company_name")
+        .eq("id", caseRow.maker_id)
+        .single()
+    : { data: null };
 
   const pdf = await buildContractPdf({
     maker: maker?.company_name ?? "",
@@ -226,6 +228,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

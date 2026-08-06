@@ -42,9 +42,14 @@ export async function generateContractPdf(
 
   pdfDoc.registerFontkit(fontkit);
 
-  const fontBytes = await fetch(
-    "http://localhost:3000/fonts/NotoSansJP-Regular.ttf"
-  ).then((res) => res.arrayBuffer());
+  const fontPath = path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "NotoSansJP-Regular.ttf"
+  );
+
+  const fontBytes = await fs.readFile(fontPath);
 
   const font = await pdfDoc.embedFont(fontBytes);
 
@@ -276,6 +281,7 @@ const today = new Date();
 
 return await pdfDoc.save();
 }
+
 
 
 

@@ -388,25 +388,6 @@ export async function startNegotiationDraftAction(input: {
     };
   }
 
-  const { data: existingNegotiation } = await supabase
-    .from("negotiations")
-    .select("id, topic")
-    .eq("case_id", input.caseId)
-    .eq("partner_id", partner.id)
-    .maybeSingle();
-
-  if (existingNegotiation) {
-    log("existing negotiation found", {
-      id: existingNegotiation.id,
-    });
-
-    return {
-      ok: true,
-      id: existingNegotiation.id as string,
-      logs,
-    };
-  }
-
   log("negotiation insert (draft)", { topic, caseId: input.caseId });
 
   const { data: nego, error } = await supabase
@@ -609,7 +590,6 @@ export async function completeNegotiationOpeningAction(input: {
     logs,
   };
 }
-
 
 
 

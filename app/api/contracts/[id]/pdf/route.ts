@@ -1,5 +1,5 @@
 ﻿import { NextResponse } from "next/server";
-import { generateContractPdf } from "@/lib/contract-actions";
+import { generateNegotiationTermsPdf } from "@/lib/contract-actions";
 
 export async function GET(
   _request: Request,
@@ -10,7 +10,7 @@ export async function GET(
   }
 ) {
   const { id } = await params;
-   const pdf = await generateContractPdf(id);
+   const pdf = await generateNegotiationTermsPdf(id);
 
    return new NextResponse(Buffer.from(pdf), {
     status: 200,
@@ -20,3 +20,4 @@ export async function GET(
     },
   });
 }
+

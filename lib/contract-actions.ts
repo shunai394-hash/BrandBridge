@@ -128,7 +128,8 @@ export async function generateContractPdf(dealId: string) {
     .update({
       pipeline_status: "contract_prep",
     })
-    .eq("id", negotiationId);
+    .eq("id", negotiationId)
+    .eq("pipeline_status", "terms_review");
 
   return pdf;
 }
@@ -262,10 +263,12 @@ export async function generateNegotiationTermsPdf(
     .update({
       pipeline_status: "contract_prep",
     })
-    .eq("id", negotiationId);
+    .eq("id", negotiationId)
+    .eq("pipeline_status", "terms_review");
 
   return pdf;
 }
+
 
 
 

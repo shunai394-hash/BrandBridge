@@ -187,18 +187,25 @@ export async function generateNegotiationTermsPdf(
 
   console.log("[CONTRACT INSERT ID]", negotiationId);
 
-  const { data: contract, error: contractError } = await supabase
+  const { data: existingContract } = await supabase
     .from("contracts")
-    .insert({
-      negotiation_id: negotiationId,
-      version: 1,
-      status: "draft",
-    })
-    .select()
-    .single();
+    .select("id")
+    .eq("negotiation_id", negotiationId)
+    .eq("status", "draft")
+    .maybeSingle();
 
-  if (contractError) {
-    throw new Error(contractError.message);
+  if (!existingContract) {
+    const { error: contractError } = await supabase
+      .from("contracts")
+      .insert({
+        negotiation_id: negotiationId,
+        version: 1,
+        status: "draft",
+      });
+
+    if (contractError) {
+      throw new Error(contractError.message);
+    }
   }
 
   const { data: maker } = caseRow?.maker_id
@@ -260,6 +267,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

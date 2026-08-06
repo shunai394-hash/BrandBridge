@@ -177,6 +177,8 @@ export async function generateNegotiationTermsPdf(
     throw new Error("取引条件がありません");
   }
 
+  console.log("[CONTRACT INSERT ID]", negotiationId);
+
   const { data: contract, error: contractError } = await supabase
     .from("contracts")
     .insert({
@@ -246,6 +248,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

@@ -41,6 +41,6 @@ export async function getAdminContract(id?: string) {
   if (error) {
     throw new Error(error.message);
   }
-
+  console.log("[ADMIN CONTRACTS DATA]", data);
   return data;
 }

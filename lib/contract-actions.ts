@@ -175,6 +175,20 @@ export async function generateNegotiationTermsPdf(
     throw new Error("取引条件がありません");
   }
 
+  const { data: contract, error: contractError } = await supabase
+    .from("contracts")
+    .insert({
+      negotiation_id: negotiationId,
+      version: 1,
+      status: "draft",
+    })
+    .select()
+    .single();
+
+  if (contractError) {
+    throw new Error(contractError.message);
+  }
+
   const { data: maker } = caseRow?.maker_id
     ? await supabase
         .from("profiles")
@@ -228,6 +242,7 @@ export async function generateNegotiationTermsPdf(
 
   return pdf;
 }
+
 
 
 

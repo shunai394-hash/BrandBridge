@@ -1,0 +1,113 @@
+﻿import { PDFDocument, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import fs from "fs";
+import path from "path";
+
+type ContractPdfData = {
+  maker: string;
+  partner: string;
+
+  agreed_product_name: string | null;
+  agreed_wholesale_price: number | null;
+  agreed_currency: string | null;
+
+  agreed_moq: number | null;
+
+  agreed_exclusivity: string | null;
+  agreed_shipping_terms: string | null;
+  agreed_payment_terms: string | null;
+  agreed_contract_period: string | null;
+
+  agreed_notes: string | null;
+
+  maker_confirmed: boolean;
+  partner_confirmed: boolean;
+};
+
+export async function generateContractPdf(
+  data: ContractPdfData
+): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+
+  pdfDoc.registerFontkit(fontkit);
+
+  const page = pdfDoc.addPage([595, 842]);
+
+  const fontPath = path.join(process.cwd(), "public/fonts/NotoSansJP-Regular.ttf");
+  const fontBytes = fs.readFileSync(fontPath);
+  const font = await pdfDoc.embedFont(fontBytes);
+
+  let y = 800;
+
+  function draw(text: string, size = 12) {
+    page.drawText(text, {
+      x: 50,
+      y,
+      size,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
+    y -= size + 12;
+  }
+
+  draw("BrandBridge Commercial Terms Agreement", 18);
+  draw("（取引条件確認書）", 12);
+
+  y -= 10;
+
+  draw(`メーカー: ${data.maker}`);
+  draw(`販売パートナー: ${data.partner}`);
+
+  y -= 10;
+
+  draw(`対象商品: ${data.agreed_product_name ?? ""}`);
+
+  draw(
+    `卸価格: ${
+      data.agreed_wholesale_price ?? ""
+    } ${data.agreed_currency ?? "JPY"}`
+  );
+
+  draw(`最低発注数量: ${data.agreed_moq ?? ""}`);
+
+  draw(`独占条件: ${data.agreed_exclusivity ?? ""}`);
+
+  draw(`配送条件: ${data.agreed_shipping_terms ?? ""}`);
+
+  draw(`支払条件: ${data.agreed_payment_terms ?? ""}`);
+
+  draw(`契約期間: ${data.agreed_contract_period ?? ""}`);
+
+  y -= 10;
+
+  draw("合意メモ:");
+  draw(data.agreed_notes ?? "");
+
+  y -= 10;
+
+  draw("双方確認:");
+
+  draw(
+    `メーカー確認済み: ${
+      data.maker_confirmed ? "✓" : "□"
+    }`
+  );
+
+  draw(
+    `パートナー確認済み: ${
+      data.partner_confirmed ? "✓" : "□"
+    }`
+  );
+
+  y -= 10;
+
+  draw(
+    `作成日: ${new Date().toLocaleDateString("ja-JP")}`
+  );
+
+  return await pdfDoc.save();
+}
+
+
+

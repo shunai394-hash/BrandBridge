@@ -1,0 +1,150 @@
+﻿import { PDFDocument, rgb } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
+import fs from "fs";
+import path from "path";
+
+type ContractPdfData = {
+  maker: string;
+  partner: string;
+
+  agreed_product_name: string | null;
+  agreed_wholesale_price: number | null;
+  agreed_currency: string | null;
+  agreed_moq: number | null;
+
+  agreed_exclusivity: string | null;
+  agreed_shipping_terms: string | null;
+  agreed_payment_terms: string | null;
+  agreed_contract_period: string | null;
+
+  agreed_notes: string | null;
+
+  maker_confirmed: boolean;
+  partner_confirmed: boolean;
+};
+
+export async function generateContractPdf(
+  data: ContractPdfData
+): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+
+  pdfDoc.registerFontkit(fontkit);
+
+  const fontPath = path.join(
+    process.cwd(),
+    "public/fonts/NotoSansJP-Regular.ttf"
+  );
+
+  const fontBytes = fs.readFileSync(fontPath);
+  const font = await pdfDoc.embedFont(fontBytes);
+
+  const page = pdfDoc.addPage([595, 842]);
+
+  let y = 800;
+
+  function draw(text: string, size = 11) {
+    page.drawText(text, {
+      x: 50,
+      y,
+      size,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
+    y -= size + 12;
+  }
+
+  function section(title: string) {
+    y -= 10;
+    draw(title, 13);
+    y -= 5;
+  }
+
+  draw("BrandBridge Commercial Terms Agreement", 18);
+  draw("（取引条件確認書）", 12);
+
+  section("1. Parties（当事者）");
+
+  draw(`Manufacturer: ${data.maker}`);
+  draw(`Sales Partner: ${data.partner}`);
+
+  section("2. Product（対象商品）");
+
+  draw(`Product Name: ${data.agreed_product_name ?? ""}`);
+
+  section("3. Commercial Terms（取引条件）");
+
+  draw(
+    `Wholesale Price: ${
+      data.agreed_wholesale_price ?? ""
+    } ${data.agreed_currency ?? "JPY"}`
+  );
+
+  draw(`MOQ: ${data.agreed_moq ?? ""}`);
+
+  draw(
+    `Payment Terms: ${
+      data.agreed_payment_terms ?? ""
+    }`
+  );
+
+  section("4. Shipping Terms（配送条件）");
+
+  draw(
+    data.agreed_shipping_terms ?? ""
+  );
+
+  section("5. Exclusivity（独占条件）");
+
+  draw(
+    data.agreed_exclusivity ?? ""
+  );
+
+  section("6. Agreement Term（契約期間）");
+
+  draw(
+    data.agreed_contract_period ?? ""
+  );
+
+  section("7. Notes（備考）");
+
+  draw(
+    data.agreed_notes ?? ""
+  );
+
+  section("8. Confirmation（確認）");
+
+  draw(
+    `Manufacturer Confirmed: ${
+      data.maker_confirmed ? "✓" : "□"
+    }`
+  );
+
+  draw(
+    `Sales Partner Confirmed: ${
+      data.partner_confirmed ? "✓" : "□"
+    }`
+  );
+
+  y -= 10;
+
+  draw("Manufacturer Signature:");
+  draw("Name:");
+  draw("Title:");
+  draw("Date:");
+
+  y -= 10;
+
+  draw("Sales Partner Signature:");
+  draw("Name:");
+  draw("Title:");
+  draw("Date:");
+
+  y -= 10;
+
+  draw(
+    `Created: ${new Date().toLocaleDateString("ja-JP")}`
+  );
+
+  return await pdfDoc.save();
+}

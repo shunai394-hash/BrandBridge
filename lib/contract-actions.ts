@@ -123,6 +123,13 @@ export async function generateContractPdf(dealId: string) {
     partner_confirmed: data.partner_confirmed ?? false,
   });
 
+  await supabase
+    .from("negotiations")
+    .update({
+      pipeline_status: "contract_prep",
+    })
+    .eq("id", negotiationId);
+
   return pdf;
 }
 
@@ -250,8 +257,16 @@ export async function generateNegotiationTermsPdf(
       !!terms.partner_confirmed_at,
   });
 
+  await supabase
+    .from("negotiations")
+    .update({
+      pipeline_status: "contract_prep",
+    })
+    .eq("id", negotiationId);
+
   return pdf;
 }
+
 
 
 

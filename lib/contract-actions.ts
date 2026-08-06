@@ -124,6 +124,23 @@ export async function generateContractPdf(dealId: string) {
   });
 
 
+  const { data: updatedNegotiation, error: updateError } =
+    await supabase
+      .from("negotiations")
+      .update({
+        pipeline_status: "contract_prep",
+      })
+      .eq("id", negotiationId)
+      .eq("pipeline_status", "terms_review")
+      .select()
+      .single();
+
+  console.log("[PIPELINE UPDATE]", {
+    updatedNegotiation,
+    updateError,
+  });
+
+
   return pdf;
 }
 
@@ -252,8 +269,26 @@ export async function generateNegotiationTermsPdf(
   });
 
 
+  const { data: updatedNegotiation, error: updateError } =
+    await supabase
+      .from("negotiations")
+      .update({
+        pipeline_status: "contract_prep",
+      })
+      .eq("id", negotiationId)
+      .eq("pipeline_status", "terms_review")
+      .select()
+      .single();
+
+  console.log("[PIPELINE UPDATE]", {
+    updatedNegotiation,
+    updateError,
+  });
+
+
   return pdf;
 }
+
 
 
 

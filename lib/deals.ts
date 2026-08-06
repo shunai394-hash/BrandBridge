@@ -146,7 +146,19 @@ export async function createDealFromNegotiation(
       application_status,
       partner_id,
       case_id,
-      cases!case_id ( maker_id )
+      cases!case_id (
+        maker_id,
+        title,
+        product_name
+      ),
+      negotiation_terms (
+        wholesale_price,
+        moq,
+        payment_terms,
+        lead_time,
+        exclusive_sales,
+        notes
+      )
     `,
     )
     .eq("id", input.negotiationId)
@@ -164,6 +176,10 @@ export async function createDealFromNegotiation(
     ? negotiation.cases[0]
     : negotiation.cases;
   const makerId = (caseRow as { maker_id?: string } | null)?.maker_id;
+
+  const terms = Array.isArray(negotiation.negotiation_terms)
+    ? negotiation.negotiation_terms[0]
+    : negotiation.negotiation_terms;
   if (!makerId) {
     return { error: "商品提供企業情報が取得できません" };
   }
@@ -193,6 +209,34 @@ export async function createDealFromNegotiation(
       commission_rate: rate,
       commission_amount: commissionAmount,
       commission_note: input.commissionNote?.trim() || null,
+
+      agreed_product_name:
+        caseRow?.product_name ?? caseRow?.title ?? null,
+
+      agreed_wholesale_price:
+        terms?.wholesale_price ?? null,
+
+      agreed_currency: "JPY",
+
+      agreed_moq:
+        terms?.moq ?? null,
+
+      agreed_exclusivity:
+        terms?.exclusive_sales
+          ? "Exclusive"
+          : "Non-exclusive",
+
+      agreed_shipping_terms:
+        terms?.lead_time ?? null,
+
+      agreed_payment_terms:
+        terms?.payment_terms ?? null,
+
+      agreed_contract_period: null,
+
+      agreed_notes:
+        terms?.notes ?? null,
+
       created_by: adminId,
     })
     .select("id")
@@ -204,4 +248,7 @@ export async function createDealFromNegotiation(
 
   return { id: data.id as string };
 }
+
+
+
 

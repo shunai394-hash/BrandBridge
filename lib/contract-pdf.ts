@@ -1,4 +1,4 @@
-﻿import { PDFDocument, rgb } from "pdf-lib";`r`nimport fs from "fs/promises";`r`nimport path from "path";
+﻿import { PDFDocument, rgb } from "pdf-lib";`r`nimport fs from "fs/promises";`r`nimport path from "path";`r`nimport fs from "fs/promises";`r`nimport path from "path";
 import fontkit from "@pdf-lib/fontkit";
 
 type ContractPdfData = {
@@ -274,6 +274,7 @@ const today = new Date();
 
 return await pdfDoc.save();
 }
+
 
 
 

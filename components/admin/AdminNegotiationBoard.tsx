@@ -72,22 +72,6 @@ export function AdminNegotiationBoard({
       setError(result.error);
       return;
     }
-
-    if (pipelineStatus === "won") {
-      const dealResult = await createDealAction({
-        negotiationId: id,
-        dealAmount: 100000,
-        commissionRate: 5,
-        commissionNote: "MVPデモ成約",
-      });
-
-      if (dealResult.error) {
-        setPipelineLoading(null);
-        setError(dealResult.error);
-        return;
-      }
-    }
-
     setPipelineLoading(null);
     router.refresh();
   }
@@ -175,18 +159,28 @@ export function AdminNegotiationBoard({
                     </select>
                   </label>
                   {item.pipelineStatus !== "won" ? (
-                    <Button
-type="button"
-variant="outline"
-onClick={() => changePipeline(item.id, "contract_prep")}
-                    >
-契約準備へ進む
-</Button>
-) : (
+                    <>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => changePipeline(item.id, "contract_prep")}
+                      >
+                        契約準備へ進む
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => changePipeline(item.id, "won")}
+                      >
+                        成約登録
+                      </Button>
+                    </>
+                  ) : (
                     <Button href="/deals" variant="ghost">
-成約一覧へ
-</Button>
-)}
+                      成約一覧へ
+                    </Button>
+                  )}
                 </div>
               ) : null}
             </li>
@@ -196,6 +190,9 @@ onClick={() => changePipeline(item.id, "contract_prep")}
     </div>
   );
 }
+
+
+
 
 
 

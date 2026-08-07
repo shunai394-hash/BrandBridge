@@ -47,3 +47,4 @@ export async function getPlatformStats(): Promise<PlatformStats> {
     registeredCompanies: companies.count ?? 0,
   };
 }
+

@@ -213,7 +213,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     inNegotiation,
     termsReview,
     contractPrep,
-    contracted,
+    won,
     dealStats,
   ] = await Promise.all([
     supabase
@@ -264,7 +264,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       inNegotiation: inNegotiation.count ?? 0,
       termsReview: termsReview.count ?? 0,
       contractPrep: contractPrep.count ?? 0,
-      contracted: dealStats.dealCount,
+      contracted: won.count ?? 0,
     },
     fees: {
       awaitingInvoice,

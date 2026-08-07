@@ -168,9 +168,6 @@ export async function createDealFromNegotiation(
     return { error: negError?.message ?? "交渉が見つかりません" };
   }
 
-  if (negotiation.application_status !== "accepted") {
-    return { error: "申込承認済みの交渉のみ成約化できます" };
-  }
 
   const caseRow = Array.isArray(negotiation.cases)
     ? negotiation.cases[0]
@@ -248,6 +245,7 @@ export async function createDealFromNegotiation(
 
   return { id: data.id as string };
 }
+
 
 
 

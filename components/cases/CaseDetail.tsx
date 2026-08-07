@@ -419,7 +419,7 @@ export function CaseDetailView({
       )}
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
-        {partnerUnlocked && isPartner && canStartNegotiation && !caseItem.hasDeal ? (
+        {partnerUnlocked && isPartner && canStartNegotiation ? (
           <>
             <Button href={negotiateHref}>
               {alreadyApplied

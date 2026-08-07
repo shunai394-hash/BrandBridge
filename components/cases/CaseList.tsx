@@ -464,7 +464,7 @@ export function CaseList({
                           詳細
                         </Link>
                         <Button href={negotiateHref} prefetch={false}>
-                          {!hasDeal && (<>交渉開始</>)}
+                          交渉開始
                         </Button>
                       </div>
                     </td>

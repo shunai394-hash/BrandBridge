@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+  createDealAction,
   updateCommissionRateAction,
   updatePipelineStatusAction,
 } from "@/lib/actions";
@@ -60,18 +61,36 @@ export function AdminNegotiationBoard({
   async function changePipeline(id: string, pipelineStatus: PipelineStatus) {
     setError("");
     setPipelineLoading(id);
+
     const result = await updatePipelineStatusAction({
       negotiationId: id,
       pipelineStatus,
     });
-    setPipelineLoading(null);
+
     if (result.error) {
+      setPipelineLoading(null);
       setError(result.error);
       return;
     }
+
+    if (pipelineStatus === "won") {
+      const dealResult = await createDealAction({
+        negotiationId: id,
+        dealAmount: 100000,
+        commissionRate: 5,
+        commissionNote: "MVPデモ成約",
+      });
+
+      if (dealResult.error) {
+        setPipelineLoading(null);
+        setError(dealResult.error);
+        return;
+      }
+    }
+
+    setPipelineLoading(null);
     router.refresh();
   }
-
 
   return (
     <div className="space-y-8">
@@ -177,6 +196,10 @@ onClick={() => changePipeline(item.id, "contract_prep")}
     </div>
   );
 }
+
+
+
+
 
 
 

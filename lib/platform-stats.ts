@@ -32,7 +32,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
       ]),
 
     supabase
-      .from("deals")
+      .from("negotiations")
       .select("id", { count: "exact", head: true }),
 
     supabase
@@ -47,4 +47,5 @@ export async function getPlatformStats(): Promise<PlatformStats> {
     registeredCompanies: companies.count ?? 0,
   };
 }
+
 

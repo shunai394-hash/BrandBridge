@@ -5,9 +5,11 @@ import {
   EnCaseList,
   type EnCaseListItem,
 } from "@/components/cases/EnCaseList";
+import { ModelCaseCard } from "@/components/cases/ModelCaseCard";
 import { listMyCases, listOpenCases } from "@/lib/cases";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { brandDisplayName } from "@/lib/en-japan-opportunity";
+import { listPublishedModelCases } from "@/lib/model-cases";
 import type { Case } from "@/lib/types";
 
 function toListItem(item: Case): EnCaseListItem {
@@ -85,6 +87,8 @@ export default async function EnglishCasesPage({
       })
     : null;
 
+  const modelCases = listPublishedModelCases();
+
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
       <header className="mb-8">
@@ -97,6 +101,33 @@ export default async function EnglishCasesPage({
           category, MOQ, and target channels, then open a discussion.
         </p>
       </header>
+
+      {modelCases.length > 0 ? (
+        <section className="mb-12 rounded-xl border border-teal/20 bg-cream/50 px-5 py-8 md:px-7">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.14em] text-teal">
+                MODEL CASES
+              </p>
+              <h2 className="mt-2 font-[family-name:var(--font-shippori)] text-2xl text-navy">
+                How BrandBridge discussions can work
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+                Illustrative sample deal flows—not published records of completed
+                transactions. Use these to understand the information Japanese
+                partners typically review before outreach.
+              </p>
+            </div>
+          </div>
+          <ul className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {modelCases.map((item) => (
+              <li key={item.slug}>
+                <ModelCaseCard modelCase={item} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {createdId ? (
         <div
@@ -135,7 +166,12 @@ export default async function EnglishCasesPage({
         </div>
       ) : null}
 
-      <EnCaseList items={listItems} />
+      <section>
+        <h2 className="mb-6 font-[family-name:var(--font-shippori)] text-2xl text-navy">
+          Live Japan Expansion Opportunities
+        </h2>
+        <EnCaseList items={listItems} />
+      </section>
 
       <p className="mt-12 max-w-full text-sm leading-relaxed text-muted break-words">
         Looking for Japanese brand opportunities?{" "}

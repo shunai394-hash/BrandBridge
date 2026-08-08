@@ -1,5 +1,6 @@
 ﻿import type { MetadataRoute } from "next";
 import { listOpenCases } from "@/lib/cases";
+import { listModelCaseSlugs } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -18,6 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/for-partners",
     "/pricing",
     "/en",
+    "/en/cases",
     "/en/contact",
     "/en/login",
     "/en/register/maker",
@@ -43,6 +45,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : path === "/cases" ? 0.9 : 0.6,
   }));
 
+  const modelCaseRoutes: MetadataRoute.Sitemap = listModelCaseSlugs().map(
+    (slug) => ({
+      url: `${base}/en/model-cases/${slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.65,
+    }),
+  );
+
   let caseRoutes: MetadataRoute.Sitemap = [];
   try {
     const cases = await listOpenCases();
@@ -56,6 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     caseRoutes = [];
   }
 
-  return [...staticRoutes, ...caseRoutes];
+  return [...staticRoutes, ...modelCaseRoutes, ...caseRoutes];
 }
 

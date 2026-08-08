@@ -223,16 +223,13 @@ export default function EnglishHomePage() {
             Japan remains one of the strongest markets for overseas brands that
             arrive with clear terms and the right local partners.
           </p>
-          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-8 grid list-none gap-3 sm:grid-cols-2">
             {whyJapan.map((item) => (
               <li
                 key={item}
-                className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
+                className="rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
-                <span className="mt-0.5 text-teal" aria-hidden>
-                  -
-                </span>
-                <span>{item}</span>
+                {item}
               </li>
             ))}
           </ul>
@@ -307,16 +304,13 @@ export default function EnglishHomePage() {
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
             Why Manufacturers Join
           </h2>
-          <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+          <ul className="mt-8 grid list-none gap-3 sm:grid-cols-2">
             {whyJoin.map((item) => (
               <li
                 key={item}
-                className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
+                className="rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
-                <span className="mt-0.5 text-teal" aria-hidden>
-                  -
-                </span>
-                <span>{item}</span>
+                {item}
               </li>
             ))}
           </ul>
@@ -341,7 +335,7 @@ export default function EnglishHomePage() {
                 className="flex gap-3 text-sm leading-relaxed text-white/85 md:text-base"
               >
                 <span className="mt-0.5 text-teal" aria-hidden>
-                  ✓
+                  {"\u2713"}
                 </span>
                 <span>{item}</span>
               </li>
@@ -387,11 +381,11 @@ export default function EnglishHomePage() {
                 Free
               </p>
               <ul className="mt-6 space-y-3 text-sm text-navy">
-                <li>✓ Free product listings</li>
-                <li>✓ Unlimited product listings</li>
-                <li>✓ No monthly subscription fee</li>
-                <li>✓ No listing fee</li>
-                <li>✓ 0% transaction fee during the beta period</li>
+                <li>{"\u2713"} Free product listings</li>
+                <li>{"\u2713"} Unlimited product listings</li>
+                <li>{"\u2713"} No monthly subscription fee</li>
+                <li>{"\u2713"} No listing fee</li>
+                <li>{"\u2713"} 0% transaction fee during the beta period</li>
               </ul>
             </div>
 
@@ -406,8 +400,8 @@ export default function EnglishHomePage() {
                 of the initial transaction value
               </p>
               <ul className="mt-6 space-y-3 text-sm text-navy">
-                <li>✓ Paid by the product provider</li>
-                <li>✓ No transaction fee for Japanese sales partners</li>
+                <li>{"\u2713"} Paid by the product provider</li>
+                <li>{"\u2713"} No transaction fee for Japanese sales partners</li>
               </ul>
               <p className="mt-6 text-xs leading-relaxed text-muted">
                 The official launch date will be announced separately in

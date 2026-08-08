@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 
 import { CaseList, type CaseListItem } from "@/components/cases/CaseList";
@@ -18,6 +18,7 @@ function toListItem(
     makerName: item.makerName,
     category: item.category,
     targetCountry: item.targetCountry,
+shipFrom: item.shipFrom ?? null,
     salesFormat: item.salesFormat,
     isExclusive: item.isExclusive,
     productImageUrl: item.productImageUrl,
@@ -31,9 +32,8 @@ function toListItem(
 }
 
 export const metadata: Metadata = {
-  title: "商品一覧",
-  description:
-    "BrandBridgeに掲載中の商品一覧です。",
+  title: "蝠・刀荳隕ｧ",
+  description: "BrandBridgeに掲載中の商品一覧です。",
 };
 
 export const dynamic = "force-dynamic";
@@ -50,11 +50,11 @@ export default async function CasesPage() {
 
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          商品一覧
+          蝠・刀荳隕ｧ
         </h1>
 
         <p className="mt-3 text-muted">
-          商品を比較して候補を探せます。
+          蝠・刀繧呈ｯ碑ｼ・＠縺ｦ蛟呵｣懊ｒ謗｢縺帙∪縺吶・
         </p>
       </header>
 
@@ -67,3 +67,6 @@ export default async function CasesPage() {
     </div>
   );
 }
+
+
+

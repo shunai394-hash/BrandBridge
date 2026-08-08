@@ -16,7 +16,6 @@ import {
 import {
   caseCategories,
   salesFormatLabel,
-  targetCountryLabel,
   type Case,
   type CaseStatus,
   type ExclusiveFilter,
@@ -36,6 +35,7 @@ export type CaseListItem = {
   makerName: string;
   category: string;
   targetCountry: TargetCountry;
+  shipFrom: string | null;
   salesFormat: SalesFormat;
   isExclusive: boolean;
   productImageUrl: string | null;
@@ -95,6 +95,7 @@ type DisplayRow = {
   makerName: string;
   category: string;
   targetCountry: TargetCountry;
+  shipFrom: string | null;
   salesFormat: SalesFormat;
   isExclusive: boolean;
   productImageUrl: string | null;
@@ -114,6 +115,7 @@ function toDisplayRow(item: Case | CaseListItem): DisplayRow {
     makerName: item.makerName,
     category: item.category,
     targetCountry: item.targetCountry,
+    shipFrom: item.shipFrom ?? null,
     salesFormat: item.salesFormat,
     isExclusive: item.isExclusive,
     productImageUrl: item.productImageUrl ?? null,
@@ -356,7 +358,7 @@ export function CaseList({
                   カテゴリ
                 </th>
                 <th className="w-24 px-3 py-3 font-medium" scope="col">
-                  原産国
+                  原産国・出荷元
                 </th>
                 <th className="w-24 px-3 py-3 font-medium" scope="col">
                   販売形式
@@ -421,7 +423,7 @@ export function CaseList({
                     </td>
                     <td className="px-3 py-3">{item.category}</td>
                     <td className="px-3 py-3">
-                      {targetCountryLabel(item.targetCountry)}
+                      {item.shipFrom?.trim() || "—"}
                     </td>
                     <td className="px-3 py-3">
                       {salesFormatLabel(item.salesFormat)}
@@ -480,3 +482,7 @@ export function CaseList({
 }
 
 export { CaseList as ProductList };
+
+
+
+

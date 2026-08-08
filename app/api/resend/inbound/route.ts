@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { ingestInboundProspectReply } from "@/lib/admin-outbound-mail";
 import { createResendClient } from "@/lib/outbound-mail";
 
@@ -90,3 +90,4 @@ export async function POST(request: Request) {
     outboundEmailId: result.outboundEmailId ?? null,
   });
 }
+

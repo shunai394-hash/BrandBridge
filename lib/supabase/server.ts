@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+﻿import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { AUTH_COOKIE_OPTIONS } from "@/lib/supabase/cookie-options";
 
@@ -27,3 +27,4 @@ export async function createClient() {
     },
   );
 }
+

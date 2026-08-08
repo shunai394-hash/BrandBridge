@@ -1,4 +1,4 @@
-import type { CaseCreateInput, SalesFormat, TargetCountry } from "@/lib/types";
+﻿import type { CaseCreateInput, SalesFormat, TargetCountry } from "@/lib/types";
 import { salesFormatOptions, targetCountryOptions } from "@/lib/types";
 import {
   normalizeExclusiveDealOption,
@@ -270,3 +270,4 @@ export function formatSupabaseError(
   ].filter(Boolean);
   return parts.join(" / ");
 }
+

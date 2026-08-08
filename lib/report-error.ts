@@ -1,4 +1,4 @@
-type AppError = Error & {
+﻿type AppError = Error & {
   digest?: string;
   cause?: unknown;
 };
@@ -61,3 +61,4 @@ export function reportBoundaryError(
 
   return diagnostics;
 }
+

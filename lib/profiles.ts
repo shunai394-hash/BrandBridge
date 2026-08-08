@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type {
   Profile,
   ProfileUpdateInput,
@@ -102,3 +102,4 @@ export async function updateProfile(
 
   return {};
 }
+

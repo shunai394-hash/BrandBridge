@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   adminDashboardSections,
   type AdminDashboardMetricValue,
@@ -75,3 +75,4 @@ export function AdminDashboard({ stats }: AdminDashboardProps) {
     </div>
   );
 }
+

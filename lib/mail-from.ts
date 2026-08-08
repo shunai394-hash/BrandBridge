@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Configurable BrandBridge outbound From address.
  * Set MAIL_FROM_NAME + MAIL_FROM_ADDRESS for production (e.g. sales@brandbridge.jp).
  * Falls back to Resend onboarding address for local/dev.
@@ -17,3 +17,4 @@ export function getMailFrom(): {
     formatted: `${name} <${address}>`,
   };
 }
+

@@ -1,4 +1,4 @@
-import type { ApplicationStatus, PipelineStatus, UserRole } from "@/lib/types";
+﻿import type { ApplicationStatus, PipelineStatus, UserRole } from "@/lib/types";
 
 export type NegotiationUiLocale = "ja" | "en";
 
@@ -219,3 +219,4 @@ export function toEnglishActionError(message: string): string {
   }
   return message;
 }
+

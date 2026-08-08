@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -253,3 +253,4 @@ export function MessageForm({
     </form>
   );
 }
+

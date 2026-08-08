@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site";
 
@@ -51,3 +51,4 @@ export default function CompanyPage() {
     </article>
   );
 }
+

@@ -1,4 +1,4 @@
-import type { SessionUser } from "@/lib/types";
+﻿import type { SessionUser } from "@/lib/types";
 
 /**
  * Company name on product detail is hidden by default.
@@ -12,3 +12,4 @@ export function canViewMakerCompanyName(
   if (user?.role === "partner") return true;
   return false;
 }
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
   getSalesMailboxInfo,
   listEmailThreadSummaries,
   listInboundEmails,
@@ -25,3 +25,4 @@ export async function loadMailShellCounts() {
     threads,
   };
 }
+

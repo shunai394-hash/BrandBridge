@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+﻿import { Resend } from "resend";
 import type { ContactCategory } from "@/lib/contact-types";
 import { contactCategoryOptions } from "@/lib/contact-types";
 
@@ -220,3 +220,4 @@ export async function sendCompanyOutreachEmail(
     return { ok: false, error: message };
   }
 }
+

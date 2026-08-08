@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { getSessionUser } from "@/lib/auth";
 import type { ContactInput } from "@/lib/contact-types";
 import { sendContactEmail } from "@/lib/sendContactEmail";
@@ -57,3 +57,4 @@ export async function createContactInquiry(
 
   return {};
 }
+

@@ -1,4 +1,4 @@
-import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display";
+﻿import { PRICE_BAND_QUOTE_REQUIRED, displayPriceBand } from "@/lib/price-display";
 
 /**
  * Approximate FX for dual-currency wholesale display.
@@ -234,3 +234,4 @@ export function resolveWholesalePriceDisplay(
     secondary: formatUsdApprox(yen),
   };
 }
+

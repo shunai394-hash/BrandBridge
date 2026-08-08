@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth";
@@ -517,3 +517,4 @@ export async function clearCaseProductImageAction(
   revalidateCaseImagePaths(caseId);
   return { ok: true, url: null, steps, logs: logger.logs };
 }
+

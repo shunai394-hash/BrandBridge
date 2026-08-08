@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useId, useState, type InputHTMLAttributes } from "react";
 
@@ -91,3 +91,4 @@ export function PasswordInput({
     </label>
   );
 }
+

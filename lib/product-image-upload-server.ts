@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 
 const BUCKET = "product-images";
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -143,3 +143,4 @@ export async function uploadProductImageOnServer(
     userId: user.id,
   };
 }
+

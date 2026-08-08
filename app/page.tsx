@@ -1,4 +1,4 @@
-import { CaseCard } from "@/components/cases/CaseCard";
+﻿import { CaseCard } from "@/components/cases/CaseCard";
 import { Button } from "@/components/ui/Button";
 import { getLatestCases, getPopularCases } from "@/lib/cases";
 import { caseCategories } from "@/lib/types";
@@ -654,3 +654,4 @@ export default async function HomePage() {
     </>
   );
 }
+

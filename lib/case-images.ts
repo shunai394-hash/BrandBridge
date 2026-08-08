@@ -1,4 +1,4 @@
-import { MAX_CASE_IMAGES } from "@/lib/case-image-constants";
+﻿import { MAX_CASE_IMAGES } from "@/lib/case-image-constants";
 import { createClient } from "@/lib/supabase/server";
 import type { CaseImage } from "@/lib/types";
 
@@ -146,3 +146,4 @@ export async function reorderCaseImages(input: {
 
   return {};
 }
+

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { AdminMailShell } from "@/components/admin/AdminMailShell";
 import { AdminOutboundMailComposeForm } from "@/components/admin/AdminOutboundMailComposeForm";
@@ -30,3 +30,4 @@ export default async function AdminMailComposePage() {
     </AdminMailShell>
   );
 }
+

@@ -1,4 +1,4 @@
-import { AdminDashboard } from "@/components/admin/AdminDashboard";
+﻿import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import type { AdminDashboardStats } from "@/lib/admin-dashboard";
 
 type AdminOpsDashboardViewProps = {
@@ -23,3 +23,4 @@ export function AdminOpsDashboardView({ stats }: AdminOpsDashboardViewProps) {
     </div>
   );
 }
+

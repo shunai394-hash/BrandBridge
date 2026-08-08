@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { HowToSellInJapan } from "@/components/guides/HowToSellInJapan";
 
 export const metadata: Metadata = {
@@ -10,3 +10,4 @@ export const metadata: Metadata = {
 export default function EnglishHowToSellInJapanPage() {
   return <HowToSellInJapan locale="en" />;
 }
+

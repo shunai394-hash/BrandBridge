@@ -1,4 +1,4 @@
-/** Marker embedded in inquiry message body (no DB column). */
+﻿/** Marker embedded in inquiry message body (no DB column). */
 export const ENGLISH_INQUIRY_MARKER = "[lang:en]";
 
 /** Same marker embedded in English-registered case description/offer (no DB column). */
@@ -74,3 +74,4 @@ export function extractInquiryProductName(message: string): string | null {
   }
   return null;
 }
+

@@ -1,4 +1,4 @@
-export const siteConfig = {
+﻿export const siteConfig = {
   name: "BrandBridge",
   shortName: "BrandBridge",
   tagline: "日本進出したい海外ブランドと売れる販売パートナーをつなぐ",
@@ -34,3 +34,4 @@ export function getSiteUrl(): string {
     return "http://localhost:3000";
   }
 }
+

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { LoginForm } from "@/components/forms/LoginForm";
 
 export const metadata: Metadata = {
@@ -96,3 +96,4 @@ export default async function EnglishLoginPage({ searchParams }: LoginPageProps)
     </div>
   );
 }
+

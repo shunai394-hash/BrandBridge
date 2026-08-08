@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
 import { siteConfig } from "@/lib/site";
 
@@ -118,3 +118,4 @@ export default function TermsPage() {
     </LegalPage>
   );
 }
+

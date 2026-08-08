@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
@@ -267,3 +267,4 @@ export function ProductImageField({
     </div>
   );
 }
+

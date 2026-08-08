@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { AdminUserList } from "@/components/admin/AdminUserList";
 import { requireAdmin } from "@/lib/auth";
 import { listAdminUsers } from "@/lib/admin";
@@ -25,3 +25,4 @@ export default async function AdminUsersPage() {
     </div>
   );
 }
+

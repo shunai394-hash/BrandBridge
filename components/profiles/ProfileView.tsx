@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { TrustInfoList } from "@/components/profiles/TrustInfoList";
 import { Button } from "@/components/ui/Button";
 import type { Case, PublicProfile } from "@/lib/types";
@@ -171,3 +171,4 @@ export function ProfileView({ profile, openCases, isOwner }: ProfileViewProps) {
     </article>
   );
 }
+

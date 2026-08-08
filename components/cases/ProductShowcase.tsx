@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { ReactNode } from "react";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
@@ -384,3 +384,4 @@ export function ProductShowcase({ caseItem, locale }: ProductShowcaseProps) {
     </article>
   );
 }
+

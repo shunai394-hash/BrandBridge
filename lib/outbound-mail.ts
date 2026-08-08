@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+﻿import { Resend } from "resend";
 import { getMailFrom } from "@/lib/mail-from";
 
 function requireResendApiKey():
@@ -132,3 +132,4 @@ export function createResendClient(): Resend | null {
   if (!key) return null;
   return new Resend(key);
 }
+

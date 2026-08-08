@@ -1,4 +1,4 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 import { listOpenCases } from "@/lib/cases";
 import { getSiteUrl } from "@/lib/site";
 
@@ -58,3 +58,4 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes, ...caseRoutes];
 }
+

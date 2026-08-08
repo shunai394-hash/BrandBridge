@@ -244,3 +244,4 @@ export async function generateContractPdf(
 
   return await pdfDoc.save();
 }
+

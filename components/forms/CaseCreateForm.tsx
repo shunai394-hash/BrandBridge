@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState, type ReactNode } from "react";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -393,3 +393,4 @@ export function CaseCreateForm() {
 
 /** Alias for newer imports */
 export { CaseCreateForm as ProductCreateForm };
+

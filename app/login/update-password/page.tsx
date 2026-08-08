@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { UpdatePasswordForm } from "@/components/forms/UpdatePasswordForm";
 
 export const metadata: Metadata = {
@@ -21,3 +21,4 @@ export default function UpdatePasswordPage() {
     </div>
   );
 }
+

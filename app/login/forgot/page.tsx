@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/components/forms/ForgotPasswordForm";
 
 export const metadata: Metadata = {
@@ -41,3 +41,4 @@ export default async function ForgotPasswordPage({
     </div>
   );
 }
+

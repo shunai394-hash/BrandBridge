@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { siteConfig } from "@/lib/site";
@@ -77,3 +77,4 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
     </div>
   );
 }
+

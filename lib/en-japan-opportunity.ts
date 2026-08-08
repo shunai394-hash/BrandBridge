@@ -1,4 +1,4 @@
-import { formatMoqEn } from "@/lib/en-listing-display";
+﻿import { formatMoqEn } from "@/lib/en-listing-display";
 import type { SalesFormat, TargetCountry } from "@/lib/types";
 
 /**
@@ -132,3 +132,4 @@ export function targetChannelsLabel(input: {
 export function opportunityMoqLabel(minOrder: string | null | undefined): string {
   return formatMoqEn(minOrder);
 }
+

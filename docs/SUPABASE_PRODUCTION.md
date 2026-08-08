@@ -1,4 +1,4 @@
-# 本番 Supabase 設定確認
+﻿# 本番 Supabase 設定確認
 
 ベータ／本番で第三者が使う前に、Supabase プロジェクト側で確認する項目です。
 
@@ -122,3 +122,4 @@ where email like '%@demo.brandbridge.app';
 | 手数料率 | `/admin/negotiations` または `commission_settings` |
 
 設定が終わったら [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) へ進んでください。
+

@@ -1,4 +1,4 @@
-import {
+﻿import {
   isForeignCurrencyPriceBand,
   parseYenPriceBand,
 } from "@/lib/wholesale-price-display";
@@ -189,3 +189,4 @@ export function formatMoqEn(value: string | null | undefined): string {
     .replace(/\+\+/g, "+")
     .trim();
 }
+

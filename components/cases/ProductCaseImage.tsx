@@ -1,4 +1,4 @@
-export const PRODUCT_IMAGE_PLACEHOLDER = "/product-placeholder.svg";
+﻿export const PRODUCT_IMAGE_PLACEHOLDER = "/product-placeholder.svg";
 
 type ProductCaseImageProps = {
   src?: string | null;
@@ -94,3 +94,4 @@ export function ProductCaseImage({
     </span>
   );
 }
+

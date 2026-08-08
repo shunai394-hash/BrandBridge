@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import type { CaseImage } from "@/lib/types";
@@ -104,3 +104,4 @@ export function CaseImageGallery({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
 type EmptyCasesStateProps = {
@@ -67,3 +67,4 @@ export function EmptyCasesState({ variant }: EmptyCasesStateProps) {
     </div>
   );
 }
+

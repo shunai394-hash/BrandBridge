@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Display-only role / audience labels.
  * Do NOT change profiles.role values ("maker" | "partner" | "admin").
  *
@@ -31,3 +31,4 @@ export function roleDisplayLabel(
   if (role === "admin") return "管理者";
   return role;
 }
+

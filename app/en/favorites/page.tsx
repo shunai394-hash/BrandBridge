@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
@@ -128,3 +128,4 @@ export default async function EnglishFavoritesPage() {
     </div>
   );
 }
+

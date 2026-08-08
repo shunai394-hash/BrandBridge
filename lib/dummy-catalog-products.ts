@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Fictional demo catalog products (no real brands).
  * JA copy lives in DB; EN overlay uses lib/en-case-catalog.ts.
  */
@@ -431,3 +431,4 @@ export async function listDummyCatalogCases(): Promise<Case[]> {
   );
   return rows.filter((c): c is Case => Boolean(c));
 }
+

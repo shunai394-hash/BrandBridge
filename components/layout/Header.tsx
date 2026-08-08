@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+﻿import { headers } from "next/headers";
 import { HeaderNav } from "@/components/layout/HeaderNav";
 import { getSessionUser } from "@/lib/auth";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
@@ -46,3 +46,4 @@ export async function Header() {
     />
   );
 }
+

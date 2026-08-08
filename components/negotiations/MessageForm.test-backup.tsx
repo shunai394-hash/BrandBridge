@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -167,3 +167,4 @@ export function MessageForm({ negotiationId }: MessageFormProps) {
     </form>
   );
 }
+

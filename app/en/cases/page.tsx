@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import {
@@ -149,3 +149,4 @@ export default async function EnglishCasesPage({
     </div>
   );
 }
+

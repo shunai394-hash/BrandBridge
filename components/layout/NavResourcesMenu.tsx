@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
@@ -100,3 +100,4 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
     </div>
   );
 }
+

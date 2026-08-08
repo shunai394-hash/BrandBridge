@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createClient } from "@/lib/supabase/client";
 
@@ -111,3 +111,4 @@ export async function uploadProductImageFile(
   console.info("[uploadProductImageFile] ok", { path, url });
   return { ok: true, url, path };
 }
+

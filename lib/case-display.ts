@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Display helpers for case list tables (partner / maker / admin).
  */
 
@@ -40,3 +40,4 @@ export function caseNumberClassName() {
 export function caseNumberHeaderClassName() {
   return "sticky left-0 z-20 border-r border-border bg-cream/50 px-4 py-3 font-medium";
 }
+

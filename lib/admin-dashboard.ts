@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { getDealStats } from "@/lib/deals";
 
 
@@ -277,3 +277,4 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     },
   };
 }
+

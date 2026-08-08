@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { DummyCatalogShowcase } from "@/components/cases/DummyCatalogShowcase";
 import { ProductShowcase } from "@/components/cases/ProductShowcase";
 import { getJapaneseProductShowcaseSample } from "@/lib/product-showcase-sample";
@@ -21,3 +21,4 @@ export default function JapaneseProductShowcasePage() {
     </div>
   );
 }
+

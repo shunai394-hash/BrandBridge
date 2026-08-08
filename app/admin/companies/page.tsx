@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { AdminCompanyList } from "@/components/admin/AdminCompanyList";
 import { listAdminCompanies } from "@/lib/admin-companies";
@@ -36,3 +36,4 @@ export default async function AdminCompaniesPage() {
     </div>
   );
 }
+

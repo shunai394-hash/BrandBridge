@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import {
   exclusiveFilterOptions,
@@ -160,3 +160,4 @@ export function CaseFilter({
     </div>
   );
 }
+

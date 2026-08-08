@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { sendCompanyOutreachEmail } from "@/lib/sendContactEmail";
 import type { UserRole } from "@/lib/types";
 
@@ -249,3 +249,4 @@ export async function sendCompanyEmail(input: {
 
   return {};
 }
+

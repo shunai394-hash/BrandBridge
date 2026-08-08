@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+﻿import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 export type MemberRoleKpi = {
@@ -127,3 +127,4 @@ export async function getAdminMemberStats(): Promise<AdminMemberStats> {
   ]);
   return { makers, partners };
 }
+

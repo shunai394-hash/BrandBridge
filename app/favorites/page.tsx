@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CaseCard } from "@/components/cases/CaseCard";
 import { getSessionUser } from "@/lib/auth";
@@ -42,3 +42,4 @@ export default async function FavoritesPage() {
     </div>
   );
 }
+

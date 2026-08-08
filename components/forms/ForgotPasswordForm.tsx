@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
@@ -93,3 +93,4 @@ export function ForgotPasswordForm() {
     </form>
   );
 }
+

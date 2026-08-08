@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { displayMoq, displayPriceBand } from "@/lib/price-display";
 import type { Case } from "@/lib/types";
@@ -85,3 +85,4 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
     </article>
   );
 }
+

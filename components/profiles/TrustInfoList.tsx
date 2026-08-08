@@ -1,4 +1,4 @@
-import type { PublicProfile } from "@/lib/types";
+﻿import type { PublicProfile } from "@/lib/types";
 
 const employeeLabels: Record<string, string> = {
   "1-10": "1〜10名",
@@ -65,3 +65,4 @@ export function TrustInfoList({ profile }: TrustInfoListProps) {
     </dl>
   );
 }
+

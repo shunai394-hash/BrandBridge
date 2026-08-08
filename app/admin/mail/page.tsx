@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 import { AdminMailInboxList } from "@/components/admin/AdminMailInboxList";
@@ -93,3 +93,4 @@ export default async function AdminMailInboxPage({ searchParams }: PageProps) {
     </AdminMailShell>
   );
 }
+

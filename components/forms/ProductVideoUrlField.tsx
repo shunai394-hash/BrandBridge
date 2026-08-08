@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/Input";
+﻿import { Input } from "@/components/ui/Input";
 
 type ProductVideoUrlFieldProps = {
   value: string;
@@ -45,3 +45,4 @@ export function ProductVideoUrlField({
     </div>
   );
 }
+

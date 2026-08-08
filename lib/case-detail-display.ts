@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Product detail enrichment: enums, labels, empty-safe display helpers.
  * Does not change TOP / list / header copy.
  */
@@ -78,3 +78,4 @@ export function normalizeExclusiveDealOption(value: unknown): string {
   }
   return "";
 }
+

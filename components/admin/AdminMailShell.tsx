@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { ReactNode } from "react";
 
 export type MailTab = "inbox" | "sent" | "threads" | "compose";
@@ -114,3 +114,4 @@ export function formatMailDate(iso: string): string {
     return iso;
   }
 }
+

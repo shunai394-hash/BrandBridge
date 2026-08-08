@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Reference wholesale price band + availability helpers for partner-facing UI.
  */
 
@@ -134,3 +134,4 @@ export function matchesMoqFilter(
   if (filter === "500以上") return n != null && n >= 500;
   return true;
 }
+

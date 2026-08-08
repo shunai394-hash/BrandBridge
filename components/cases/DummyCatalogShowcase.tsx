@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { CaseCard } from "@/components/cases/CaseCard";
 import { EnCaseCard } from "@/components/cases/EnCaseCard";
 import { listDummyCatalogCases } from "@/lib/dummy-catalog-products";
@@ -63,3 +63,4 @@ export async function DummyCatalogShowcase({
     </section>
   );
 }
+

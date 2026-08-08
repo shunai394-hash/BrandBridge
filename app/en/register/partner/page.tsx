@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 
@@ -51,3 +51,4 @@ export default function EnglishPartnerRegisterPage() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { ImageResponse } from "next/og";
+﻿import { ImageResponse } from "next/og";
 
 export const alt =
   "BrandBridge — 日本進出したい海外ブランドと売れる販売パートナーをつなぐ";
@@ -69,3 +69,4 @@ export default function OpenGraphImage() {
     { ...size },
   );
 }
+

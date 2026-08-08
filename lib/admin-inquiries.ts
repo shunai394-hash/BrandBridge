@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type { ContactCategory } from "@/lib/contact-types";
 import { contactCategoryOptions } from "@/lib/contact-types";
 import { sendInquiryReplyEmail } from "@/lib/sendContactEmail";
@@ -231,3 +231,4 @@ export async function replyToInquiry(input: {
 
   return {};
 }
+

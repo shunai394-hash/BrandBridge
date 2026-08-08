@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 
 type LegalPageProps = {
   title: string;
@@ -21,3 +21,4 @@ export function LegalPage({ title, updatedAt, children }: LegalPageProps) {
     </article>
   );
 }
+

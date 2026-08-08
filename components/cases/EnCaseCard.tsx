@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import {
@@ -122,3 +122,4 @@ export function EnCaseCard({ caseItem, index = 0 }: EnCaseCardProps) {
     </article>
   );
 }
+

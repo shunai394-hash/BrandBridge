@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createClient } from "@/lib/supabase/client";
 import { NEGOTIATION_ATTACHMENTS_BUCKET } from "@/lib/negotiation-attachments";
@@ -96,3 +96,4 @@ export async function uploadNegotiationAttachment(
     size: file.size,
   };
 }
+

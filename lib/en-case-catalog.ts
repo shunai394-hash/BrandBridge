@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Temporary English catalog copy for /en/cases (no DB columns).
  * Lookup order: case id → SKU → exact Japanese product name.
  */
@@ -658,3 +658,4 @@ export function resolveEnCatalogDisplay(input: {
 
   return { productName, summary, description, features, category };
 }
+

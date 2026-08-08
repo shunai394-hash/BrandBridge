@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { parseProductVideoUrl } from "@/lib/product-video";
@@ -178,3 +178,4 @@ export function ProductVideo({
     </section>
   );
 }
+

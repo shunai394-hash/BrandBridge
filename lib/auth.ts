@@ -206,3 +206,4 @@ export async function requireActiveUser(): Promise<SessionUser> {
   assertActive(session);
   return session;
 }
+

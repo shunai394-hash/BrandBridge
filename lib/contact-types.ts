@@ -1,4 +1,4 @@
-export type ContactCategory =
+﻿export type ContactCategory =
   | "general"
   | "maker"
   | "partner"
@@ -25,3 +25,4 @@ export const contactCategoryOptions: {
   { value: "bug", label: "不具合の報告" },
   { value: "other", label: "その他" },
 ];
+

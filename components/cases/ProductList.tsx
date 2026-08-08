@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 export {
   CaseList as ProductList,
@@ -6,3 +6,4 @@ export {
   type CaseListItem,
   CASE_LIST_VERSION,
 } from "@/components/cases/CaseList";
+

@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type { Case } from "@/lib/types";
 import type { CaseRow, SalesFormat, TargetCountry } from "@/lib/types";
 
@@ -150,3 +150,4 @@ export async function listFavoriteCases(userId: string): Promise<Case[]> {
     .filter((c) => c.status === "open" && c.review_status === "approved")
     .map(mapFavoriteCase);
 }
+

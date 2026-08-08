@@ -1,4 +1,4 @@
-import type { ApplicationStatus, PipelineStatus } from "@/lib/types";
+﻿import type { ApplicationStatus, PipelineStatus } from "@/lib/types";
 import {
   applicationStatusLabels,
   pipelineStatusLabels,
@@ -67,3 +67,4 @@ export function PipelineStatusBadge({
     </span>
   );
 }
+

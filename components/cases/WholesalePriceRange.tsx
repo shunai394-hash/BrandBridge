@@ -1,4 +1,4 @@
-import type { WholesalePriceLocale } from "@/lib/wholesale-price-display";
+﻿import type { WholesalePriceLocale } from "@/lib/wholesale-price-display";
 import { resolveWholesalePriceDisplay } from "@/lib/wholesale-price-display";
 
 type WholesalePriceRangeProps = {
@@ -31,3 +31,4 @@ export function WholesalePriceRange({
     </span>
   );
 }
+

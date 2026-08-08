@@ -18,7 +18,7 @@ function toListItem(
     makerName: item.makerName,
     category: item.category,
     targetCountry: item.targetCountry,
-shipFrom: item.shipFrom ?? null,
+    shipFrom: item.shipFrom ?? null,
     salesFormat: item.salesFormat,
     isExclusive: item.isExclusive,
     productImageUrl: item.productImageUrl,
@@ -32,7 +32,7 @@ shipFrom: item.shipFrom ?? null,
 }
 
 export const metadata: Metadata = {
-  title: "蝠・刀荳隕ｧ",
+  title: "事例一覧",
   description: "BrandBridgeに掲載中の商品一覧です。",
 };
 
@@ -42,31 +42,23 @@ export default async function CasesPage() {
   noStore();
 
   const cases = await listOpenCases();
-
   const listItems = cases.map(toListItem);
 
   return (
-    <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
-
+    <main className="mx-auto max-w-7xl px-4 py-10 md:px-6">
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          蝠・刀荳隕ｧ
+          事例一覧
         </h1>
 
         <p className="mt-3 text-muted">
-          蝠・刀繧呈ｯ碑ｼ・＠縺ｦ蛟呵｣懊ｒ謗｢縺帙∪縺吶・
+          実際の導入事例・成果をご紹介します。
         </p>
       </header>
 
       <PlatformStatsCard stats={await getPlatformStats()} />
 
-      <CaseList
-        items={listItems}
-      />
-
-    </div>
+      <CaseList items={listItems} />
+    </main>
   );
 }
-
-
-

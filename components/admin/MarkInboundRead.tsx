@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef } from "react";
 import { markInboundEmailReadAction } from "@/lib/actions";
@@ -30,3 +30,4 @@ export function MarkInboundRead({
 
   return null;
 }
+

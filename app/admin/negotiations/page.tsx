@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { AdminNegotiationBoard } from "@/components/admin/AdminNegotiationBoard";
 import { listAdminNegotiations } from "@/lib/admin";
 import { getDefaultCommissionRate } from "@/lib/deals";
@@ -42,3 +42,4 @@ export default async function AdminNegotiationsPage({
     </div>
   );
 }
+

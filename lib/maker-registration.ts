@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   CaseCreateInput,
   MakerCaseDraftMeta,
   MakerDealType,
@@ -141,3 +141,4 @@ export function caseInputFromRegistration(
     input.productVideoUrl,
   );
 }
+

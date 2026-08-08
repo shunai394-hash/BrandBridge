@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+﻿import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
 
 type InputProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -48,3 +48,4 @@ export function TextArea({
     </label>
   );
 }
+

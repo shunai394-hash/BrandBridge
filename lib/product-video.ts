@@ -1,4 +1,4 @@
-export type ProductVideoEmbed =
+﻿export type ProductVideoEmbed =
   | { kind: "youtube"; videoId: string; embedUrl: string; watchUrl: string }
   | { kind: "vimeo"; videoId: string; embedUrl: string; watchUrl: string }
   | { kind: "file"; href: string }
@@ -109,3 +109,4 @@ export function parseProductVideoUrl(
 
   return { kind: "link", href: url.toString() };
 }
+

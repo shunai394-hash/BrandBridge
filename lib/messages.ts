@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import type { MessageView } from "@/lib/types";
 import { NEGOTIATION_ATTACHMENTS_BUCKET } from "@/lib/negotiation-attachments";
 
@@ -163,3 +163,4 @@ export async function sendMessage(input: {
 
   return { id: data.id as string };
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -440,3 +440,4 @@ export function PartnerSetupForm({ email, userId }: PartnerSetupFormProps) {
     </div>
   );
 }
+

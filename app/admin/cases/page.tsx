@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AdminCaseList } from "@/components/admin/AdminCaseList";
 import { listAdminCases } from "@/lib/admin";
@@ -69,3 +69,4 @@ export default async function AdminCasesPage({ searchParams }: PageProps) {
     </div>
   );
 }
+

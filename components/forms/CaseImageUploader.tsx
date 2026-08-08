@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -298,3 +298,4 @@ export function CaseImageUploader({
     </section>
   );
 }
+

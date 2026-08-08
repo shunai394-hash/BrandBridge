@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import {
@@ -144,3 +144,4 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
     </html>
   );
 }
+

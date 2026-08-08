@@ -1,4 +1,4 @@
-import type { Case, SessionUser } from "@/lib/types";
+﻿import type { Case, SessionUser } from "@/lib/types";
 
 /** Fields visible only to partners (and owners/admins for management). */
 export const PARTNER_ONLY_PRICING_KEYS = [
@@ -41,3 +41,4 @@ export function applyPricingVisibility(
   if (canViewPartnerPricing(caseItem, user)) return caseItem;
   return redactPartnerPricing(caseItem);
 }
+

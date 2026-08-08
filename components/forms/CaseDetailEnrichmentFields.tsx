@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Input, TextArea } from "@/components/ui/Input";
 import {
@@ -204,3 +204,4 @@ export function CaseDetailEnrichmentFields({ form, update }: Props) {
     </>
   );
 }
+

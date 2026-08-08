@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -78,3 +78,4 @@ export function AdminCaseReviewForm({ caseItem }: AdminCaseReviewFormProps) {
     </form>
   );
 }
+

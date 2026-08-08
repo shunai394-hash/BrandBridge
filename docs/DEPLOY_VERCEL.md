@@ -1,4 +1,4 @@
-# Vercel デプロイ手順
+﻿# Vercel デプロイ手順
 
 BrandBridge（Next.js App Router）を Vercel にデプロイし、第三者がアクセスできるベータ版にする手順です。
 
@@ -99,3 +99,4 @@ Vercel → Deployments → 直前の成功デプロイ → **Promote to Producti
 ---
 
 公開後の管理者作業は [ADMIN_SETUP.md](./ADMIN_SETUP.md) を参照してください。
+

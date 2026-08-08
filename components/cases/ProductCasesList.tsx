@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 /** @deprecated /cases uses CaseList.tsx only. */
 export {
@@ -6,3 +6,4 @@ export {
   CASE_LIST_VERSION as PRODUCT_CASES_LIST_VERSION,
   type CaseListItem as ProductCasesListItem,
 } from "@/components/cases/CaseList";
+

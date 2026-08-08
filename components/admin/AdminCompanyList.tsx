@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   companyRoleLabel,
   type AdminCompany,
@@ -104,3 +104,4 @@ export function AdminCompanyList({ items }: AdminCompanyListProps) {
     </div>
   );
 }
+

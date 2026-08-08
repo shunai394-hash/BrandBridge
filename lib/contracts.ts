@@ -44,3 +44,4 @@ export async function getAdminContract(id?: string) {
   console.log("[ADMIN CONTRACTS DATA]", data);
   return data;
 }
+

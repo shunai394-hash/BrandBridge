@@ -1,4 +1,4 @@
-# 環境変数一覧
+﻿# 環境変数一覧
 
 BrandBridge が参照する環境変数です。**秘密情報はリポジトリにコミットしないでください。**
 
@@ -96,3 +96,4 @@ role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/
 - Confirm email をオフのまま本番運用する（要件: メール認証必須）
 
 詳細手順は [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) / [SUPABASE_PRODUCTION.md](./SUPABASE_PRODUCTION.md) を参照してください。
+

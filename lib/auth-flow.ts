@@ -1,4 +1,4 @@
-import type { UserRole } from "@/lib/types";
+﻿import type { UserRole } from "@/lib/types";
 
 export type IntentRole = "maker" | "partner";
 

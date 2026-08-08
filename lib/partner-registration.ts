@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   PartnerProfileDraftMeta,
   PartnerRegistrationInput,
 } from "@/lib/types";
@@ -48,5 +48,6 @@ export function partnerProfilePayloadFromDraft(draft: PartnerProfileDraftMeta) {
       is_partner: true,
   };
 }
+
 
 

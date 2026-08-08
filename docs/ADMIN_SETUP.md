@@ -1,4 +1,4 @@
-# 管理者初期設定手順
+﻿# 管理者初期設定手順
 
 運営が商品提供企業の商品を審査できる管理者（`admin`）を用意します。
 
@@ -83,3 +83,4 @@ Migration: `014_admin_role_in_handle_new_user.sql`（トリガーで admin metad
 ```sql
 update public.profiles set role = 'maker' where email = 'ex-admin@example.com';
 ```
+

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { negotiationsListPath } from "@/lib/negotiation-paths";
@@ -18,3 +18,4 @@ export default async function NegotiationsPage() {
   }
   redirect(negotiationsListPath(user.role));
 }
+

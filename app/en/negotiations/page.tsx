@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { NegotiationInbox } from "@/components/negotiations/NegotiationInbox";
 import { getSessionUser } from "@/lib/auth";
@@ -54,3 +54,4 @@ export default async function EnglishNegotiationsPage() {
     </div>
   );
 }
+

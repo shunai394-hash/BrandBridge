@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   inquiryCategoryLabel,
   inquiryReplyStatusLabel,
@@ -165,3 +165,4 @@ export function AdminInquiryList({ items }: AdminInquiryListProps) {
     </div>
   );
 }
+

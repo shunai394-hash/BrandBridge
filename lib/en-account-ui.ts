@@ -1,4 +1,4 @@
-/** English UI copy for account pages under /en/* (JP routes unchanged). */
+﻿/** English UI copy for account pages under /en/* (JP routes unchanged). */
 
 import {
   formatMoqEn,
@@ -108,3 +108,4 @@ export const enProfileCopy = {
   publicNote:
     "Your email address is not shown on the public profile.",
 } as const;
+

@@ -1,4 +1,4 @@
-import type { Case, CaseImage } from "@/lib/types";
+﻿import type { Case, CaseImage } from "@/lib/types";
 
 /** Stable example listing id — not a real DB case; showcase pages only. */
 export const PRODUCT_SHOWCASE_ID = "example-listing-aurora-serum";
@@ -155,3 +155,4 @@ export function getJapaneseProductShowcaseSample(): Case {
       "スキンケアに強い専門店・百貨店・ECなど、日本での販売経験があるパートナー",
   });
 }
+

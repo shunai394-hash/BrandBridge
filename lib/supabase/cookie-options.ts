@@ -1,4 +1,4 @@
-import type { CookieOptionsWithName } from "@supabase/ssr";
+﻿import type { CookieOptionsWithName } from "@supabase/ssr";
 
 /**
  * Shared auth cookie options for browser / server / middleware / OAuth callback.
@@ -15,3 +15,4 @@ export const AUTH_COOKIE_OPTIONS: CookieOptionsWithName = {
   // Secure cookies on HTTPS only (localhost HTTP must omit Secure)
   secure: process.env.NODE_ENV === "production",
 };
+

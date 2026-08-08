@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { EnContactForm } from "@/components/contact/EnContactForm";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
@@ -101,3 +101,4 @@ export default async function EnglishContactPage({
     </div>
   );
 }
+

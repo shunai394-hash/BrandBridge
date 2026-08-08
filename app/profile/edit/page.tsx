@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { ProfileEditForm } from "@/components/profiles/ProfileEditForm";
 import { getSessionUser } from "@/lib/auth";
@@ -36,3 +36,4 @@ export default async function ProfileEditPage() {
     </div>
   );
 }
+

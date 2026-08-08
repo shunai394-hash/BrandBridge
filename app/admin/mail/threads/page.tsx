@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { AdminMailShell } from "@/components/admin/AdminMailShell";
 import { AdminMailThreadList } from "@/components/admin/AdminMailThreadList";
@@ -38,3 +38,4 @@ export default async function AdminMailThreadsPage() {
     </AdminMailShell>
   );
 }
+

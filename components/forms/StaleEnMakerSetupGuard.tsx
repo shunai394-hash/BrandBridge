@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -41,3 +41,4 @@ export function StaleEnMakerSetupGuard() {
 
   return null;
 }
+

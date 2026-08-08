@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { Input, TextArea } from "@/components/ui/Input";
@@ -192,3 +192,4 @@ export function CasePricingFields({ form, update }: Props) {
     </div>
   );
 }
+

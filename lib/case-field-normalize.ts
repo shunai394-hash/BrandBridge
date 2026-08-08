@@ -1,4 +1,4 @@
-import type { Case, CaseCreateInput } from "@/lib/types";
+﻿import type { Case, CaseCreateInput } from "@/lib/types";
 import {
   normalizeExclusiveDealOption,
   normalizeTrademarkStatus,
@@ -62,3 +62,4 @@ export function caseToFormInput(caseItem: Case): CaseCreateInput {
 
 /** @deprecated use caseToFormInput — kept for any leftover imports */
 export const caseToEditInput = caseToFormInput;
+

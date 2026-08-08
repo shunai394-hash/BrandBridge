@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { OutboundEmail } from "@/lib/admin-outbound-mail";
 import { formatMailDate } from "@/components/admin/AdminMailShell";
 
@@ -78,3 +78,4 @@ export function AdminOutboundMailList({ items }: AdminOutboundMailListProps) {
     </div>
   );
 }
+

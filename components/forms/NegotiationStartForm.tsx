@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { FormEvent, useId, useRef, useState } from "react";
@@ -378,6 +378,7 @@ export function NegotiationStartForm({
     </section>
   );
 }
+
 
 
 

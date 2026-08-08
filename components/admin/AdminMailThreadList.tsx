@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import type { EmailThreadSummary } from "@/lib/admin-outbound-mail";
 import { formatMailDate } from "@/components/admin/AdminMailShell";
 
@@ -52,3 +52,4 @@ export function AdminMailThreadList({ items }: Props) {
     </div>
   );
 }
+

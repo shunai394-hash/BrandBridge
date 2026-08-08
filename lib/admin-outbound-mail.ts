@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+﻿import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/admin";
 import {
   getReplyToEmail,
@@ -811,3 +811,4 @@ export function getSalesMailboxInfo(): {
     envOk: true,
   };
 }
+

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -19,3 +19,4 @@ export default async function EnglishMakerDashboardRedirect({
     : "";
   redirect(`/en/products${q}`);
 }
+

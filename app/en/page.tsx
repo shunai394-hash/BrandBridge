@@ -14,6 +14,39 @@ export const metadata: Metadata = {
     },
   },
 };
+
+const heroBenefits = [
+  {
+    title: "No Japanese entity required",
+    description:
+      "Enter Japan without opening a local office. Connect with Japanese business partners through BrandBridge.",
+  },
+  {
+    title: "Commercial terms visible upfront",
+    description:
+      "Partners can review MOQ, wholesale pricing, exclusivity, and shipping conditions before contacting brands.",
+  },
+  {
+    title: "Qualified Japanese partners",
+    description:
+      "Connect with distributors, retailers, wholesalers, and e-commerce partners looking for international brands.",
+  },
+] as const;
+
+const trustStrip = [
+  "Business-use marketplace",
+  "Terms visible upfront",
+  "No Japanese office required",
+  "Early-access onboarding support",
+] as const;
+
+const foundingBenefits = [
+  "Priority visibility to Japanese partners",
+  "Hands-on onboarding support",
+  "Early marketplace positioning",
+  "Feedback from Japanese buyers",
+] as const;
+
 const partnerTypes = [
   { title: "Retailers", hint: "Specialty & department retail" },
   { title: "Distributors", hint: "Nationwide channel coverage" },
@@ -38,14 +71,15 @@ const howSteps = [
   },
   {
     step: "02",
-    title: "Qualified Japanese partners discover your products",
+    title:
+      "Qualified Japanese partners browse listings relevant to their channel and category",
     body: "Distributors, retailers, wholesalers, and e-commerce partners browse listings that match their channels.",
     details: null,
   },
   {
     step: "03",
     title: "Negotiate directly",
-    body: "Continue discussions on BrandBridge and decide whether each opportunity is right for your brand.",
+    body: "Discuss fit directly on BrandBridge and decide whether to move forward with each opportunity.",
     details: null,
   },
 ] as const;
@@ -102,24 +136,59 @@ export default function EnglishHomePage() {
             Find Qualified Japanese Distributors for Your Brand
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            Expand your brand into Japan with trusted distributors, retailers,
-            wholesalers, and e-commerce partners.
+            Find qualified Japanese distributors for your brand — with MOQ,
+            wholesale pricing, exclusivity, and shipping terms visible upfront.
+          </p>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70">
+            Qualified partners are reviewed based on business profile, sales
+            channels, category relevance, and partnership intent.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               href="/en/register/maker"
               className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto"
             >
-              List Your Brand
+              Apply for Early Access
             </Button>
             <Button
               href="/en/how-to-sell-in-japan"
               variant="outline"
               className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              Learn How It Works
+              See How BrandBridge Works
             </Button>
           </div>
+
+          <ul className="mt-10 grid gap-3 sm:grid-cols-3 sm:gap-4">
+            {heroBenefits.map((item) => (
+              <li
+                key={item.title}
+                className="rounded-lg border border-white/15 bg-white/5 px-4 py-5 backdrop-blur-[2px]"
+              >
+                <h2 className="text-sm font-semibold text-white md:text-base">
+                  {item.title}
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">
+                  {item.description}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="border-b border-border bg-white">
+        <div className="mx-auto max-w-6xl px-5 py-5 md:py-6">
+          <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:gap-x-8">
+            {trustStrip.map((item) => (
+              <li
+                key={item}
+                className="text-xs font-medium tracking-wide text-navy/80 md:text-sm"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -161,7 +230,7 @@ export default function EnglishHomePage() {
                 className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
                 <span className="mt-0.5 text-teal" aria-hidden>
-                  窶｢
+                  -
                 </span>
                 <span>{item}</span>
               </li>
@@ -217,8 +286,8 @@ export default function EnglishHomePage() {
             Not Just an Introduction
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Unlike traditional directories, BrandBridge lets Japanese partners
-            review the commercial terms they need before contacting you.
+            Unlike a generic directory, BrandBridge helps Japanese partners
+            review your trade terms before they reach out.
           </p>
           <ul className="mt-8 flex flex-wrap gap-2">
             {termPillars.map((item) => (
@@ -245,7 +314,7 @@ export default function EnglishHomePage() {
                 className="flex gap-3 rounded-lg border border-border bg-white px-4 py-4 text-sm text-navy"
               >
                 <span className="mt-0.5 text-teal" aria-hidden>
-                  窶｢
+                  -
                 </span>
                 <span>{item}</span>
               </li>
@@ -263,15 +332,34 @@ export default function EnglishHomePage() {
             Founding Manufacturer Program
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 md:text-base">
-            We are currently onboarding our first international brands for
-            Japan.
+            Early brands receive:
           </p>
-          <div className="mt-8">
+          <ul className="mt-6 max-w-xl space-y-3">
+            {foundingBenefits.map((item) => (
+              <li
+                key={item}
+                className="flex gap-3 text-sm leading-relaxed text-white/85 md:text-base"
+              >
+                <span className="mt-0.5 text-teal" aria-hidden>
+                  ✓
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               href="/en/register/maker"
               className="w-full px-6 py-3.5 text-base sm:w-auto"
             >
-              List Your Brand
+              Apply for Early Access
+            </Button>
+            <Button
+              href="/en/how-to-sell-in-japan"
+              variant="outline"
+              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
+            >
+              See How BrandBridge Works
             </Button>
           </div>
         </div>
@@ -286,7 +374,8 @@ export default function EnglishHomePage() {
             Simple, Transparent Pricing
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Start listing your products with no upfront cost during the current beta period.
+            Start listing your products with no upfront cost during the current
+            beta period.
           </p>
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -321,17 +410,15 @@ export default function EnglishHomePage() {
                 <li>✓ No transaction fee for Japanese sales partners</li>
               </ul>
               <p className="mt-6 text-xs leading-relaxed text-muted">
-                The official launch date will be announced separately in advance.
+                The official launch date will be announced separately in
+                advance.
               </p>
             </div>
           </div>
 
           <div className="mt-8 text-center">
-            <Button
-              href="/en/register/maker"
-              className="px-6 py-3.5 text-base"
-            >
-              List Your Products for Free
+            <Button href="/en/register/maker" className="px-6 py-3.5 text-base">
+              Apply for Early Access
             </Button>
           </div>
         </div>
@@ -385,11 +472,12 @@ export default function EnglishHomePage() {
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
                     What Japanese partners look for when evaluating overseas
-                    brands窶蚤cross categories.
+                    brands—across categories.
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide 竊・                </span>
+                  View guide →
+                </span>
               </Link>
             </li>
             <li>
@@ -407,7 +495,8 @@ export default function EnglishHomePage() {
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide 竊・                </span>
+                  View guide →
+                </span>
               </Link>
             </li>
           </ul>
@@ -428,22 +517,22 @@ export default function EnglishHomePage() {
             Start selling in Japan
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
-            List your brand for qualified Japanese partners窶俳r learn the full
-            market-entry flow first.
+            Apply for early access to list your brand for qualified Japanese
+            partners—or see how BrandBridge works first.
           </p>
           <div className="mx-auto mt-8 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
             <Button
               href="/en/register/maker"
               className="w-full py-3.5 text-base sm:w-auto sm:min-w-[180px]"
             >
-              List Your Brand
+              Apply for Early Access
             </Button>
             <Button
               href="/en/how-to-sell-in-japan"
               variant="outline"
               className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[180px]"
             >
-              Learn How It Works
+              See How BrandBridge Works
             </Button>
           </div>
           <p className="mt-6 text-sm text-white/65">
@@ -456,7 +545,3 @@ export default function EnglishHomePage() {
     </div>
   );
 }
-
-
-
-

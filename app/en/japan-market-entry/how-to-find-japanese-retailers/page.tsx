@@ -6,7 +6,7 @@ import { getSiteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "How to Find Japanese Retailers for Your Brand",
   description:
-    "A practical guide for overseas brands on how to identify, evaluate, and approach Japanese retailers—including specialty stores, department stores, and ecommerce channels.",
+    "A practical guide for overseas brands on how to identify, evaluate, and approach Japanese retailers, including specialty stores, department stores, and ecommerce channels.",
   alternates: {
     canonical: "/en/japan-market-entry/how-to-find-japanese-retailers",
   },
@@ -57,9 +57,9 @@ const businessFit = [
 ] as const;
 
 const retailRoutes = [
-  "Brand → Importer → Distributor → Retailer",
-  "Brand → Japanese Distributor → Retailer",
-  "Brand → Retailer",
+  "Brand \u2192 Importer \u2192 Distributor \u2192 Retailer",
+  "Brand \u2192 Japanese Distributor \u2192 Retailer",
+  "Brand \u2192 Retailer",
 ] as const;
 
 const proposalItems = [
@@ -172,7 +172,7 @@ export default function HowToFindJapaneseRetailersArticlePage() {
               href="/en/japan-market-entry"
               className="text-sm text-teal hover:underline"
             >
-              ← Back to Japan Market Entry
+              {"\u2190"} Back to Japan Market Entry
             </Link>
           </p>
         </div>
@@ -379,8 +379,8 @@ export default function HowToFindJapaneseRetailersArticlePage() {
               A brand may begin with:
             </p>
             <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
-              Online test → Sales data → Customer feedback → Retail proposal →
-              Store expansion
+              Online test {"\u2192"} Sales data {"\u2192"} Customer feedback{" "}
+              {"\u2192"} Retail proposal {"\u2192"} Store expansion
             </p>
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
               Real sales data can make a retail proposal more compelling because
@@ -399,8 +399,9 @@ export default function HowToFindJapaneseRetailersArticlePage() {
               A practical approach may be:
             </p>
             <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
-              Brand → Japanese partner → Small retail test → Sales data →
-              Customer feedback → Expansion
+              Brand {"\u2192"} Japanese partner {"\u2192"} Small retail test{" "}
+              {"\u2192"} Sales data {"\u2192"} Customer feedback {"\u2192"}{" "}
+              Expansion
             </p>
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
               Starting with a limited number of stores or a focused ecommerce

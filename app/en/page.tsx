@@ -445,6 +445,77 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Learn More About Entering the Japanese Market
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Practical guides for overseas brands researching how Japan market
+            entry works, and how to find Japanese distributors and retailers.
+          </p>
+          <ul className="mt-8 list-none space-y-3">
+            <li>
+              <Link
+                href="/en/japan-market-entry/how-to-enter-the-japanese-market"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    Japan Market Entry Guide
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Main steps to consider before entering Japan: market fit,
+                    sales channels, and partner selection.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read guide {"\u2192"}
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    How to Find Japanese Distributors
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    How overseas brands can identify, evaluate, and approach
+                    potential Japanese distributors.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read guide {"\u2192"}
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-retailers"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    How to Find Japanese Retailers
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    A practical guide for overseas brands looking for Japanese
+                    retail partners.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read guide {"\u2192"}
+                </span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </section>
+
       <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
@@ -454,7 +525,7 @@ export default function EnglishHomePage() {
             Explore Japan market entry by category. BrandBridge remains open to
             manufacturers across industries.
           </p>
-          <ul className="mt-8 space-y-3">
+          <ul className="mt-8 list-none space-y-3">
             <li>
               <Link
                 href="/en/japan-market-entry"
@@ -470,7 +541,7 @@ export default function EnglishHomePage() {
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide →
+                  View guide {"\u2192"}
                 </span>
               </Link>
             </li>
@@ -489,7 +560,7 @@ export default function EnglishHomePage() {
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide →
+                  View guide {"\u2192"}
                 </span>
               </Link>
             </li>
@@ -508,7 +579,7 @@ export default function EnglishHomePage() {
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  View guide →
+                  View guide {"\u2192"}
                 </span>
               </Link>
             </li>

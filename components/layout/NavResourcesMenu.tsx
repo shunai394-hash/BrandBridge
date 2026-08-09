@@ -16,6 +16,10 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
   const items = en
     ? [
         {
+          href: "/en/japan-market-entry",
+          label: "Japan Market Entry",
+        },
+        {
           href: "/en/how-to-sell-in-japan",
           label: "How to Sell in Japan",
         },

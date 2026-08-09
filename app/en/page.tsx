@@ -457,6 +457,25 @@ export default function EnglishHomePage() {
           <ul className="mt-8 space-y-3">
             <li>
               <Link
+                href="/en/japan-market-entry"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    How to Enter the Japanese Market
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    A practical hub for overseas brands exploring Japanese
+                    distributors, importers, retailers, and e-commerce partners.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  View guide →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/en/japan-partner-demand-snapshot"
                 className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
               >

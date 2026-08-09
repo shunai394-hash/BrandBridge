@@ -455,8 +455,47 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 8. Existing Resources */}
+      {/* 8. Japan Market Entry Resources */}
       <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Japan Market Entry Resources
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Practical guides for overseas brands researching how to enter the
+            Japanese market.
+          </p>
+          <ul className="mt-8 list-none space-y-3">
+            <li>
+              <Link
+                href="/en/japan-market-entry/how-to-enter-the-japanese-market"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    GUIDE
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    How to Enter the Japanese Market: A Practical Guide for
+                    Overseas Brands
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Main steps to consider before entering Japan—market fit,
+                    sales channels, commercial preparation, and partner
+                    selection.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read guide →
+                </span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* 9. Existing Resources */}
+      <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
             Existing Resources
@@ -490,8 +529,8 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 9. FAQ */}
-      <section className="border-b border-border bg-cream">
+      {/* 10. FAQ */}
+      <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
             FAQ
@@ -512,7 +551,7 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 10. Final CTA */}
+      {/* 11. Final CTA */}
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div
           className="absolute inset-0 opacity-40"

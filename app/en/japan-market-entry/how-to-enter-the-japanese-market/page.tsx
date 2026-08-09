@@ -223,6 +223,23 @@ export default function HowToEnterTheJapaneseMarketArticlePage() {
               The best option depends on your product, target market, pricing,
               and business objectives.
             </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              For a closer look at partner types, see our guides on{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
+                className="text-teal hover:underline"
+              >
+                finding Japanese distributors
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-retailers"
+                className="text-teal hover:underline"
+              >
+                finding Japanese retailers
+              </Link>
+              .
+            </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
@@ -337,6 +354,36 @@ export default function HowToEnterTheJapaneseMarketArticlePage() {
               BrandBridge is free to join.
             </p>
           </section>
+
+          <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
+            <p>
+              For more Japan market entry resources, return to the{" "}
+              <Link
+                href="/en/japan-market-entry"
+                className="text-teal hover:underline"
+              >
+                Japan Market Entry hub
+              </Link>
+              .
+            </p>
+            <p>
+              Looking for a specific partner type? See{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
+                className="text-teal hover:underline"
+              >
+                how to find Japanese distributors
+              </Link>{" "}
+              or{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-retailers"
+                className="text-teal hover:underline"
+              >
+                how to find Japanese retailers
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </article>
 

@@ -4,101 +4,97 @@ import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "How to Find Japanese Distributors for Your Brand",
+  title: "How to Find Japanese Retailers for Your Brand",
   description:
-    "A practical guide for overseas and DTC brands on how to identify, evaluate, and approach Japanese distributors, importers, wholesalers, retailers, and ecommerce partners.",
+    "A practical guide for overseas brands on how to identify, evaluate, and approach Japanese retailers—including specialty stores, department stores, and ecommerce channels.",
   alternates: {
-    canonical: "/en/japan-market-entry/how-to-find-japanese-distributors",
+    canonical: "/en/japan-market-entry/how-to-find-japanese-retailers",
   },
 };
 
-const distributorRoles = [
-  "Importing products into Japan",
-  "Warehousing and inventory",
-  "Sales to retailers and wholesalers",
-  "Ecommerce distribution",
-  "Local sales activities",
-  "Customer and retailer relationships",
-  "Product introduction and market development",
+const retailChannels = [
+  "Department stores",
+  "Specialty retailers",
+  "Supermarkets",
+  "Convenience stores",
+  "Lifestyle stores",
+  "Drugstores",
+  "Fashion retailers",
+  "Home and consumer goods retailers",
+  "Online retailers",
+  "Marketplace sellers",
 ] as const;
 
-const partnerTypes = [
-  "Distributors",
-  "Importers",
-  "Wholesalers",
-  "Retailers",
-  "Ecommerce businesses",
-  "Sales agencies",
+const targetCustomer = [
+  "Age",
+  "Gender",
+  "Income level",
+  "Lifestyle",
+  "Location",
+  "Product preferences",
+  "Price sensitivity",
+  "Online versus offline shopping behavior",
 ] as const;
 
-const idealProfile = [
-  "Product category",
-  "Target customers",
-  "Preferred sales channels",
-  "Geographic coverage",
-  "Existing retailer relationships",
-  "Ecommerce capabilities",
-  "Minimum order requirements",
-  "Import experience",
-  "Experience with overseas brands",
-  "Marketing capabilities",
-] as const;
-
-const researchPoints = [
-  "Similar products",
+const similarProducts = [
+  "Similar product categories",
   "Similar price ranges",
   "Similar customer segments",
-  "Relevant retailers",
-  "Relevant ecommerce channels",
-  "Overseas brands",
+  "International brands",
+  "Products with similar positioning",
 ] as const;
 
-const prepareItems = [
-  "Product specifications",
+const businessFit = [
+  "Customer demographics",
+  "Number of stores",
+  "Geographic coverage",
+  "Ecommerce presence",
+  "Product categories",
+  "Existing international brands",
+  "Price positioning",
+  "Sales channels",
+  "New product introduction policies",
+] as const;
+
+const retailRoutes = [
+  "Brand → Importer → Distributor → Retailer",
+  "Brand → Japanese Distributor → Retailer",
+  "Brand → Retailer",
+] as const;
+
+const proposalItems = [
+  "Product description",
+  "Product benefits",
   "Wholesale price",
   "Suggested retail price",
   "MOQ",
-  "Shipping conditions",
-  "Payment terms",
+  "Product margins",
+  "Packaging information",
   "Certifications",
   "Product images",
-  "Packaging information",
-  "Current sales performance",
-  "Existing markets",
-  "Distribution conditions",
-  "Exclusivity options",
+  "Shipping information",
+  "Existing sales performance",
+  "Current markets",
+  "Marketing support",
+  "Retail display requirements",
 ] as const;
 
-const fitJapanItems = [
-  "Existing customer demand",
-  "Sales performance in other markets",
-  "Product differentiation",
-  "Customer reviews",
-  "Awards or certifications",
-  "Social media traction",
-  "Repeat purchase rates",
-  "Existing retail relationships",
+const fitRetailerPoints = [
+  "Your product complements their existing assortment",
+  "Your target customers overlap",
+  "Your price range fits their positioning",
+  "Your brand has proven demand overseas",
+  "Your product fills a gap in their current assortment",
+  "Your brand provides a differentiated product category",
 ] as const;
 
-const firstConversation = [
-  "Is there a potential market?",
-  "Is the product suitable for the distributor?",
-  "Are the pricing conditions realistic?",
-  "Which sales channels could work?",
-  "What would a test launch look like?",
-] as const;
-
-const distributionConditions = [
-  "Wholesale price",
-  "MOQ",
-  "Territory",
-  "Sales channels",
-  "Marketing responsibilities",
-  "Shipping",
-  "Payment terms",
-  "Exclusivity",
-  "Contract period",
-  "Sales targets",
+const contactDepartments = [
+  "Purchasing",
+  "Merchandising",
+  "Category management",
+  "International business",
+  "New product development",
+  "Ecommerce",
 ] as const;
 
 function BulletList({ items }: { items: readonly string[] }) {
@@ -117,9 +113,9 @@ function BulletList({ items }: { items: readonly string[] }) {
   );
 }
 
-export default function HowToFindJapaneseDistributorsArticlePage() {
+export default function HowToFindJapaneseRetailersArticlePage() {
   const siteUrl = getSiteUrl();
-  const pageUrl = `${siteUrl}/en/japan-market-entry/how-to-find-japanese-distributors`;
+  const pageUrl = `${siteUrl}/en/japan-market-entry/how-to-find-japanese-retailers`;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -140,7 +136,7 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
       {
         "@type": "ListItem",
         position: 3,
-        name: "How to Find Japanese Distributors",
+        name: "How to Find Japanese Retailers",
         item: pageUrl,
       },
     ],
@@ -165,11 +161,11 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             JAPAN MARKET ENTRY GUIDE
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
-            How to Find Japanese Distributors for Your Brand
+            How to Find Japanese Retailers for Your Brand
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            How overseas brands can identify, evaluate, and approach potential
-            Japanese distributors.
+            How overseas brands can identify, evaluate, and approach Japanese
+            retailers.
           </p>
           <p className="mt-6">
             <Link
@@ -186,230 +182,255 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
           <div className="space-y-5 text-sm leading-relaxed text-muted md:text-base">
             <p>
-              Finding a Japanese distributor is often one of the first challenges
-              overseas brands face when entering Japan.
+              Finding the right Japanese retailers can be an important step for
+              overseas brands entering Japan.
             </p>
             <p>
-              Japan has a large and sophisticated consumer market, but business
-              relationships, distribution structures, pricing expectations, and
-              sales channels can differ significantly from other markets.
+              However, approaching retailers is not simply a matter of sending a
+              product catalog to as many companies as possible.
             </p>
             <p>
-              The right distributor can help an overseas brand reach retailers,
-              wholesalers, ecommerce channels, and Japanese consumers.
+              Japanese retailers have different customer bases, product
+              categories, pricing strategies, store formats, and purchasing
+              requirements.
             </p>
+            <p>The goal is not to find the largest retailer.</p>
             <p>
-              However, finding a company is not the same as finding the right
-              partner.
+              The goal is to find retailers where your product has a realistic
+              commercial opportunity.
             </p>
             <p>
               This guide explains how overseas brands can identify, evaluate, and
-              approach potential Japanese distributors.
+              approach Japanese retailers.
             </p>
           </div>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              1. Understand What a Japanese Distributor Does
+              1. Understand the Japanese Retail Landscape
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              A distributor may help an overseas brand with:
+              Japan has a diverse retail market.
             </p>
-            <BulletList items={distributorRoles} />
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              Depending on the product category, relevant channels may include:
+            </p>
+            <BulletList items={retailChannels} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              The exact role depends on the agreement.
+              The appropriate channel depends on the product and target customer.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Some companies focus mainly on importing and distribution, while
-              others actively develop new brands and sales channels.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Before contacting potential partners, understand what type of
-              support your brand actually needs.
+              A premium beauty product, for example, may require a very different
+              retail strategy from a food product or consumer electronics brand.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              2. Decide What Type of Partner You Need
+              2. Define Your Target Customer
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Not every Japanese business partner is a traditional distributor.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Depending on your product and strategy, you may want to work with:
-            </p>
-            <BulletList items={partnerTypes} />
-            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              For example, a consumer product brand may need an importer and
-              distributor, while a DTC brand may initially benefit from an
-              ecommerce partner that can test demand online.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              The right partner depends on your product, target customer,
-              pricing, sales channel, and market-entry strategy.
-            </p>
-          </section>
-
-          <section className="mt-12 border-t border-border pt-10">
-            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              3. Define Your Ideal Distributor Profile
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Before searching for companies, create a clear partner profile.
+              Before searching for retailers, clearly define who you want to
+              reach.
             </p>
             <p className="mt-4 text-sm font-medium text-navy md:text-base">
               Consider:
             </p>
-            <BulletList items={idealProfile} />
+            <BulletList items={targetCustomer} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              A smaller distributor with strong relationships in your category
-              may be more valuable than a large company with little connection to
-              your target customers.
+              A retailer is more likely to be interested when your product
+              clearly matches its existing customer base.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              4. Research Potential Japanese Distributors
+              3. Identify Retailers That Already Sell Similar Products
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Do not contact companies randomly.
+              One of the most practical ways to find potential retailers is to
+              research companies that already sell products similar to yours.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Research whether a potential partner already works with:
+              Look for retailers that carry:
             </p>
-            <BulletList items={researchPoints} />
+            <BulletList items={similarProducts} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              Look at the company&apos;s existing product portfolio and sales
-              channels.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              The goal is to identify companies where your product makes
-              commercial sense.
+              This helps identify retailers where your product is more likely to
+              fit.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              5. Prepare Information Before Contacting a Distributor
+              4. Evaluate the Retailer&apos;s Business Fit
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Japanese business partners will usually need enough information to
-              understand your product quickly.
+              Do not evaluate retailers only by size or brand recognition.
             </p>
             <p className="mt-4 text-sm font-medium text-navy md:text-base">
-              Prepare:
+              Consider:
             </p>
-            <BulletList items={prepareItems} />
+            <BulletList items={businessFit} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              Clear information reduces unnecessary back-and-forth and makes it
-              easier for a distributor to evaluate the opportunity.
+              A smaller specialty retailer may provide a better opportunity than
+              a major chain if its customers closely match your target audience.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              6. Explain Why Your Brand Fits Japan
+              5. Understand How Products Reach Japanese Retailers
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Do not simply say:
+              Overseas brands do not always sell directly to Japanese retailers.
             </p>
-            <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
-              &ldquo;We are looking for a Japanese distributor.&rdquo;
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              Depending on the product and business model, the route may involve:
             </p>
+            <ul className="mt-4 list-none space-y-3">
+              {retailRoutes.map((item) => (
+                <li
+                  key={item}
+                  className="rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              Explain why your product may have an opportunity in Japan.
+              For some products, an importer or distributor may be necessary
+              because of logistics, regulations, or established purchasing
+              structures.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              Understanding the appropriate route can prevent brands from
+              approaching the wrong type of company.
+            </p>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              6. Prepare a Retailer-Ready Product Proposal
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              Before contacting retailers, prepare clear commercial information.
             </p>
             <p className="mt-4 text-sm font-medium text-navy md:text-base">
-              Useful information can include:
+              Include:
             </p>
-            <BulletList items={fitJapanItems} />
+            <BulletList items={proposalItems} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              The more clearly you explain the business opportunity, the easier
-              it is for a potential partner to evaluate your brand.
+              Retail buyers need to understand the commercial opportunity
+              quickly.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              7. Start With a Conversation
+              7. Explain Why Your Product Fits the Retailer
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              The first conversation does not need to finalize a distribution
-              agreement.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              The initial objective should be to determine:
-            </p>
-            <BulletList items={firstConversation} />
-            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              Starting with a practical discussion can make the process easier
-              for both sides.
-            </p>
-          </section>
-
-          <section className="mt-12 border-t border-border pt-10">
-            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              8. Discuss Distribution Conditions
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Once there is genuine interest, discuss commercial conditions such
-              as:
-            </p>
-            <BulletList items={distributionConditions} />
-            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              Do not agree to broad exclusivity before understanding the expected
-              sales volume and market-development responsibilities.
-            </p>
-          </section>
-
-          <section className="mt-12 border-t border-border pt-10">
-            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              9. Consider a Small Market Test
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              A full national launch is not always necessary.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              A brand may start with:
+              Avoid generic messages such as:
             </p>
             <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
-              Product → Japanese partner → Small initial order → Market test →
-              Sales data → Expansion
+              &ldquo;We would like to sell our product in Japan.&rdquo;
             </p>
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              This approach can help both sides understand demand before
-              committing significant resources.
+              Instead, explain why your product fits that retailer.
+            </p>
+            <p className="mt-4 text-sm font-medium text-navy md:text-base">
+              For example:
+            </p>
+            <BulletList items={fitRetailerPoints} />
+            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
+              A retailer is more likely to consider a proposal when the business
+              case is clear.
             </p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              10. Use a Structured Way to Find Business Partners
+              8. Start With the Right Contact
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Finding potential Japanese distributors can take significant time,
-              especially for overseas brands without an existing network in Japan.
+              Large retailers may have different departments for:
+            </p>
+            <BulletList items={contactDepartments} />
+            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
+              Sending your proposal to a generic customer-service address may not
+              reach the correct decision maker.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              A structured marketplace can make it easier to discover potential
-              business partners and compare opportunities.
+              Whenever possible, identify the appropriate purchasing or
+              business-development contact.
+            </p>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              9. Consider Starting With Ecommerce
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              For some overseas brands, ecommerce can be an easier starting point
+              than nationwide physical retail.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              A brand may begin with:
+            </p>
+            <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
+              Online test → Sales data → Customer feedback → Retail proposal →
+              Store expansion
+            </p>
+            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
+              Real sales data can make a retail proposal more compelling because
+              the retailer can see evidence of customer demand.
+            </p>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              10. Start Small and Expand
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              A nationwide retail launch is not always necessary.
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              A practical approach may be:
+            </p>
+            <p className="mt-4 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
+              Brand → Japanese partner → Small retail test → Sales data →
+              Customer feedback → Expansion
+            </p>
+            <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
+              Starting with a limited number of stores or a focused ecommerce
+              channel can reduce risk for both the brand and the Japanese retail
+              partner.
+            </p>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              11. Use a Structured Way to Find Japanese Retail Partners
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              Finding suitable Japanese retailers can take significant time for
+              overseas brands without an existing network in Japan.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               BrandBridge is a B2B platform designed to help overseas brands
-              explore potential partnerships with Japanese distributors,
+              explore potential business partnerships with Japanese distributors,
               wholesalers, retailers, and ecommerce businesses.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Brands can review available business opportunities and discuss
-              potential trading conditions with relevant business parties.
+              Brands can review business opportunities and discuss potential
+              trading conditions with relevant business parties.
             </p>
           </section>
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
-              For more information about entering Japan, see our{" "}
+              For a broader overview, see our{" "}
               <Link
                 href="/en/japan-market-entry"
                 className="text-teal hover:underline"
@@ -419,12 +440,12 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
               .
             </p>
             <p>
-              If you are looking for Japanese retail partners, see our{" "}
+              If you are looking for distributors, see our{" "}
               <Link
-                href="/en/japan-market-entry/how-to-find-japanese-retailers"
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
                 className="text-teal hover:underline"
               >
-                guide to finding Japanese retailers
+                guide to finding Japanese distributors
               </Link>
               .
             </p>

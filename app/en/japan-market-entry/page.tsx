@@ -288,7 +288,7 @@ export default function JapanMarketEntryPage() {
             channels and structured wholesale relationships. The points below are
             general market-entry considerations—not performance promises.
           </p>
-          <ul className="mt-10 grid gap-6 md:grid-cols-3">
+          <ul className="mt-10 grid list-none gap-6 md:grid-cols-3">
             {whyJapan.map((item) => (
               <li
                 key={item.title}
@@ -314,7 +314,7 @@ export default function JapanMarketEntryPage() {
             Most brands use one or more Japanese partner types. Choosing the right
             path depends on category, channel goals, and commercial readiness.
           </p>
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="mt-10 grid list-none gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {entryWays.map((item) => (
               <li
                 key={item.title}
@@ -340,7 +340,7 @@ export default function JapanMarketEntryPage() {
             Overseas brands often face the same practical hurdles when exploring
             Japan—especially without a local office.
           </p>
-          <ul className="mt-10 grid gap-5 sm:grid-cols-2">
+          <ul className="mt-10 grid list-none gap-5 sm:grid-cols-2">
             {challenges.map((item) => (
               <li
                 key={item.title}
@@ -367,7 +367,7 @@ export default function JapanMarketEntryPage() {
             whether a first discussion is worth starting. BrandBridge listings are
             designed around these points.
           </p>
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2">
+          <ul className="mt-10 grid list-none gap-4 sm:grid-cols-2">
             {partnerNeeds.map((item) => (
               <li
                 key={item.label}
@@ -393,7 +393,7 @@ export default function JapanMarketEntryPage() {
             BrandBridge is a B2B marketplace where overseas brands can present
             products and trade terms for Japanese business partners to review.
           </p>
-          <ul className="mt-10 grid gap-5 md:grid-cols-2">
+          <ul className="mt-10 grid list-none gap-5 md:grid-cols-2">
             {brandBridgeHelp.map((item) => (
               <li
                 key={item.title}
@@ -420,7 +420,7 @@ export default function JapanMarketEntryPage() {
             transactions. Use them to understand the information Japanese partners
             typically review.
           </p>
-          <ul className="mt-8 space-y-4">
+          <ul className="mt-8 list-none space-y-4">
             {modelCases.map((item) => (
               <li key={item.slug}>
                 <Link
@@ -465,7 +465,7 @@ export default function JapanMarketEntryPage() {
             Continue with BrandBridge guides and live Japan expansion
             opportunities already on the platform.
           </p>
-          <ul className="mt-8 space-y-3">
+          <ul className="mt-8 list-none space-y-3">
             {resources.map((item) => (
               <li key={item.href}>
                 <Link

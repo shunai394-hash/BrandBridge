@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/how-to-sell-in-japan",
     "/en/japan-market-entry",
     "/en/japan-market-entry/how-to-enter-the-japanese-market",
+    "/en/japan-market-entry/how-to-find-japanese-distributors",
     "/en/japan-market-for-functional-food-brands",
     "/en/japan-partner-demand-snapshot",
     "/en/product-showcase",

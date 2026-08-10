@@ -168,8 +168,9 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             How to Find Japanese Distributors for Your Brand
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            How overseas brands can identify, evaluate, and approach potential
-            Japanese distributors.
+            How overseas brands can identify potential Japanese distributors,
+            research candidates, prepare outreach, and start the first
+            conversation.
           </p>
           <p className="mt-6">
             <Link
@@ -199,12 +200,28 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
               wholesalers, ecommerce channels, and Japanese consumers.
             </p>
             <p>
-              However, finding a company is not the same as finding the right
-              partner.
+              Before you focus on outreach, it helps to understand the wider
+              process of{" "}
+              <Link
+                href="/en/how-to-sell-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell in Japan
+              </Link>
+              . This page concentrates on how to find Japanese distributors:
+              define an ideal profile, research candidates, prepare information,
+              and start a conversation.
             </p>
             <p>
-              This guide explains how overseas brands can identify, evaluate, and
-              approach potential Japanese distributors.
+              After you have a shortlist, use{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-a-japanese-distributor"
+                className="text-teal hover:underline"
+              >
+                How to Evaluate a Japanese Distributor
+              </Link>{" "}
+              for fit, wholesale price, MOQ, exclusivity, territory, and
+              performance.
             </p>
           </div>
 
@@ -360,7 +377,15 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             <BulletList items={distributionConditions} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
               Do not agree to broad exclusivity before understanding the expected
-              sales volume and market-development responsibilities.
+              sales volume and market-development responsibilities. For a deeper
+              look at pricing, MOQ, exclusivity, and responsibilities, see{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-a-japanese-distributor"
+                className="text-teal hover:underline"
+              >
+                How to Evaluate a Japanese Distributor
+              </Link>
+              .
             </p>
           </section>
 
@@ -409,12 +434,32 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
+              For the overall selling process, see{" "}
+              <Link
+                href="/en/how-to-sell-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell in Japan
+              </Link>
+              .
+            </p>
+            <p>
               For more information about entering Japan, see our{" "}
               <Link
                 href="/en/japan-market-entry"
                 className="text-teal hover:underline"
               >
                 Japan Market Entry Guide
+              </Link>
+              .
+            </p>
+            <p>
+              Once you have candidates, continue with{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-a-japanese-distributor"
+                className="text-teal hover:underline"
+              >
+                How to Evaluate a Japanese Distributor
               </Link>
               .
             </p>

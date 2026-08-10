@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import {
+  HowToSellInJapanEnSeoEarly,
+  HowToSellInJapanEnSeoLate,
+} from "@/components/guides/HowToSellInJapanEnSeo";
 
 type Locale = "en" | "ja";
 
@@ -153,11 +157,12 @@ function IncotermCards({
 
 const copy = {
   en: {
-    eyebrow: "USA → Japan Import Guide",
+    eyebrow: "How to Sell in Japan",
     title: "How to Sell in Japan",
-    lead: "A clear path for overseas manufacturers—from product listing to shipping and selling with Japanese partners. Understand the flow in about five minutes.",
+    lead: "A practical guide to selling products in Japan for overseas manufacturers—from choosing a Japanese sales partner model to listing, negotiating, shipping, and getting started without a local company.",
     introTitle: "New to selling in Japan?",
-    introBody: "Don't worry. This guide explains everything in simple steps.",
+    introBody:
+      "This page explains the full path for how to sell in Japan, including when a Japanese distributor or another partner type may fit.",
     step1Title: "The journey",
     step1Nodes: [
       "Overseas Manufacturer",
@@ -254,20 +259,28 @@ const copy = {
     faqTitle: "Frequently Asked Questions",
     faqs: [
       {
-        q: "Do I need a company in Japan?",
-        a: "No.",
+        q: "Do I need a company in Japan to sell products there?",
+        a: "No. Many overseas brands sell in Japan through a Japanese sales partner without opening a local entity.",
       },
       {
-        q: "Can I ship directly from the USA?",
-        a: "Yes.",
+        q: "Can I ship directly from the USA or another overseas warehouse?",
+        a: "Yes. Brands often ship with major international carriers, and the Japanese partner receives goods for local distribution.",
       },
       {
-        q: "Who handles customs?",
-        a: "Usually your Japanese sales partner.",
+        q: "Who usually handles customs and import procedures?",
+        a: "In many cases, your Japanese sales partner handles import procedures. Confirm responsibility and Incoterms before the first shipment. Requirements vary by product and category.",
       },
       {
-        q: "How do I get started?",
-        a: "Create your BrandBridge account, publish a product listing, and Japanese partners can inquire when they see a fit.",
+        q: "Do I always need a Japanese distributor?",
+        a: "Not always. A distributor fits many brands, but a sales agent, retailer, or ecommerce partner may be better depending on inventory needs, channel goals, and how you want to test the market.",
+      },
+      {
+        q: "What commercial terms should I prepare before selling to Japan?",
+        a: "Prepare wholesale price, MOQ, shipping conditions, Incoterms, exclusivity options, and payment terms so Japanese partners can evaluate fit quickly.",
+      },
+      {
+        q: "How do I get started on BrandBridge?",
+        a: "Create your BrandBridge account, publish a product listing with clear terms, and Japanese partners can inquire when they see a fit.",
       },
       {
         q: "Does BrandBridge import or purchase products?",
@@ -503,6 +516,8 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
         </div>
       </section>
 
+      {locale === "en" ? <HowToSellInJapanEnSeoEarly /> : null}
+
       {/* STEP 3 — Roles */}
       <section className="border-b border-black/8 py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-5">
@@ -653,6 +668,8 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
         </div>
       </section>
 
+      {locale === "en" ? <HowToSellInJapanEnSeoLate /> : null}
+
       {/* Comparison */}
       <section className="border-b border-black/8 py-16 md:py-20">
         <div className="mx-auto max-w-4xl px-5">
@@ -712,7 +729,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
           <div className="mt-12 space-y-4">
             {t.faqs.map((faq) => (
               <Card key={faq.q} className="!p-5 md:!p-6">
-                <p className="font-medium text-black">{faq.q}</p>
+                <h3 className="font-medium text-black">{faq.q}</h3>
                 <p className="mt-2 text-sm text-black/60">{faq.a}</p>
               </Card>
             ))}

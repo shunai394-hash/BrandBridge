@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "How to Find a Japanese Distributor for Your Brand",
+  title: "How to Evaluate a Japanese Distributor for Your Brand",
   description:
-    "A practical Japan market entry guide for overseas brands on how to find a Japanese distributor, prepare commercial terms, evaluate partners, and manage distribution performance.",
+    "Learn how to evaluate a Japanese distributor for fit, wholesale price, MOQ, exclusivity, territory, responsibilities, and performance after you have candidates.",
   alternates: {
     canonical: "/en/japan-market-entry/how-to-find-a-japanese-distributor",
   },
@@ -167,7 +167,7 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
       {
         "@type": "ListItem",
         position: 3,
-        name: "How to Find a Japanese Distributor",
+        name: "How to Evaluate a Japanese Distributor",
         item: pageUrl,
       },
     ],
@@ -192,12 +192,12 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
             JAPAN MARKET ENTRY GUIDE
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
-            How to Find a Japanese Distributor for Your Brand
+            How to Evaluate a Japanese Distributor for Your Brand
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            A practical guide for overseas brands on how to find a Japanese
-            distributor, prepare commercial terms, and evaluate partnership fit
-            for Japan market entry.
+            After you have candidates, learn how to evaluate distributor fit,
+            pricing, MOQ, territory, exclusivity, responsibilities, and
+            performance before you commit.
           </p>
           <p className="mt-6">
             <Link
@@ -214,16 +214,28 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
           <section>
             <p className="text-sm leading-relaxed text-muted md:text-base">
-              Many overseas brands that want to sell in Japan start by looking
-              for a Japanese distributor. That search is common because a local
-              partner can help with import, sales development, and channel
-              access. The challenge is finding a partner who fits your category,
-              pricing, and stage of market entry.
+              Once you have potential partners, the next step is not more search
+              volume. It is deciding whether a Japanese distributor fits your
+              category, pricing, territory, and stage of market entry. This page
+              focuses on evaluation, commercial terms, exclusivity, market
+              testing, responsibilities, and performance.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              This guide explains what a Japanese distributor does, how to
-              research the market, what commercial information to prepare, and
-              how to evaluate and manage the relationship after first contact.
+              If you still need to identify candidates, start with{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
+                className="text-teal hover:underline"
+              >
+                How to Find Japanese Distributors
+              </Link>
+              . For the wider selling flow before partnership terms, see{" "}
+              <Link
+                href="/en/how-to-sell-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell in Japan
+              </Link>
+              .
             </p>
           </section>
 
@@ -250,8 +262,8 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               2. Types of Japanese Distribution Partners
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              When overseas brands search for a Japan distributor, they often
-              meet several partner types:
+              When you evaluate a Japanese distributor, clarify which partner
+              type you are actually assessing:
             </p>
             <BulletList items={partnerTypes} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
@@ -263,11 +275,12 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              3. How to Research the Japanese Market
+              3. Confirm Market Fit Before You Negotiate Terms
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Before contacting Japanese distributors, research whether Japan is
-              a realistic next market for your brand.
+              Before you lock wholesale price, MOQ, or exclusivity with a Japanese
+              distributor, confirm that Japan is a realistic next market for your
+              brand.
             </p>
             <BulletList items={marketResearch} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
@@ -286,17 +299,26 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              4. How to Find Distributors Through Competing Products
+              4. Use Competing Products to Judge Channel Fit
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              One practical way to find a Japanese distributor is to reverse
-              engineer products that already sell in Japan.
+              Competing products already sold in Japan help you judge whether a
+              candidate distributor has the right channel access. For the full
+              search process, see{" "}
+              <Link
+                href="/en/japan-market-entry/how-to-find-japanese-distributors"
+                className="text-teal hover:underline"
+              >
+                How to Find Japanese Distributors
+              </Link>
+              . Here, use competing products as an evaluation signal:
             </p>
             <BulletList items={competingProducts} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
               Competing products show which partner types and channels already
-              work in your category. That makes outreach more targeted than a
-              broad search for any Japanese distributor.
+              work in your category. Use that evidence when you evaluate
+              territory, retail coverage, and whether a candidate is a realistic
+              fit.
             </p>
           </section>
 
@@ -368,8 +390,9 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               9. How to Evaluate Potential Distributors
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              Finding names is only the first step. Evaluate whether a potential
-              Japanese distributor can actually move your brand.
+              Finding names is only the first step. This section focuses on how
+              to evaluate a Japanese distributor once you have candidates who can
+              actually move your brand.
             </p>
             <BulletList items={evaluatePartner} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
@@ -428,26 +451,33 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               upfront.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              If you are still mapping the wider process, start with the{" "}
+              If you are still mapping the wider process, start with{" "}
+              <Link
+                href="/en/how-to-sell-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell in Japan
+              </Link>
+              , then use the{" "}
               <Link
                 href="/en/japan-market-entry"
                 className="text-teal hover:underline"
               >
-                BrandBridge Japan Market Entry Hub
-              </Link>
-              , then decide whether a distributor, retailer, or mixed channel
+                Japan Market Entry Guide
+              </Link>{" "}
+              to decide whether a distributor, retailer, or mixed channel
               approach fits your brand.
             </p>
           </section>
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
-              Related reading:{" "}
+              Still identifying candidates? See{" "}
               <Link
                 href="/en/japan-market-entry/how-to-find-japanese-distributors"
                 className="text-teal hover:underline"
               >
-                How to Find Japanese Distributors for Your Brand
+                How to Find Japanese Distributors
               </Link>
               .
             </p>

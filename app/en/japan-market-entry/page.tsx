@@ -514,6 +514,28 @@ export default function JapanMarketEntryPage() {
             </li>
             <li>
               <Link
+                href="/en/japan-market-entry/how-to-find-a-japanese-distributor"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    GUIDE
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    How to Find a Japanese Distributor for Your Brand
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Practical steps for researching, evaluating, and managing a
+                    Japanese distributor relationship during Japan market entry.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read guide {"\u2192"}
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/en/japan-market-entry/how-to-find-japanese-retailers"
                 className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
               >

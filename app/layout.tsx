@@ -40,7 +40,10 @@ export const metadata: Metadata = {
   description: siteConfig.description,
 
   verification: {
-    google: "fJ3lII89FQz6e-aq-ittk-YNdqe-L-4H1MyLieClCz4",
+    google: [
+      "fJ3lII89FQz6e-aq-ittk-YNdqe-L-4H1MyLieClCz4",
+      "kJ0g8NdJrYYQwy_OuXtV3SsDrUb0iWrHs49KGHJbTCA",
+    ],
   },
 
   applicationName: siteConfig.name,

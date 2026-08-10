@@ -1,0 +1,207 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireMaker } from "@/lib/auth";
+import { createCase } from "@/lib/cases";
+import { ENGLISH_CASE_MARKER } from "@/lib/inquiry-language";
+import { caseInputFromRegistration } from "@/lib/maker-registration";
+import { getProfileById } from "@/lib/profiles";
+import { createClient } from "@/lib/supabase/server";
+import type { MakerRegistrationInput } from "@/lib/types";
+
+function authErrorMessage(e: unknown): string {
+  return e instanceof Error ? e.message : "";
+}
+
+function lineValue(block: string, label: string): string | null {
+  const re = new RegExp(`^${label}:\\s*(.+)$`, "im");
+  const m = block.match(re);
+  return m?.[1]?.trim() || null;
+}
+
+/**
+ * English maker product registration (post-onboarding).
+ * Reuses the former setup case-create path; does not change Japanese actions.
+ */
+export async function createEnMakerProductAction(
+  input: Omit<
+    MakerRegistrationInput,
+    "email" | "password" | "companyName" | "contactName" | "industry" | "companyOverview"
+  >,
+): Promise<{ error: string } | void> {
+  let maker;
+  try {
+    maker = await requireMaker();
+  } catch (e) {
+    const message = authErrorMessage(e);
+    if (message === "UNAUTHORIZED") {
+      redirect(`/en/login?next=${encodeURIComponent("/en/maker/cases/new")}`);
+    }
+    if (message === "ACCOUNT_INACTIVE") {
+      return { error: "Your account has been suspended." };
+    }
+    return { error: "Product supplier accounts only." };
+  }
+
+  const profile = await getProfileById(maker.id);
+  if (!profile?.onboarding_completed) {
+    redirect("/en/maker/setup");
+  }
+
+  const galleryUrls = [
+    ...(input.productImageUrls ?? []),
+    input.productImageUrl,
+  ]
+    .map((u) => u?.trim() || "")
+    .filter(Boolean)
+    .filter((url, index, arr) => arr.indexOf(url) === index)
+    .slice(0, 4);
+  const imageUrl = galleryUrls[0] ?? null;
+
+  const registration: MakerRegistrationInput = {
+    ...input,
+    email: maker.email,
+    password: "",
+    companyName: profile.company_name?.trim() || "Company",
+    contactName: profile.contact_name?.trim() || "",
+    industry: profile.industry?.trim() || input.productCategory,
+    companyOverview: profile.description?.trim() || "",
+    productImageUrl: imageUrl,
+  };
+
+  const caseInput = caseInputFromRegistration(registration);
+  caseInput.productImageUrl = imageUrl;
+
+  const terms = input.dealTerms ?? "";
+  const wholesale =
+    input.priceBand?.trim() || lineValue(terms, "Wholesale Price");
+  const moq = input.minOrder?.trim() || lineValue(terms, "MOQ");
+  const origin =
+    input.countryOfOrigin?.trim() || lineValue(terms, "Country of Origin");
+  if (wholesale) caseInput.priceBand = wholesale;
+  if (moq) caseInput.minOrder = moq;
+  if (origin) caseInput.shipFrom = origin;
+
+  if (input.brandName?.trim()) caseInput.brandName = input.brandName.trim();
+  if (input.brandOverview?.trim()) {
+    caseInput.brandOverview = input.brandOverview.trim();
+  }
+  if (input.productStrengths?.trim()) {
+    caseInput.productStrengths = input.productStrengths.trim();
+  }
+  if (input.productFeatures?.trim()) {
+    caseInput.productFeatures = input.productFeatures.trim();
+  }
+  if (input.currencies?.trim()) caseInput.currencies = input.currencies.trim();
+  if (input.sampleAvailable?.trim()) {
+    caseInput.sampleAvailable = input.sampleAvailable.trim();
+  }
+  if (input.salesTerms?.trim()) caseInput.salesTerms = input.salesTerms.trim();
+  if (input.incoterms?.trim()) caseInput.incoterms = input.incoterms.trim();
+  if (input.initialOrderTerms?.trim()) {
+    caseInput.initialOrderTerms = input.initialOrderTerms.trim();
+  }
+  if (input.certifications?.trim()) {
+    caseInput.certifications = input.certifications.trim();
+  }
+  if (input.supportLanguages?.trim()) {
+    caseInput.supportLanguages = input.supportLanguages.trim();
+  }
+  if (input.trademarkStatus?.trim()) {
+    caseInput.trademarkStatus = input.trademarkStatus.trim();
+  }
+  if (input.exclusiveDealOption?.trim()) {
+    caseInput.exclusiveDealOption = input.exclusiveDealOption.trim();
+    if (
+      input.exclusiveDealOption === "available" ||
+      input.exclusiveDealOption === "conditional"
+    ) {
+      caseInput.isExclusive = true;
+    } else if (input.exclusiveDealOption === "unavailable") {
+      caseInput.isExclusive = false;
+    }
+  } else if (/Exclusive Availability:\s*Available/i.test(terms)) {
+    caseInput.exclusiveDealOption = "available";
+    caseInput.isExclusive = true;
+  } else if (/Exclusive Availability:\s*Non-exclusive/i.test(terms)) {
+    caseInput.exclusiveDealOption = "unavailable";
+    caseInput.isExclusive = false;
+  }
+
+  if (!caseInput.brandName?.trim()) {
+    const brandFromDesc = lineValue(caseInput.description, "Brand");
+    if (brandFromDesc) caseInput.brandName = brandFromDesc;
+  }
+
+  if (!caseInput.description.includes(ENGLISH_CASE_MARKER)) {
+    caseInput.description = `${ENGLISH_CASE_MARKER}\n${caseInput.description}`;
+  }
+  const offerBase = caseInput.offer?.trim() || "";
+  caseInput.offer = offerBase.includes(ENGLISH_CASE_MARKER)
+    ? offerBase
+    : `${ENGLISH_CASE_MARKER}\n${offerBase}`.trim();
+
+  const supabase = await createClient();
+
+  const result = await createCase(maker.id, caseInput);
+  if ("error" in result) {
+    return { error: result.error };
+  }
+
+  if (imageUrl && result.id) {
+    const { data: imgRow, error: imgError } = await supabase
+      .from("cases")
+      .update({ product_image_url: imageUrl })
+      .eq("id", result.id)
+      .eq("maker_id", maker.id)
+      .select("product_image_url")
+      .maybeSingle();
+
+    if (imgError || imgRow?.product_image_url !== imageUrl) {
+      return {
+        error:
+          imgError?.message ??
+          "Product image URL could not be saved. The listing was created; set the image again from edit if needed.",
+      };
+    }
+  }
+
+  if (result.id && galleryUrls.length > 0) {
+    const rows = galleryUrls.map((image_url, sort_order) => ({
+      case_id: result.id,
+      image_url,
+      storage_path: null as string | null,
+      sort_order,
+    }));
+    const { error: galleryError } = await supabase
+      .from("case_images")
+      .insert(rows);
+    if (galleryError) {
+      console.error("[createEnMakerProductAction] case_images insert", {
+        caseId: result.id,
+        message: galleryError.message,
+      });
+    }
+  }
+
+  const overview = input.productSummary?.trim();
+  if (overview) {
+    await supabase
+      .from("profiles")
+      .update({ product_overview: overview })
+      .eq("id", maker.id);
+  }
+
+  const completePath = `/en/maker/cases?created=${encodeURIComponent(result.id)}`;
+
+  revalidatePath("/en/maker/cases");
+  revalidatePath("/en/maker/cases/new");
+  revalidatePath("/en/maker/dashboard");
+  revalidatePath("/en/products");
+  revalidatePath("/en/cases");
+  revalidatePath(`/en/cases/${result.id}`);
+  revalidatePath("/cases");
+  revalidatePath(`/cases/${result.id}`);
+  redirect(completePath);
+}

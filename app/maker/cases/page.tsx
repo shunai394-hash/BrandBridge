@@ -6,9 +6,10 @@ import { redirect } from "next/navigation";
 import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
 import { MakerCaseList } from "@/components/maker/MakerCaseList";
 import { Button } from "@/components/ui/Button";
+import { getSessionUser } from "@/lib/auth";
 import { listMyCases } from "@/lib/cases";
 import { getPlatformStats } from "@/lib/platform-stats";
-import { createClient } from "@/lib/supabase/server";
+import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "マイ商品",
@@ -27,14 +28,20 @@ export default async function MakerCasesPage() {
     process.env.NODE_ENV === "development" &&
     hdrs.get("x-bb-admin-ui-probe") === "1";
 
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getSessionUser();
 
   if (!user && !uiProbe) {
     redirect("/login?next=/maker/cases");
+  }
+
+  if (user && !uiProbe) {
+    if (!user.isMaker) {
+      redirect("/cases");
+    }
+    const profile = await getProfileById(user.id);
+    if (!profile?.onboarding_completed) {
+      redirect("/maker/setup");
+    }
   }
 
   const items = uiProbe && !user ? [] : await listMyCases();
@@ -51,21 +58,22 @@ export default async function MakerCasesPage() {
           </h1>
 
           <p className="mt-2 text-sm text-muted">
-            登録商品の管理画面です。現在 {items.length} 件の商品を管理しています。
+            登録商品の管理画面です。現在 {items.length}{" "}
+            件の商品を管理しています。会社情報セットアップ完了後、商品0件でも利用できます。
           </p>
         </div>
 
-        <Button href="/maker/cases/new">
-          新規登録
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button href="/maker/dashboard" variant="outline">
+            管理画面
+          </Button>
+          <Button href="/maker/cases/new">新規登録</Button>
+        </div>
       </header>
 
       <PlatformStatsCard stats={await getPlatformStats()} />
 
-      <MakerCaseList
-        key="maker-list-sku-v2"
-        items={items}
-      />
+      <MakerCaseList key="maker-list-sku-v2" items={items} />
     </div>
   );
 }

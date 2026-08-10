@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { CaseCreateForm } from "@/components/forms/CaseCreateForm";
 import { StaleMakerCreateFormGuard } from "@/components/forms/StaleMakerCreateFormGuard";
 import { getSessionUser } from "@/lib/auth";
+import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "商品を登録",
@@ -29,6 +30,13 @@ export default async function NewCasePage() {
 
   if (user && user.role !== "maker" && !uiProbe) {
     redirect("/cases");
+  }
+
+  if (user && !uiProbe) {
+    const profile = await getProfileById(user.id);
+    if (!profile?.onboarding_completed) {
+      redirect("/maker/setup");
+    }
   }
 
   const companyName = user?.companyName ?? "確認用商品提供企業";

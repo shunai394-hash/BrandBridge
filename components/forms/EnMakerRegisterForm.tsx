@@ -72,7 +72,7 @@ export function EnMakerRegisterForm() {
         user.user_metadata?.registration_locale === "en";
 
       if (profile?.onboarding_completed === true && profile.role === "maker") {
-        router.replace("/en/products");
+        router.replace("/en/maker/dashboard");
         return;
       }
 

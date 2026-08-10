@@ -3,29 +3,26 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireMaker } from "@/lib/auth";
-import { createCase } from "@/lib/cases";
-import { ENGLISH_CASE_MARKER } from "@/lib/inquiry-language";
-import { caseInputFromRegistration } from "@/lib/maker-registration";
 import { createClient } from "@/lib/supabase/server";
-import type { MakerRegistrationInput } from "@/lib/types";
+
+export type EnMakerCompanySetupInput = {
+  companyName: string;
+  contactName: string;
+  industry: string;
+  companyOverview: string;
+};
 
 function authErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : "";
 }
 
-function lineValue(block: string, label: string): string | null {
-  const re = new RegExp(`^${label}:\\s*(.+)$`, "im");
-  const m = block.match(re);
-  return m?.[1]?.trim() || null;
-}
-
 /**
- * English-only maker setup save.
- * Reuses the same profile + createCase path as completeMakerSetupAction,
- * but redirects to /en/products (does not modify the Japanese action).
+ * English maker first-time setup: company profile only.
+ * Sets onboarding_completed without creating a product listing.
+ * Product registration is handled separately via /en/maker/cases/new.
  */
 export async function completeEnMakerSetupAction(
-  input: Omit<MakerRegistrationInput, "email" | "password">,
+  input: EnMakerCompanySetupInput,
 ): Promise<{ error: string } | void> {
   let maker;
   try {
@@ -41,104 +38,27 @@ export async function completeEnMakerSetupAction(
     return { error: "Product supplier accounts only." };
   }
 
-  const galleryUrls = [
-    ...(input.productImageUrls ?? []),
-    input.productImageUrl,
-  ]
-    .map((u) => u?.trim() || "")
-    .filter(Boolean)
-    .filter((url, index, arr) => arr.indexOf(url) === index)
-    .slice(0, 4);
-  const imageUrl = galleryUrls[0] ?? null;
-  const caseInput = caseInputFromRegistration({
-    ...input,
-    email: maker.email,
-    password: "",
-    productImageUrl: imageUrl,
-  });
-  caseInput.productImageUrl = imageUrl;
+  const companyName = input.companyName.trim();
+  const contactName = input.contactName.trim();
+  const industry = input.industry.trim();
+  const companyOverview = input.companyOverview.trim();
 
-  // Map English-only folded fields onto existing case columns (no schema change).
-  const terms = input.dealTerms ?? "";
-  const wholesale =
-    input.priceBand?.trim() || lineValue(terms, "Wholesale Price");
-  const moq = input.minOrder?.trim() || lineValue(terms, "MOQ");
-  const origin =
-    input.countryOfOrigin?.trim() || lineValue(terms, "Country of Origin");
-  if (wholesale) caseInput.priceBand = wholesale;
-  if (moq) caseInput.minOrder = moq;
-  if (origin) caseInput.shipFrom = origin;
-
-  if (input.brandName?.trim()) caseInput.brandName = input.brandName.trim();
-  if (input.brandOverview?.trim()) {
-    caseInput.brandOverview = input.brandOverview.trim();
-  }
-  if (input.productStrengths?.trim()) {
-    caseInput.productStrengths = input.productStrengths.trim();
-  }
-  if (input.productFeatures?.trim()) {
-    caseInput.productFeatures = input.productFeatures.trim();
-  }
-  if (input.currencies?.trim()) caseInput.currencies = input.currencies.trim();
-  if (input.sampleAvailable?.trim()) {
-    caseInput.sampleAvailable = input.sampleAvailable.trim();
-  }
-  if (input.salesTerms?.trim()) caseInput.salesTerms = input.salesTerms.trim();
-  if (input.incoterms?.trim()) caseInput.incoterms = input.incoterms.trim();
-  if (input.initialOrderTerms?.trim()) {
-    caseInput.initialOrderTerms = input.initialOrderTerms.trim();
-  }
-  if (input.certifications?.trim()) {
-    caseInput.certifications = input.certifications.trim();
-  }
-  if (input.supportLanguages?.trim()) {
-    caseInput.supportLanguages = input.supportLanguages.trim();
-  }
-  if (input.trademarkStatus?.trim()) {
-    caseInput.trademarkStatus = input.trademarkStatus.trim();
-  }
-  if (input.exclusiveDealOption?.trim()) {
-    caseInput.exclusiveDealOption = input.exclusiveDealOption.trim();
-    if (
-      input.exclusiveDealOption === "available" ||
-      input.exclusiveDealOption === "conditional"
-    ) {
-      caseInput.isExclusive = true;
-    } else if (input.exclusiveDealOption === "unavailable") {
-      caseInput.isExclusive = false;
-    }
-  } else if (/Exclusive Availability:\s*Available/i.test(terms)) {
-    caseInput.exclusiveDealOption = "available";
-    caseInput.isExclusive = true;
-  } else if (/Exclusive Availability:\s*Non-exclusive/i.test(terms)) {
-    caseInput.exclusiveDealOption = "unavailable";
-    caseInput.isExclusive = false;
-  }
-
-  // Prefer structured Brand: line from description if brandName still empty
-  if (!caseInput.brandName?.trim()) {
-    const brandFromDesc = lineValue(caseInput.description, "Brand");
-    if (brandFromDesc) caseInput.brandName = brandFromDesc;
-  }
-
-  if (!caseInput.description.includes(ENGLISH_CASE_MARKER)) {
-    caseInput.description = `${ENGLISH_CASE_MARKER}\n${caseInput.description}`;
-  }
-  const offerBase = caseInput.offer?.trim() || "";
-  caseInput.offer = offerBase.includes(ENGLISH_CASE_MARKER)
-    ? offerBase
-    : `${ENGLISH_CASE_MARKER}\n${offerBase}`.trim();
+  if (!companyName) return { error: "Please enter your company name." };
+  if (!contactName) return { error: "Please enter a contact person name." };
+  if (!industry) return { error: "Please select an industry." };
+  if (!companyOverview) return { error: "Please enter a company overview." };
 
   const supabase = await createClient();
 
   const { data: updated, error: profileError } = await supabase
     .from("profiles")
     .update({
-      company_name: input.companyName.trim(),
-      contact_name: input.contactName.trim(),
-      industry: input.industry,
-      description: input.companyOverview.trim(),
-      product_overview: input.productSummary.trim(),
+      company_name: companyName,
+      contact_name: contactName,
+      industry,
+      description: companyOverview,
+      onboarding_completed: true,
+      is_maker: true,
     })
     .eq("id", maker.id)
     .select("id")
@@ -156,63 +76,9 @@ export async function completeEnMakerSetupAction(
     };
   }
 
-  const result = await createCase(maker.id, caseInput);
-  if ("error" in result) {
-    return { error: result.error };
-  }
-
-  if (imageUrl && result.id) {
-    const { data: imgRow, error: imgError } = await supabase
-      .from("cases")
-      .update({ product_image_url: imageUrl })
-      .eq("id", result.id)
-      .eq("maker_id", maker.id)
-      .select("product_image_url")
-      .maybeSingle();
-
-    if (imgError || imgRow?.product_image_url !== imageUrl) {
-      return {
-        error:
-          imgError?.message ??
-          "Product image URL could not be saved. The listing was created窶敗et the image again from edit if needed.",
-      };
-    }
-  }
-
-  if (result.id && galleryUrls.length > 0) {
-    const rows = galleryUrls.map((image_url, sort_order) => ({
-      case_id: result.id,
-      image_url,
-      storage_path: null as string | null,
-      sort_order,
-    }));
-    const { error: galleryError } = await supabase
-      .from("case_images")
-      .insert(rows);
-    if (galleryError) {
-      console.error("[completeEnMakerSetupAction] case_images insert", {
-        caseId: result.id,
-        message: galleryError.message,
-      });
-      // Listing exists; gallery can be fixed from edit 窶・do not fail the whole setup.
-    }
-  }
-
-  await supabase
-    .from("profiles")
-    .update({ onboarding_completed: true, is_maker: true })
-    .eq("id", maker.id);
-
-  const completePath = `/en/products?created=${encodeURIComponent(result.id)}`;
-
   revalidatePath("/en/maker/setup");
-  revalidatePath("/en/products");
   revalidatePath("/en/maker/dashboard");
-  revalidatePath("/en/cases");
-  revalidatePath(`/en/cases/${result.id}`);
-  revalidatePath("/cases");
-  revalidatePath(`/cases/${result.id}`);
-  redirect(completePath);
+  revalidatePath("/en/maker/cases");
+  revalidatePath("/en/products");
+  redirect("/en/maker/dashboard");
 }
-
-

@@ -55,12 +55,15 @@ import {
   markInboundRead,
   replyOnOutboundThread,
 } from "@/lib/admin-outbound-mail";
-import { caseInputFromRegistration } from "@/lib/maker-registration";
 import { partnerProfilePayloadFromDraft } from "@/lib/partner-registration";
-import type {
-  MakerRegistrationInput,
-  PartnerRegistrationInput,
-} from "@/lib/types";
+import type { PartnerRegistrationInput } from "@/lib/types";
+
+export type MakerCompanySetupInput = {
+  companyName: string;
+  contactName: string;
+  industry: string;
+  companyOverview: string;
+};
 
 function authErrorMessage(e: unknown): string {
   return e instanceof Error ? e.message : "";
@@ -83,9 +86,13 @@ async function requireMakerOrPartner() {
   return session;
 }
 
-/** Auth-only setup save. Never calls signUp / signIn. */
+/**
+ * Japanese maker first-time setup: company profile only.
+ * Sets onboarding_completed without creating a product listing.
+ * Product registration is handled separately via /maker/cases/new.
+ */
 export async function completeMakerSetupAction(
-  input: Omit<MakerRegistrationInput, "email" | "password">,
+  input: MakerCompanySetupInput,
 ): Promise<{ error: string } | void> {
   let maker;
   try {
@@ -101,44 +108,26 @@ export async function completeMakerSetupAction(
     return { error: "商品提供企業アカウントでのみ登録できます" };
   }
 
-  const imageUrl = input.productImageUrl?.trim() || null;
-  console.info("[completeMakerSetupAction] start", {
-    makerId: maker.id,
-    productName: input.productName,
-    has_product_image_url: Boolean(imageUrl),
-    product_image_url_len: imageUrl?.length ?? 0,
-  });
+  const companyName = input.companyName.trim();
+  const contactName = input.contactName.trim();
+  const industry = input.industry.trim();
+  const companyOverview = input.companyOverview.trim();
 
-  const caseInput = caseInputFromRegistration({
-    ...input,
-    email: maker.email,
-    password: "",
-    productImageUrl: imageUrl,
-  });
-
-  if (imageUrl && caseInput.productImageUrl !== imageUrl) {
-    caseInput.productImageUrl = imageUrl;
-  }
-
-  if (input.countryOfOrigin?.trim()) {
-    caseInput.shipFrom = input.countryOfOrigin.trim();
-  }
-  if (input.salesTerms?.trim()) {
-    caseInput.salesTerms = input.salesTerms.trim();
-  }
+  if (!companyName) return { error: "会社名を入力してください" };
+  if (!contactName) return { error: "担当者名を入力してください" };
+  if (!industry) return { error: "業種を選択してください" };
+  if (!companyOverview) return { error: "会社概要を入力してください" };
 
   const supabase = await createClient();
 
-  // Save profile fields first, but do NOT mark onboarding complete until case insert succeeds.
-  // Otherwise a failed createCase leaves the user locked out of /maker/setup.
   const { data: updated, error: profileError } = await supabase
     .from("profiles")
     .update({
-      company_name: input.companyName.trim(),
-      contact_name: input.contactName.trim(),
-      industry: input.industry,
-      description: input.companyOverview.trim(),
-      product_overview: input.productSummary.trim(),
+      company_name: companyName,
+      contact_name: contactName,
+      industry,
+      description: companyOverview,
+      onboarding_completed: true,
       is_maker: true,
     })
     .eq("id", maker.id)
@@ -158,79 +147,17 @@ export async function completeMakerSetupAction(
     };
   }
 
-  console.info("[completeMakerSetupAction] profile saved", {
+  console.info("[completeMakerSetupAction] company setup complete", {
     table: "profiles",
     makerId: maker.id,
-  });
-
-  // Pass image URL explicitly — do not rely on nested draft mapping alone
-  caseInput.productImageUrl = imageUrl;
-
-  const result = await createCase(maker.id, caseInput);
-  console.log("[sendMessage result]", result);
-  if ("error" in result) {
-    console.error("[completeMakerSetupAction] case insert failed", {
-      table: "cases",
-      makerId: maker.id,
-      error: result.error,
-      had_image_url: Boolean(imageUrl),
-    });
-    return { error: result.error };
-  }
-
-  // Belt-and-suspenders: dedicated column update after create
-  if (imageUrl && result.id) {
-    const { data: imgRow, error: imgError } = await supabase
-      .from("cases")
-      .update({ product_image_url: imageUrl })
-      .eq("id", result.id)
-      .eq("maker_id", maker.id)
-      .select("product_image_url")
-      .maybeSingle();
-
-    if (imgError || imgRow?.product_image_url !== imageUrl) {
-      console.error("[completeMakerSetupAction] image url verify failed", {
-        caseId: result.id,
-        error: imgError?.message,
-        saved: imgRow?.product_image_url,
-      });
-      return {
-        error:
-          imgError?.message ??
-          "商品画像URLの保存に失敗しました。案件は作成済みのため編集画面から画像を再設定してください。",
-      };
-    }
-  }
-
-  const { error: onboardError } = await supabase
-    .from("profiles")
-    .update({ onboarding_completed: true })
-    .eq("id", maker.id);
-
-  if (onboardError) {
-    console.error("[completeMakerSetupAction] onboarding flag failed", {
-      makerId: maker.id,
-      error: onboardError.message,
-    });
-    // Case already created — surface warning but still redirect
-  }
-
-  const completePath = `/cases?created=${encodeURIComponent(result.id)}`;
-  console.info("[completeMakerSetupAction] success", {
-    table: "cases",
-    caseId: result.id,
-    makerId: maker.id,
-    product_name: caseInput.productName,
-    status: "open",
-    reviewStatus: result.reviewStatus,
-    betaAutoApproveCreates: process.env.BETA_AUTO_APPROVE_CASES === "true",
-    redirect: completePath,
+    redirect: "/maker/dashboard",
   });
 
   revalidatePath("/maker/setup");
+  revalidatePath("/maker/dashboard");
+  revalidatePath("/maker/cases");
   revalidatePath("/maker/registration-complete");
-  revalidatePath("/cases");
-  redirect(completePath);
+  redirect("/maker/dashboard");
 }
 
 /** Auth-only setup save. Never calls signUp / signIn. */

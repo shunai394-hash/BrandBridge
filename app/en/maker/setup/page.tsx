@@ -8,7 +8,7 @@ import { getProfileById } from "@/lib/profiles";
 export const metadata: Metadata = {
   title: "Product supplier setup",
   description:
-    "Complete your company and product listing on BrandBridge to connect with Japanese sales partners.",
+    "Complete your company profile on BrandBridge to connect with Japanese sales partners.",
 };
 
 export const dynamic = "force-dynamic";
@@ -23,6 +23,9 @@ export default async function EnglishMakerSetupPage() {
   }
 
   const profile = await getProfileById(user.id);
+  if (profile?.onboarding_completed) {
+    redirect("/en/maker/dashboard");
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:py-16" lang="en">
@@ -32,11 +35,11 @@ export default async function EnglishMakerSetupPage() {
           FOR OVERSEAS BRANDS · SETUP
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          List your product
+          Complete company setup
         </h1>
         <p className="mt-3 text-muted">
-          Complete your company profile and product details. Saved information
-          stays linked to your BrandBridge account.
+          Register your company profile to finish onboarding. You can add
+          products later from your maker dashboard.
         </p>
       </header>
       <EnMakerSetupForm
@@ -50,5 +53,3 @@ export default async function EnglishMakerSetupPage() {
     </div>
   );
 }
-
-

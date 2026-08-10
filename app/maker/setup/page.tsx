@@ -6,7 +6,7 @@ import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "商品提供企業情報の設定",
-  description: "認証後の商品提供企業情報・商品の入力ページです。",
+  description: "認証後の商品提供企業情報の入力ページです。",
 };
 
 export const dynamic = "force-dynamic";
@@ -16,10 +16,12 @@ export default async function MakerSetupPage() {
   if (!user) {
     redirect("/login?next=/maker/setup");
   }
-  // This setup page is also used by existing Partner + Maker users
-  // when they add another product/case.
-  // Do not redirect based on onboarding_completed here.
-  // The setup form creates the new case independently.
+
+  const profile = await getProfileById(user.id);
+  // Completed makers go to dashboard; product registration is /maker/cases/new.
+  if (user.isMaker && profile?.onboarding_completed) {
+    redirect("/maker/dashboard");
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
@@ -28,14 +30,20 @@ export default async function MakerSetupPage() {
           FOR MAKERS · SETUP
         </p>
         <h1 className="mt-2 font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          商品提供企業情報・商品を登録
+          会社情報を登録
         </h1>
         <p className="mt-3 text-muted">
-          認証済みアカウントに紐づけて保存します。入力内容は消えません。
+          会社情報を登録して初回セットアップを完了します。商品はセットアップ完了後に登録できます。
         </p>
       </header>
-      <MakerSetupForm email={user.email} userId={user.id} />
+      <MakerSetupForm
+        email={user.email}
+        userId={user.id}
+        initialCompanyName={profile?.company_name ?? ""}
+        initialContactName={profile?.contact_name ?? ""}
+        initialIndustry={profile?.industry ?? ""}
+        initialCompanyOverview={profile?.description ?? ""}
+      />
     </div>
   );
 }
-

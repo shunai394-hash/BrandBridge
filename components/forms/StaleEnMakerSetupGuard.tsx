@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const FORM_VERSION = "en-setup-v1";
+const FORM_VERSION = "en-setup-v2";
 
 /**
  * Soft Navigation can leave the Japanese MakerSetupForm DOM on /en/maker/setup.
@@ -25,7 +25,7 @@ export function StaleEnMakerSetupGuard() {
     const ok =
       Boolean(form) &&
       text.includes("Company Name") &&
-      text.includes("List your product") &&
+      text.includes("Complete company setup") &&
       !text.includes("商品提供企業情報") &&
       !text.includes("商品提供企業情報・商品を登録") &&
       !text.includes("会社名");
@@ -41,4 +41,3 @@ export function StaleEnMakerSetupGuard() {
 
   return null;
 }
-

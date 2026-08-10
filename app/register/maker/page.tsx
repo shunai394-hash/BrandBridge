@@ -8,18 +8,22 @@ import { getProfileById } from "@/lib/profiles";
 export const metadata: Metadata = {
   title: "商品提供企業として登録",
   description:
-    "BrandBridgeへ商品提供企業として登録。メール認証後に会社・商品情報を入力します。",
+    "BrandBridgeへ商品提供企業として登録。メール認証後に会社情報を入力します。",
 };
 
 export const dynamic = "force-dynamic";
 
 export default async function MakerRegisterPage() {
   const user = await getSessionUser();
-  console.log("[MakerRegisterPage] session user:", user);
   if (user) {
-    // Existing authenticated users can add Maker capability.
-    // Do not use onboarding_completed here: it represents initial onboarding,
-    // not whether the user is allowed to create another Maker case.
+    if (user.isMaker) {
+      const profile = await getProfileById(user.id);
+      if (profile?.onboarding_completed) {
+        redirect("/maker/dashboard");
+      }
+      redirect("/maker/setup");
+    }
+    // Logged-in non-makers can still open setup to add maker capability.
     redirect("/maker/setup");
   }
 
@@ -33,7 +37,7 @@ export default async function MakerRegisterPage() {
           商品提供企業として登録
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
-          メールまたは Google でアカウントを作成します。認証後に会社情報・商品情報を入力します（認証前のデータ保存はありません）。
+          メールまたは Google でアカウントを作成します。認証後に会社情報を入力します（認証前のデータ保存はありません）。商品登録は会社情報のセットアップ完了後に行えます。
         </p>
         <p className="mt-2 text-sm text-muted">
           まだ検討中の方は{" "}
@@ -47,4 +51,3 @@ export default async function MakerRegisterPage() {
     </div>
   );
 }
-

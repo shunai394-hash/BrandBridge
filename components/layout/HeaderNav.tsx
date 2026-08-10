@@ -45,7 +45,13 @@ function usesHardNav(href: string): boolean {
     href === "/cases" ||
     href === "/en/cases" ||
     href === "/maker/cases/new" ||
+    href === "/maker/cases" ||
+    href === "/maker/dashboard" ||
+    href === "/maker/setup" ||
     href === "/en/maker/setup" ||
+    href === "/en/maker/cases/new" ||
+    href === "/en/maker/cases" ||
+    href === "/en/maker/dashboard" ||
     href === "/en/products"
   );
 }
@@ -123,9 +129,11 @@ function userLinks(
 
   if (user.role === "maker") {
     if (en) {
-      links.push({ href: "/en/products", label: "My Products" });
-      links.push({ href: "/en/maker/setup", label: "Register Product" });
+      links.push({ href: "/en/maker/dashboard", label: "Dashboard" });
+      links.push({ href: "/en/maker/cases", label: "My Products" });
+      links.push({ href: "/en/maker/cases/new", label: "Register Product" });
     } else {
+      links.push({ href: "/maker/dashboard", label: "管理画面" });
       links.push({ href: "/maker/cases", label: "マイ商品" });
       links.push({ href: "/maker/cases/new", label: "商品を登録" });
     }

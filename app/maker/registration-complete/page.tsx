@@ -80,8 +80,9 @@ export default async function MakerRegistrationCompletePage({
         </h1>
 
         <p className="mt-3 text-muted">
-          商品登録が完了しました。登録した商品情報をご確認ください。
-          審査完了後、承認された商品はパートナーに公開されます。
+          {latest
+            ? "商品登録が完了しました。登録した商品情報をご確認ください。審査完了後、承認された商品はパートナーに公開されます。"
+            : "会社情報のセットアップは完了しています。商品は準備ができてから登録できます。"}
         </p>
       </header>
 
@@ -107,13 +108,11 @@ export default async function MakerRegistrationCompletePage({
           </p>
         </div>
       ) : (
-        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4">
-          <p className="font-medium text-red-800">
-            商品データが見つかりません
-          </p>
+        <div className="mb-6 rounded-xl border border-border bg-surface px-5 py-4">
+          <p className="font-medium text-navy">まだ商品は登録されていません</p>
 
-          <p className="mt-1 text-sm text-red-700">
-            保存に失敗した可能性があります。もう一度商品登録をお試しください。
+          <p className="mt-1 text-sm text-muted">
+            商品0件でもメーカー管理画面は利用できます。準備ができたら商品を登録してください。
             {created ? ` 作成ID: ${created}` : null}
           </p>
         </div>
@@ -121,9 +120,9 @@ export default async function MakerRegistrationCompletePage({
 
       <ol className="mb-8 space-y-2 rounded-xl border border-border bg-cream/70 px-5 py-4 text-sm text-navy">
         <li>1. 登録・メール認証</li>
-        <li>2. 商品登録・審査</li>
-        <li>3. 商品公開・パートナー募集</li>
-        <li>4. 販売パートナーから応募</li>
+        <li>2. 会社情報セットアップ</li>
+        <li>3. 商品登録・審査</li>
+        <li>4. 商品公開・パートナー募集</li>
       </ol>
 
       <section className="mb-6 rounded-xl border border-border bg-surface p-5 md:p-6">
@@ -218,8 +217,8 @@ export default async function MakerRegistrationCompletePage({
       </section>
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button href="/cases" className="w-full sm:w-auto">
-          商品一覧を見る
+        <Button href="/maker/dashboard" className="w-full sm:w-auto">
+          メーカー管理画面へ
         </Button>
 
         <Button
@@ -227,7 +226,15 @@ export default async function MakerRegistrationCompletePage({
           variant="outline"
           className="w-full sm:w-auto"
         >
-          別の商品を追加登録
+          {latest ? "別の商品を追加登録" : "商品を登録する"}
+        </Button>
+
+        <Button
+          href="/maker/cases"
+          variant="outline"
+          className="w-full sm:w-auto"
+        >
+          マイ商品一覧
         </Button>
 
         <Button

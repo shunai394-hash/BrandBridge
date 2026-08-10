@@ -19,7 +19,7 @@ export default async function EnglishMakerRegisterPage() {
     if (user.role === "maker") {
       const profile = await getProfileById(user.id);
       if (profile?.onboarding_completed) {
-        redirect("/en/products");
+        redirect("/en/maker/dashboard");
       }
       // English register success path: always continue to English maker setup.
       redirect("/en/maker/setup");
@@ -38,8 +38,8 @@ export default async function EnglishMakerRegisterPage() {
           List Your Brand
         </h1>
         <p className="mt-3 leading-relaxed text-muted">
-          Start selling in Japan—share your company and product details so
-          qualified Japanese partners can evaluate fit and inquire.
+          Start selling in Japan - create your account, complete company setup,
+          then list products for qualified Japanese partners.
         </p>
         <p className="mt-2 text-sm text-muted">
           Prefer to learn the flow first?{" "}

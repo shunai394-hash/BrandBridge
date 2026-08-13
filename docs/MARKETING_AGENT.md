@@ -62,7 +62,11 @@ TikTok 列（hook / narration / caption / hashtags）は `054_marketing_tiktok_d
 
 RLS はすべて `public.is_admin()` のみ。
 
-## 環境変数（サーバー専用）
+## 文章AIと音声AI
+
+- 文章（記事・機会・再構成）: Groq（既定）または OpenAI。`MARKETING_AI_PROVIDER` で切替。
+- ナレーション音声: 既存 Voicebox API（`TTS_API_URL`、Qwen TTS 1.7B）。新しい TTS は作らない。
+- キーはサーバー専用。ログ・画面・Git に出さない。
 
 [ENV.md](./ENV.md) の Marketing Agent 節を参照。
 

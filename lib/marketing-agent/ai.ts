@@ -1,9 +1,10 @@
 /**
- * Server-only OpenAI-compatible Chat Completions client.
- * Never import from Client Components. Never expose the API key.
+ * Server-only Marketing Agent text AI.
+ * Groq and OpenAI are interchangeable Chat Completions providers.
+ * Never import from Client Components. Never log or return the API key.
  */
 
-const DEFAULT_MODEL = "gpt-4o-mini";
+export type AiProvider = "groq" | "openai";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -12,25 +13,73 @@ export type ChatMessage = {
 
 export type AiStatus = {
   configured: boolean;
+  provider: AiProvider;
   model: string;
   message: string;
 };
 
+const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
+
+function resolveProvider(): AiProvider {
+  const explicit = process.env.MARKETING_AI_PROVIDER?.trim().toLowerCase();
+  if (explicit === "groq" || explicit === "openai") return explicit;
+  if (process.env.GROQ_API_KEY?.trim()) return "groq";
+  return "openai";
+}
+
+function providerConfig(provider: AiProvider): {
+  provider: AiProvider;
+  apiKey: string;
+  base: string;
+  model: string;
+} {
+  if (provider === "groq") {
+    return {
+      provider,
+      apiKey: process.env.GROQ_API_KEY?.trim() || "",
+      base:
+        process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") ||
+        "https://api.groq.com/openai/v1",
+      model: process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL,
+    };
+  }
+  return {
+    provider,
+    apiKey: process.env.OPENAI_API_KEY?.trim() || "",
+    base:
+      process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") ||
+      "https://api.openai.com/v1",
+    model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
+  };
+}
+
+function redactSecrets(text: string): string {
+  return text
+    .replace(/gsk_[A-Za-z0-9]+/g, "[redacted]")
+    .replace(/sk-[A-Za-z0-9-]+/g, "[redacted]")
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]");
+}
+
 export function getAiStatus(): AiStatus {
-  const key = process.env.OPENAI_API_KEY?.trim();
-  const model = process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL;
-  if (!key) {
+  const provider = resolveProvider();
+  const cfg = providerConfig(provider);
+  if (!cfg.apiKey) {
     return {
       configured: false,
-      model,
+      provider,
+      model: cfg.model,
       message:
-        "OPENAI_API_KEY 未設定。テンプレート生成で継続します（AI提案は後から接続可能）。",
+        provider === "groq"
+          ? "GROQ_API_KEY 未設定。MARKETING_AI_PROVIDER=openai に切り替えるか、キーを設定してください。"
+          : "OPENAI_API_KEY 未設定。テンプレート生成で継続します。",
     };
   }
   return {
     configured: true,
-    model,
-    message: `AI 接続済み（${model}）`,
+    provider,
+    model: cfg.model,
+    message: `文章AI: ${provider}（${cfg.model}）。音声は Voicebox / Qwen TTS と分離。`,
   };
 }
 
@@ -38,25 +87,27 @@ export async function chatCompletion(
   messages: ChatMessage[],
   options?: { temperature?: number; maxTokens?: number },
 ): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
-    return { ok: false, error: "OPENAI_API_KEY is not set" };
+  const provider = resolveProvider();
+  const cfg = providerConfig(provider);
+  if (!cfg.apiKey) {
+    return {
+      ok: false,
+      error:
+        provider === "groq"
+          ? "GROQ_API_KEY is not set"
+          : "OPENAI_API_KEY is not set",
+    };
   }
 
-  const base =
-    process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") ||
-    "https://api.openai.com/v1";
-  const model = process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL;
-
   try {
-    const res = await fetch(`${base}/chat/completions`, {
+    const res = await fetch(`${cfg.base}/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${cfg.apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model,
+        model: cfg.model,
         temperature: options?.temperature ?? 0.4,
         max_tokens: options?.maxTokens ?? 3500,
         messages,
@@ -67,7 +118,7 @@ export async function chatCompletion(
       const body = await res.text().catch(() => "");
       return {
         ok: false,
-        error: `AI HTTP ${res.status}: ${body.slice(0, 240)}`,
+        error: `${provider} HTTP ${res.status}: ${redactSecrets(body).slice(0, 180)}`,
       };
     }
 

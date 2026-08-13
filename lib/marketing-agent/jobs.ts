@@ -1,4 +1,5 @@
 import { getAiStatus } from "./ai";
+import { pingVoicebox } from "./voicebox";
 import { analyzeCompetitors } from "./competitors";
 import { generateArticleDraft, generateOpportunities } from "./content";
 import {
@@ -569,6 +570,7 @@ export async function loadGrowthDashboard() {
 export async function loadMarketingConsole() {
   const [
     ai,
+    voicebox,
     gsc,
     agentReach,
     runs,
@@ -588,6 +590,7 @@ export async function loadMarketingConsole() {
     tables,
   ] = await Promise.all([
     Promise.resolve(getAiStatus()),
+    pingVoicebox(),
     Promise.resolve(getSearchConsoleConnection()),
     Promise.resolve(getAgentReachConnection()),
     listRecentRuns(),
@@ -609,6 +612,7 @@ export async function loadMarketingConsole() {
 
   return {
     ai,
+    voicebox,
     gsc,
     agentReach,
     runs,

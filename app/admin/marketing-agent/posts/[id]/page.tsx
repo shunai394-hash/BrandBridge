@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/marketing-agent/ActionForm";
+import { NarrationDownloadForm } from "@/components/marketing-agent/NarrationDownloadForm";
 import { StatusBadge } from "@/components/marketing-agent/StatusBadge";
 import {
   publishPostAction,
@@ -113,6 +114,11 @@ export default async function PostDetailPage({
           />
         </label>
       </ActionForm>
+
+      <div className="mt-6 rounded-md border border-border p-4">
+        <h2 className="text-lg text-navy">Narration / Voice</h2>
+        <NarrationDownloadForm postId={item.id} />
+      </div>
 
       <dl className="mt-6 grid gap-2 text-sm">
         <div>

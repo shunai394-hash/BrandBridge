@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/marketing-agent/ActionForm";
+import { NarrationDownloadForm } from "@/components/marketing-agent/NarrationDownloadForm";
 import { StatusBadge } from "@/components/marketing-agent/StatusBadge";
 import {
   repurposeContentAction,
@@ -146,6 +147,10 @@ export default async function ContentDetailPage({
           label="各媒体向けに再構成"
           hidden={{ contentId: item.id }}
         />
+      </div>
+      <div className="mt-6 rounded-md border border-border p-4">
+        <h2 className="text-lg text-navy">Narration / Voice</h2>
+        <NarrationDownloadForm contentId={item.id} />
       </div>
     </div>
   );

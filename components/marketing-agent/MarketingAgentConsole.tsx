@@ -89,8 +89,19 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
         <p className="text-sm text-muted">
           調査 → コンテンツ作成 → 配信 → 計測 → 改善 → 拡大。自動投稿は公式API接続時のみ。Cookieログインは使いません。
         </p>
-        <div className="grid gap-3 md:grid-cols-3">
-          <Stat label="AI" value={data.ai.configured ? data.ai.model : "未接続"} />
+        <div className="grid gap-3 md:grid-cols-4">
+          <Stat
+            label="文章AI"
+            value={
+              data.ai.configured
+                ? `${data.ai.provider} / ${data.ai.model}`
+                : `${data.ai.provider} 未接続`
+            }
+          />
+          <Stat
+            label="ナレーション"
+            value={data.voicebox.connected ? "Voicebox 接続可" : "Voicebox 未接続"}
+          />
           <Stat
             label="Search Console"
             value={data.gsc.connected ? "接続設定あり" : "未接続"}
@@ -98,6 +109,7 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
           <Stat label="公開リサーチ" value={data.agentReach.mode} />
         </div>
         <p className="text-xs text-muted">{data.ai.message}</p>
+        <p className="text-xs text-muted">{data.voicebox.message}</p>
         <p className="text-xs text-muted">{data.gsc.message}</p>
         <p className="text-xs text-muted">{data.agentReach.message}</p>
       </Card>

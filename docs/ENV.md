@@ -93,9 +93,19 @@ role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/
 
 | 変数名 | 説明 |
 |--------|------|
-| `OPENAI_API_KEY` | Chat Completions。未設定時はテンプレート下書き |
+| `MARKETING_AI_PROVIDER` | `groq` または `openai`。未指定時は Groq キーがあれば groq |
+| `GROQ_API_KEY` | Marketing Agent 文章生成（サーバー専用。ログしない） |
+| `GROQ_MODEL` | 既定 `llama-3.3-70b-versatile` |
+| `GROQ_BASE_URL` | 既定 `https://api.groq.com/openai/v1` |
+| `OPENAI_API_KEY` | provider=openai のとき。未設定時はテンプレート下書き |
 | `OPENAI_MODEL` | 既定 `gpt-4o-mini` |
 | `OPENAI_BASE_URL` | 互換エンドポイント（任意） |
+| `TTS_API_URL` | 既存 Voicebox。既定 `http://127.0.0.1:17493` |
+| `TTS_ENGINE` | 既定 `qwen`（Qwen TTS。モデルは再構築しない） |
+| `TTS_MODEL_SIZE` | 既定 `1.7B` |
+| `TTS_LANGUAGE` | 既定 `en` |
+| `TTS_PROFILE_ID` | Voicebox の voice profile UUID（任意） |
+| `TTS_PROFILE` | Voicebox の profile 名（任意） |
 | `GOOGLE_SEARCH_CONSOLE_SITE_URL` | 例: `sc-domain:brandbridge.jp` |
 | `GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL` | サービスアカウント |
 | `GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY` | PEM（`\n` 可） |

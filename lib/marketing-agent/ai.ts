@@ -4,6 +4,8 @@
  * Never import from Client Components. Never log or return the API key.
  */
 
+import { parseJsonFromAi } from "./json";
+
 export type AiProvider = "groq" | "openai";
 
 export type ChatMessage = {
@@ -134,4 +136,21 @@ export async function chatCompletion(
       error: error instanceof Error ? error.message : "AI request failed",
     };
   }
+}
+
+/**
+ * JSON completion via the existing chatCompletion() client.
+ * Does not add a second fetch/AI provider. Parses with parseJsonFromAi().
+ */
+export async function completeJson<T>(
+  messages: ChatMessage[],
+  options?: { temperature?: number; maxTokens?: number },
+): Promise<{ ok: true; data: T } | { ok: false; error: string }> {
+  const result = await chatCompletion(messages, options);
+  if (!result.ok) return result;
+  const data = parseJsonFromAi<T>(result.text);
+  if (data == null) {
+    return { ok: false, error: "AI returned invalid JSON" };
+  }
+  return { ok: true, data };
 }

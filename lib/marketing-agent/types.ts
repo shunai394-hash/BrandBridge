@@ -458,6 +458,20 @@ export type JobResult = {
   runId?: string;
 };
 
+export type PrVideoScene = {
+  duration: number;
+  visual: string;
+  voiceover: string;
+  caption: string;
+};
+
+export type PrVideoScript = {
+  hook: string;
+  scenes: PrVideoScene[];
+  narrationText: string;
+  cta: string;
+};
+
 export const DEFAULT_PLATFORM_LIMITS: Record<
   AccountPlatform,
   { daily: number; weekly: number }

@@ -1,4 +1,6 @@
+import { getCaseById } from "@/lib/cases";
 import { getAiStatus } from "./ai";
+import { generatePrVideoScript } from "./pr-script";
 import { pingVoicebox } from "./voicebox";
 import { analyzeCompetitors } from "./competitors";
 import { generateArticleDraft, generateOpportunities } from "./content";
@@ -47,7 +49,7 @@ import {
   updateOpportunityStatus,
   upsertCompetitor,
 } from "./store";
-import type { JobResult, SocialPlatform } from "./types";
+import type { JobResult, PrVideoScript, SocialPlatform } from "./types";
 
 const ALL_PLATFORMS: SocialPlatform[] = [
   "brandbridge_blog",
@@ -507,6 +509,29 @@ export async function jobScaling(userId: string | null): Promise<JobResult> {
     output: { scalingReady: dashboard.scalingReady },
   });
   return { ok: true, message: recs.summary, runId: started.runId };
+}
+
+/**
+ * Phase 1: generate PR script JSON only.
+ * Does not insert marketing_agent_runs (would require a new run_type CHECK).
+ */
+export async function jobGeneratePrVideoScript(
+  caseId: string,
+): Promise<JobResult & { script?: PrVideoScript }> {
+  const caseItem = await getCaseById(caseId);
+  if (!caseItem) {
+    return { ok: false, message: "Case が見つかりません" };
+  }
+
+  const result = await generatePrVideoScript(caseItem);
+  if (!result.ok) {
+    return { ok: false, message: result.error };
+  }
+  return {
+    ok: true,
+    message: `PR台本を生成しました（${caseItem.productName || caseItem.title}）`,
+    script: result.script,
+  };
 }
 
 export async function runWeeklyMarketingPipeline(

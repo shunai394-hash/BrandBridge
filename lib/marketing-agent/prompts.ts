@@ -78,6 +78,43 @@ category one of performance, growth, scaling, content, social, brand_authority.
 Context:\n${context}`;
 }
 
+export const SYSTEM_PR_VIDEO = `You write short-form product PR video scripts for BrandBridge Cases.
+The script introduces a real product to potential viewers. It is not an SEO article.
+Rules:
+- Use only facts present in the provided Case fields. Do not invent features, awards, numbers, prices, testimonials, or results.
+- No exaggeration, false claims, or fictional track records.
+- First seconds must communicate the product's appeal (hook).
+- Then explain real features and benefits from the Case.
+- End with a natural CTA. Do not hard-sell or invent a URL/offer that is not in the Case.
+- narrationText must be a complete spoken script: join scene voiceovers into natural sentences suitable for future TTS. Do not include stage directions, timestamps, or speaker labels.
+- Output valid JSON only. No markdown fences, no commentary.`;
+
+export function prVideoScriptPrompt(caseContext: string): string {
+  return `Create a short-form PR video script (about 15-30 seconds total) for this product Case.
+Match the language of the Case fields. If the Case is primarily Japanese, write Japanese. Otherwise match the Case language.
+Structure:
+1. hook: a short opening line that earns attention in the first seconds.
+2. scenes: 4-8 scenes. Each scene has duration (seconds, number), visual (what to show — describe from Case facts only; do not analyze or invent image/video content), voiceover (spoken line), caption (on-screen subtitle).
+3. narrationText: all scene voiceovers joined into one natural spoken paragraph/script for TTS.
+4. cta: a natural closing call to action based only on Case facts (e.g. learn more / inquire). Do not invent discounts or claims.
+Return JSON only with this exact shape:
+{
+  "hook": "...",
+  "scenes": [
+    {
+      "duration": 3,
+      "visual": "...",
+      "voiceover": "...",
+      "caption": "..."
+    }
+  ],
+  "narrationText": "...",
+  "cta": "..."
+}
+Case fields (use only these; omit nothing that is present; add nothing that is absent):
+${caseContext}`;
+}
+
 export function scalingPrompt(context: string): string {
   return `BrandBridge scaling engine: start small, collect ~30 days of data, then propose increasing winners.
 AI must NOT create SNS accounts. Propose candidates only.

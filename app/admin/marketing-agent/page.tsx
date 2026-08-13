@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { MarketingAgentConsole } from "@/components/marketing-agent/MarketingAgentConsole";
+import { listAdminCases } from "@/lib/admin";
 import { loadMarketingConsole } from "@/lib/marketing-agent";
 
 export const metadata: Metadata = {
@@ -18,7 +19,10 @@ export const maxDuration = 120;
  */
 export default async function MarketingAgentPage() {
   noStore();
-  const data = await loadMarketingConsole();
+  const [data, casesResult] = await Promise.all([
+    loadMarketingConsole(),
+    listAdminCases(),
+  ]);
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -29,7 +33,16 @@ export default async function MarketingAgentPage() {
         BrandBridge 専用エンジン：調査 → コンテンツ → 配信 → 計測 → 改善 → 拡大。既存の案件・交渉・契約・Stripe・Resend
         には接続しません。
       </p>
-      <MarketingAgentConsole data={data} />
+      <MarketingAgentConsole
+        data={data}
+        cases={casesResult.items.map((item) => ({
+          id: item.id,
+          caseNumber: item.caseNumber,
+          productName: item.productName,
+          makerName: item.makerName,
+        }))}
+        casesError={casesResult.error}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   type ContentStatus,
   type OpportunityStatus,
   type PostStatus,
+  type PrVideoScript,
   type SocialPlatform,
 } from "./types";
 import {
@@ -16,6 +17,7 @@ import {
   jobCompetitorAnalysis,
   jobDiscoverOpportunities,
   jobGenerateArticle,
+  jobGeneratePrVideoScript,
   jobMarketResearch,
   jobPerformanceAnalysis,
   jobPlatformDiscovery,
@@ -89,6 +91,15 @@ export async function discoverOpportunitiesAction(): Promise<{
   const result = await jobDiscoverOpportunities(admin.id);
   revalidateMarketing();
   return { message: result.message, ok: result.ok };
+}
+
+export async function generatePrVideoScriptAction(
+  formData: FormData,
+): Promise<{ ok: boolean; message: string; script?: PrVideoScript }> {
+  await requireAdmin();
+  const caseId = formStr(formData, "caseId");
+  if (!caseId) return { ok: false, message: "Case を選択してください" };
+  return jobGeneratePrVideoScript(caseId);
 }
 
 export async function generateArticleAction(

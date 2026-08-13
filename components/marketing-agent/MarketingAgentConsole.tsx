@@ -30,6 +30,7 @@ import {
 } from "@/lib/marketing-agent/types";
 import type { MarketingConsoleData } from "@/lib/marketing-agent";
 import { ActionForm } from "./ActionForm";
+import { PrScriptGenerator, type PrScriptCaseOption } from "./PrScriptGenerator";
 import { StatusBadge } from "./StatusBadge";
 
 function Card({
@@ -72,7 +73,15 @@ function formatWhen(iso: string | null | undefined): string {
   }
 }
 
-export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) {
+export function MarketingAgentConsole({
+  data,
+  cases = [],
+  casesError,
+}: {
+  data: MarketingConsoleData;
+  cases?: PrScriptCaseOption[];
+  casesError?: string;
+}) {
   const scheduled = data.posts.filter((p) => p.status === "scheduled");
   const published = data.posts.filter((p) => p.status === "published");
   const manual = data.posts.filter((p) => p.status === "manual_publish_required");
@@ -140,6 +149,10 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
             pendingLabel="実行中（最大2分）..."
           />
         </div>
+      </Card>
+
+      <Card title="Case → PR台本" id="pr-script">
+        <PrScriptGenerator cases={cases} casesError={casesError} />
       </Card>
 
       <Card title="ジョブ" id="jobs">

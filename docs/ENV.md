@@ -26,6 +26,22 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `REPLY_TO_EMAIL` | サーバーのみ | `sales@brandbridge.jp` | `/admin/mail` Reply-To（必須）。未設定時は MAIL_FROM_ADDRESS |
 | Resend Webhook | Dashboard | `email.received` → `/api/resend/inbound` | 受信を受信箱・スレッドへ自動反映 |
 
+### Marketing Agent（任意・管理者のみ）
+
+`/admin/marketing-agent` 用。未設定でも管理画面は壊れません（Search Console未接続 / AI API未設定と表示）。**自動公開・自動投稿はしません。** 詳細は [MARKETING_AGENT.md](./MARKETING_AGENT.md)。
+
+| 変数名 | 公開範囲 | 説明 |
+|--------|----------|------|
+| `OPENAI_API_KEY` | サーバーのみ | OpenAI 互換 Chat Completions の API キー |
+| `OPENAI_MODEL` | サーバーのみ | 省略時 `gpt-4o-mini` |
+| `OPENAI_BASE_URL` | サーバーのみ | 省略時 `https://api.openai.com/v1` |
+| `GOOGLE_SEARCH_CONSOLE_SITE_URL` | サーバーのみ | GSC プロパティ。例: `sc-domain:example.com` または `https://example.com/` |
+| `GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL` | サーバーのみ | サービスアカウントの client_email |
+| `GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY` | サーバーのみ | サービスアカウント秘密鍵（PEM。`\n` 可） |
+| `GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON` | サーバーのみ | 上記 email/key の代わりに JSON 1本 |
+| `AGENT_REACH_BIN` | サーバーのみ | 任意。ローカル `agent-reach` CLI パス。未設定でも Jina 公開Webは利用 |
+| `AGENT_REACH_DISABLED` | サーバーのみ | `true` で外部リサーチを止める |
+
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。
 

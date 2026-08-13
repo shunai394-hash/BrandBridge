@@ -13,7 +13,7 @@
 - 交渉申込・承認・メッセージ
 - 成約プロセス（パイプライン）と成約（`deals`）管理
 - 仲介手数料（設定変更可能・初期値 5%）
-- 管理画面（案件審査・ユーザー管理・交渉一覧・成約集計）
+- 管理画面（案件審査・ユーザー管理・交渉一覧・成約集計・Marketing Agent）
 - 利用規約 / プライバシーポリシー / お問い合わせ
 - SEO（メタ・OG・favicon・sitemap / robots）
 
@@ -122,6 +122,7 @@ npm run dev
 | `/admin/cases` | 案件審査 |
 | `/admin/users` | ユーザー管理 |
 | `/admin/negotiations` | 交渉パイプライン・成約化 |
+| `/admin/marketing-agent` | Marketing Agent（SEO/コンテンツ企画、管理者のみ） |
 
 ## 案件カテゴリ
 
@@ -137,6 +138,7 @@ npm run dev
 - `commission_settings` … デフォルト手数料率（初期 5%）
 - `contact_inquiries` … お問い合わせ
 - `messages` … 承認後メッセージ
+- `marketing_agent_runs` / `marketing_content_ideas` / `marketing_content_drafts` / `marketing_recommendations` … Marketing Agent（admin のみ、052）
 
 ## スクリプト
 

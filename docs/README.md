@@ -9,6 +9,7 @@
 | 3 | [SUPABASE_PRODUCTION.md](./SUPABASE_PRODUCTION.md) | 本番 Supabase 設定確認 |
 | 4 | [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) | Vercel デプロイ手順 |
 | 5 | [ADMIN_SETUP.md](./ADMIN_SETUP.md) | 管理者初期設定 |
+| — | [MARKETING_AGENT.md](./MARKETING_AGENT.md) | Marketing Agent（SEO/コンテンツ、任意） |
 
 ```bash
 npm run check:preflight

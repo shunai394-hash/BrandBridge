@@ -35,6 +35,7 @@ npm run admin:create
 2. `ADMIN_EMAIL` / `ADMIN_PASSWORD`
 3. 成功 → `/admin`
 4. `/admin/cases` で審査待ち（`pending_review`）を確認
+5. （任意）`052_marketing_agent.sql` 適用後、`/admin/marketing-agent` で SEO/コンテンツ企画（[MARKETING_AGENT.md](./MARKETING_AGENT.md)）
 
 | 操作 | 結果 |
 |------|------|

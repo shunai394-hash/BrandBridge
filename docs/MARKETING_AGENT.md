@@ -15,7 +15,7 @@ BrandBridge 管理画面専用の Marketing Engine です。
 - 既存 BrandBridge 記事のカタログ（上書きしない）
 - 「今書くべき記事」の提案
 - GEO を意識したブログ下書き（定義・質問見出し・FAQ・著者情報・引用）
-- 登録 Case から短尺 PR 動画台本 JSON（hook / scenes / narrationText / cta）。音声・動画生成はしない
+- 登録 Case から短尺 PR 動画台本 JSON（title / hook / scenes / cta）。画面表示・コピー・TXT のみ。DB 保存・音声・動画生成はしない
 - 1記事から Instagram（Carousel/Reel）/ TikTok（短尺台本）/ LinkedIn（B2B）ほかへ**再構成**（同一文面のコピーではない）
 - 人間が作った SNS アカウントの接続と投稿上限
 - Content Calendar と承認フロー（Generate → Review → Approve → Schedule → Publish）

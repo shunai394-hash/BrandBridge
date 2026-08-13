@@ -39,6 +39,7 @@ export default async function MarketingAgentPage() {
           id: item.id,
           caseNumber: item.caseNumber,
           productName: item.productName,
+          category: item.category,
           makerName: item.makerName,
         }))}
         casesError={casesResult.error}

@@ -2,6 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
+import { getCaseById } from "@/lib/cases";
+import {
+  generatePrVideoScript,
+  productSnapshotFromCase,
+  type PrScriptProductSnapshot,
+  type PrVideoScript,
+} from "./pr-script";
 import {
   DEFAULT_PLATFORM_LIMITS,
   type AccountPlatform,
@@ -9,7 +16,6 @@ import {
   type ContentStatus,
   type OpportunityStatus,
   type PostStatus,
-  type PrVideoScript,
   type SocialPlatform,
 } from "./types";
 import {
@@ -17,7 +23,6 @@ import {
   jobCompetitorAnalysis,
   jobDiscoverOpportunities,
   jobGenerateArticle,
-  jobGeneratePrVideoScript,
   jobMarketResearch,
   jobPerformanceAnalysis,
   jobPlatformDiscovery,
@@ -95,11 +100,31 @@ export async function discoverOpportunitiesAction(): Promise<{
 
 export async function generatePrVideoScriptAction(
   formData: FormData,
-): Promise<{ ok: boolean; message: string; script?: PrVideoScript }> {
+): Promise<{
+  ok: boolean;
+  message: string;
+  script?: PrVideoScript;
+  product?: PrScriptProductSnapshot;
+}> {
   await requireAdmin();
   const caseId = formStr(formData, "caseId");
-  if (!caseId) return { ok: false, message: "Case を選択してください" };
-  return jobGeneratePrVideoScript(caseId);
+  if (!caseId) return { ok: false, message: "Please select a product." };
+
+  const caseItem = await getCaseById(caseId);
+  if (!caseItem) {
+    return { ok: false, message: "Could not load this product. Generation was not started." };
+  }
+
+  const result = await generatePrVideoScript(caseItem);
+  if (!result.ok) {
+    return { ok: false, message: result.error };
+  }
+  return {
+    ok: true,
+    message: `PR script generated (${caseItem.productName || caseItem.title})`,
+    script: result.script,
+    product: productSnapshotFromCase(caseItem),
+  };
 }
 
 export async function generateArticleAction(

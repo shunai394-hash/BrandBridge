@@ -151,7 +151,7 @@ export function MarketingAgentConsole({
         </div>
       </Card>
 
-      <Card title="Case → PR台本" id="pr-script">
+      <Card title="PR Video Script Generator" id="pr-script">
         <PrScriptGenerator cases={cases} casesError={casesError} />
       </Card>
 

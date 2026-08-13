@@ -197,6 +197,7 @@ function mapAccount(row: Json): SocialAccount {
     platform,
     accountName: String(row.account_name),
     country: textOrNull(row.country),
+    targetCountry: textOrNull(row.country),
     language: String(row.language ?? "en"),
     targetAudience: textOrNull(row.target_audience),
     profileUrl: textOrNull(row.profile_url),
@@ -224,6 +225,10 @@ function mapPost(row: Json): SocialPost {
     format: textOrNull(row.format),
     title: textOrNull(row.title),
     body: String(row.body ?? ""),
+    hook: textOrNull(row.hook),
+    narration: textOrNull(row.narration),
+    caption: textOrNull(row.caption),
+    hashtags: asStringArray(row.hashtags),
     cta: textOrNull(row.cta),
     targetCountry: textOrNull(row.target_country),
     targetAudience: textOrNull(row.target_audience),
@@ -352,7 +357,7 @@ export async function marketingTablesReady(): Promise<{
     return {
       ok: false,
       message:
-        "052_marketing_engine.sql が未適用です。Supabase SQL Editor で実行してください。",
+        "Marketing tables missing — apply 052_marketing_engine.sql then 054_marketing_tiktok_distribution.sql (see docs/MARKETING_MIGRATIONS.md).",
     };
   }
   return { ok: false, message: error.message };
@@ -377,7 +382,7 @@ export async function insertRun(params: {
   if (error || !data) {
     return {
       error: isMissingTable(error)
-        ? "marketing tables missing — run supabase/migrations/052_marketing_engine.sql"
+        ? "marketing tables missing — run 052_marketing_engine.sql then 054_marketing_tiktok_distribution.sql"
         : error?.message || "failed to insert run",
     };
   }
@@ -866,6 +871,10 @@ export async function insertSocialPost(
       format: row.format,
       title: row.title,
       body: row.body,
+      hook: row.hook,
+      narration: row.narration,
+      caption: row.caption,
+      hashtags: row.hashtags,
       cta: row.cta,
       target_country: row.targetCountry,
       target_audience: row.targetAudience,
@@ -926,6 +935,11 @@ export async function updateSocialPost(
     publishMode: SocialPost["publishMode"];
     errorMessage: string | null;
     destinationUrl: string | null;
+    hook: string | null;
+    narration: string | null;
+    caption: string | null;
+    hashtags: string[];
+    cta: string | null;
   }>,
 ): Promise<void> {
   const supabase = await requireMarketingClient();
@@ -933,6 +947,11 @@ export async function updateSocialPost(
   if (patch.status !== undefined) row.status = patch.status;
   if (patch.body !== undefined) row.body = patch.body;
   if (patch.title !== undefined) row.title = patch.title;
+  if (patch.hook !== undefined) row.hook = patch.hook;
+  if (patch.narration !== undefined) row.narration = patch.narration;
+  if (patch.caption !== undefined) row.caption = patch.caption;
+  if (patch.hashtags !== undefined) row.hashtags = patch.hashtags;
+  if (patch.cta !== undefined) row.cta = patch.cta;
   if (patch.scheduledAt !== undefined) row.scheduled_at = patch.scheduledAt;
   if (patch.publishedAt !== undefined) row.published_at = patch.publishedAt;
   if (patch.publishMode !== undefined) row.publish_mode = patch.publishMode;

@@ -61,6 +61,7 @@ export type SocialPlatform =
   | "linkedin"
   | "x"
   | "instagram"
+  | "tiktok"
   | "youtube"
   | "reddit";
 
@@ -285,6 +286,7 @@ export type SocialAccount = {
   platform: AccountPlatform;
   accountName: string;
   country: string | null;
+  targetCountry: string | null;
   language: string;
   targetAudience: string | null;
   profileUrl: string | null;
@@ -307,6 +309,10 @@ export type SocialPost = {
   format: string | null;
   title: string | null;
   body: string;
+  hook: string | null;
+  narration: string | null;
+  caption: string | null;
+  hashtags: string[];
   cta: string | null;
   targetCountry: string | null;
   targetAudience: string | null;
@@ -459,6 +465,7 @@ export const DEFAULT_PLATFORM_LIMITS: Record<
   x: { daily: 1, weekly: 7 },
   linkedin: { daily: 1, weekly: 3 },
   instagram: { daily: 1, weekly: 2 },
+  tiktok: { daily: 1, weekly: 3 },
   reddit: { daily: 0, weekly: 1 },
   youtube: { daily: 0, weekly: 1 },
   medium: { daily: 0, weekly: 2 },
@@ -466,10 +473,17 @@ export const DEFAULT_PLATFORM_LIMITS: Record<
   brandbridge_blog: { daily: 1, weekly: 3 },
 };
 
+export const PRIMARY_DISTRIBUTION_PLATFORMS: SocialPlatform[] = [
+  "instagram",
+  "tiktok",
+  "linkedin",
+];
+
 export const OFFICIAL_API_PLATFORMS: SocialPlatform[] = [
   "x",
   "linkedin",
   "instagram",
+  "tiktok",
   "youtube",
   "reddit",
 ];

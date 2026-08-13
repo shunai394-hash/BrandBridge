@@ -244,11 +244,12 @@ export async function createSocialAccountAction(
   const result = await insertSocialAccount({
     platform,
     accountName,
-    country: formStr(formData, "country") || null,
+    country:
+      formStr(formData, "targetCountry") || formStr(formData, "country") || null,
     language: formStr(formData, "language") || "en",
     targetAudience: formStr(formData, "targetAudience") || null,
     profileUrl: formStr(formData, "profileUrl") || null,
-    postingEnabled: formStr(formData, "postingEnabled") !== "off",
+    postingEnabled: formStr(formData, "postingEnabled") === "on",
     autoPublishEnabled,
     dailyLimit: Number.isFinite(daily) ? daily : defaults.daily,
     weeklyLimit: Number.isFinite(weekly) ? weekly : defaults.weekly,
@@ -281,13 +282,14 @@ export async function updateSocialAccountAction(
   const weekly = Number(formStr(formData, "weeklyLimit"));
   const result = await updateSocialAccount(id, {
     accountName: formStr(formData, "accountName") || undefined,
-    country: formStr(formData, "country") || null,
+    country:
+      formStr(formData, "targetCountry") || formStr(formData, "country") || null,
     language: formStr(formData, "language") || undefined,
     targetAudience: formStr(formData, "targetAudience") || null,
     profileUrl: formStr(formData, "profileUrl") || null,
     status: (formStr(formData, "status") as "active" | "paused" | "disconnected") ||
       undefined,
-    postingEnabled: formStr(formData, "postingEnabled") !== "off",
+    postingEnabled: formStr(formData, "postingEnabled") === "on",
     autoPublishEnabled,
     dailyLimit: Number.isFinite(daily) ? daily : undefined,
     weeklyLimit: Number.isFinite(weekly) ? weekly : undefined,
@@ -340,6 +342,30 @@ export async function setPostStatusAction(
   }
   revalidateMarketing();
   return { ok: true, message: `投稿を ${status} に更新しました` };
+}
+
+export async function savePostScriptAction(
+  formData: FormData,
+): Promise<{ message: string; ok: boolean }> {
+  await requireAdmin();
+  const id = formStr(formData, "postId");
+  if (!id) return { ok: false, message: "postId が必要です" };
+  const hashtags = formStr(formData, "hashtags")
+    .split(/[\s,]+/)
+    .map((tag) => tag.replace(/^#/, "").trim())
+    .filter((tag) => tag.length > 0);
+  await updateSocialPost(id, {
+    title: formStr(formData, "title") || null,
+    body: String(formData.get("body") ?? ""),
+    hook: formStr(formData, "hook") || null,
+    narration: formStr(formData, "narration") || null,
+    caption: formStr(formData, "caption") || null,
+    hashtags,
+    cta: formStr(formData, "cta") || null,
+  });
+  revalidateMarketing();
+  revalidatePath(`/admin/marketing-agent/posts/${id}`);
+  return { ok: true, message: "台本・キャプションを保存しました（公開はしていません）" };
 }
 
 async function assertWithinLimits(accountId: string | null): Promise<string | null> {

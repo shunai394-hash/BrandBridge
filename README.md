@@ -138,7 +138,7 @@ npm run dev
 - `commission_settings` … デフォルト手数料率（初期 5%）
 - `contact_inquiries` … お問い合わせ
 - `messages` … 承認後メッセージ
-- Marketing Engine（`052_marketing_engine.sql`、admin RLS）… 機会・記事・SNS・カレンダー・計測。詳細は [docs/MARKETING_AGENT.md](./docs/MARKETING_AGENT.md)
+- Marketing Engine（`052` + `054`、admin RLS。適用順は [docs/MARKETING_MIGRATIONS.md](./docs/MARKETING_MIGRATIONS.md)）
 
 ## スクリプト
 

@@ -15,7 +15,7 @@ BrandBridge 管理画面専用の Marketing Engine です。
 - 既存 BrandBridge 記事のカタログ（上書きしない）
 - 「今書くべき記事」の提案
 - GEO を意識したブログ下書き（定義・質問見出し・FAQ・著者情報・引用）
-- 1記事から Medium / Substack / LinkedIn / X / Instagram / YouTube / Reddit 向けに**再構成**（同一文面のコピーではない）
+- 1記事から Instagram（Carousel/Reel）/ TikTok（短尺台本）/ LinkedIn（B2B）ほかへ**再構成**（同一文面のコピーではない）
 - 人間が作った SNS アカウントの接続と投稿上限
 - Content Calendar と承認フロー（Generate → Review → Approve → Schedule → Publish）
 - パフォーマンス記録と Global Growth ダッシュボード
@@ -37,8 +37,9 @@ BrandBridge 管理画面専用の Marketing Engine です。
 
 | 媒体 | v1 の既定 |
 |------|-----------|
-| X / LinkedIn / Reddit | 公式トークンがあれば Official API。なければ手動 |
-| Instagram / YouTube | メディア資産が必要なため現状は手動 |
+| LinkedIn | 公式トークン + author URN があれば Official API。なければ Manual Publish |
+| Instagram / TikTok / YouTube | 動画/メディア必須のため現状は Manual Publish（台本・予定は保存） |
+| X / Reddit | 公式トークンがあれば Official API。なければ手動 |
 | Medium / Substack / BrandBridge Blog | 常に手動（Blog は CMS 下書き） |
 
 初期値: `auto_publish_enabled = false`  
@@ -49,11 +50,15 @@ BrandBridge 管理画面専用の Marketing Engine です。
 - X: 1日1 / 週7
 - LinkedIn: 1日1 / 週3
 - Instagram: 1日1 / 週2
+- TikTok: 1日1 / 週3
 - その他: 管理画面で変更
 
 ## マイグレーション
 
-`supabase/migrations/052_marketing_engine.sql` を SQL Editor で実行。既存 001–051 は編集しません。
+既存 001–051 は編集しません。`052_marketing_engine.sql` は書き換えません。  
+適用順と「旧 052/053 がある場合は 052 をスキップ」は [MARKETING_MIGRATIONS.md](./MARKETING_MIGRATIONS.md) を必ず読んでください。
+
+TikTok 列（hook / narration / caption / hashtags）は `054_marketing_tiktok_distribution.sql` です。
 
 RLS はすべて `public.is_admin()` のみ。
 

@@ -9,22 +9,30 @@ import {
 import type { MarketingContent, SocialPlatform, SocialPost } from "./types";
 import { utmForPlatform } from "./utm";
 
+export type RepurposedVariant = {
+  title: string;
+  format: string;
+  body: string;
+  cta: string;
+  hook: string | null;
+  narration: string | null;
+  caption: string | null;
+  hashtags: string[];
+};
+
 const PLATFORM_FORMAT: Record<SocialPlatform, string> = {
   brandbridge_blog: "full_guide",
   medium: "essay",
   substack: "newsletter",
   linkedin: "b2b_short",
   x: "thread",
-  instagram: "carousel_script",
+  instagram: "carousel_reel",
+  tiktok: "short_video",
   youtube: "video_script",
   reddit: "helpful_answer",
 };
 
-function fallbackBody(platform: SocialPlatform, article: MarketingContent): {
-  title: string;
-  body: string;
-  cta: string;
-} {
+function fallbackBody(platform: SocialPlatform, article: MarketingContent): RepurposedVariant {
   const keyword = article.targetKeyword || "Japan market entry";
   const def =
     article.definition ||
@@ -34,12 +42,18 @@ function fallbackBody(platform: SocialPlatform, article: MarketingContent): {
     case "brandbridge_blog":
       return {
         title: article.title,
+        format: PLATFORM_FORMAT.brandbridge_blog,
         body: article.body,
         cta: article.cta || "Register on BrandBridge.",
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: [],
       };
     case "medium":
       return {
         title: "How Overseas Brands Can Find Japanese Distributors",
+        format: PLATFORM_FORMAT.medium,
         body: [
           def,
           "",
@@ -48,10 +62,15 @@ function fallbackBody(platform: SocialPlatform, article: MarketingContent): {
           "BrandBridge is a matching layer for that conversation — not a substitute for the contract.",
         ].join("\n"),
         cta: `Start on BrandBridge: ${urlHint}`,
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: ["JapanMarketEntry", "DistributorSearch"],
       };
     case "substack":
       return {
         title: "Japan Market Entry Insights",
+        format: PLATFORM_FORMAT.substack,
         body: [
           `This week: ${keyword}.`,
           def,
@@ -59,66 +78,139 @@ function fallbackBody(platform: SocialPlatform, article: MarketingContent): {
           "If you are a Japanese partner, look for brands that already know their first-lot terms.",
         ].join("\n"),
         cta: "Read the hub: /en/japan-market-entry",
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: [],
       };
     case "linkedin":
       return {
         title: `A practical note on ${keyword}`,
+        format: PLATFORM_FORMAT.linkedin,
         body: [
-          `Overseas brands asking “how do we find a Japanese distributor?” usually skip terms.`,
-          "A usable first brief: product, channel, MOQ, Incoterms, exclusivity yes/no.",
-          "That is the conversation BrandBridge is built to start.",
+          `Overseas brands asking how to find a Japanese distributor usually skip commercial terms.`,
+          "A usable first brief for a Japanese partner: product, channel, MOQ, Incoterms, exclusivity yes/no.",
+          "BrandBridge is built to start that structured B2B discussion — not to replace the contract.",
         ].join("\n"),
-        cta: "BrandBridge — structured Japan-partner matching",
+        cta: "If you are entering Japan, register as a brand on BrandBridge.",
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: ["B2B", "JapanMarketEntry", "Wholesale"],
       };
     case "x":
       return {
         title: `${keyword} tips`,
+        format: PLATFORM_FORMAT.x,
         body: [
           `1/ ${keyword}: Japanese partners want terms, not just a brand story.`,
           "2/ Prepare MOQ, wholesale range, and exclusivity stance before outreach.",
           "3/ BrandBridge matches overseas brands with Japanese sales partners — then you negotiate.",
         ].join("\n"),
         cta: "brandbridge /en",
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: ["JapanMarket"],
       };
     case "instagram":
       return {
-        title: `${keyword} carousel`,
+        title: `${keyword} carousel / reel`,
+        format: PLATFORM_FORMAT.instagram,
         body: [
-          "Slide 1: Want to sell in Japan?",
-          `Slide 2: ${def}`,
-          "Slide 3: Distributors ask for MOQ and wholesale terms first.",
-          "Slide 4: Retailers ask who already imports and supports the brand.",
-          "Slide 5: BrandBridge structures that first meeting.",
-          "Slide 6: CTA — register as a brand or Japanese partner.",
+          "CAROUSEL",
+          "Slide 1 — Cover: Selling into Japan is a partner problem, not a translation problem.",
+          "Slide 2 — What Japanese distributors ask first: MOQ, wholesale band, exclusivity.",
+          "Slide 3 — What retailers ask: who imports, who supports the brand after the first lot.",
+          "Slide 4 — Prepare a one-page brief before outreach.",
+          "Slide 5 — BrandBridge structures that first meeting. It does not sell for you.",
+          "Slide 6 — CTA: register as a brand or Japanese partner.",
+          "",
+          "REEL (12–20s beats)",
+          "0–3s: overseas brands keep sending PDFs",
+          "3–10s: three terms Japanese partners actually need",
+          "10–18s: BrandBridge is the matching layer",
         ].join("\n"),
-        cta: "Link in bio: /en/register/maker",
+        cta: "Link in bio → /en/register/maker",
+        hook: "Japan outreach fails when you send a brochure, not terms.",
+        narration: null,
+        caption:
+          "Carousel + Reel: what Japanese distributors actually need before a first call. Not a blog paste.",
+        hashtags: [
+          "JapanMarketEntry",
+          "JapaneseDistributor",
+          "SellInJapan",
+          "B2B",
+        ],
+      };
+    case "tiktok":
+      return {
+        title: `${keyword} — 20s TikTok`,
+        format: PLATFORM_FORMAT.tiktok,
+        body: [
+          "0–2s HOOK: Stop emailing Japanese distributors a brand PDF.",
+          "2–10s: They want MOQ, wholesale range, and who handles import.",
+          "10–18s: Prepare a one-page brief. Then find a partner who can discuss it.",
+          "18–25s: BrandBridge matches overseas brands with Japanese sales partners.",
+        ].join("\n"),
+        cta: "Link in bio: start a structured Japan-partner discussion.",
+        hook: "Your Japan outreach is dying in the inbox.",
+        narration:
+          "Japanese distributors do not need another brochure. They need first-lot terms. BrandBridge is a matching platform for that conversation — you still negotiate the deal.",
+        caption:
+          "15–30s: what to prepare before you look for a Japanese distributor. Manual publish until official TikTok API + video file are connected.",
+        hashtags: [
+          "JapanMarketEntry",
+          "JapaneseDistributor",
+          "ImportToJapan",
+          "Wholesale",
+          "B2B",
+        ],
       };
     case "youtube":
       return {
         title: `${keyword} — 60s / 8min outline`,
+        format: PLATFORM_FORMAT.youtube,
         body: [
           "SHORTS (45s): Hook — overseas brands fail Japan outreach by sending PDFs. Then 3 terms to prepare. CTA.",
           "LONG: 0:00 problem, 1:00 what Japanese distributors need, 3:00 retailers vs wholesalers, 5:00 how BrandBridge matching works, 7:00 CTA to register.",
         ].join("\n"),
         cta: "Description link: /en/japan-market-entry",
+        hook: "Overseas brands fail Japan outreach by sending PDFs.",
+        narration: null,
+        caption: null,
+        hashtags: ["JapanMarketEntry"],
       };
     case "reddit":
       return {
         title: `Re: looking for a Japanese distributor`,
+        format: PLATFORM_FORMAT.reddit,
         body: [
           "If you are an overseas brand, Japanese partners typically want a short commercial brief before a call: MOQ, wholesale, exclusivity, and import responsibility.",
           "A matching platform can help you reach partners who already work those terms. It will not replace your own import/regulatory work.",
           "I work on BrandBridge, which is built for that first structured discussion — happy to answer questions about the process (not pitching a specific product).",
         ].join("\n"),
         cta: "Helpful links only if asked — no spam in the thread.",
+        hook: null,
+        narration: null,
+        caption: null,
+        hashtags: [],
       };
   }
+}
+
+function parseHashtags(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => String(item).replace(/^#/, "").trim())
+    .filter((item) => item.length > 0)
+    .slice(0, 12);
 }
 
 export async function repurposeArticle(
   article: MarketingContent,
   platform: SocialPlatform,
-): Promise<{ title: string; format: string; body: string; cta: string }> {
+): Promise<RepurposedVariant> {
   const ai = await chatCompletion(
     [
       { role: "system", content: SYSTEM_MARKETER },
@@ -140,16 +232,14 @@ export async function repurposeArticle(
         format: String(parsed.format || PLATFORM_FORMAT[platform]),
         body: String(parsed.body),
         cta: textOrNull(parsed.cta) || article.cta || "",
+        hook: textOrNull(parsed.hook),
+        narration: textOrNull(parsed.narration),
+        caption: textOrNull(parsed.caption),
+        hashtags: parseHashtags(parsed.hashtags),
       };
     }
   }
-  const fb = fallbackBody(platform, article);
-  return {
-    title: fb.title,
-    format: PLATFORM_FORMAT[platform],
-    body: fb.body,
-    cta: fb.cta,
-  };
+  return fallbackBody(platform, article);
 }
 
 export async function publishViaOfficialApi(params: {
@@ -250,7 +340,19 @@ export async function publishViaOfficialApi(params: {
       return { ok: true, mode: "official_api" };
     }
 
-    // Instagram / YouTube require media assets + extra IDs; keep manual until fully configured.
+    if (
+      platform === "tiktok" ||
+      platform === "instagram" ||
+      platform === "youtube"
+    ) {
+      return {
+        ok: false,
+        mode: "manual",
+        error:
+          "Manual Publish Required — official video/media API is not fully connected (script saved).",
+      };
+    }
+
     return { ok: false, mode: "manual", error: "Manual Publish Required" };
   } catch (error) {
     return {

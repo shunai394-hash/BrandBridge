@@ -38,17 +38,36 @@ Context:\n${context}`;
 }
 
 export function repurposePrompt(platform: string, article: string): string {
-  return `Repurpose the BrandBridge article for ${platform}. Do NOT copy the same wording.
-Platform intent:
+  return `Repurpose the BrandBridge article for ${platform}. Do NOT copy the same wording or paste the article.
+Official Global Distribution platforms must be distinct:
+- instagram: Carousel (6 slides) AND a Reel beat list. Not a blog paste.
+- tiktok: short-form video package only (see JSON fields). 15-30 seconds spoken.
+- linkedin: B2B practitioner note. Terms, MOQ, partner briefing — not a lifestyle caption.
+Other platforms:
 - brandbridge_blog: full practical guide
-- medium: "How Overseas Brands Can Find Japanese Distributors" style essay
+- medium: essay — How Overseas Brands Can Find Japanese Distributors
 - substack: Japan Market Entry Insights newsletter
-- linkedin: short B2B practical explanation
-- x: short tips / thread (numbered lines)
-- instagram: carousel/reel script (slide-by-slide)
-- youtube: Shorts or long-form script
-- reddit: answer to a related question, helpful not promotional
-Return JSON: { "title", "format", "body", "cta" }
+- x: short tips / thread
+- youtube: Shorts or long-form outline
+- reddit: helpful answer, not a promo dump
+Return JSON:
+{
+  "title",
+  "format",
+  "body",
+  "cta",
+  "hook",
+  "narration",
+  "caption",
+  "hashtags": ["tag", "tag"]
+}
+For tiktok:
+- hook: first 1-2 seconds on-screen text
+- body: 15-30 second spoken script with timing beats
+- narration: voiceover lines (may differ from on-screen text)
+- caption: post caption
+- hashtags: 4-8 relevant tags, no spam
+- cta: one clear next step (register / learn more) — not hard sell
 Article:\n${article.slice(0, 6000)}`;
 }
 

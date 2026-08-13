@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/marketing-agent/StatusBadge";
 import {
   publishPostAction,
   recordPerformanceAction,
+  savePostScriptAction,
   schedulePostAction,
   setPostStatusAction,
 } from "@/lib/marketing-agent/actions";
@@ -40,9 +41,79 @@ export default async function PostDetailPage({
         <StatusBadge value={item.status} />
         <StatusBadge value={item.publishMode} />
       </div>
-      <pre className="mt-6 whitespace-pre-wrap rounded-md border border-border bg-cream/40 p-4 text-sm text-navy">
-        {item.body}
-      </pre>
+      {item.platform === "tiktok" ? (
+        <p className="mt-4 text-sm text-muted">
+          TikTok は短尺動画パッケージです（Hook / 15–30秒台本 / ナレーション / Caption / Hashtags / CTA）。同一記事のコピー投稿はしません。公式API未接続時は Manual Publish。
+        </p>
+      ) : null}
+
+      <ActionForm action={savePostScriptAction} label="台本を保存">
+        <input type="hidden" name="postId" value={item.id} />
+        <label className="block text-sm">
+          <span className="font-medium text-navy">Title</span>
+          <input
+            name="title"
+            defaultValue={item.title ?? ""}
+            className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">Hook</span>
+          <input
+            name="hook"
+            defaultValue={item.hook ?? ""}
+            className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">
+            {item.platform === "tiktok"
+              ? "15–30秒台本（body）"
+              : "Body / 原稿"}
+          </span>
+          <textarea
+            name="body"
+            rows={12}
+            defaultValue={item.body}
+            className="mt-1 w-full resize-y rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">Narration</span>
+          <textarea
+            name="narration"
+            rows={5}
+            defaultValue={item.narration ?? ""}
+            className="mt-1 w-full resize-y rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">Caption</span>
+          <textarea
+            name="caption"
+            rows={4}
+            defaultValue={item.caption ?? ""}
+            className="mt-1 w-full resize-y rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">Hashtags（空白またはカンマ区切り）</span>
+          <input
+            name="hashtags"
+            defaultValue={item.hashtags.join(" ")}
+            className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="font-medium text-navy">CTA</span>
+          <input
+            name="cta"
+            defaultValue={item.cta ?? ""}
+            className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm"
+          />
+        </label>
+      </ActionForm>
+
       <dl className="mt-6 grid gap-2 text-sm">
         <div>
           <dt className="text-xs text-muted">CTA</dt>

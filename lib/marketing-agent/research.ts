@@ -218,6 +218,7 @@ function inferPlatform(url: string): string {
     if (host.includes("x.com") || host.includes("twitter.com")) return "x";
     if (host.includes("youtube.com") || host.includes("youtu.be")) return "youtube";
     if (host.includes("instagram.com")) return "instagram";
+    if (host.includes("tiktok.com")) return "tiktok";
     if (host.includes("medium.com")) return "medium";
     if (host.includes("substack.com")) return "substack";
     return "blog";

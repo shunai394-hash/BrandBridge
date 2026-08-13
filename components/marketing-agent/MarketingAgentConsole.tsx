@@ -24,7 +24,10 @@ import {
   setRecommendationStatusAction,
   updateSocialAccountAction,
 } from "@/lib/marketing-agent/actions";
-import { DEFAULT_PLATFORM_LIMITS } from "@/lib/marketing-agent/types";
+import {
+  DEFAULT_PLATFORM_LIMITS,
+  PRIMARY_DISTRIBUTION_PLATFORMS,
+} from "@/lib/marketing-agent/types";
 import type { MarketingConsoleData } from "@/lib/marketing-agent";
 import { ActionForm } from "./ActionForm";
 import { StatusBadge } from "./StatusBadge";
@@ -311,24 +314,51 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
         )}
       </Card>
 
-      <Card title="Social Accounts" id="accounts">
+      <Card title="Social Accounts（Global Distribution）" id="accounts">
         <p className="text-sm text-muted">
-          AIはアカウントを作成しません。人間が作った公式アカウントだけ接続します。autoPublish は公式API接続時のみONにできます（初期OFF）。
+          正式対象: Instagram / TikTok / LinkedIn。AIはアカウントを作りません。ログイン情報・Cookieは保存しません。autoPublish 初期値は false。公式API未接続は Manual Publish。
         </p>
-        <ActionForm action={createSocialAccountAction} label="アカウントを接続">
+        <div className="grid gap-2 md:grid-cols-3">
+          {PRIMARY_DISTRIBUTION_PLATFORMS.map((platform) => {
+            const connected = data.accounts.find((a) => a.platform === platform);
+            return (
+              <div key={platform} className="rounded-md border border-border px-3 py-2 text-sm">
+                <p className="font-medium text-navy">{platform}</p>
+                <p className="text-xs text-muted">
+                  {connected
+                    ? `${connected.accountName} / ${connected.officialApiConnected ? "API" : "Manual Publish"}`
+                    : "未接続 — 下のフォームで人間が作成した公式アカウントを登録"}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        <ActionForm action={createSocialAccountAction} label="公式アカウントを接続">
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-sm">
               <span className="font-medium text-navy">platform</span>
               <select
                 name="platform"
                 className="mt-1 w-full rounded-md border border-border bg-surface px-3 py-2"
-                defaultValue="x"
+                defaultValue="tiktok"
               >
-                {Object.keys(DEFAULT_PLATFORM_LIMITS).map((p) => (
+                {PRIMARY_DISTRIBUTION_PLATFORMS.map((p) => (
                   <option key={p} value={p}>
-                    {p}
+                    {p}（正式対象）
                   </option>
                 ))}
+                {Object.keys(DEFAULT_PLATFORM_LIMITS)
+                  .filter(
+                    (p) =>
+                      !PRIMARY_DISTRIBUTION_PLATFORMS.includes(
+                        p as (typeof PRIMARY_DISTRIBUTION_PLATFORMS)[number],
+                      ),
+                  )
+                  .map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
               </select>
             </label>
             <label className="text-sm">
@@ -347,10 +377,26 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
               />
             </label>
             <label className="text-sm">
-              <span className="font-medium text-navy">country</span>
+              <span className="font-medium text-navy">language</span>
               <input
-                name="country"
+                name="language"
+                defaultValue="en"
+                className="mt-1 w-full rounded-md border border-border px-3 py-2"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-navy">targetCountry</span>
+              <input
+                name="targetCountry"
                 defaultValue="global"
+                className="mt-1 w-full rounded-md border border-border px-3 py-2"
+              />
+            </label>
+            <label className="text-sm">
+              <span className="font-medium text-navy">targetAudience</span>
+              <input
+                name="targetAudience"
+                defaultValue="Overseas brands entering Japan"
                 className="mt-1 w-full rounded-md border border-border px-3 py-2"
               />
             </label>
@@ -374,13 +420,17 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
                 className="mt-1 w-full rounded-md border border-border px-3 py-2"
               />
             </label>
+            <label className="flex items-center gap-2 text-sm text-muted">
+              <input type="checkbox" name="postingEnabled" defaultChecked />
+              postingEnabled
+            </label>
             <label className="text-sm">
               <span className="font-medium text-navy">
-                oauthSecretRef（env名のみ）
+                oauthSecretRef（env名のみ。トークン不可）
               </span>
               <input
                 name="oauthSecretRef"
-                placeholder="MARKETING_X_ACCESS_TOKEN"
+                placeholder="MARKETING_TIKTOK_ACCESS_TOKEN"
                 className="mt-1 w-full rounded-md border border-border px-3 py-2"
               />
             </label>
@@ -393,17 +443,45 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
               <span className="font-medium text-navy">{a.accountName}</span>
               <StatusBadge value={a.status} />
               <span className="text-xs text-muted">
-                API {a.officialApiConnected ? "接続済" : "未接続 → Manual Publish"}
+                {a.officialApiConnected ? "Official API" : "Manual Publish"}
               </span>
               <span className="text-xs text-muted">
-                autoPublish={String(a.autoPublishEnabled)} / day {a.dailyLimit} /
-                week {a.weeklyLimit}
+                {a.language} / {a.targetCountry || a.country || "—"} / day{" "}
+                {a.dailyLimit} / week {a.weeklyLimit}
               </span>
             </div>
-            <ActionForm action={updateSocialAccountAction} label="上限・設定を保存">
+            <ActionForm action={updateSocialAccountAction} label="アカウント設定を保存">
               <input type="hidden" name="accountId" value={a.id} />
               <input type="hidden" name="platform" value={a.platform} />
-              <div className="mt-2 grid gap-2 md:grid-cols-4">
+              <div className="mt-2 grid gap-2 md:grid-cols-3">
+                <input
+                  name="accountName"
+                  defaultValue={a.accountName}
+                  className="rounded-md border border-border px-2 py-1 text-sm"
+                />
+                <input
+                  name="profileUrl"
+                  defaultValue={a.profileUrl ?? ""}
+                  placeholder="profileUrl"
+                  className="rounded-md border border-border px-2 py-1 text-sm"
+                />
+                <input
+                  name="language"
+                  defaultValue={a.language}
+                  className="rounded-md border border-border px-2 py-1 text-sm"
+                />
+                <input
+                  name="targetCountry"
+                  defaultValue={a.targetCountry ?? a.country ?? ""}
+                  placeholder="targetCountry"
+                  className="rounded-md border border-border px-2 py-1 text-sm"
+                />
+                <input
+                  name="targetAudience"
+                  defaultValue={a.targetAudience ?? ""}
+                  placeholder="targetAudience"
+                  className="rounded-md border border-border px-2 py-1 text-sm"
+                />
                 <input
                   name="dailyLimit"
                   type="number"
@@ -419,16 +497,24 @@ export function MarketingAgentConsole({ data }: { data: MarketingConsoleData }) 
                 <input
                   name="oauthSecretRef"
                   defaultValue={a.oauthSecretRef ?? ""}
-                  placeholder="env var name"
+                  placeholder="env var name only"
                   className="rounded-md border border-border px-2 py-1 text-sm"
                 />
+                <label className="flex items-center gap-2 text-xs text-muted">
+                  <input
+                    type="checkbox"
+                    name="postingEnabled"
+                    defaultChecked={a.postingEnabled}
+                  />
+                  postingEnabled
+                </label>
                 <label className="flex items-center gap-2 text-xs text-muted">
                   <input
                     type="checkbox"
                     name="autoPublishEnabled"
                     defaultChecked={a.autoPublishEnabled}
                   />
-                  autoPublish（公式API必須）
+                  autoPublish（公式API必須・初期OFF）
                 </label>
               </div>
             </ActionForm>

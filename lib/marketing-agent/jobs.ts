@@ -55,6 +55,7 @@ const ALL_PLATFORMS: SocialPlatform[] = [
   "linkedin",
   "x",
   "instagram",
+  "tiktok",
   "youtube",
   "reddit",
 ];
@@ -360,6 +361,10 @@ export async function jobRepurpose(
       format: variant.format,
       title: variant.title,
       body: variant.body,
+      hook: variant.hook,
+      narration: variant.narration,
+      caption: variant.caption,
+      hashtags: variant.hashtags,
       cta: variant.cta,
       targetCountry: article.targetCountry,
       targetAudience: article.targetAudience,

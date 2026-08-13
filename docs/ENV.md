@@ -103,8 +103,9 @@ role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/
 | `MARKETING_X_ACCESS_TOKEN` | X 公式 API（User context）。未設定は手動投稿 |
 | `MARKETING_LINKEDIN_ACCESS_TOKEN` | LinkedIn 公式 API |
 | `MARKETING_LINKEDIN_AUTHOR_URN` | 例: `urn:li:person:...` |
-| `MARKETING_INSTAGRAM_ACCESS_TOKEN` | Instagram Graph（現状は手動扱い） |
+| `MARKETING_INSTAGRAM_ACCESS_TOKEN` | Instagram Graph（動画未接続時は Manual Publish） |
 | `MARKETING_INSTAGRAM_BUSINESS_ID` | IG ビジネス ID |
+| `MARKETING_TIKTOK_ACCESS_TOKEN` | TikTok 公式 API（動画未接続時は Manual Publish。Cookie不可） |
 | `MARKETING_YOUTUBE_ACCESS_TOKEN` | YouTube Data API（現状は手動扱い） |
 | `MARKETING_REDDIT_ACCESS_TOKEN` | Reddit OAuth |
 | `MARKETING_REDDIT_USERNAME` | Reddit ユーザー名 |

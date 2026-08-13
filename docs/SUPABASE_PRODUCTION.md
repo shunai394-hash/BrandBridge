@@ -23,7 +23,7 @@ SQL Editor で **番号順** に実行:
 9. `supabase/migrations/009_maker_registration.sql`
 10. `supabase/migrations/010_partner_profile.sql`
 11. （以降番号順）`011`〜`051` まで適用
-12. Marketing Engine: `supabase/migrations/052_marketing_engine.sql`（admin 専用。既存 001–051 は編集しない）
+12. Marketing Engine: [MARKETING_MIGRATIONS.md](./MARKETING_MIGRATIONS.md) を確認してから `052_marketing_engine.sql`（必要な場合のみ）→ `054_marketing_tiktok_distribution.sql`。既存 001–051 と旧 052/053 は編集しない。
 
 実行後の確認例:
 
@@ -120,7 +120,7 @@ where email like '%@demo.brandbridge.app';
 | バックアップ | Pro プラン等の PITR / 定期ダンプを検討 |
 | 問い合わせ確認 | `select * from contact_inquiries order by created_at desc limit 50;` |
 | 管理者 | [ADMIN_SETUP.md](./ADMIN_SETUP.md) |
-| Marketing Agent | `052_marketing_engine.sql` / [MARKETING_AGENT.md](./MARKETING_AGENT.md) |
+| Marketing Agent | [MARKETING_MIGRATIONS.md](./MARKETING_MIGRATIONS.md) / [MARKETING_AGENT.md](./MARKETING_AGENT.md) |
 | 手数料率 | `/admin/negotiations` または `commission_settings` |
 
 設定が終わったら [DEPLOY_VERCEL.md](./DEPLOY_VERCEL.md) へ進んでください。

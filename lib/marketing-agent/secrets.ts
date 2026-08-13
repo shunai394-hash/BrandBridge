@@ -14,6 +14,7 @@ const PLATFORM_SECRET_ENV: Partial<Record<SocialPlatform, string>> = {
   x: "MARKETING_X_ACCESS_TOKEN",
   linkedin: "MARKETING_LINKEDIN_ACCESS_TOKEN",
   instagram: "MARKETING_INSTAGRAM_ACCESS_TOKEN",
+  tiktok: "MARKETING_TIKTOK_ACCESS_TOKEN",
   youtube: "MARKETING_YOUTUBE_ACCESS_TOKEN",
   reddit: "MARKETING_REDDIT_ACCESS_TOKEN",
 };
@@ -54,6 +55,9 @@ export function extraOfficialEnvOk(platform: SocialPlatform): boolean {
   }
   if (platform === "reddit") {
     return Boolean(process.env.MARKETING_REDDIT_USERNAME?.trim());
+  }
+  if (platform === "tiktok") {
+    return Boolean(process.env.MARKETING_TIKTOK_ACCESS_TOKEN?.trim());
   }
   return true;
 }

@@ -87,6 +87,34 @@ Google ログイン失敗時は `/login?error=oauth` に日本語メッセージ
 
 role 分岐（maker / partner / admin）と初回 setup 遷移はアプリの `/auth/callback` とログイン後リダイレクトで行います。
 
+## Marketing Agent（任意・サーバー専用）
+
+管理画面 `/admin/marketing-agent` 用。`NEXT_PUBLIC_*` にしない。未設定でも画面は開き、テンプレート生成 + Manual Publish で動きます。
+
+| 変数名 | 説明 |
+|--------|------|
+| `OPENAI_API_KEY` | Chat Completions。未設定時はテンプレート下書き |
+| `OPENAI_MODEL` | 既定 `gpt-4o-mini` |
+| `OPENAI_BASE_URL` | 互換エンドポイント（任意） |
+| `GOOGLE_SEARCH_CONSOLE_SITE_URL` | 例: `sc-domain:brandbridge.jp` |
+| `GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL` | サービスアカウント |
+| `GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY` | PEM（`\n` 可） |
+| `AGENT_REACH_DISABLED` | `true` で公開 Web リサーチ（Jina）を停止 |
+| `MARKETING_X_ACCESS_TOKEN` | X 公式 API（User context）。未設定は手動投稿 |
+| `MARKETING_LINKEDIN_ACCESS_TOKEN` | LinkedIn 公式 API |
+| `MARKETING_LINKEDIN_AUTHOR_URN` | 例: `urn:li:person:...` |
+| `MARKETING_INSTAGRAM_ACCESS_TOKEN` | Instagram Graph（動画未接続時は Manual Publish） |
+| `MARKETING_INSTAGRAM_BUSINESS_ID` | IG ビジネス ID |
+| `MARKETING_TIKTOK_ACCESS_TOKEN` | TikTok 公式 API（動画未接続時は Manual Publish。Cookie不可） |
+| `MARKETING_YOUTUBE_ACCESS_TOKEN` | YouTube Data API（現状は手動扱い） |
+| `MARKETING_REDDIT_ACCESS_TOKEN` | Reddit OAuth |
+| `MARKETING_REDDIT_USERNAME` | Reddit ユーザー名 |
+| `MARKETING_REDDIT_SUBREDDIT` | 投稿先（人間が指定したコミュニティのみ） |
+
+トークンは環境変数 / 秘密管理に置く。DB には env 名（`oauth_secret_ref`）だけを保存する。Cookie・SNSパスワードは保存しない。
+
+詳細: [MARKETING_AGENT.md](./MARKETING_AGENT.md)
+
 ## やってはいけないこと
 
 - `.env.local` / 本番キーを Git にコミットする

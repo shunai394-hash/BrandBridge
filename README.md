@@ -122,6 +122,7 @@ npm run dev
 | `/admin/cases` | 案件審査 |
 | `/admin/users` | ユーザー管理 |
 | `/admin/negotiations` | 交渉パイプライン・成約化 |
+| `/admin/marketing-agent` | Marketing Agent（調査〜配信。第4ロールではない） |
 
 ## 案件カテゴリ
 
@@ -137,6 +138,7 @@ npm run dev
 - `commission_settings` … デフォルト手数料率（初期 5%）
 - `contact_inquiries` … お問い合わせ
 - `messages` … 承認後メッセージ
+- Marketing Engine（`052` + `054`、admin RLS。適用順は [docs/MARKETING_MIGRATIONS.md](./docs/MARKETING_MIGRATIONS.md)）
 
 ## スクリプト
 
@@ -145,5 +147,6 @@ npm run dev
 npm run build
 npm run start
 npm run lint
+npm run typecheck
 npm run check:preflight
 ```

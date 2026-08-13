@@ -16,6 +16,7 @@ const adminNav = [
   { href: "/admin/negotiations", label: "商談一覧" },
   { href: "/admin/contracts", label: "契約管理" },
   { href: "/admin/inquiries", label: "お問い合わせ" },
+  { href: "/admin/marketing-agent", label: "Marketing Agent" },
   { href: "/deals", label: "成約一覧" },
 ] as const;
 

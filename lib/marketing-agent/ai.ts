@@ -1,5 +1,9 @@
+<<<<<<< ours
 import { parseJsonRecord } from "@/lib/marketing-agent/json";
 import { redactSecrets } from "@/lib/marketing-agent/redact";
+=======
+﻿import { parseJsonRecord } from "@/lib/marketing-agent/json";
+>>>>>>> theirs
 
 export class MarketingAgentError extends Error {
   readonly code: string;
@@ -13,6 +17,7 @@ export class MarketingAgentError extends Error {
   }
 }
 
+<<<<<<< ours
 export type AiProvider = "groq" | "openai";
 
 const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
@@ -63,14 +68,47 @@ export function getAiBaseUrl(): string {
 
 export function isAiConfigured(): boolean {
   return Boolean(providerConfig().apiKey);
+=======
+const DEFAULT_AI_BASE_URL = "https://api.groq.com/openai/v1";
+const DEFAULT_AI_MODEL = "llama-3.3-70b-versatile";
+
+export function getAiModel(): string {
+  return process.env.AI_MODEL?.trim() || DEFAULT_AI_MODEL;
+}
+
+export function getAiBaseUrl(): string {
+  return (
+    process.env.AI_BASE_URL?.trim().replace(/\/$/, "") ||
+    DEFAULT_AI_BASE_URL
+  );
+}
+
+export function getAiApiKey(): string | null {
+  return (
+    process.env.AI_API_KEY?.trim() ||
+    process.env.GROQ_API_KEY?.trim() ||
+    null
+  );
+}
+
+export function isAiConfigured(): boolean {
+  return Boolean(getAiApiKey());
+>>>>>>> theirs
 }
 
 export function getAiConnection() {
   const cfg = providerConfig();
   return {
+<<<<<<< ours
     configured: Boolean(cfg.apiKey),
     provider: cfg.provider,
     model: cfg.apiKey ? cfg.model : null,
+=======
+    configured: isAiConfigured(),
+    model: getAiModel(),
+    baseUrl: getAiBaseUrl(),
+    provider: getAiBaseUrl().includes("api.groq.com") ? "groq" : "custom",
+>>>>>>> theirs
   };
 }
 
@@ -101,11 +139,13 @@ export async function completeJson(
   options: ChatOptions = {},
 ): Promise<Record<string, unknown>> {
   const raw = await completeChat(messages, options);
+
   try {
     return parseJsonRecord(raw);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Invalid JSON from AI";
+
     throw new MarketingAgentError(
       "INVALID_AI_RESPONSE",
       `${message}. First 240 chars: ${raw.slice(0, 240)}`,
@@ -117,12 +157,23 @@ export async function completeChat(
   messages: ChatMessage[],
   options: ChatOptions = {},
 ): Promise<string> {
+<<<<<<< ours
   const cfg = providerConfig();
   if (!cfg.apiKey) {
     throw new MarketingAgentError("AI_NOT_CONFIGURED", missingKeyMessage(cfg.provider));
+=======
+  const apiKey = getAiApiKey();
+
+  if (!apiKey) {
+    throw new MarketingAgentError(
+      "AI_NOT_CONFIGURED",
+      "AI API is not configured. Set AI_API_KEY or GROQ_API_KEY in the server environment.",
+    );
+>>>>>>> theirs
   }
 
   const timeoutMs = options.timeoutMs ?? 50_000;
+
   const body = {
     model: cfg.model,
     temperature: options.temperature ?? 0.4,
@@ -153,8 +204,9 @@ export async function completeChat(
       if (response.status === 429) {
         lastError = new MarketingAgentError(
           "AI_RATE_LIMIT",
-          "AI API のレート制限に達しました。しばらく待って再実行してください。",
+          "AI API rate limit reached. Please wait and try again.",
         );
+
         await sleep(1500 * (attempt + 1));
         continue;
       }
@@ -166,16 +218,32 @@ export async function completeChat(
         );
       }
 
-      const payload = JSON.parse(text) as {
-        choices?: Array<{ message?: { content?: string } }>;
+      let payload: {
+        choices?: Array<{
+          message?: {
+            content?: string;
+          };
+        }>;
       };
+
+      try {
+        payload = JSON.parse(text) as typeof payload;
+      } catch {
+        throw new MarketingAgentError(
+          "INVALID_AI_RESPONSE",
+          `AI API returned invalid JSON: ${text.slice(0, 300)}`,
+        );
+      }
+
       const content = payload.choices?.[0]?.message?.content?.trim();
+
       if (!content) {
         throw new MarketingAgentError(
           "INVALID_AI_RESPONSE",
-          "AI から本文が返りませんでした。",
+          "AI returned no message content.",
         );
       }
+
       return content;
     } catch (error) {
       if (error instanceof MarketingAgentError) {
@@ -183,15 +251,19 @@ export async function completeChat(
           lastError = error;
           continue;
         }
+
         throw error;
       }
+
       if (error instanceof Error && error.name === "AbortError") {
         throw new MarketingAgentError(
           "AI_TIMEOUT",
-          `AI API が ${timeoutMs}ms 以内に応答しませんでした。`,
+          `AI API did not respond within ${timeoutMs}ms.`,
         );
       }
-      lastError = error instanceof Error ? error : new Error(String(error));
+
+      lastError =
+        error instanceof Error ? error : new Error(String(error));
     } finally {
       clearTimeout(timer);
     }
@@ -199,6 +271,6 @@ export async function completeChat(
 
   throw (
     lastError ??
-    new MarketingAgentError("AI_HTTP_ERROR", "AI API 呼び出しに失敗しました。")
+    new MarketingAgentError("AI_HTTP_ERROR", "AI API request failed.")
   );
 }

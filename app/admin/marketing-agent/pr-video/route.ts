@@ -9,35 +9,72 @@ import {
 } from "@/lib/marketing-agent/pr-video";
 import { assertSafeProductImageUrl } from "@/lib/marketing-agent/pr-video-image";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
+import {
+  describePrVideoStage,
+  redactSecrets,
+  stageFromErrorCode,
+  type PrVideoStage,
+} from "@/lib/marketing-agent/redact";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 120;
+export const maxDuration = 300;
+
+const WORKER_WAIT_MS = 280_000;
+
+function errorJson(
+  error: string,
+  status: number,
+  extra: { code?: string; stage?: PrVideoStage } = {},
+): NextResponse {
+  const safe = redactSecrets(error);
+  return NextResponse.json(
+    {
+      error: safe,
+      httpStatus: status,
+      code: extra.code,
+      stage: extra.stage,
+      stageLabel: describePrVideoStage(extra.stage),
+    },
+    { status },
+  );
+}
 
 function fail(error: unknown, status = 400): NextResponse {
   if (error instanceof MarketingAgentError) {
     const timeout = error.code === "AI_TIMEOUT";
-    return NextResponse.json(
-      { error: error.message, code: error.code },
-      { status: timeout ? 504 : 400 },
-    );
+    const stage =
+      (error.stage as PrVideoStage | undefined) ||
+      stageFromErrorCode(error.code) ||
+      (timeout ? "timeout" : "vercel");
+    return errorJson(error.message, timeout ? 504 : status, {
+      code: error.code,
+      stage,
+    });
   }
   if (error instanceof Error) {
     if (error.message === "UNAUTHORIZED") {
-      return NextResponse.json({ error: "ログインが必要です。" }, { status: 401 });
+      return errorJson("ログインが必要です。", 401, { stage: "vercel" });
     }
     if (
       error.message === "FORBIDDEN_ADMIN_ONLY" ||
       error.message === "NO_PROFILE"
     ) {
-      return NextResponse.json({ error: "管理者のみ実行できます。" }, { status: 403 });
+      return errorJson("管理者のみ実行できます。", 403, { stage: "vercel" });
     }
     if (error.message === "ACCOUNT_INACTIVE") {
-      return NextResponse.json({ error: "アカウントが停止されています。" }, { status: 403 });
+      return errorJson("アカウントが停止されています。", 403, { stage: "vercel" });
     }
-    return NextResponse.json({ error: error.message }, { status });
+    if (error.name === "TimeoutError" || error.name === "AbortError") {
+      return errorJson(
+        "Timed out waiting for Cloud Run / FFmpeg. The worker may still be rendering.",
+        504,
+        { code: "AI_TIMEOUT", stage: "timeout" },
+      );
+    }
+    return errorJson(error.message, status, { stage: "vercel" });
   }
-  return NextResponse.json({ error: "Video generation failed." }, { status: 500 });
+  return errorJson("Video generation failed.", 500, { stage: "vercel" });
 }
 
 function workerConfig(): { url: string; secret: string } | null {
@@ -53,69 +90,88 @@ export async function POST(request: Request) {
     const form = await request.formData();
     const caseId = String(form.get("caseId") ?? "").trim();
     if (!caseId) {
-      return NextResponse.json({ error: "Please select a product." }, { status: 400 });
+      return errorJson("Please select a product.", 400, { stage: "vercel" });
     }
 
     const rawScript = String(form.get("script") ?? "").trim();
     if (!rawScript) {
-      return NextResponse.json(
-        { error: "Generate a PR script before creating a video." },
-        { status: 400 },
-      );
+      return errorJson("Generate a PR script before creating a video.", 400, {
+        stage: "vercel",
+      });
     }
 
     let parsed: unknown;
     try {
       parsed = parseJsonValue(rawScript);
     } catch {
-      return NextResponse.json({ error: "Invalid PR script JSON." }, { status: 400 });
+      return errorJson("Invalid PR script JSON.", 400, { stage: "vercel" });
     }
     const script = normalizePrVideoScript(parsed);
     if (!script) {
-      return NextResponse.json(
-        { error: "Invalid PR script. Generate the script again." },
-        { status: 400 },
-      );
+      return errorJson("Invalid PR script. Generate the script again.", 400, {
+        stage: "vercel",
+      });
     }
 
     const caseItem = await getCaseById(caseId);
     if (!caseItem) {
-      return NextResponse.json(
-        { error: "Could not load this product. Generation was not started." },
-        { status: 400 },
+      return errorJson(
+        "Could not load this product. Generation was not started.",
+        400,
+        { stage: "vercel" },
       );
     }
     const imageRaw = caseImageUrl(caseItem);
     if (!imageRaw) {
-      return NextResponse.json(
-        { error: "This product has no image. Add one product image and try again." },
-        { status: 400 },
+      return errorJson(
+        "This product has no image. Add one product image and try again.",
+        400,
+        { stage: "image" },
       );
     }
     const safeImage = assertSafeProductImageUrl(imageRaw);
     if (safeImage.kind !== "remote") {
-      return NextResponse.json(
-        { error: "This product image cannot be sent to the video worker." },
-        { status: 400 },
+      return errorJson(
+        "This product image cannot be sent to the video worker.",
+        400,
+        { stage: "image" },
       );
     }
 
     const worker = workerConfig();
     if (worker) {
-      const response = await fetch(`${worker.url}/render`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${worker.secret}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          caseId,
-          script,
-          imageUrl: safeImage.url,
-          productName: caseItem.productName,
-        }),
-        signal: AbortSignal.timeout(110_000),
-      });
+      let response: Response;
+      try {
+        response = await fetch(`${worker.url}/render`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${worker.secret}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            caseId,
+            script,
+            imageUrl: safeImage.url,
+            productName: caseItem.productName,
+          }),
+          signal: AbortSignal.timeout(WORKER_WAIT_MS),
+        });
+      } catch (error) {
+        if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError")) {
+          return errorJson(
+            "Timed out waiting for Cloud Run / FFmpeg (HTTP 504). Try again; render can take a few minutes.",
+            504,
+            { code: "AI_TIMEOUT", stage: "timeout" },
+          );
+        }
+        const detail = error instanceof Error ? error.message : "network error";
+        return errorJson(
+          `Cloud Run worker is unavailable (${redactSecrets(detail)}).`,
+          502,
+          { stage: "cloud-run" },
+        );
+      }
+
       const text = await response.text();
       let payload: Record<string, unknown> = {};
       try {
@@ -127,17 +183,23 @@ export async function POST(request: Request) {
         const message =
           typeof payload.error === "string"
             ? payload.error
-            : `Video worker error (HTTP ${response.status}).`;
-        return NextResponse.json(
-          { error: message },
-          { status: response.status === 401 ? 502 : response.status >= 500 ? 502 : 400 },
-        );
+            : `Cloud Run worker error (HTTP ${response.status}).`;
+        const code = typeof payload.code === "string" ? payload.code : undefined;
+        const stage =
+          (typeof payload.stage === "string" ? (payload.stage as PrVideoStage) : undefined) ||
+          stageFromErrorCode(code) ||
+          "cloud-run";
+        return errorJson(`Generation failed (HTTP ${response.status}): ${message}`, 502, {
+          code,
+          stage,
+        });
       }
       const url = typeof payload.url === "string" ? payload.url : "";
       if (!url) {
-        return NextResponse.json(
-          { error: "Video worker did not return a preview URL." },
-          { status: 502 },
+        return errorJson(
+          "Cloud Run finished but did not return a signed preview URL (R2).",
+          502,
+          { stage: "r2" },
         );
       }
       return NextResponse.json({
@@ -147,13 +209,16 @@ export async function POST(request: Request) {
         width: Number(payload.width) || 1080,
         height: Number(payload.height) || 1920,
         renderMs: Number(payload.renderMs) || undefined,
+        stage: "r2",
+        status: "completed",
       });
     }
 
     if (process.env.VERCEL) {
-      return NextResponse.json(
-        { error: "PR video worker is not configured on this server." },
-        { status: 503 },
+      return errorJson(
+        "Cloud Run worker is not configured (missing PR_VIDEO_WORKER_URL or PR_VIDEO_WORKER_SECRET).",
+        503,
+        { stage: "cloud-run" },
       );
     }
 

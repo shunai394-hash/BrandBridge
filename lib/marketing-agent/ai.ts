@@ -1,12 +1,15 @@
 import { parseJsonRecord } from "@/lib/marketing-agent/json";
+import { redactSecrets } from "@/lib/marketing-agent/redact";
 
 export class MarketingAgentError extends Error {
   readonly code: string;
+  readonly stage?: string;
 
-  constructor(code: string, message: string) {
+  constructor(code: string, message: string, stage?: string) {
     super(message);
     this.name = "MarketingAgentError";
     this.code = code;
+    this.stage = stage;
   }
 }
 
@@ -48,13 +51,6 @@ function providerConfig(provider: AiProvider = resolveAiProvider()): ProviderCon
       process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_OPENAI_BASE,
     model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
   };
-}
-
-function redactSecrets(text: string): string {
-  return text
-    .replace(/gsk_[A-Za-z0-9]+/g, "[redacted]")
-    .replace(/sk-[A-Za-z0-9-]+/g, "[redacted]")
-    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]");
 }
 
 export function getAiModel(): string {

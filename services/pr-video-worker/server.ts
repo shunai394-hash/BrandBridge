@@ -5,6 +5,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import { generatePrVideoFromRemote } from "@/lib/marketing-agent/pr-video-core";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
+import {
+  redactSecrets,
+  stageFromErrorCode,
+  type PrVideoStage,
+} from "@/lib/marketing-agent/redact";
 
 const PORT = Number(process.env.PORT || 8080);
 const SIGNED_URL_EXPIRES = 6 * 60 * 60;
@@ -46,6 +51,7 @@ function r2Client(): { client: S3Client; bucket: string } {
     throw new MarketingAgentError(
       "STORAGE_UNAVAILABLE",
       "R2 is not configured on the video worker.",
+      "r2",
     );
   }
   return {
@@ -103,22 +109,54 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     productName: body.productName,
   });
 
-  const { client, bucket } = r2Client();
+  let client: S3Client;
+  let bucket: string;
+  try {
+    ({ client, bucket } = r2Client());
+  } catch (error) {
+    if (error instanceof MarketingAgentError) throw error;
+    throw new MarketingAgentError(
+      "STORAGE_UNAVAILABLE",
+      "R2 client could not start.",
+      "r2",
+    );
+  }
+
   const key = `pr-videos/${caseId}/${randomUUID()}.mp4`;
-  await client.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: rendered.bytes,
-      ContentType: "video/mp4",
-      ContentDisposition: `attachment; filename="${rendered.fileName}"`,
-    }),
-  );
-  const url = await getSignedUrl(
-    client,
-    new GetObjectCommand({ Bucket: bucket, Key: key }),
-    { expiresIn: SIGNED_URL_EXPIRES },
-  );
+  try {
+    await client.send(
+      new PutObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        Body: rendered.bytes,
+        ContentType: "video/mp4",
+        ContentDisposition: `attachment; filename="${rendered.fileName}"`,
+      }),
+    );
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "upload failed";
+    throw new MarketingAgentError(
+      "STORAGE_UNAVAILABLE",
+      `R2 upload failed: ${redactSecrets(detail).slice(0, 180)}`,
+      "r2",
+    );
+  }
+
+  let url: string;
+  try {
+    url = await getSignedUrl(
+      client,
+      new GetObjectCommand({ Bucket: bucket, Key: key }),
+      { expiresIn: SIGNED_URL_EXPIRES },
+    );
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "sign failed";
+    throw new MarketingAgentError(
+      "STORAGE_UNAVAILABLE",
+      `R2 signed URL failed: ${redactSecrets(detail).slice(0, 180)}`,
+      "r2",
+    );
+  }
 
   return {
     url,
@@ -127,6 +165,8 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     width: rendered.width,
     height: rendered.height,
     renderMs: Date.now() - started,
+    stage: "r2" as const,
+    status: "completed" as const,
   };
 }
 
@@ -143,7 +183,11 @@ const server = createServer((req, res) => {
         return;
       }
       if (!secretOk(req.headers.authorization)) {
-        json(res, 401, { error: "Unauthorized." });
+        json(res, 401, {
+          error: "Unauthorized.",
+          stage: "cloud-run",
+          code: "UNAUTHORIZED",
+        });
         return;
       }
       const result = await handleRender(req);
@@ -151,12 +195,23 @@ const server = createServer((req, res) => {
     } catch (error) {
       if (error instanceof MarketingAgentError) {
         const status = error.code === "AI_TIMEOUT" ? 504 : 400;
-        json(res, status, { error: error.message, code: error.code });
+        const stage =
+          error.stage ||
+          stageFromErrorCode(error.code) ||
+          "cloud-run";
+        json(res, status, {
+          error: redactSecrets(error.message),
+          code: error.code,
+          stage,
+        });
         return;
       }
       const message =
         error instanceof Error ? error.message : "Video generation failed.";
-      json(res, 500, { error: message });
+      json(res, 500, {
+        error: redactSecrets(message),
+        stage: "cloud-run" satisfies PrVideoStage,
+      });
     }
   })();
 });

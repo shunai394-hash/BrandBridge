@@ -1,12 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { generatePrVideoScriptAction } from "@/lib/marketing-agent/actions";
 import type {
   PrScriptProductSnapshot,
   PrVideoScript,
 } from "@/lib/marketing-agent/pr-script";
 import { SubmitButton } from "@/components/admin/marketing-agent/SubmitButton";
+import {
+  describePrVideoStage,
+  redactSecrets,
+  type PrVideoStage,
+} from "@/lib/marketing-agent/redact";
 
 export type PrScriptCaseOption = {
   id: string;
@@ -91,14 +96,29 @@ export function PrScriptGenerator({
   const [copyState, setCopyState] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoName, setVideoName] = useState("brandbridge-pr-video.mp4");
-  const [videoStatus, setVideoStatus] = useState<"idle" | "generating" | "ready">("idle");
+  const [videoStatus, setVideoStatus] = useState<
+    "idle" | "generating" | "completed" | "failed"
+  >("idle");
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [videoStage, setVideoStage] = useState<PrVideoStage | undefined>();
+  const [videoHttpStatus, setVideoHttpStatus] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const generatingLock = useRef(false);
 
   useEffect(() => {
     return () => {
       revokeVideoUrl(videoUrl);
     };
   }, [videoUrl]);
+
+  useEffect(() => {
+    if (videoStatus !== "generating") return;
+    const started = Date.now();
+    const timer = window.setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - started) / 1000));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [videoStatus]);
 
   const selected = useMemo(
     () => cases.find((item) => item.id === selectedId) ?? null,
@@ -127,6 +147,8 @@ export function PrScriptGenerator({
           setCopyState(null);
           setVideoError(null);
           setVideoStatus("idle");
+          setVideoStage(undefined);
+          setVideoHttpStatus(null);
           setVideoUrl((current) => {
             revokeVideoUrl(current);
             return null;
@@ -145,7 +167,7 @@ export function PrScriptGenerator({
           <select
             name="caseId"
             required
-            disabled={cases.length === 0}
+            disabled={cases.length === 0 || videoStatus === "generating"}
             className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
             value={selectedId}
             onChange={(event) => {
@@ -156,6 +178,8 @@ export function PrScriptGenerator({
               setCopyState(null);
               setVideoError(null);
               setVideoStatus("idle");
+              setVideoStage(undefined);
+              setVideoHttpStatus(null);
               setVideoUrl((current) => {
                 revokeVideoUrl(current);
                 return null;
@@ -202,8 +226,12 @@ export function PrScriptGenerator({
             disabled={videoStatus === "generating" || !script || !selectedId}
             className="inline-flex cursor-pointer items-center justify-center rounded-md bg-teal px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-dark disabled:cursor-not-allowed disabled:opacity-60"
             onClick={async () => {
-              if (!script || !selectedId) return;
+              if (!script || !selectedId || generatingLock.current) return;
+              generatingLock.current = true;
               setVideoError(null);
+              setVideoStage("cloud-run");
+              setVideoHttpStatus(null);
+              setElapsedSeconds(0);
               setVideoStatus("generating");
               setVideoUrl((current) => {
                 revokeVideoUrl(current);
@@ -218,49 +246,81 @@ export function PrScriptGenerator({
                   body,
                 });
                 const contentType = response.headers.get("content-type") ?? "";
+                const httpStatus = response.status;
+                setVideoHttpStatus(httpStatus);
+
                 if (!response.ok) {
-                  let message = `Video generation failed (HTTP ${response.status}).`;
+                  let message = `Generation failed (HTTP ${httpStatus}).`;
+                  let stage: PrVideoStage | undefined = "vercel";
                   if (contentType.includes("application/json")) {
-                    const payload = (await response.json()) as { error?: string };
-                    if (payload.error) message = payload.error;
+                    const payload = (await response.json()) as {
+                      error?: string;
+                      stage?: PrVideoStage;
+                      stageLabel?: string;
+                    };
+                    if (payload.error) {
+                      message = `Generation failed (HTTP ${httpStatus}): ${redactSecrets(payload.error)}`;
+                    }
+                    if (payload.stage) stage = payload.stage;
                   }
+                  setVideoStage(stage);
                   setVideoError(message);
-                  setVideoStatus("idle");
+                  setVideoStatus("failed");
                   return;
                 }
                 if (contentType.includes("application/json")) {
                   const payload = (await response.json()) as {
                     url?: string;
                     durationSeconds?: number;
+                    stage?: PrVideoStage;
                   };
                   if (!payload.url) {
-                    setVideoError("Video generation did not return a preview URL.");
-                    setVideoStatus("idle");
+                    setVideoStage(payload.stage || "r2");
+                    setVideoError(
+                      "Generation failed: Cloud Run did not return a signed preview URL.",
+                    );
+                    setVideoStatus("failed");
                     return;
                   }
                   setVideoName("brandbridge-pr-video.mp4");
                   setVideoUrl(payload.url);
-                  setVideoStatus("ready");
+                  setVideoStage("r2");
+                  setVideoStatus("completed");
                   return;
                 }
                 const blob = await response.blob();
                 if (blob.size < 1024) {
+                  setVideoStage("ffmpeg");
                   setVideoError("Video generation returned an empty file.");
-                  setVideoStatus("idle");
+                  setVideoStatus("failed");
                   return;
                 }
                 const disposition = response.headers.get("content-disposition") ?? "";
                 const match = disposition.match(/filename="([^"]+)"/);
                 setVideoName(match?.[1] || "brandbridge-pr-video.mp4");
                 setVideoUrl(URL.createObjectURL(blob));
-                setVideoStatus("ready");
-              } catch {
-                setVideoError("Video generation failed. Please try again.");
-                setVideoStatus("idle");
+                setVideoStage("ffmpeg");
+                setVideoStatus("completed");
+              } catch (error) {
+                const raw =
+                  error instanceof Error ? error.message : "Video generation failed.";
+                const timeout =
+                  error instanceof Error &&
+                  (error.name === "AbortError" || /timeout/i.test(raw));
+                setVideoStage(timeout ? "timeout" : "vercel");
+                setVideoHttpStatus(timeout ? 504 : null);
+                setVideoError(
+                  timeout
+                    ? "Generation failed (HTTP 504): Timed out waiting for Cloud Run / FFmpeg."
+                    : `Generation failed: ${redactSecrets(raw)}`,
+                );
+                setVideoStatus("failed");
+              } finally {
+                generatingLock.current = false;
               }
             }}
           >
-            {videoStatus === "generating" ? "Generating video..." : "Generate PR Video"}
+            {videoStatus === "generating" ? "Generating PR video..." : "Generate PR Video"}
           </button>
           {script ? (
             <>
@@ -300,15 +360,41 @@ export function PrScriptGenerator({
           Status:{" "}
           {videoStatus === "generating"
             ? "generating"
-            : videoStatus === "ready"
-              ? "ready"
-              : script
-                ? "idle — script ready"
-                : "idle — generate a PR script first"}
+            : videoStatus === "completed"
+              ? "completed"
+              : videoStatus === "failed"
+                ? "failed"
+                : script
+                  ? "idle — script ready"
+                  : "idle — generate a PR script first"}
         </p>
+        {videoStatus === "generating" ? (
+          <div className="rounded-md border border-teal/50 bg-teal/5 p-3 text-sm text-navy">
+            <p className="font-medium">Generating PR video...</p>
+            <p className="mt-1 text-xs text-muted">
+              Please wait while the video is rendered. Rendering video with FFmpeg on
+              Cloud Run. This may take a few minutes.
+            </p>
+            <p className="mt-1 text-xs text-muted">Elapsed: {elapsedSeconds}s</p>
+          </div>
+        ) : null}
+        {videoStatus === "completed" ? (
+          <p className="text-sm text-teal">completed — Preview and Download are ready.</p>
+        ) : null}
+        {videoStatus === "failed" ? (
+          <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            <p className="font-medium">
+              failed
+              {videoHttpStatus ? ` (HTTP ${videoHttpStatus})` : ""}
+            </p>
+            <p className="mt-1 text-xs">
+              Stage: {describePrVideoStage(videoStage)}
+            </p>
+            {videoError ? <p className="mt-1">{videoError}</p> : null}
+          </div>
+        ) : null}
         {copyState ? <p className="text-xs text-teal">{copyState}</p> : null}
-        {videoError ? <p className="text-sm text-red-700">{videoError}</p> : null}
-        {videoUrl ? (
+        {videoStatus === "completed" && videoUrl ? (
           <div className="space-y-3">
             <video
               className="mx-auto w-full max-w-[270px] rounded-md border border-border bg-black"

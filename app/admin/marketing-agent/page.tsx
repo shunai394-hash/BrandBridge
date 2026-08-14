@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
 import { MarketingAgentConsole } from "@/components/admin/marketing-agent/MarketingAgentConsole";
-import { listAdminCases } from "@/lib/admin";
 import { loadMarketingAgentPageData } from "@/lib/marketing-agent/store";
 
 export const metadata: Metadata = {
@@ -19,10 +18,7 @@ export const maxDuration = 120;
  */
 export default async function AdminMarketingAgentPage() {
   noStore();
-  const [data, casesResult] = await Promise.all([
-    loadMarketingAgentPageData(),
-    listAdminCases(),
-  ]);
+  const data = await loadMarketingAgentPageData();
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -40,14 +36,6 @@ export default async function AdminMarketingAgentPage() {
         recommendations={data.recommendations}
         competitors={data.competitors}
         gaps={data.gaps}
-        cases={casesResult.items.map((item) => ({
-          id: item.id,
-          caseNumber: item.caseNumber,
-          productName: item.productName,
-          category: item.category,
-          makerName: item.makerName,
-        }))}
-        casesError={casesResult.error}
       />
     </div>
   );

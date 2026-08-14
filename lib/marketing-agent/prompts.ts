@@ -257,3 +257,43 @@ Create approximately 5-8 scenes totaling about 30 seconds.
 Do not pad the script with unnecessary scenes.
 `.trim();
 
+export const BUSINESS_PR_VIDEO_SCRIPT_TASK = `
+Write a ~30 second Japanese vertical-video script that makes a company / business / brand known, creates interest, and sends the viewer to BrandBridge (website, details, Japan-market consultation, partner matching, or inquiry).
+
+This is NOT a product sales video.
+Do not pitch product features, price, functions, or a buy-now CTA.
+Do not invent users, sales numbers, partnerships, awards, or statistics.
+
+Language (mandatory):
+- title, hook, location, character, action, visual, narrationText, and cta MUST be natural Japanese.
+- narrationText is spoken TTS: short Japanese sentences with hiragana.
+- Never output English filler, never repeat words like "Chinese", never dump language names.
+- onScreenText must be an empty string.
+
+Each scene needs location, character, action, camera, transition (from the allowed lists), visual, and one short Japanese narration sentence (about 12–28 characters). Total spoken narration about 90–120 characters so TTS fits ~25–35 seconds.
+
+CTA examples to adapt: 「日本市場への進出を考えているなら、BrandBridgeへ。」「詳しくはBrandBridgeをご覧ください。」
+
+Return JSON:
+{
+  "title": "日本語のタイトル",
+  "hook": "日本語のフック",
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "durationSeconds": 5,
+      "location": "場所（日本語）",
+      "character": "人物（日本語）",
+      "action": "動作（日本語）",
+      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tracking|over_shoulder",
+      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom",
+      "visual": "映像の説明（日本語）",
+      "narrationText": "短い日本語ナレーション",
+      "onScreenText": ""
+    }
+  ],
+  "totalDurationSeconds": 30,
+  "cta": "日本語のCTA"
+}
+`.trim();
+

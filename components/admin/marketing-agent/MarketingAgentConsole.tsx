@@ -27,14 +27,8 @@ import type {
   MarketingRecommendation,
 } from "@/lib/marketing-agent/types";
 import { asRecord, asString } from "@/lib/marketing-agent/json";
-import {
-  ActionForm,
-  VoidActionForm,
-} from "@/components/admin/marketing-agent/ActionForm";
-import {
-  PrScriptGenerator,
-  type PrScriptCaseOption,
-} from "@/components/admin/marketing-agent/PrScriptGenerator";
+import { ActionForm, VoidActionForm } from "@/components/admin/marketing-agent/ActionForm";
+import { BusinessPrVideoGenerator } from "@/components/admin/marketing-agent/BusinessPrVideoGenerator";
 import {
   StatusBadge,
   priorityTone,
@@ -49,8 +43,6 @@ type MarketingAgentConsoleProps = {
   recommendations: MarketingRecommendation[];
   competitors: MarketingCompetitor[];
   gaps: MarketingCompetitorGap[];
-  cases?: PrScriptCaseOption[];
-  casesError?: string;
 };
 
 function formatDate(iso: string | null): string {
@@ -171,8 +163,6 @@ export function MarketingAgentConsole({
   recommendations,
   competitors,
   gaps,
-  cases = [],
-  casesError,
 }: MarketingAgentConsoleProps) {
   const gsc = overview.connections.searchConsole;
   const ai = overview.connections.ai;
@@ -912,11 +902,11 @@ export function MarketingAgentConsole({
       </Section>
 
       <Section
-        id="pr-script"
-        title="PR Video Script Generator"
-        description="商品（Case）を1つ選び、短尺PR動画の台本を生成し、続けて Generate PR Video で MP4 を作れます。結果は画面表示のみで、DBには保存しません。自動公開・SNS投稿はしません。"
+        id="business-pr-video"
+        title="事業PR動画"
+        description="会社・事業・ブランドを知ってもらい、BrandBridge へのアクセス・問い合わせにつなげる日本語の縦動画です。商品の選択は不要です。自動公開・SNS投稿はしません。"
       >
-        <PrScriptGenerator cases={cases} casesError={casesError} />
+        <BusinessPrVideoGenerator />
       </Section>
     </div>
   );

@@ -2,10 +2,8 @@ import { isIP } from "node:net";
 import path from "node:path";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 
-const PRODUCT_IMAGE_PREFIXES = [
-  "/storage/v1/object/public/product-images/",
-  "/storage/v1/render/image/public/product-images/",
-];
+const PRODUCT_IMAGE_PATH =
+  /(?:^|\/)(?:storage\/v1\/)?(?:object|render\/image)\/public\/product-images\//;
 const ALLOWED_EXT = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 const BLOCKED_SUPABASE_SUBDOMAINS = new Set([
@@ -16,6 +14,8 @@ const BLOCKED_SUPABASE_SUBDOMAINS = new Set([
   "status",
   "docs",
 ]);
+/** Public BrandBridge project ref (visible on product image URLs). */
+const BRAND_BRIDGE_PROJECT_REF = "licdcotjjmqfzliifngv";
 
 const BLOCKED_HOSTS = new Set([
   "localhost",
@@ -65,68 +65,71 @@ function parseHttpUrl(raw: string): URL | null {
   }
 }
 
-/**
- * BrandBridge stores product images in the public `product-images` bucket.
- * getPublicUrl() uses NEXT_PUBLIC_SUPABASE_URL (`{ref}.supabase.co`), while
- * some dashboard / Storage URLs use `{ref}.storage.supabase.co`.
- */
-function hostsFromSupabaseEnv(): Set<string> {
-  const hosts = new Set<string>();
-  const envUrl = parseHttpUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-  if (!envUrl) return hosts;
-  const host = envUrl.hostname.toLowerCase();
-  hosts.add(host);
-  const api = host.match(/^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/);
-  if (api && !BLOCKED_SUPABASE_SUBDOMAINS.has(api[1])) {
-    hosts.add(`${api[1]}.storage.supabase.co`);
+function normalizeStoredImageUrl(raw: string): string {
+  let value = raw.trim().replace(/^\uFEFF/, "");
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
   }
-  const storage = host.match(
-    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.storage\.supabase\.co$/,
-  );
-  if (storage) {
-    hosts.add(`${storage[1]}.supabase.co`);
-  }
-  return hosts;
+  value = value.replace(/\\+$/g, "").replace(/&amp;/gi, "&");
+  return value;
 }
 
-function isSupabaseProductImageHost(hostname: string): boolean {
-  const storage = hostname.match(
-    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.storage\.supabase\.co$/,
+/**
+ * `{ref}.supabase.co` and `{ref}.storage.supabase.co` (also .in / .red).
+ */
+function projectRefFromHostname(hostname: string): string | null {
+  const host = hostname.toLowerCase().replace(/\.$/, "");
+  const storage = host.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.storage\.supabase\.(co|in|red)$/,
   );
-  if (storage) return true;
-  const api = hostname.match(
-    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/,
+  if (storage) return storage[1];
+  const api = host.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.(co|in|red)$/,
   );
-  if (api) return !BLOCKED_SUPABASE_SUBDOMAINS.has(api[1]);
-  const legacy = hostname.match(
-    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.in$/,
-  );
-  return Boolean(legacy);
+  if (!api || BLOCKED_SUPABASE_SUBDOMAINS.has(api[1])) return null;
+  return api[1];
+}
+
+function allowedProjectRefs(): Set<string> {
+  const refs = new Set<string>([BRAND_BRIDGE_PROJECT_REF]);
+  const envUrl = parseHttpUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+  const envRef = envUrl ? projectRefFromHostname(envUrl.hostname) : null;
+  if (envRef) refs.add(envRef);
+  return refs;
 }
 
 function isAllowedProductImageHost(hostname: string): boolean {
-  const fromEnv = hostsFromSupabaseEnv();
-  if (fromEnv.size > 0) return fromEnv.has(hostname);
-  // Cloud Run may not have NEXT_PUBLIC_SUPABASE_URL; still allow the same
-  // public product-images hosts BrandBridge actually stores.
-  return isSupabaseProductImageHost(hostname);
+  const urlRef = projectRefFromHostname(hostname);
+  if (!urlRef) return false;
+  return allowedProjectRefs().has(urlRef);
 }
 
 function isProductImagesPath(pathname: string): boolean {
-  return PRODUCT_IMAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    decoded = pathname;
+  }
+  return PRODUCT_IMAGE_PATH.test(decoded);
 }
 
-/** Prefer `{ref}.supabase.co` so Cloud Run can match NEXT_PUBLIC_SUPABASE_URL. */
+/** Prefer `{ref}.supabase.co` so older workers matching env host still fetch. */
 function canonicalizeProductImageUrl(url: URL): string {
-  const envUrl = parseHttpUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
-  const envHost = envUrl?.hostname.toLowerCase();
-  if (!envHost) return url.toString();
-  const api = envHost.match(/^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/);
-  if (!api || BLOCKED_SUPABASE_SUBDOMAINS.has(api[1])) return url.toString();
-  const storageHost = `${api[1]}.storage.supabase.co`;
-  if (url.hostname.toLowerCase() !== storageHost) return url.toString();
+  const ref = projectRefFromHostname(url.hostname);
+  if (!ref) return url.toString();
   const next = new URL(url.toString());
-  next.hostname = envHost;
+  if (next.hostname.toLowerCase().includes(".storage.supabase.")) {
+    const tld = next.hostname.toLowerCase().endsWith(".red")
+      ? "red"
+      : next.hostname.toLowerCase().endsWith(".in")
+        ? "in"
+        : "co";
+    next.hostname = `${ref}.supabase.${tld}`;
+  }
   return next.toString();
 }
 
@@ -137,12 +140,12 @@ export type SafeProductImage =
 /**
  * Validate a Case product image URL before any fetch.
  * Allows: relative files under public/ (jpg/png/webp) and HTTPS public
- * URLs in the product-images bucket on the BrandBridge Supabase project
+ * objects in the product-images bucket on the BrandBridge Supabase project
  * (`{ref}.supabase.co` or `{ref}.storage.supabase.co`). Blocks localhost /
  * private IPs / metadata endpoints / arbitrary hosts.
  */
 export function assertSafeProductImageUrl(raw: string): SafeProductImage {
-  const trimmed = raw.trim();
+  const trimmed = normalizeStoredImageUrl(raw);
   if (!trimmed) {
     throw new MarketingAgentError("MISSING_IMAGE", "This product has no image.");
   }

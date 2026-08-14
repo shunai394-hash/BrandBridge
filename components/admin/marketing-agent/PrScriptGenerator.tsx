@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { generatePrVideoScriptAction } from "@/lib/marketing-agent/actions";
 import type {
   PrScriptProductSnapshot,
@@ -85,6 +85,16 @@ export function PrScriptGenerator({
   const [script, setScript] = useState<PrVideoScript | null>(null);
   const [product, setProduct] = useState<PrScriptProductSnapshot | null>(null);
   const [copyState, setCopyState] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoName, setVideoName] = useState("brandbridge-pr-video.mp4");
+  const [videoStatus, setVideoStatus] = useState<"idle" | "generating" | "ready">("idle");
+  const [videoError, setVideoError] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+    };
+  }, [videoUrl]);
 
   const selected = useMemo(
     () => cases.find((item) => item.id === selectedId) ?? null,
@@ -111,6 +121,12 @@ export function PrScriptGenerator({
           setScript(null);
           setProduct(null);
           setCopyState(null);
+          setVideoError(null);
+          setVideoStatus("idle");
+          setVideoUrl((current) => {
+            if (current) URL.revokeObjectURL(current);
+            return null;
+          });
           const result = await generatePrVideoScriptAction(formData);
           if (result.error) {
             setError(result.error);
@@ -134,6 +150,12 @@ export function PrScriptGenerator({
               setProduct(null);
               setError(null);
               setCopyState(null);
+              setVideoError(null);
+              setVideoStatus("idle");
+              setVideoUrl((current) => {
+                if (current) URL.revokeObjectURL(current);
+                return null;
+              });
             }}
           >
             <option value="" disabled>
@@ -165,41 +187,130 @@ export function PrScriptGenerator({
 
       {error ? <p className="text-sm text-red-700">{error}</p> : null}
 
-      {script ? (
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-navy transition hover:border-teal hover:text-teal"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(
+      <div className="space-y-3 rounded-lg border border-teal/40 bg-surface p-4">
+        <p className="text-sm font-medium text-navy">PR Video Generator</p>
+        <p className="text-xs text-muted">
+          台本の narration / 字幕と商品画像1枚から、約30秒の 9:16 MP4 を生成します。公開・SNS投稿はしません。
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={videoStatus === "generating" || !script || !selectedId}
+            className="inline-flex cursor-pointer items-center justify-center rounded-md bg-teal px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-dark disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={async () => {
+              if (!script || !selectedId) return;
+              setVideoError(null);
+              setVideoStatus("generating");
+              setVideoUrl((current) => {
+                if (current) URL.revokeObjectURL(current);
+                return null;
+              });
+              try {
+                const body = new FormData();
+                body.set("caseId", selectedId);
+                body.set("script", JSON.stringify(script));
+                const response = await fetch("/admin/marketing-agent/pr-video", {
+                  method: "POST",
+                  body,
+                });
+                const contentType = response.headers.get("content-type") ?? "";
+                if (!response.ok) {
+                  let message = `Video generation failed (HTTP ${response.status}).`;
+                  if (contentType.includes("application/json")) {
+                    const payload = (await response.json()) as { error?: string };
+                    if (payload.error) message = payload.error;
+                  }
+                  setVideoError(message);
+                  setVideoStatus("idle");
+                  return;
+                }
+                const blob = await response.blob();
+                if (blob.size < 1024) {
+                  setVideoError("Video generation returned an empty file.");
+                  setVideoStatus("idle");
+                  return;
+                }
+                const disposition = response.headers.get("content-disposition") ?? "";
+                const match = disposition.match(/filename="([^"]+)"/);
+                setVideoName(match?.[1] || "brandbridge-pr-video.mp4");
+                setVideoUrl(URL.createObjectURL(blob));
+                setVideoStatus("ready");
+              } catch {
+                setVideoError("Video generation failed. Please try again.");
+                setVideoStatus("idle");
+              }
+            }}
+          >
+            {videoStatus === "generating" ? "Generating video..." : "Generate PR Video"}
+          </button>
+          {script ? (
+            <>
+              <button
+                type="button"
+                className="inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-navy transition hover:border-teal hover:text-teal"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(
+                      formatPrVideoScriptText(script),
+                    );
+                    setCopyState("Copied.");
+                  } catch {
+                    setCopyState("Copy failed. Please try again.");
+                  }
+                }}
+              >
+                Copy Script
+              </button>
+              <button
+                type="button"
+                className="inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-navy transition hover:border-teal hover:text-teal"
+                onClick={() => {
+                  const id = product?.id || selectedId || "script";
+                  downloadText(
+                    `brandbridge-pr-script-${safeFileSlug(id)}.txt`,
                     formatPrVideoScriptText(script),
                   );
-                  setCopyState("Copied.");
-                } catch {
-                  setCopyState("Copy failed. Please try again.");
-                }
-              }}
-            >
-              Copy Script
-            </button>
-            <button
-              type="button"
+                }}
+              >
+                Download TXT
+              </button>
+            </>
+          ) : null}
+        </div>
+        <p className="text-xs text-muted">
+          Status:{" "}
+          {videoStatus === "generating"
+            ? "generating"
+            : videoStatus === "ready"
+              ? "ready"
+              : script
+                ? "idle — script ready"
+                : "idle — generate a PR script first"}
+        </p>
+        {copyState ? <p className="text-xs text-teal">{copyState}</p> : null}
+        {videoError ? <p className="text-sm text-red-700">{videoError}</p> : null}
+        {videoUrl ? (
+          <div className="space-y-3">
+            <video
+              className="mx-auto w-full max-w-[270px] rounded-md border border-border bg-black"
+              style={{ aspectRatio: "9 / 16" }}
+              src={videoUrl}
+              controls
+              playsInline
+            />
+            <a
+              href={videoUrl}
+              download={videoName}
               className="inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-navy transition hover:border-teal hover:text-teal"
-              onClick={() => {
-                const id = product?.id || selectedId || "script";
-                downloadText(
-                  `brandbridge-pr-script-${safeFileSlug(id)}.txt`,
-                  formatPrVideoScriptText(script),
-                );
-              }}
             >
-              Download TXT
-            </button>
+              Download MP4
+            </a>
           </div>
-          {copyState ? <p className="text-xs text-teal">{copyState}</p> : null}
+        ) : null}
+      </div>
 
+      {script ? (
+        <div className="space-y-4">
           <div className="rounded-lg border border-border bg-surface p-4 text-sm">
             <p className="text-xs text-muted">Title</p>
             <p className="mt-1 text-navy">{script.title}</p>

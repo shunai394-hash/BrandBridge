@@ -1,0 +1,195 @@
+import { isIP } from "node:net";
+import path from "node:path";
+import { MarketingAgentError } from "@/lib/marketing-agent/ai";
+
+const PRODUCT_IMAGE_PREFIX = "/storage/v1/object/public/product-images/";
+const ALLOWED_EXT = new Set([".jpg", ".jpeg", ".png", ".webp"]);
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+
+const BLOCKED_HOSTS = new Set([
+  "localhost",
+  "metadata.google.internal",
+  "metadata.goog",
+  "instance-data",
+]);
+
+function isPrivateOrLocalHost(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+  if (BLOCKED_HOSTS.has(host)) return true;
+  if (host.endsWith(".localhost") || host.endsWith(".local")) return true;
+  if (host === "::1" || host === "0.0.0.0") return true;
+  if (!isIP(host)) {
+    if (host === "127.0.0.1" || host.startsWith("127.")) return true;
+    return false;
+  }
+  if (host.includes(":")) {
+    return (
+      host === "::1" ||
+      host.startsWith("fc") ||
+      host.startsWith("fd") ||
+      host.startsWith("fe80")
+    );
+  }
+  const parts = host.split(".").map(Number);
+  const a = parts[0] ?? 0;
+  const b = parts[1] ?? 0;
+  if (a === 10 || a === 127 || a === 0 || a === 169 && b === 254) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 100 && b >= 64 && b <= 127) return true;
+  return false;
+}
+
+function supabaseAllowHost(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+  try {
+    return new URL(raw).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+export type SafeProductImage =
+  | { kind: "remote"; url: string }
+  | { kind: "local"; filePath: string };
+
+/**
+ * Validate a Case product image URL before any fetch.
+ * Allows: relative files under public/ (jpg/png/webp) and HTTPS
+ * Supabase product-images public URLs. Blocks localhost / private IPs /
+ * metadata endpoints / arbitrary hosts.
+ */
+export function assertSafeProductImageUrl(raw: string): SafeProductImage {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    throw new MarketingAgentError("MISSING_IMAGE", "This product has no image.");
+  }
+
+  if (trimmed.startsWith("/")) {
+    if (trimmed.includes("\\") || trimmed.includes("\0")) {
+      throw new MarketingAgentError("INVALID_IMAGE_URL", "Invalid image path.");
+    }
+    const publicRoot = path.resolve(process.cwd(), "public");
+    const resolved = path.resolve(publicRoot, `.${trimmed}`);
+    if (resolved !== publicRoot && !resolved.startsWith(publicRoot + path.sep)) {
+      throw new MarketingAgentError("INVALID_IMAGE_URL", "Invalid image path.");
+    }
+    const ext = path.extname(resolved).toLowerCase();
+    if (!ALLOWED_EXT.has(ext)) {
+      throw new MarketingAgentError(
+        "INVALID_IMAGE_URL",
+        "Product image must be JPEG, PNG, or WebP.",
+      );
+    }
+    return { kind: "local", filePath: resolved };
+  }
+
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "Invalid image URL.");
+  }
+
+  if (url.protocol !== "https:") {
+    throw new MarketingAgentError(
+      "INVALID_IMAGE_URL",
+      "Remote product images must use HTTPS.",
+    );
+  }
+  if (url.username || url.password) {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "Invalid image URL.");
+  }
+  if (url.port && url.port !== "443") {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "Invalid image URL.");
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  if (isIP(hostname) || isPrivateOrLocalHost(hostname)) {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "Image host is not allowed.");
+  }
+
+  const allowedHost = supabaseAllowHost();
+  if (!allowedHost || hostname !== allowedHost) {
+    throw new MarketingAgentError(
+      "INVALID_IMAGE_URL",
+      "Image host is not an allowed product-images domain.",
+    );
+  }
+  if (!url.pathname.startsWith(PRODUCT_IMAGE_PREFIX)) {
+    throw new MarketingAgentError(
+      "INVALID_IMAGE_URL",
+      "Image path is not a product-images object.",
+    );
+  }
+
+  return { kind: "remote", url: url.toString() };
+}
+
+export async function readSafeProductImage(
+  source: SafeProductImage,
+): Promise<{ bytes: Buffer; contentType: string }> {
+  if (source.kind === "local") {
+    const { readFile, stat } = await import("node:fs/promises");
+    const info = await stat(source.filePath).catch(() => null);
+    if (!info?.isFile()) {
+      throw new MarketingAgentError("MISSING_IMAGE", "Product image file was not found.");
+    }
+    if (info.size > MAX_IMAGE_BYTES) {
+      throw new MarketingAgentError("INVALID_IMAGE_URL", "Product image is too large.");
+    }
+    const bytes = await readFile(source.filePath);
+    const ext = path.extname(source.filePath).toLowerCase();
+    const contentType =
+      ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+    return { bytes, contentType };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(source.url, {
+      method: "GET",
+      redirect: "error",
+      signal: controller.signal,
+      headers: { Accept: "image/jpeg,image/png,image/webp" },
+    });
+    if (!response.ok) {
+      throw new MarketingAgentError(
+        "INVALID_IMAGE_URL",
+        `Could not download product image (HTTP ${response.status}).`,
+      );
+    }
+    const contentType = (response.headers.get("content-type") ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase();
+    if (!["image/jpeg", "image/png", "image/webp", "image/jpg"].includes(contentType)) {
+      throw new MarketingAgentError(
+        "INVALID_IMAGE_URL",
+        "Downloaded file is not a JPEG, PNG, or WebP image.",
+      );
+    }
+    const length = Number(response.headers.get("content-length") ?? "0");
+    if (length > MAX_IMAGE_BYTES) {
+      throw new MarketingAgentError("INVALID_IMAGE_URL", "Product image is too large.");
+    }
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (buffer.byteLength > MAX_IMAGE_BYTES) {
+      throw new MarketingAgentError("INVALID_IMAGE_URL", "Product image is too large.");
+    }
+    return { bytes: buffer, contentType };
+  } catch (error) {
+    if (error instanceof MarketingAgentError) throw error;
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new MarketingAgentError("AI_TIMEOUT", "Image download timed out.");
+    }
+    throw new MarketingAgentError(
+      "INVALID_IMAGE_URL",
+      "Could not download the product image.",
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}

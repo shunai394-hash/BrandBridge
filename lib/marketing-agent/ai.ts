@@ -15,10 +15,10 @@ export class MarketingAgentError extends Error {
 
 export type AiProvider = "groq" | "openai";
 
-const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
-const DEFAULT_GROQ_BASE = "https://api.groq.com/openai/v1";
-const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
-const DEFAULT_OPENAI_BASE = "https://api.openai.com/v1";
+const DEFAULT_AI_BASE = "https://api.groq.com/openai/v1";
+const DEFAULT_AI_MODEL = "llama-3.3-70b-versatile";
+const MISSING_KEY_MESSAGE =
+  "AI APIが設定されていません。AI_API_KEYをサーバー環境変数に設定してください。";
 
 type ProviderConfig = {
   provider: AiProvider;
@@ -27,30 +27,43 @@ type ProviderConfig = {
   model: string;
 };
 
-export function resolveAiProvider(): AiProvider {
-  const explicit = process.env.MARKETING_AI_PROVIDER?.trim().toLowerCase();
-  if (explicit === "groq" || explicit === "openai") return explicit;
-  if (process.env.GROQ_API_KEY?.trim()) return "groq";
+function trimSlash(value: string): string {
+  return value.replace(/\/$/, "");
+}
+
+function inferProvider(base: string): AiProvider {
+  try {
+    const host = new URL(base).hostname.toLowerCase();
+    if (host === "api.groq.com" || host.endsWith(".groq.com")) return "groq";
+  } catch {
+    /* invalid URL → treat as OpenAI-compatible */
+  }
   return "openai";
 }
 
-function providerConfig(provider: AiProvider = resolveAiProvider()): ProviderConfig {
-  if (provider === "groq") {
-    return {
-      provider,
-      apiKey: process.env.GROQ_API_KEY?.trim() || "",
-      base:
-        process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_GROQ_BASE,
-      model: process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL,
-    };
-  }
+function providerConfig(): ProviderConfig {
+  const apiKey =
+    process.env.AI_API_KEY?.trim() ||
+    process.env.GROQ_API_KEY?.trim() ||
+    "";
+  const base =
+    trimSlash(process.env.AI_BASE_URL?.trim() || "") ||
+    trimSlash(process.env.GROQ_BASE_URL?.trim() || "") ||
+    DEFAULT_AI_BASE;
+  const model =
+    process.env.AI_MODEL?.trim() ||
+    process.env.GROQ_MODEL?.trim() ||
+    DEFAULT_AI_MODEL;
   return {
-    provider,
-    apiKey: process.env.OPENAI_API_KEY?.trim() || "",
-    base:
-      process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_OPENAI_BASE,
-    model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
+    provider: inferProvider(base),
+    apiKey,
+    base,
+    model,
   };
+}
+
+export function resolveAiProvider(): AiProvider {
+  return providerConfig().provider;
 }
 
 export function getAiModel(): string {
@@ -89,13 +102,6 @@ async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function missingKeyMessage(provider: AiProvider): string {
-  if (provider === "groq") {
-    return "AI API未設定です。GROQ_API_KEY をサーバー環境変数に設定してください。";
-  }
-  return "AI API未設定です。OPENAI_API_KEY をサーバー環境変数に設定してください。";
-}
-
 export async function completeJson(
   messages: ChatMessage[],
   options: ChatOptions = {},
@@ -105,10 +111,10 @@ export async function completeJson(
     return parseJsonRecord(raw);
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Invalid JSON from AI";
+      error instanceof Error ? error.message : "JSONの解析に失敗しました";
     throw new MarketingAgentError(
       "INVALID_AI_RESPONSE",
-      `${message}. First 240 chars: ${raw.slice(0, 240)}`,
+      `AIのJSON応答を解析できませんでした（${message}）。先頭240文字: ${raw.slice(0, 240)}`,
     );
   }
 }
@@ -119,7 +125,7 @@ export async function completeChat(
 ): Promise<string> {
   const cfg = providerConfig();
   if (!cfg.apiKey) {
-    throw new MarketingAgentError("AI_NOT_CONFIGURED", missingKeyMessage(cfg.provider));
+    throw new MarketingAgentError("AI_NOT_CONFIGURED", MISSING_KEY_MESSAGE);
   }
 
   const timeoutMs = options.timeoutMs ?? 50_000;
@@ -162,7 +168,7 @@ export async function completeChat(
       if (!response.ok) {
         throw new MarketingAgentError(
           "AI_HTTP_ERROR",
-          `AI API error ${response.status}: ${redactSecrets(text).slice(0, 300)}`,
+          `AI APIエラー（HTTP ${response.status}）: ${redactSecrets(text).slice(0, 300)}`,
         );
       }
 

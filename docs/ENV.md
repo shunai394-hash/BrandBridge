@@ -32,13 +32,11 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 
 | 変数名 | 公開範囲 | 説明 |
 |--------|----------|------|
-| `MARKETING_AI_PROVIDER` | サーバーのみ | `groq`（既定）または `openai` |
-| `GROQ_API_KEY` | サーバーのみ | Groq Chat Completions。`MARKETING_AI_PROVIDER=groq` で必須 |
-| `GROQ_BASE_URL` | サーバーのみ | 省略時 `https://api.groq.com/openai/v1` |
-| `GROQ_MODEL` | サーバーのみ | 省略時 `llama-3.3-70b-versatile` |
-| `OPENAI_API_KEY` | サーバーのみ | OpenAI Chat Completions。`MARKETING_AI_PROVIDER=openai` で必須 |
-| `OPENAI_MODEL` | サーバーのみ | 省略時 `gpt-4o-mini` |
-| `OPENAI_BASE_URL` | サーバーのみ | 省略時 `https://api.openai.com/v1` |
+| `AI_API_KEY` | サーバーのみ | OpenAI 互換 Chat Completions の API キー（Groq 標準） |
+| `AI_BASE_URL` | サーバーのみ | 省略時 `https://api.groq.com/openai/v1`。OpenAI へ切替時は `https://api.openai.com/v1` を明示 |
+| `AI_MODEL` | サーバーのみ | 省略時 `llama-3.3-70b-versatile` |
+
+`AI_API_KEY` 未設定時のみ、既存の `GROQ_API_KEY` / `GROQ_BASE_URL` / `GROQ_MODEL` も読みます。`AI_BASE_URL` 未設定時のデフォルトは Groq であり、`https://api.openai.com/v1` へはフォールバックしません。
 | `PR_VIDEO_WORKER_URL` | サーバーのみ | Cloud Run PR Video worker の URL（末尾スラッシュなし） |
 | `PR_VIDEO_WORKER_SECRET` | サーバーのみ | Vercel → Cloud Run Bearer。R2 キーは Cloud Run のみ |
 | `GOOGLE_SEARCH_CONSOLE_SITE_URL` | サーバーのみ | GSC プロパティ。例: `sc-domain:example.com` または `https://example.com/` |
@@ -91,10 +89,9 @@ Project → Settings → Environment Variables に以下を追加:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 本番の `anon` key |
 | `NEXT_PUBLIC_SITE_URL` | `https://あなたの本番ドメイン` |
 | `BETA_AUTO_APPROVE_CASES` | `true`（ベータ中） |
-| `MARKETING_AI_PROVIDER` | `groq` |
-| `GROQ_API_KEY` | Groq の API キー（値はダッシュボードのみ） |
-| `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` |
+| `AI_API_KEY` | Groq（または切替先）の API キー（値はダッシュボードのみ） |
+| `AI_BASE_URL` | `https://api.groq.com/openai/v1` |
+| `AI_MODEL` | `llama-3.3-70b-versatile` |
 | `PR_VIDEO_WORKER_URL` | Cloud Run worker URL |
 | `PR_VIDEO_WORKER_SECRET` | Cloud Run と同じ Bearer |
 

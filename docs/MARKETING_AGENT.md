@@ -32,13 +32,9 @@ supabase/migrations/053_marketing_competitors.sql
 
 | 変数 | 必須 | 説明 |
 |------|------|------|
-| `MARKETING_AI_PROVIDER` | 任意 | `groq`（推奨）または `openai`。未設定時は `GROQ_API_KEY` があれば Groq |
-| `GROQ_API_KEY` | Groq 実行時 | Groq Chat Completions |
-| `GROQ_BASE_URL` | 任意 | 省略時 `https://api.groq.com/openai/v1` |
-| `GROQ_MODEL` | 任意 | 省略時 `llama-3.3-70b-versatile` |
-| `OPENAI_API_KEY` | OpenAI 実行時 | OpenAI 互換 Chat Completions |
-| `OPENAI_MODEL` | 任意 | 省略時 `gpt-4o-mini` |
-| `OPENAI_BASE_URL` | 任意 | 省略時 `https://api.openai.com/v1` |
+| `AI_API_KEY` | AI実行時 | OpenAI 互換 Chat Completions の API キー |
+| `AI_BASE_URL` | 任意 | 省略時 `https://api.groq.com/openai/v1`。他プロバイダへ切替時のみ明示 |
+| `AI_MODEL` | 任意 | 省略時 `llama-3.3-70b-versatile` |
 
 Vercel: Project → Settings → Environment Variables に Production / Preview へ追加。
 

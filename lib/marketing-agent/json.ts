@@ -48,7 +48,7 @@ export function parseJsonRecord(raw: string): Record<string, unknown> {
   const record = asRecord(parsed);
   if (Object.keys(record).length > 0) return record;
   if (Array.isArray(parsed)) return { items: parsed };
-  throw new Error("AI response was not a JSON object");
+  throw new Error("AIの応答がJSONオブジェクトではありません");
 }
 
 export function parseJsonArray(raw: string): unknown[] {
@@ -58,5 +58,5 @@ export function parseJsonArray(raw: string): unknown[] {
   if (Array.isArray(record.items)) return record.items;
   if (Array.isArray(record.ideas)) return record.ideas;
   if (Array.isArray(record.recommendations)) return record.recommendations;
-  throw new Error("AI response was not a JSON array");
+  throw new Error("AIの応答がJSON配列ではありません");
 }

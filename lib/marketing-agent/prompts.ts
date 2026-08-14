@@ -182,3 +182,53 @@ Return JSON:
   "cta": "Natural call to action"
 }
 `.trim();
+
+export const BUSINESS_PR_VIDEO_SCRIPT_TASK = `
+Write a ~30 second vertical video script that raises awareness of a company / business / brand and drives visits or inquiries to BrandBridge.
+
+This is NOT a product sales video.
+Do not pitch a specific product's features, price, functions, or buying points.
+Do not use a "buy now" or product-purchase CTA.
+
+Purpose of the video (in this order):
+1. Make the company, business, or brand known.
+2. Create interest.
+3. Lead the viewer to BrandBridge (website, details, Japan-market consultation, partner matching, inquiry).
+
+Audience examples: overseas brands considering Japan; people who should know BrandBridge exists.
+
+Language (mandatory):
+- title, hook, visual, narrationText, onScreenText, cameraMotion, and cta MUST be natural Japanese.
+- narrationText is spoken TTS: complete Japanese sentences with hiragana and/or katakana, not Chinese-only, not English.
+- Never output filler English, never repeat words like "Chinese", never dump language names, never mix random foreign languages.
+- On-screen text is short Japanese (about 8–16 characters per line).
+- Brand names such as BrandBridge may appear in Latin letters.
+
+Content rules:
+- Use only the provided company/brand/business/target/purpose fields. Do not invent awards, user counts, or results.
+- Hook in the first seconds, then why Japan-market entry is more than selling a product, then how this business helps, then a BrandBridge access CTA.
+- CTA examples (adapt, do not copy blindly): 「日本市場への進出を考えているなら、BrandBridgeへ。」「詳しくはBrandBridgeをご覧ください。」
+- 5–8 scenes, total about 25–35 seconds. Spoken Japanese must fit that length: keep concatenated narrationText around 90–120 characters. Each scene is ONE short sentence (about 12–28 characters). Do not write long paragraphs.
+- Separate visual direction from narration. narrationText: no stage directions, timestamps, or speaker labels.
+- Each scene MUST set imageIndex (0-based) into the provided images list. Reuse images; prefer using every image at least once. Images are mood/brand stills (city, office, people, nightscape, etc.), not required to be product photos.
+- cameraMotion must be one of: zoom-in, zoom-out, pan-left, pan-right, track.
+
+Return JSON:
+{
+  "title": "日本語のタイトル",
+  "hook": "日本語のフック",
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "durationSeconds": 5,
+      "visual": "映像の説明（日本語）",
+      "cameraMotion": "zoom-in",
+      "imageIndex": 0,
+      "narrationText": "日本語のナレーション",
+      "onScreenText": "画面テキスト"
+    }
+  ],
+  "totalDurationSeconds": 30,
+  "cta": "日本語のCTA"
+}
+`.trim();

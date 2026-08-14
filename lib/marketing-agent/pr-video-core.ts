@@ -2,7 +2,9 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
+import { isNaturalJapaneseNarration } from "@/lib/marketing-agent/japanese-narration";
 import {
+  assignSceneImageIndexes,
   normalizePrVideoScript,
   type PrVideoScene,
   type PrVideoScript,
@@ -59,6 +61,84 @@ export type PrVideoRenderResult = {
   productName: string;
 };
 
+export type BusinessPrImageBytes = {
+  bytes: Buffer;
+  contentType: string;
+};
+
+function extForContentType(contentType: string): "png" | "webp" | "jpg" {
+  if (contentType.includes("png")) return "png";
+  if (contentType.includes("webp")) return "webp";
+  return "jpg";
+}
+
+function fileSlug(value: string, fallback: string): string {
+  const slug = value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40);
+  return slug || fallback;
+}
+
+async function renderScenesToMp4(input: {
+  script: PrVideoScript;
+  imagePaths: string[];
+  workDir: string;
+  fileSlug: string;
+  displayName: string;
+  ttsVoice?: "ja" | "en";
+  requireJapanese?: boolean;
+}): Promise<PrVideoRenderResult> {
+  let scenes = assignSceneImageIndexes(
+    scaleSceneDurations(input.script.scenes),
+    input.imagePaths.length,
+  );
+  const narration = joinNarration(scenes);
+  if (input.requireJapanese && !isNaturalJapaneseNarration(narration)) {
+    throw new MarketingAgentError(
+      "INVALID_AI_RESPONSE",
+      "ナレーションが自然な日本語ではありません。台本を作り直してください。",
+    );
+  }
+
+  const audioPath = path.join(input.workDir, "narration.wav");
+  const tts = await synthesizeNarrationWav({
+    text: narration,
+    outFile: audioPath,
+    voice: input.ttsVoice,
+  });
+
+  const visualSum = scenes.reduce((total, scene) => total + scene.durationSeconds, 0);
+  if (tts.durationSeconds > visualSum + 0.4) {
+    scenes = scaleSceneDurations(scenes, tts.durationSeconds);
+  }
+
+  const outFile = path.join(input.workDir, "pr-video.mp4");
+  const rendered = await renderPrVideoMp4({
+    workDir: input.workDir,
+    images: input.imagePaths,
+    audioPath,
+    scenes,
+    outFile,
+  });
+
+  const { readFile } = await import("node:fs/promises");
+  const bytes = await readFile(outFile);
+  if (bytes.byteLength < 1024) {
+    throw new MarketingAgentError("RENDER_FAILURE", "MP4 output was incomplete.");
+  }
+
+  return {
+    bytes,
+    fileName: `brandbridge-pr-video-${input.fileSlug}.mp4`,
+    durationSeconds: rendered.durationSeconds,
+    width: rendered.width,
+    height: rendered.height,
+    productName: input.displayName,
+  };
+}
+
 export async function generatePrVideoFromRemote(input: {
   caseId: string;
   script: PrVideoScript;
@@ -98,55 +178,64 @@ export async function renderPrVideoWithImage(input: {
   const workDir = await mkdtemp(path.join(tmpdir(), "bb-pr-video-"));
   try {
     const image = await readSafeProductImage(input.safeImage);
-    const ext =
-      image.contentType.includes("png")
-        ? "png"
-        : image.contentType.includes("webp")
-          ? "webp"
-          : "jpg";
+    const ext = extForContentType(image.contentType);
     const imagePath = path.join(workDir, `product.${ext}`);
     await writeFile(imagePath, image.bytes);
 
-    let scenes = scaleSceneDurations(input.script.scenes);
-    const narration = joinNarration(scenes);
-    const audioPath = path.join(workDir, "narration.wav");
-    const tts = await synthesizeNarrationWav({ text: narration, outFile: audioPath });
-
-    const visualSum = scenes.reduce((total, scene) => total + scene.durationSeconds, 0);
-    if (tts.durationSeconds > visualSum + 0.4) {
-      scenes = scaleSceneDurations(scenes, tts.durationSeconds);
-    }
-
-    const outFile = path.join(workDir, "pr-video.mp4");
-    const rendered = await renderPrVideoMp4({
+    return await renderScenesToMp4({
+      script: input.script,
+      imagePaths: [imagePath],
       workDir,
-      imagePath,
-      audioPath,
-      scenes,
-      outFile,
+      fileSlug: fileSlug(input.productName, "product"),
+      displayName: input.productName,
     });
+  } finally {
+    await rm(workDir, { recursive: true, force: true });
+  }
+}
 
-    const { readFile } = await import("node:fs/promises");
-    const bytes = await readFile(outFile);
-    if (bytes.byteLength < 1024) {
-      throw new MarketingAgentError("RENDER_FAILURE", "MP4 output was incomplete.");
+export async function generateBusinessPrVideo(input: {
+  script: PrVideoScript;
+  images: BusinessPrImageBytes[];
+  companyName: string;
+}): Promise<PrVideoRenderResult> {
+  await assertFfmpegAvailable();
+
+  const script = normalizePrVideoScript(input.script);
+  if (!script) {
+    throw new MarketingAgentError(
+      "INVALID_AI_RESPONSE",
+      "台本が不正です。先に事業PRの台本を生成してください。",
+    );
+  }
+  if (input.images.length < 2) {
+    throw new MarketingAgentError(
+      "MISSING_IMAGE",
+      "事業PR動画には画像を2枚以上追加してください。商品画像である必要はありません。",
+    );
+  }
+
+  const workDir = await mkdtemp(path.join(tmpdir(), "bb-biz-pr-video-"));
+  try {
+    const imagePaths: string[] = [];
+    for (let i = 0; i < input.images.length; i += 1) {
+      const image = input.images[i];
+      if (!image) continue;
+      const ext = extForContentType(image.contentType);
+      const imagePath = path.join(workDir, `still-${i}.${ext}`);
+      await writeFile(imagePath, image.bytes);
+      imagePaths.push(imagePath);
     }
 
-    const slug =
-      input.productName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 40) || "product";
-
-    return {
-      bytes,
-      fileName: `brandbridge-pr-video-${slug}.mp4`,
-      durationSeconds: rendered.durationSeconds,
-      width: rendered.width,
-      height: rendered.height,
-      productName: input.productName,
-    };
+    return await renderScenesToMp4({
+      script,
+      imagePaths,
+      workDir,
+      fileSlug: fileSlug(input.companyName, "business"),
+      displayName: input.companyName,
+      ttsVoice: "ja",
+      requireJapanese: true,
+    });
   } finally {
     await rm(workDir, { recursive: true, force: true });
   }

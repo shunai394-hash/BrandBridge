@@ -14,6 +14,9 @@ export type PrVideoScene = {
   visual: string;
   narrationText: string;
   onScreenText: string;
+  cameraMotion?: string;
+  /** 0-based index into the render image list. Reused across scenes. */
+  imageIndex?: number;
 };
 
 export type PrVideoScript = {
@@ -79,6 +82,12 @@ function asPositiveInt(value: unknown): number | null {
   return Math.round(n);
 }
 
+function asNonNegInt(value: unknown): number | null {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n);
+}
+
 function asScene(value: unknown, index: number): PrVideoScene | null {
   const row = asRecord(value);
   const durationSeconds = asPositiveInt(row.durationSeconds ?? row.duration);
@@ -86,12 +95,16 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
   const narrationText = presentText(row.narrationText ?? row.voiceover);
   const onScreenText = presentText(row.onScreenText ?? row.caption);
   if (!durationSeconds || !visual || !narrationText || !onScreenText) return null;
+  const cameraMotion = presentText(row.cameraMotion ?? row.camera);
+  const imageIndex = asNonNegInt(row.imageIndex ?? row.image_index);
   return {
     sceneNumber: asPositiveInt(row.sceneNumber) ?? index + 1,
     durationSeconds: Math.min(15, durationSeconds),
     visual,
     narrationText,
     onScreenText,
+    ...(cameraMotion ? { cameraMotion } : {}),
+    ...(imageIndex != null ? { imageIndex } : {}),
   };
 }
 
@@ -111,6 +124,21 @@ export function normalizePrVideoScript(raw: unknown): PrVideoScript | null {
   const totalDurationSeconds = asPositiveInt(row.totalDurationSeconds) ?? summed;
 
   return { title, hook, scenes, totalDurationSeconds, cta };
+}
+
+export function assignSceneImageIndexes(
+  scenes: PrVideoScene[],
+  imageCount: number,
+): PrVideoScene[] {
+  const n = Math.max(1, imageCount);
+  return scenes.map((scene, index) => {
+    const raw = scene.imageIndex;
+    const imageIndex =
+      typeof raw === "number" && Number.isFinite(raw)
+        ? ((Math.round(raw) % n) + n) % n
+        : index % n;
+    return { ...scene, imageIndex };
+  });
 }
 
 export async function generatePrVideoScript(

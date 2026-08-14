@@ -27,6 +27,8 @@ export async function resolveEspeakBin(): Promise<string> {
 export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
+  /** Defaults to auto-detect. Business PR always passes "ja". */
+  voice?: "ja" | "en";
 }): Promise<{ durationSeconds: number }> {
   const text = input.text.replace(/\s+/g, " ").trim();
   if (!text) {
@@ -34,14 +36,15 @@ export async function synthesizeNarrationWav(input: {
   }
 
   const bin = await resolveEspeakBin();
-  const voice = detectSpeechVoice(text);
+  const voice = input.voice ?? detectSpeechVoice(text);
+  const rate = voice === "ja" ? "220" : "135";
   const textFile = path.join(path.dirname(input.outFile), "narration.txt");
   await writeFile(textFile, text, "utf8");
 
   try {
     await execFileAsync(
       bin,
-      ["-v", voice, "-s", "135", "-p", "40", "-f", textFile, "-w", input.outFile],
+      ["-v", voice, "-s", rate, "-p", "40", "-f", textFile, "-w", input.outFile],
       { timeout: 40_000, maxBuffer: 2 * 1024 * 1024 },
     );
   } catch (error) {
@@ -49,11 +52,42 @@ export async function synthesizeNarrationWav(input: {
     throw new MarketingAgentError("TTS_FAILURE", `TTS failed: ${message.slice(0, 180)}`);
   }
 
-  const durationSeconds = await probeAudioDuration(input.outFile);
+  let durationSeconds = await probeAudioDuration(input.outFile);
   if (!Number.isFinite(durationSeconds) || durationSeconds < 0.5) {
     throw new MarketingAgentError("TTS_FAILURE", "TTS produced empty audio.");
   }
+  if (voice === "ja" && durationSeconds > 36) {
+    durationSeconds = await speedUpWav(input.outFile, durationSeconds, 34);
+  }
   return { durationSeconds };
+}
+
+async function speedUpWav(
+  filePath: string,
+  currentSeconds: number,
+  targetSeconds: number,
+): Promise<number> {
+  const tempo = Math.min(2, Math.max(1.01, currentSeconds / targetSeconds));
+  const tmp = `${filePath}.tempo.wav`;
+  try {
+    await execFileAsync(
+      "ffmpeg",
+      ["-y", "-i", filePath, "-filter:a", `atempo=${tempo.toFixed(3)}`, tmp],
+      { timeout: 20_000, maxBuffer: 2 * 1024 * 1024 },
+    );
+    const { rename } = await import("node:fs/promises");
+    await rename(tmp, filePath);
+  } catch {
+    try {
+      const { rm } = await import("node:fs/promises");
+      await rm(tmp, { force: true });
+    } catch {
+      /* ignore */
+    }
+    return currentSeconds;
+  }
+  const next = await probeAudioDuration(filePath);
+  return Number.isFinite(next) && next > 0.5 ? next : currentSeconds;
 }
 
 export async function probeAudioDuration(filePath: string): Promise<number> {

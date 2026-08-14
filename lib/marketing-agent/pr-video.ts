@@ -3,6 +3,7 @@ import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import { normalizePrVideoScript, type PrVideoScript } from "@/lib/marketing-agent/pr-script";
 import {
   generatePrVideoFromRemote,
+  generateBusinessPrVideo,
   renderPrVideoWithImage,
   scaleSceneDurations,
   type PrVideoRenderResult,
@@ -13,6 +14,7 @@ import type { Case } from "@/lib/types";
 
 export {
   generatePrVideoFromRemote,
+  generateBusinessPrVideo,
   scaleSceneDurations,
   type PrVideoRenderResult,
 };

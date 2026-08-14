@@ -18,11 +18,14 @@ export type AiProvider = "groq" | "openai";
 const DEFAULT_AI_BASE = "https://api.groq.com/openai/v1";
 const DEFAULT_AI_MODEL = "llama-3.3-70b-versatile";
 const MISSING_KEY_MESSAGE =
-  "AI APIが設定されていません。AI_API_KEYをサーバー環境変数に設定してください。";
+  "AI APIが設定されていません。AI_API_KEY または GROQ_API_KEY をサーバー環境変数に設定してください。";
+
+export type AiKeySource = "AI_API_KEY" | "GROQ_API_KEY" | null;
 
 type ProviderConfig = {
   provider: AiProvider;
   apiKey: string;
+  keySource: AiKeySource;
   base: string;
   model: string;
 };
@@ -36,27 +39,27 @@ function inferProvider(base: string): AiProvider {
     const host = new URL(base).hostname.toLowerCase();
     if (host === "api.groq.com" || host.endsWith(".groq.com")) return "groq";
   } catch {
-    /* invalid URL → treat as OpenAI-compatible */
+    /* invalid URL → OpenAI is only used when AI_BASE_URL is set explicitly */
   }
   return "openai";
 }
 
+function resolveApiKey(): { apiKey: string; keySource: AiKeySource } {
+  const aiKey = process.env.AI_API_KEY?.trim() || "";
+  if (aiKey) return { apiKey: aiKey, keySource: "AI_API_KEY" };
+  const groqKey = process.env.GROQ_API_KEY?.trim() || "";
+  if (groqKey) return { apiKey: groqKey, keySource: "GROQ_API_KEY" };
+  return { apiKey: "", keySource: null };
+}
+
 function providerConfig(): ProviderConfig {
-  const apiKey =
-    process.env.AI_API_KEY?.trim() ||
-    process.env.GROQ_API_KEY?.trim() ||
-    "";
-  const base =
-    trimSlash(process.env.AI_BASE_URL?.trim() || "") ||
-    trimSlash(process.env.GROQ_BASE_URL?.trim() || "") ||
-    DEFAULT_AI_BASE;
-  const model =
-    process.env.AI_MODEL?.trim() ||
-    process.env.GROQ_MODEL?.trim() ||
-    DEFAULT_AI_MODEL;
+  const { apiKey, keySource } = resolveApiKey();
+  const base = trimSlash(process.env.AI_BASE_URL?.trim() || "") || DEFAULT_AI_BASE;
+  const model = process.env.AI_MODEL?.trim() || DEFAULT_AI_MODEL;
   return {
     provider: inferProvider(base),
     apiKey,
+    keySource,
     base,
     model,
   };
@@ -85,6 +88,10 @@ export function getAiConnection() {
     provider: cfg.provider,
     model: cfg.apiKey ? cfg.model : null,
   };
+}
+
+export function getAiKeySource(): AiKeySource {
+  return providerConfig().keySource;
 }
 
 type ChatMessage = {

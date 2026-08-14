@@ -38,7 +38,7 @@ sudo apt-get install -y ffmpeg espeak-ng
 npm run dev
 ```
 
-管理画面 `/admin/marketing-agent` で Case を選び、PR Script を生成してから **Generate PR Video**。
+管理画面 `/admin/marketing-agent` で Case を選び、**Generate PR Video**（台本生成前から表示。台本がない間は disabled）を確認できます。PR Script を生成してからボタンが有効になります。
 
 プレビューはブラウザの `<video>`（object URL）。Download MP4 は同じ Blob。
 

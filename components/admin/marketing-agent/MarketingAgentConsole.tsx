@@ -911,7 +911,7 @@ export function MarketingAgentConsole({
       <Section
         id="pr-script"
         title="PR Video Script Generator"
-        description="商品（Case）を1つ選び、短尺PR動画用の台本を生成します。結果は画面表示のみで、DBには保存しません。音声・動画生成は行いません。"
+        description="商品（Case）を1つ選び、短尺PR動画の台本を生成し、続けて Generate PR Video で MP4 を作れます。結果は画面表示のみで、DBには保存しません。自動公開・SNS投稿はしません。"
       >
         <PrScriptGenerator cases={cases} casesError={casesError} />
       </Section>

@@ -1,5 +1,5 @@
-/**
- * Case → short-form PR video script (JSON only).
+﻿/**
+ * Case 竊・short-form PR video script (JSON only).
  * Uses existing completeJson(). No TTS, video, DB save, or jobs.ts.
  */
 
@@ -8,9 +8,33 @@ import { completeJson, MarketingAgentError } from "@/lib/marketing-agent/ai";
 import { asRecord } from "@/lib/marketing-agent/json";
 import { PR_VIDEO_SCRIPT_TASK, systemPrompt } from "@/lib/marketing-agent/prompts";
 
+export type PrVideoCamera =
+  | "wide"
+  | "medium"
+  | "close"
+  | "zoom_in"
+  | "zoom_out"
+  | "pan_left"
+  | "pan_right"
+  | "tracking"
+  | "over_shoulder";
+
+export type PrVideoTransition =
+  | "cut"
+  | "fade"
+  | "dissolve"
+  | "slide_left"
+  | "slide_right"
+  | "wipe"
+  | "zoom";
 export type PrVideoScene = {
   sceneNumber: number;
   durationSeconds: number;
+  location: string;
+  character: string;
+  action: string;
+  camera: PrVideoCamera;
+  transition: PrVideoTransition;
   visual: string;
   narrationText: string;
   onScreenText: string;
@@ -81,17 +105,73 @@ function asPositiveInt(value: unknown): number | null {
 
 function asScene(value: unknown, index: number): PrVideoScene | null {
   const row = asRecord(value);
-  const durationSeconds = asPositiveInt(row.durationSeconds ?? row.duration);
+
+  const durationSeconds = asPositiveInt(
+    row.durationSeconds ?? row.duration,
+  );
+
+  const location = presentText(row.location);
+  const character = presentText(row.character);
+  const action = presentText(row.action);
   const visual = presentText(row.visual);
   const narrationText = presentText(row.narrationText ?? row.voiceover);
-  const onScreenText = presentText(row.onScreenText ?? row.caption);
-  if (!durationSeconds || !visual || !narrationText || !onScreenText) return null;
+
+  const cameraValue = presentText(row.camera);
+  const transitionValue = presentText(row.transition);
+
+  const allowedCameras: PrVideoCamera[] = [
+    "wide",
+    "medium",
+    "close",
+    "zoom_in",
+    "zoom_out",
+    "pan_left",
+    "pan_right",
+    "tracking",
+    "over_shoulder",
+  ];
+
+  const allowedTransitions: PrVideoTransition[] = [
+    "cut",
+    "fade",
+    "dissolve",
+    "slide_left",
+    "slide_right",
+    "wipe",
+    "zoom",
+  ];
+
+  const camera = cameraValue as PrVideoCamera | null;
+  const transition = transitionValue as PrVideoTransition | null;
+
+  if (
+    !durationSeconds ||
+    !location ||
+    !character ||
+    !action ||
+    !visual ||
+    !narrationText ||
+    !camera ||
+    !allowedCameras.includes(camera) ||
+    !transition ||
+    !allowedTransitions.includes(transition)
+  ) {
+    return null;
+  }
+
   return {
     sceneNumber: asPositiveInt(row.sceneNumber) ?? index + 1,
     durationSeconds: Math.min(15, durationSeconds),
+    location,
+    character,
+    action,
+    camera,
+    transition,
     visual,
     narrationText,
-    onScreenText,
+
+    // 字幕なし
+    onScreenText: "",
   };
 }
 
@@ -144,3 +224,6 @@ export async function generatePrVideoScript(
   }
   return script;
 }
+
+
+

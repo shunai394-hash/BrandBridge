@@ -1,8 +1,8 @@
-export const BRAND_CONTEXT = `
+﻿export const BRAND_CONTEXT = `
 BrandBridge is a B2B matching platform that connects overseas brands/manufacturers who want to enter Japan with qualified Japanese sales partners (distributors, retailers, wholesalers, importers, e-commerce operators).
 
 Primary audience for English content:
-Overseas brand and manufacturer decision-makers considering Japan market entry — founders, export managers, international sales, and brand owners. They need practical, specific answers, not tourism copy or generic "doing business in Japan" essays.
+Overseas brand and manufacturer decision-makers considering Japan market entry 窶・founders, export managers, international sales, and brand owners. They need practical, specific answers, not tourism copy or generic "doing business in Japan" essays.
 
 What BrandBridge does:
 - Lets product providers list products with commercial terms (MOQ, wholesale range, exclusivity, shipping).
@@ -149,36 +149,111 @@ Return JSON:
 `.trim();
 
 export const PR_VIDEO_SCRIPT_TASK = `
-Write a short-form (~30 second) product PR video script for one BrandBridge Case.
-The product is from an overseas brand/maker and is being introduced for the Japanese market.
-This is not an SEO article and not a competitor analysis.
+Create a short-form (~30 second) BrandBridge advertising video.
 
-Rules:
-- Use only facts in the provided Case fields. Do not invent features, ingredients, awards, sales figures, testimonials, or results.
-- Do not invent numbers that are not in the Case.
-- Do not use unfounded claims such as "popular in Japan" or "used by X million people".
-- Do not assert medical, health, or beauty efficacy that is not in the Case.
-- Do not add effects that are not in the product description.
-- Write natural Japanese that Japanese viewers can understand, unless the Case fields are clearly English-only.
-- Open with a hook in the first seconds, then product introduction, key benefits/features, why it matters, and a CTA.
-- Separate visual direction from narration. narrationText must be speakable TTS text: no stage directions, timestamps, or speaker labels.
-- hasProductImage / hasProductVideo only mean media exists. Do not describe specific image or video contents. Base visuals on text facts only.
-- About 5-8 scenes and ~30 seconds total. If Case facts are thin, use fewer scenes. Do not pad.
+PRIMARY GOAL:
+Drive viewers to BrandBridge.
+This is NOT a product advertisement.
+
+BrandBridge connects overseas brands and manufacturers looking to enter Japan with Japanese distributors, retailers, wholesalers, importers, and e-commerce sellers.
+
+The product is optional and must NOT be the main subject.
+
+Creative direction:
+- Think like a short-form social media Creative Director.
+- Prioritize curiosity, surprise, humor, and visual movement.
+- Make viewers think: "What is BrandBridge?"
+- Avoid corporate presentation style.
+- Use simple language.
+- One speaking character is preferred.
+- No lip-sync is required.
+- Create the feeling of movement through camera movement and editing.
+- Use zooms, pans, cuts, wipes, slides, and dissolves.
+- Do not require AI video generation.
+- Do not require character animation.
+- Do not require subtitles.
+- onScreenText MUST always be an empty string.
+
+Choose ONE creative situation:
+- CITY: person speaking in a city
+- HOME: person speaking at home
+- OFFICE: person speaking at work
+- WALK: person walking while speaking
+- COMEDY: unusual character such as an animal, robot, or alien
+
+Choose the situation that best fits the concept.
+
+Each scene must contain:
+- location
+- character
+- action
+- camera
+- transition
+
+Allowed camera styles:
+- wide
+- medium
+- close
+- zoom_in
+- zoom_out
+- pan_left
+- pan_right
+- tracking
+- over_shoulder
+
+Allowed transitions:
+- cut
+- fade
+- dissolve
+- slide_left
+- slide_right
+- wipe
+- zoom
+
+Narration:
+- Natural spoken language.
+- No stage directions.
+- No timestamps.
+- No speaker labels.
+- Explain BrandBridge clearly near the end.
+- Finish with a natural CTA to visit BrandBridge.
+
+Do not invent:
+- users
+- sales numbers
+- partnerships
+- exclusive contracts
+- revenue
+- testimonials
+- awards
+- market statistics
+
+If a product is provided, it may appear briefly as a visual element, but it must never become the main advertising subject.
 
 Return JSON:
 {
-  "title": "PR video title",
-  "hook": "Opening hook",
+  "title": "",
+  "hook": "",
+  "creativeType": "CITY|HOME|OFFICE|WALK|COMEDY",
   "scenes": [
     {
       "sceneNumber": 1,
       "durationSeconds": 4,
-      "visual": "What to show",
-      "narrationText": "Spoken narration",
-      "onScreenText": "Short on-screen text"
+      "location": "",
+      "character": "",
+      "action": "",
+      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tracking|over_shoulder",
+      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom",
+      "visual": "",
+      "narrationText": "",
+      "onScreenText": ""
     }
   ],
   "totalDurationSeconds": 30,
-  "cta": "Natural call to action"
+  "cta": ""
 }
+
+Create approximately 5-8 scenes totaling about 30 seconds.
+Do not pad the script with unnecessary scenes.
 `.trim();
+

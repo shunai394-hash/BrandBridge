@@ -17,6 +17,7 @@ RUN npm ci --omit=dev
 
 COPY tsconfig.json /app/tsconfig.json
 COPY lib /app/lib
+COPY services/pr-video-worker/tsconfig.json /app/services/pr-video-worker/tsconfig.json
 COPY services/pr-video-worker/server.ts /app/services/pr-video-worker/server.ts
 
 ENV NODE_ENV=production

@@ -147,3 +147,38 @@ Return JSON:
   "reddit": {"title": "", "text": ""}
 }
 `.trim();
+
+export const PR_VIDEO_SCRIPT_TASK = `
+Write a short-form (~30 second) product PR video script for one BrandBridge Case.
+The product is from an overseas brand/maker and is being introduced for the Japanese market.
+This is not an SEO article and not a competitor analysis.
+
+Rules:
+- Use only facts in the provided Case fields. Do not invent features, ingredients, awards, sales figures, testimonials, or results.
+- Do not invent numbers that are not in the Case.
+- Do not use unfounded claims such as "popular in Japan" or "used by X million people".
+- Do not assert medical, health, or beauty efficacy that is not in the Case.
+- Do not add effects that are not in the product description.
+- Write natural Japanese that Japanese viewers can understand, unless the Case fields are clearly English-only.
+- Open with a hook in the first seconds, then product introduction, key benefits/features, why it matters, and a CTA.
+- Separate visual direction from narration. narrationText must be speakable TTS text: no stage directions, timestamps, or speaker labels.
+- hasProductImage / hasProductVideo only mean media exists. Do not describe specific image or video contents. Base visuals on text facts only.
+- About 5-8 scenes and ~30 seconds total. If Case facts are thin, use fewer scenes. Do not pad.
+
+Return JSON:
+{
+  "title": "PR video title",
+  "hook": "Opening hook",
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "durationSeconds": 4,
+      "visual": "What to show",
+      "narrationText": "Spoken narration",
+      "onScreenText": "Short on-screen text"
+    }
+  ],
+  "totalDurationSeconds": 30,
+  "cta": "Natural call to action"
+}
+`.trim();

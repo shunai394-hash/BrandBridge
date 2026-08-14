@@ -32,6 +32,10 @@ import {
   VoidActionForm,
 } from "@/components/admin/marketing-agent/ActionForm";
 import {
+  PrScriptGenerator,
+  type PrScriptCaseOption,
+} from "@/components/admin/marketing-agent/PrScriptGenerator";
+import {
   StatusBadge,
   priorityTone,
   runStatusTone,
@@ -45,6 +49,8 @@ type MarketingAgentConsoleProps = {
   recommendations: MarketingRecommendation[];
   competitors: MarketingCompetitor[];
   gaps: MarketingCompetitorGap[];
+  cases?: PrScriptCaseOption[];
+  casesError?: string;
 };
 
 function formatDate(iso: string | null): string {
@@ -165,6 +171,8 @@ export function MarketingAgentConsole({
   recommendations,
   competitors,
   gaps,
+  cases = [],
+  casesError,
 }: MarketingAgentConsoleProps) {
   const gsc = overview.connections.searchConsole;
   const ai = overview.connections.ai;
@@ -898,6 +906,14 @@ export function MarketingAgentConsole({
               ))}
           </ul>
         )}
+      </Section>
+
+      <Section
+        id="pr-script"
+        title="PR Video Script Generator"
+        description="商品（Case）を1つ選び、短尺PR動画用の台本を生成します。結果は画面表示のみで、DBには保存しません。音声・動画生成は行いません。"
+      >
+        <PrScriptGenerator cases={cases} casesError={casesError} />
       </Section>
     </div>
   );

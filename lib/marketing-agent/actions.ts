@@ -3,6 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
+import { getCaseById } from "@/lib/cases";
+import {
+  generatePrVideoScript,
+  productSnapshotFromCase,
+  type PrScriptProductSnapshot,
+  type PrVideoScript,
+} from "@/lib/marketing-agent/pr-script";
 import {
   jobCompetitorAnalysis,
   jobDiscoverOpportunities,
@@ -269,6 +276,38 @@ export async function setRecommendationStatusAction(
     refresh();
     return {};
   } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function generatePrVideoScriptAction(
+  formData: FormData,
+): Promise<{
+  error?: string;
+  script?: PrVideoScript;
+  product?: PrScriptProductSnapshot;
+}> {
+  try {
+    await gateAdmin();
+    const caseId = String(formData.get("caseId") ?? "").trim();
+    if (!caseId) return { error: "Please select a product." };
+
+    const caseItem = await getCaseById(caseId);
+    if (!caseItem) {
+      return {
+        error: "Could not load this product. Generation was not started.",
+      };
+    }
+
+    const script = await generatePrVideoScript(caseItem);
+    return {
+      script,
+      product: productSnapshotFromCase(caseItem),
+    };
+  } catch (error) {
+    if (error instanceof MarketingAgentError && error.code === "AI_TIMEOUT") {
+      return { error: "AI generation timed out. Please try again." };
+    }
     return fail(error);
   }
 }

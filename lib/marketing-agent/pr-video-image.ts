@@ -2,9 +2,20 @@ import { isIP } from "node:net";
 import path from "node:path";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 
-const PRODUCT_IMAGE_PREFIX = "/storage/v1/object/public/product-images/";
+const PRODUCT_IMAGE_PREFIXES = [
+  "/storage/v1/object/public/product-images/",
+  "/storage/v1/render/image/public/product-images/",
+];
 const ALLOWED_EXT = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const BLOCKED_SUPABASE_SUBDOMAINS = new Set([
+  "www",
+  "api",
+  "app",
+  "mail",
+  "status",
+  "docs",
+]);
 
 const BLOCKED_HOSTS = new Set([
   "localhost",
@@ -40,14 +51,83 @@ function isPrivateOrLocalHost(hostname: string): boolean {
   return false;
 }
 
-function supabaseAllowHost(): string | null {
-  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  if (!raw) return null;
+function parseHttpUrl(raw: string): URL | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
   try {
-    return new URL(raw).hostname.toLowerCase();
+    return new URL(trimmed);
   } catch {
-    return null;
+    try {
+      return new URL(`https://${trimmed}`);
+    } catch {
+      return null;
+    }
   }
+}
+
+/**
+ * BrandBridge stores product images in the public `product-images` bucket.
+ * getPublicUrl() uses NEXT_PUBLIC_SUPABASE_URL (`{ref}.supabase.co`), while
+ * some dashboard / Storage URLs use `{ref}.storage.supabase.co`.
+ */
+function hostsFromSupabaseEnv(): Set<string> {
+  const hosts = new Set<string>();
+  const envUrl = parseHttpUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+  if (!envUrl) return hosts;
+  const host = envUrl.hostname.toLowerCase();
+  hosts.add(host);
+  const api = host.match(/^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/);
+  if (api && !BLOCKED_SUPABASE_SUBDOMAINS.has(api[1])) {
+    hosts.add(`${api[1]}.storage.supabase.co`);
+  }
+  const storage = host.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.storage\.supabase\.co$/,
+  );
+  if (storage) {
+    hosts.add(`${storage[1]}.supabase.co`);
+  }
+  return hosts;
+}
+
+function isSupabaseProductImageHost(hostname: string): boolean {
+  const storage = hostname.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.storage\.supabase\.co$/,
+  );
+  if (storage) return true;
+  const api = hostname.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/,
+  );
+  if (api) return !BLOCKED_SUPABASE_SUBDOMAINS.has(api[1]);
+  const legacy = hostname.match(
+    /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.in$/,
+  );
+  return Boolean(legacy);
+}
+
+function isAllowedProductImageHost(hostname: string): boolean {
+  const fromEnv = hostsFromSupabaseEnv();
+  if (fromEnv.size > 0) return fromEnv.has(hostname);
+  // Cloud Run may not have NEXT_PUBLIC_SUPABASE_URL; still allow the same
+  // public product-images hosts BrandBridge actually stores.
+  return isSupabaseProductImageHost(hostname);
+}
+
+function isProductImagesPath(pathname: string): boolean {
+  return PRODUCT_IMAGE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+/** Prefer `{ref}.supabase.co` so Cloud Run can match NEXT_PUBLIC_SUPABASE_URL. */
+function canonicalizeProductImageUrl(url: URL): string {
+  const envUrl = parseHttpUrl(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+  const envHost = envUrl?.hostname.toLowerCase();
+  if (!envHost) return url.toString();
+  const api = envHost.match(/^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.supabase\.co$/);
+  if (!api || BLOCKED_SUPABASE_SUBDOMAINS.has(api[1])) return url.toString();
+  const storageHost = `${api[1]}.storage.supabase.co`;
+  if (url.hostname.toLowerCase() !== storageHost) return url.toString();
+  const next = new URL(url.toString());
+  next.hostname = envHost;
+  return next.toString();
 }
 
 export type SafeProductImage =
@@ -56,9 +136,10 @@ export type SafeProductImage =
 
 /**
  * Validate a Case product image URL before any fetch.
- * Allows: relative files under public/ (jpg/png/webp) and HTTPS
- * Supabase product-images public URLs. Blocks localhost / private IPs /
- * metadata endpoints / arbitrary hosts.
+ * Allows: relative files under public/ (jpg/png/webp) and HTTPS public
+ * URLs in the product-images bucket on the BrandBridge Supabase project
+ * (`{ref}.supabase.co` or `{ref}.storage.supabase.co`). Blocks localhost /
+ * private IPs / metadata endpoints / arbitrary hosts.
  */
 export function assertSafeProductImageUrl(raw: string): SafeProductImage {
   const trimmed = raw.trim();
@@ -110,21 +191,20 @@ export function assertSafeProductImageUrl(raw: string): SafeProductImage {
     throw new MarketingAgentError("INVALID_IMAGE_URL", "Image host is not allowed.");
   }
 
-  const allowedHost = supabaseAllowHost();
-  if (!allowedHost || hostname !== allowedHost) {
+  if (!isAllowedProductImageHost(hostname)) {
     throw new MarketingAgentError(
       "INVALID_IMAGE_URL",
       "Image host is not an allowed product-images domain.",
     );
   }
-  if (!url.pathname.startsWith(PRODUCT_IMAGE_PREFIX)) {
+  if (!isProductImagesPath(url.pathname)) {
     throw new MarketingAgentError(
       "INVALID_IMAGE_URL",
       "Image path is not a product-images object.",
     );
   }
 
-  return { kind: "remote", url: url.toString() };
+  return { kind: "remote", url: canonicalizeProductImageUrl(url) };
 }
 
 export async function readSafeProductImage(

@@ -1,9 +1,5 @@
-<<<<<<< ours
-import { parseJsonRecord } from "@/lib/marketing-agent/json";
-import { redactSecrets } from "@/lib/marketing-agent/redact";
-=======
 ﻿import { parseJsonRecord } from "@/lib/marketing-agent/json";
->>>>>>> theirs
+import { redactSecrets } from "@/lib/marketing-agent/redact";
 
 export class MarketingAgentError extends Error {
   readonly code: string;
@@ -17,7 +13,6 @@ export class MarketingAgentError extends Error {
   }
 }
 
-<<<<<<< ours
 export type AiProvider = "groq" | "openai";
 
 const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
@@ -33,28 +28,56 @@ type ProviderConfig = {
 };
 
 export function resolveAiProvider(): AiProvider {
+  if (process.env.AI_API_KEY?.trim()) {
+    return process.env.AI_BASE_URL?.includes("api.openai.com")
+      ? "openai"
+      : "groq";
+  }
+
+  if (process.env.GROQ_API_KEY?.trim()) {
+    return "groq";
+  }
+
   const explicit = process.env.MARKETING_AI_PROVIDER?.trim().toLowerCase();
-  if (explicit === "groq" || explicit === "openai") return explicit;
-  if (process.env.GROQ_API_KEY?.trim()) return "groq";
-  return "openai";
+
+  if (explicit === "groq" || explicit === "openai") {
+    return explicit;
+  }
+
+  return "groq";
 }
 
-function providerConfig(provider: AiProvider = resolveAiProvider()): ProviderConfig {
-  if (provider === "groq") {
+function providerConfig(): ProviderConfig {
+  const provider = resolveAiProvider();
+
+  if (provider === "openai") {
     return {
       provider,
-      apiKey: process.env.GROQ_API_KEY?.trim() || "",
+      apiKey: process.env.AI_API_KEY?.trim() || "",
       base:
-        process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_GROQ_BASE,
-      model: process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL,
+        process.env.AI_BASE_URL?.trim().replace(/\/$/, "") ||
+        DEFAULT_OPENAI_BASE,
+      model:
+        process.env.AI_MODEL?.trim() ||
+        process.env.OPENAI_MODEL?.trim() ||
+        DEFAULT_OPENAI_MODEL,
     };
   }
+
   return {
     provider,
-    apiKey: process.env.OPENAI_API_KEY?.trim() || "",
+    apiKey:
+      process.env.AI_API_KEY?.trim() ||
+      process.env.GROQ_API_KEY?.trim() ||
+      "",
     base:
-      process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_OPENAI_BASE,
-    model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
+      process.env.AI_BASE_URL?.trim().replace(/\/$/, "") ||
+      process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") ||
+      DEFAULT_GROQ_BASE,
+    model:
+      process.env.AI_MODEL?.trim() ||
+      process.env.GROQ_MODEL?.trim() ||
+      DEFAULT_GROQ_MODEL,
   };
 }
 
@@ -66,49 +89,22 @@ export function getAiBaseUrl(): string {
   return providerConfig().base;
 }
 
+export function getAiApiKey(): string | null {
+  return providerConfig().apiKey || null;
+}
+
 export function isAiConfigured(): boolean {
   return Boolean(providerConfig().apiKey);
-=======
-const DEFAULT_AI_BASE_URL = "https://api.groq.com/openai/v1";
-const DEFAULT_AI_MODEL = "llama-3.3-70b-versatile";
-
-export function getAiModel(): string {
-  return process.env.AI_MODEL?.trim() || DEFAULT_AI_MODEL;
-}
-
-export function getAiBaseUrl(): string {
-  return (
-    process.env.AI_BASE_URL?.trim().replace(/\/$/, "") ||
-    DEFAULT_AI_BASE_URL
-  );
-}
-
-export function getAiApiKey(): string | null {
-  return (
-    process.env.AI_API_KEY?.trim() ||
-    process.env.GROQ_API_KEY?.trim() ||
-    null
-  );
-}
-
-export function isAiConfigured(): boolean {
-  return Boolean(getAiApiKey());
->>>>>>> theirs
 }
 
 export function getAiConnection() {
   const cfg = providerConfig();
+
   return {
-<<<<<<< ours
     configured: Boolean(cfg.apiKey),
     provider: cfg.provider,
     model: cfg.apiKey ? cfg.model : null,
-=======
-    configured: isAiConfigured(),
-    model: getAiModel(),
-    baseUrl: getAiBaseUrl(),
-    provider: getAiBaseUrl().includes("api.groq.com") ? "groq" : "custom",
->>>>>>> theirs
+    baseUrl: cfg.base,
   };
 }
 
@@ -127,11 +123,8 @@ async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function missingKeyMessage(provider: AiProvider): string {
-  if (provider === "groq") {
-    return "AI API未設定です。GROQ_API_KEY をサーバー環境変数に設定してください。";
-  }
-  return "AI API未設定です。OPENAI_API_KEY をサーバー環境変数に設定してください。";
+function missingKeyMessage(): string {
+  return "AI APIが設定されていません。AI_API_KEY または GROQ_API_KEY をサーバー環境変数に設定してください。";
 }
 
 export async function completeJson(
@@ -157,19 +150,13 @@ export async function completeChat(
   messages: ChatMessage[],
   options: ChatOptions = {},
 ): Promise<string> {
-<<<<<<< ours
   const cfg = providerConfig();
-  if (!cfg.apiKey) {
-    throw new MarketingAgentError("AI_NOT_CONFIGURED", missingKeyMessage(cfg.provider));
-=======
-  const apiKey = getAiApiKey();
 
-  if (!apiKey) {
+  if (!cfg.apiKey) {
     throw new MarketingAgentError(
       "AI_NOT_CONFIGURED",
-      "AI API is not configured. Set AI_API_KEY or GROQ_API_KEY in the server environment.",
+      missingKeyMessage(),
     );
->>>>>>> theirs
   }
 
   const timeoutMs = options.timeoutMs ?? 50_000;

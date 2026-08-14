@@ -1,0 +1,12 @@
+﻿steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'services/pr-video-worker/Dockerfile'
+      - '-t'
+      - 'asia-northeast1-docker.pkg.dev/glassy-filament-413307/pr-video/pr-video-worker:latest'
+      - '.'
+
+images:
+  - 'asia-northeast1-docker.pkg.dev/glassy-filament-413307/pr-video/pr-video-worker:latest'

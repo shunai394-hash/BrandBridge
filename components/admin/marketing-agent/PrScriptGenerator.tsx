@@ -63,6 +63,10 @@ function safeFileSlug(value: string): string {
   return slug || "script";
 }
 
+function revokeVideoUrl(url: string | null) {
+  if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+}
+
 function downloadText(filename: string, text: string) {
   const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -92,7 +96,7 @@ export function PrScriptGenerator({
 
   useEffect(() => {
     return () => {
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
+      revokeVideoUrl(videoUrl);
     };
   }, [videoUrl]);
 
@@ -124,7 +128,7 @@ export function PrScriptGenerator({
           setVideoError(null);
           setVideoStatus("idle");
           setVideoUrl((current) => {
-            if (current) URL.revokeObjectURL(current);
+            revokeVideoUrl(current);
             return null;
           });
           const result = await generatePrVideoScriptAction(formData);
@@ -153,7 +157,7 @@ export function PrScriptGenerator({
               setVideoError(null);
               setVideoStatus("idle");
               setVideoUrl((current) => {
-                if (current) URL.revokeObjectURL(current);
+                revokeVideoUrl(current);
                 return null;
               });
             }}
@@ -202,7 +206,7 @@ export function PrScriptGenerator({
               setVideoError(null);
               setVideoStatus("generating");
               setVideoUrl((current) => {
-                if (current) URL.revokeObjectURL(current);
+                revokeVideoUrl(current);
                 return null;
               });
               try {
@@ -222,6 +226,21 @@ export function PrScriptGenerator({
                   }
                   setVideoError(message);
                   setVideoStatus("idle");
+                  return;
+                }
+                if (contentType.includes("application/json")) {
+                  const payload = (await response.json()) as {
+                    url?: string;
+                    durationSeconds?: number;
+                  };
+                  if (!payload.url) {
+                    setVideoError("Video generation did not return a preview URL.");
+                    setVideoStatus("idle");
+                    return;
+                  }
+                  setVideoName("brandbridge-pr-video.mp4");
+                  setVideoUrl(payload.url);
+                  setVideoStatus("ready");
                   return;
                 }
                 const blob = await response.blob();

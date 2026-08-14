@@ -151,6 +151,7 @@ export type SearchConsoleResult = {
 
 export type AiConnectionStatus = {
   configured: boolean;
+  provider?: "groq" | "openai";
   model: string | null;
 };
 

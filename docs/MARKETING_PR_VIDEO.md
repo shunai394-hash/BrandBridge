@@ -42,21 +42,21 @@ npm run dev
 
 プレビューはブラウザの `<video>`（object URL）。Download MP4 は同じ Blob。
 
-## Vercel
+本番（Vercel）ではローカル ffmpeg は使いません。
 
-**現状の Vercel serverless では動きません。**
+```text
+Admin → POST /admin/marketing-agent/pr-video
+  → requireAdmin() + getCaseById() + 画像 URL 検証
+  → Cloud Run POST /render (Bearer PR_VIDEO_WORKER_SECRET)
+  → espeak-ng + FFmpeg
+  → Cloudflare R2（private: brandbridge-pr-videos）
+  → 署名付き GET URL を JSON で返す
+  → 管理画面 Preview / Download
+```
 
-理由:
+Cloud Run は GCP `glassy-filament-413307`。R2 は公開しません。
 
-- 関数タイムアウト（Hobby 10s / Pro でも 30秒 1080x1920 エンコードに足りないことが多い）
-- `ffmpeg` / `espeak-ng` がランタイムに無い
-- `/tmp` はリクエスト単位で消える（永続保存しない設計なので問題ではないが、レンダリング自体が重い）
-
-本番で使う場合の次工程:
-
-1. 動画ワーカー（Fly / Render / 自分の Node サーバー / Cloud Run）
-2. またはキュー + オブジェクトストレージ（そのとき初めて保存用テーブル/バケットを検討）
-3. 既存 Voicebox / Qwen TTS がある環境では espeak-ng を差し替え
+ローカル（`PR_VIDEO_WORKER_URL` 未設定かつ非 Vercel）のみ、従来どおりプロセス内 ffmpeg で MP4 バイナリを返します。
 
 ## 画像 URL 許可
 

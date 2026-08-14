@@ -10,23 +10,71 @@ export class MarketingAgentError extends Error {
   }
 }
 
+export type AiProvider = "groq" | "openai";
+
+const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+const DEFAULT_GROQ_BASE = "https://api.groq.com/openai/v1";
+const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
+const DEFAULT_OPENAI_BASE = "https://api.openai.com/v1";
+
+type ProviderConfig = {
+  provider: AiProvider;
+  apiKey: string;
+  base: string;
+  model: string;
+};
+
+export function resolveAiProvider(): AiProvider {
+  const explicit = process.env.MARKETING_AI_PROVIDER?.trim().toLowerCase();
+  if (explicit === "groq" || explicit === "openai") return explicit;
+  if (process.env.GROQ_API_KEY?.trim()) return "groq";
+  return "openai";
+}
+
+function providerConfig(provider: AiProvider = resolveAiProvider()): ProviderConfig {
+  if (provider === "groq") {
+    return {
+      provider,
+      apiKey: process.env.GROQ_API_KEY?.trim() || "",
+      base:
+        process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_GROQ_BASE,
+      model: process.env.GROQ_MODEL?.trim() || DEFAULT_GROQ_MODEL,
+    };
+  }
+  return {
+    provider,
+    apiKey: process.env.OPENAI_API_KEY?.trim() || "",
+    base:
+      process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "") || DEFAULT_OPENAI_BASE,
+    model: process.env.OPENAI_MODEL?.trim() || DEFAULT_OPENAI_MODEL,
+  };
+}
+
+function redactSecrets(text: string): string {
+  return text
+    .replace(/gsk_[A-Za-z0-9]+/g, "[redacted]")
+    .replace(/sk-[A-Za-z0-9-]+/g, "[redacted]")
+    .replace(/Bearer\s+\S+/gi, "Bearer [redacted]");
+}
+
 export function getAiModel(): string {
-  return process.env.OPENAI_MODEL?.trim() || "gpt-4o-mini";
+  return providerConfig().model;
 }
 
 export function getAiBaseUrl(): string {
-  const raw = process.env.OPENAI_BASE_URL?.trim().replace(/\/$/, "");
-  return raw && raw.length > 0 ? raw : "https://api.openai.com/v1";
+  return providerConfig().base;
 }
 
 export function isAiConfigured(): boolean {
-  return Boolean(process.env.OPENAI_API_KEY?.trim());
+  return Boolean(providerConfig().apiKey);
 }
 
 export function getAiConnection() {
+  const cfg = providerConfig();
   return {
-    configured: isAiConfigured(),
-    model: isAiConfigured() ? getAiModel() : null,
+    configured: Boolean(cfg.apiKey),
+    provider: cfg.provider,
+    model: cfg.apiKey ? cfg.model : null,
   };
 }
 
@@ -43,6 +91,13 @@ type ChatOptions = {
 
 async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function missingKeyMessage(provider: AiProvider): string {
+  if (provider === "groq") {
+    return "AI API未設定です。GROQ_API_KEY をサーバー環境変数に設定してください。";
+  }
+  return "AI API未設定です。OPENAI_API_KEY をサーバー環境変数に設定してください。";
 }
 
 export async function completeJson(
@@ -66,17 +121,14 @@ export async function completeChat(
   messages: ChatMessage[],
   options: ChatOptions = {},
 ): Promise<string> {
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
-    throw new MarketingAgentError(
-      "AI_NOT_CONFIGURED",
-      "AI API未設定です。OPENAI_API_KEY をサーバー環境変数に設定してください。",
-    );
+  const cfg = providerConfig();
+  if (!cfg.apiKey) {
+    throw new MarketingAgentError("AI_NOT_CONFIGURED", missingKeyMessage(cfg.provider));
   }
 
   const timeoutMs = options.timeoutMs ?? 50_000;
   const body = {
-    model: getAiModel(),
+    model: cfg.model,
     temperature: options.temperature ?? 0.4,
     max_tokens: options.maxTokens ?? 4000,
     response_format: { type: "json_object" as const },
@@ -90,10 +142,10 @@ export async function completeChat(
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
-      const response = await fetch(`${getAiBaseUrl()}/chat/completions`, {
+      const response = await fetch(`${cfg.base}/chat/completions`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${cfg.apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(body),
@@ -114,7 +166,7 @@ export async function completeChat(
       if (!response.ok) {
         throw new MarketingAgentError(
           "AI_HTTP_ERROR",
-          `AI API error ${response.status}: ${text.slice(0, 300)}`,
+          `AI API error ${response.status}: ${redactSecrets(text).slice(0, 300)}`,
         );
       }
 

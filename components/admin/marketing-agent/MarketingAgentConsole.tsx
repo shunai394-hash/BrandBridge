@@ -270,6 +270,9 @@ export function MarketingAgentConsole({
                 label={ai.configured ? "設定済" : "AI API未設定"}
                 tone={ai.configured ? "teal" : "amber"}
               />
+              {ai.provider ? (
+                <span className="text-xs text-muted">{ai.provider}</span>
+              ) : null}
               {ai.model ? (
                 <span className="text-xs text-muted">{ai.model}</span>
               ) : null}

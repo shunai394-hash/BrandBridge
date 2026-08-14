@@ -32,9 +32,15 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 
 | 変数名 | 公開範囲 | 説明 |
 |--------|----------|------|
-| `OPENAI_API_KEY` | サーバーのみ | OpenAI 互換 Chat Completions の API キー |
+| `MARKETING_AI_PROVIDER` | サーバーのみ | `groq`（既定）または `openai` |
+| `GROQ_API_KEY` | サーバーのみ | Groq Chat Completions。`MARKETING_AI_PROVIDER=groq` で必須 |
+| `GROQ_BASE_URL` | サーバーのみ | 省略時 `https://api.groq.com/openai/v1` |
+| `GROQ_MODEL` | サーバーのみ | 省略時 `llama-3.3-70b-versatile` |
+| `OPENAI_API_KEY` | サーバーのみ | OpenAI Chat Completions。`MARKETING_AI_PROVIDER=openai` で必須 |
 | `OPENAI_MODEL` | サーバーのみ | 省略時 `gpt-4o-mini` |
 | `OPENAI_BASE_URL` | サーバーのみ | 省略時 `https://api.openai.com/v1` |
+| `PR_VIDEO_WORKER_URL` | サーバーのみ | Cloud Run PR Video worker の URL（末尾スラッシュなし） |
+| `PR_VIDEO_WORKER_SECRET` | サーバーのみ | Vercel → Cloud Run Bearer。R2 キーは Cloud Run のみ |
 | `GOOGLE_SEARCH_CONSOLE_SITE_URL` | サーバーのみ | GSC プロパティ。例: `sc-domain:example.com` または `https://example.com/` |
 | `GOOGLE_SEARCH_CONSOLE_CLIENT_EMAIL` | サーバーのみ | サービスアカウントの client_email |
 | `GOOGLE_SEARCH_CONSOLE_PRIVATE_KEY` | サーバーのみ | サービスアカウント秘密鍵（PEM。`\n` 可） |
@@ -85,6 +91,12 @@ Project → Settings → Environment Variables に以下を追加:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 本番の `anon` key |
 | `NEXT_PUBLIC_SITE_URL` | `https://あなたの本番ドメイン` |
 | `BETA_AUTO_APPROVE_CASES` | `true`（ベータ中） |
+| `MARKETING_AI_PROVIDER` | `groq` |
+| `GROQ_API_KEY` | Groq の API キー（値はダッシュボードのみ） |
+| `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` |
+| `GROQ_MODEL` | `llama-3.3-70b-versatile` |
+| `PR_VIDEO_WORKER_URL` | Cloud Run worker URL |
+| `PR_VIDEO_WORKER_SECRET` | Cloud Run と同じ Bearer |
 
 ## Auth 運用メモ（ダッシュボード側）
 

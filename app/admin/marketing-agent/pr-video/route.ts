@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { getCaseById } from "@/lib/cases";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import { parseJsonValue } from "@/lib/marketing-agent/json";
-import { generatePrVideoMp4 } from "@/lib/marketing-agent/pr-video";
+import {
+  caseImageUrl,
+  generatePrVideoMp4,
+} from "@/lib/marketing-agent/pr-video";
+import { assertSafeProductImageUrl } from "@/lib/marketing-agent/pr-video-image";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
 
 export const runtime = "nodejs";
@@ -35,6 +40,13 @@ function fail(error: unknown, status = 400): NextResponse {
   return NextResponse.json({ error: "Video generation failed." }, { status: 500 });
 }
 
+function workerConfig(): { url: string; secret: string } | null {
+  const url = process.env.PR_VIDEO_WORKER_URL?.trim().replace(/\/$/, "");
+  const secret = process.env.PR_VIDEO_WORKER_SECRET?.trim();
+  if (!url || !secret) return null;
+  return { url, secret };
+}
+
 export async function POST(request: Request) {
   try {
     await requireAdmin();
@@ -63,6 +75,85 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Invalid PR script. Generate the script again." },
         { status: 400 },
+      );
+    }
+
+    const caseItem = await getCaseById(caseId);
+    if (!caseItem) {
+      return NextResponse.json(
+        { error: "Could not load this product. Generation was not started." },
+        { status: 400 },
+      );
+    }
+    const imageRaw = caseImageUrl(caseItem);
+    if (!imageRaw) {
+      return NextResponse.json(
+        { error: "This product has no image. Add one product image and try again." },
+        { status: 400 },
+      );
+    }
+    const safeImage = assertSafeProductImageUrl(imageRaw);
+    if (safeImage.kind !== "remote") {
+      return NextResponse.json(
+        { error: "This product image cannot be sent to the video worker." },
+        { status: 400 },
+      );
+    }
+
+    const worker = workerConfig();
+    if (worker) {
+      const response = await fetch(`${worker.url}/render`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${worker.secret}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          caseId,
+          script,
+          imageUrl: safeImage.url,
+          productName: caseItem.productName,
+        }),
+        signal: AbortSignal.timeout(110_000),
+      });
+      const text = await response.text();
+      let payload: Record<string, unknown> = {};
+      try {
+        payload = JSON.parse(text) as Record<string, unknown>;
+      } catch {
+        payload = {};
+      }
+      if (!response.ok) {
+        const message =
+          typeof payload.error === "string"
+            ? payload.error
+            : `Video worker error (HTTP ${response.status}).`;
+        return NextResponse.json(
+          { error: message },
+          { status: response.status === 401 ? 502 : response.status >= 500 ? 502 : 400 },
+        );
+      }
+      const url = typeof payload.url === "string" ? payload.url : "";
+      if (!url) {
+        return NextResponse.json(
+          { error: "Video worker did not return a preview URL." },
+          { status: 502 },
+        );
+      }
+      return NextResponse.json({
+        url,
+        key: typeof payload.key === "string" ? payload.key : undefined,
+        durationSeconds: Number(payload.durationSeconds) || undefined,
+        width: Number(payload.width) || 1080,
+        height: Number(payload.height) || 1920,
+        renderMs: Number(payload.renderMs) || undefined,
+      });
+    }
+
+    if (process.env.VERCEL) {
+      return NextResponse.json(
+        { error: "PR video worker is not configured on this server." },
+        { status: 503 },
       );
     }
 

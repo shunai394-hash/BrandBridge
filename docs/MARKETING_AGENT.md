@@ -70,8 +70,8 @@ Vercel: Project → Settings → Environment Variables に Production / Preview 
 4. **記事を生成** … 選択した案からドラフト（非公開）
 5. **GEO向け提案** / **内部リンクを提案** / **SNS投稿を生成**
 6. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
-7. **PR Video Script Generator** … Case から台本 JSON。Copy / TXT。同じ枠に **Generate PR Video**（台本前からボタン表示、台本生成後に有効）
-8. **Generate PR Video** … 台本 + 商品画像1枚から 9:16 MP4。DB保存・自動投稿なし。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
+7. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
+8. **（任意）旧・商品PR** … Case から商品PR台本 / 画像1枚の MP4。通常は使わない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
 
 
 ## 5. AgentReach（ローカルリサーチ基盤）

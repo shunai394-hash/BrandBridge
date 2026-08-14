@@ -35,6 +35,7 @@ import {
   PrScriptGenerator,
   type PrScriptCaseOption,
 } from "@/components/admin/marketing-agent/PrScriptGenerator";
+import { BusinessPrVideoGenerator } from "@/components/admin/marketing-agent/BusinessPrVideoGenerator";
 import {
   StatusBadge,
   priorityTone,
@@ -912,9 +913,17 @@ export function MarketingAgentConsole({
       </Section>
 
       <Section
+        id="business-pr-video"
+        title="事業PR動画"
+        description="会社・事業・ブランドを知ってもらい、BrandBridge へのアクセス・問い合わせにつなげる日本語の縦動画です。商品の選択は不要です。自動公開・SNS投稿はしません。"
+      >
+        <BusinessPrVideoGenerator />
+      </Section>
+
+      <Section
         id="pr-script"
-        title="PR Video Script Generator"
-        description="商品（Case）を1つ選び、短尺PR動画の台本を生成し、続けて Generate PR Video で MP4 を作れます。結果は画面表示のみで、DBには保存しません。自動公開・SNS投稿はしません。"
+        title="（任意）旧・商品PR台本"
+        description="以前の商品PRフローです。今回の目的は事業認知なので、通常は上の「事業PR動画」を使ってください。"
       >
         <PrScriptGenerator cases={cases} casesError={casesError} />
       </Section>

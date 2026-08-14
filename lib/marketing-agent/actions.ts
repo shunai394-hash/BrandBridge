@@ -11,6 +11,11 @@ import {
   type PrVideoScript,
 } from "@/lib/marketing-agent/pr-script";
 import {
+  generateBusinessPrVideoScript,
+  parseBusinessPrBrief,
+  type BusinessPrBrief,
+} from "@/lib/marketing-agent/business-pr-script";
+import {
   jobCompetitorAnalysis,
   jobDiscoverOpportunities,
   jobFetchSearchConsole,
@@ -304,6 +309,48 @@ export async function generatePrVideoScriptAction(
       script,
       product: productSnapshotFromCase(caseItem),
     };
+  } catch (error) {
+    if (error instanceof MarketingAgentError && error.code === "AI_TIMEOUT") {
+      return { error: "AI generation timed out. Please try again." };
+    }
+    return fail(error);
+  }
+}
+
+export async function generateBusinessPrVideoScriptAction(
+  formData: FormData,
+): Promise<{
+  error?: string;
+  script?: PrVideoScript;
+  brief?: BusinessPrBrief;
+}> {
+  try {
+    await gateAdmin();
+    const hintsRaw = String(formData.get("imageHints") ?? "").trim();
+    let imageHints: unknown;
+    if (hintsRaw) {
+      try {
+        imageHints = JSON.parse(hintsRaw) as unknown;
+      } catch {
+        imageHints = hintsRaw
+          .split(/\n/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+    }
+    const brief = parseBusinessPrBrief({
+      companyName: formData.get("companyName"),
+      brandName: formData.get("brandName"),
+      businessDescription: formData.get("businessDescription"),
+      targetAudience: formData.get("targetAudience"),
+      videoPurpose: formData.get("videoPurpose"),
+      japanMarketRelation: formData.get("japanMarketRelation"),
+      mood: formData.get("mood"),
+      imageCount: formData.get("imageCount"),
+      imageHints,
+    });
+    const script = await generateBusinessPrVideoScript(brief);
+    return { script, brief };
   } catch (error) {
     if (error instanceof MarketingAgentError && error.code === "AI_TIMEOUT") {
       return { error: "AI generation timed out. Please try again." };

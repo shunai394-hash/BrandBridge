@@ -81,19 +81,57 @@ async function resolveFontFile(): Promise<string> {
   );
 }
 
+function resolveSceneImagePaths(input: {
+  imagePath?: string;
+  images?: string[];
+}): string[] {
+  const listed = (input.images ?? []).filter((item) => item.trim().length > 0);
+  if (listed.length > 0) return listed;
+  const single = input.imagePath?.trim();
+  return single ? [single] : [];
+}
+
+function imagePathForScene(
+  images: string[],
+  scene: PrVideoScene,
+  sceneIndex: number,
+): string {
+  const n = images.length;
+  const raw = scene.imageIndex;
+  const index =
+    typeof raw === "number" && Number.isFinite(raw)
+      ? ((Math.round(raw) % n) + n) % n
+      : sceneIndex % n;
+  return images[index] ?? images[0] ?? "";
+}
+
 export async function renderPrVideoMp4(input: {
   workDir: string;
-  imagePath: string;
+  /** @deprecated Prefer `images`. Kept so one-still product renders still work. */
+  imagePath?: string;
+  images?: string[];
   audioPath: string;
   scenes: PrVideoScene[];
   outFile: string;
 }): Promise<{ width: number; height: number; durationSeconds: number }> {
+  const imagePaths = resolveSceneImagePaths(input);
+  if (imagePaths.length === 0) {
+    throw new MarketingAgentError(
+      "MISSING_IMAGE",
+      "At least one still image is required to render the video.",
+    );
+  }
+
   const fontfile = await resolveFontFile();
   const sceneFiles: string[] = [];
 
   for (let i = 0; i < input.scenes.length; i += 1) {
     const scene = input.scenes[i];
     if (!scene) continue;
+    const imagePath = imagePathForScene(imagePaths, scene, i);
+    if (!imagePath) {
+      throw new MarketingAgentError("MISSING_IMAGE", "A scene is missing its image.");
+    }
     const duration = Math.max(scene.durationSeconds, 1.2);
     const frames = Math.max(Math.round(duration * VIDEO_FPS), VIDEO_FPS);
     const kb = kenBurnsForScene(i, frames);
@@ -117,7 +155,7 @@ export async function renderPrVideoMp4(input: {
         "-framerate",
         String(VIDEO_FPS),
         "-i",
-        input.imagePath,
+        imagePath,
         "-vf",
         vf,
         "-t",

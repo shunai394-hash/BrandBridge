@@ -10,6 +10,42 @@ export function detectSpeechVoice(text: string): "ja" | "en" {
   return /[\u3040-\u30ff\u4e00-\u9faf]/.test(text) ? "ja" : "en";
 }
 
+const LANGUAGE_LABEL_NAMES =
+  "Chinese|English|Japanese|Korean|Spanish|French|German|Italian|Portuguese|Russian|Arabic|Hindi|Thai|Vietnamese|Indonesian|Mandarin|Cantonese|Language";
+
+/**
+ * Groq / script dumps sometimes include language labels such as
+ * "Chinese narrator". Those must never reach a TTS engine.
+ * Isolated language-name tokens are also removed; Japanese body text stays.
+ */
+export function stripLanguageLabels(text: string): string {
+  let out = String(text ?? "");
+
+  out = out.replace(
+    new RegExp(
+      `\\b(?:${LANGUAGE_LABEL_NAMES})\\s+(?:narrator|narration|voice(?:over)?|speaker|reader|tts)\\b[:：]?`,
+      "gi",
+    ),
+    " ",
+  );
+  out = out.replace(
+    new RegExp(
+      `(?:Language|lang|voice)\\s*[:：=]\\s*(?:${LANGUAGE_LABEL_NAMES})\\b`,
+      "gi",
+    ),
+    " ",
+  );
+  out = out.replace(new RegExp(`\\[(?:${LANGUAGE_LABEL_NAMES})\\]`, "gi"), " ");
+  out = out.replace(new RegExp(`\\((?:${LANGUAGE_LABEL_NAMES})\\)`, "gi"), " ");
+  out = out.replace(new RegExp(`\\b(?:${LANGUAGE_LABEL_NAMES})\\b`, "gi"), " ");
+  out = out.replace(
+    /(?:中国語|英語|韓国語|スペイン語|フランス語|ドイツ語)(?:ナレーター|ナレーション|ボイス|音声)?/g,
+    " ",
+  );
+
+  return out.replace(/\s+/g, " ").trim();
+}
+
 export async function resolveEspeakBin(): Promise<string> {
   const commands =
     process.platform === "win32"
@@ -112,16 +148,17 @@ async function japaneseYomi(text: string): Promise<string> {
   return spaceLatinForEspeak(yomi);
 }
 
-function voiceboxBaseUrl(): string {
-  return (process.env.VOICEBOX_URL || "http://127.0.0.1:17493").replace(
-    /\/$/,
-    "",
-  );
+function voiceboxBaseUrl(): string | null {
+  const raw = process.env.VOICEBOX_URL?.trim();
+  if (!raw) return null;
+  return raw.replace(/\/$/, "");
 }
 
 async function voiceboxAvailable(): Promise<boolean> {
+  const base = voiceboxBaseUrl();
+  if (!base) return false;
   try {
-    const response = await fetch(`${voiceboxBaseUrl()}/`, {
+    const response = await fetch(`${base}/`, {
       signal: AbortSignal.timeout(1500),
     });
     if (!response.ok) return false;
@@ -135,8 +172,12 @@ async function voiceboxAvailable(): Promise<boolean> {
 async function waitVoiceboxCompleted(generationId: string): Promise<void> {
   const started = Date.now();
   while (Date.now() - started < 120_000) {
+    const base = voiceboxBaseUrl();
+    if (!base) {
+      throw new Error("VOICEBOX_URL is not set");
+    }
     const response = await fetch(
-      `${voiceboxBaseUrl()}/generate/${generationId}/status`,
+      `${base}/generate/${generationId}/status`,
       { signal: AbortSignal.timeout(10_000) },
     );
     const body = (await response.json()) as {
@@ -168,7 +209,12 @@ async function synthesizeViaVoicebox(input: {
   };
   if (profile) speakBody.profile = profile;
 
-  const speakResponse = await fetch(`${voiceboxBaseUrl()}/speak`, {
+  const base = voiceboxBaseUrl();
+  if (!base) {
+    throw new Error("VOICEBOX_URL is not set");
+  }
+
+  const speakResponse = await fetch(`${base}/speak`, {
     method: "POST",
     headers: { "Content-Type": "application/json; charset=utf-8" },
     body: JSON.stringify(speakBody),
@@ -190,7 +236,7 @@ async function synthesizeViaVoicebox(input: {
   await waitVoiceboxCompleted(speakJson.id);
 
   const audioResponse = await fetch(
-    `${voiceboxBaseUrl()}/audio/${speakJson.id}`,
+    `${base}/audio/${speakJson.id}`,
     { signal: AbortSignal.timeout(30_000) },
   );
   if (!audioResponse.ok) {
@@ -215,7 +261,7 @@ export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
 }): Promise<{ durationSeconds: number }> {
-  const text = input.text.replace(/\s+/g, " ").trim();
+  const text = stripLanguageLabels(input.text.replace(/\s+/g, " ").trim());
 
   if (!text) {
     throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
@@ -223,8 +269,9 @@ export async function synthesizeNarrationWav(input: {
 
   const voice = detectSpeechVoice(text);
   const required = process.env.VOICEBOX_REQUIRED === "1";
+  const voiceboxUrl = voiceboxBaseUrl();
 
-  if (voice === "ja") {
+  if (voice === "ja" && voiceboxUrl) {
     const available = await voiceboxAvailable();
     if (available) {
       try {
@@ -241,7 +288,7 @@ export async function synthesizeNarrationWav(input: {
     } else if (required) {
       throw new MarketingAgentError(
         "TTS_UNAVAILABLE",
-        `Voicebox is not reachable at ${voiceboxBaseUrl()}.`,
+        `Voicebox is not reachable at ${voiceboxUrl}.`,
       );
     }
   }
@@ -249,6 +296,15 @@ export async function synthesizeNarrationWav(input: {
   const bin = await resolveEspeakBin();
   const spoken = voice === "ja" ? await japaneseYomi(text) : text;
   const textFile = path.join(path.dirname(input.outFile), "narration.txt");
+
+  console.log(
+    JSON.stringify({
+      msg: "pr-video-tts",
+      voice,
+      engine: "espeak-ng",
+      spokenPreview: spoken.slice(0, 160),
+    }),
+  );
 
   await writeFile(textFile, spoken, "utf8");
 

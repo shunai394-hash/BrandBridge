@@ -62,6 +62,38 @@ function revokeVideoUrl(url: string | null) {
   }
 }
 
+async function compressBusinessPrImage(file: File): Promise<File> {
+  if (file.size <= 280 * 1024 && /jpe?g$/i.test(file.type)) {
+    return file;
+  }
+
+  const bitmap = await createImageBitmap(file);
+  const longest = Math.max(bitmap.width, bitmap.height);
+  const scale = longest > 1280 ? 1280 / longest : 1;
+  const width = Math.max(2, Math.round(bitmap.width * scale));
+  const height = Math.max(2, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) {
+    bitmap.close();
+    return file;
+  }
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/jpeg", 0.72);
+  });
+  if (!blob || blob.size < 32) {
+    return file;
+  }
+
+  const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+  return new File([blob], `${baseName}.jpg`, { type: "image/jpeg" });
+}
+
 export function BusinessPrVideoGenerator() {
   const [started, setStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -429,11 +461,8 @@ export function BusinessPrVideoGenerator() {
                 );
 
                 for (const item of images) {
-                  body.append(
-                    "images",
-                    item.file,
-                    item.file.name,
-                  );
+                  const file = await compressBusinessPrImage(item.file);
+                  body.append("images", file, file.name);
                 }
 
                 const response = await fetch(
@@ -485,6 +514,27 @@ export function BusinessPrVideoGenerator() {
                   setVideoStage(stage);
                   setVideoError(message);
                   setVideoStatus("failed");
+                  return;
+                }
+
+                if (contentType.includes("application/json")) {
+                  const payload = (await response.json()) as {
+                    url?: string;
+                    durationSeconds?: number;
+                    stage?: PrVideoStage;
+                  };
+                  if (!payload.url) {
+                    setVideoStage(payload.stage || "r2");
+                    setVideoError(
+                      "Cloud Run から署名付きURLが返りませんでした。",
+                    );
+                    setVideoStatus("failed");
+                    return;
+                  }
+                  setVideoName("brandbridge-pr-video.mp4");
+                  setVideoUrl(payload.url);
+                  setVideoStage("r2");
+                  setVideoStatus("completed");
                   return;
                 }
 

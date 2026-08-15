@@ -26,10 +26,71 @@ const ALLOWED_TYPES = new Set([
   "image/webp",
 ]);
 
-type UploadedImage = {
+export type UploadedImage = {
   bytes: Buffer;
   contentType: string;
 };
+
+export function toBusinessPrWorkerImages(
+  images: UploadedImage[],
+): Array<{ contentType: string; bytes: string }> {
+  return images.map((image) => ({
+    contentType: image.contentType,
+    bytes: image.bytes.toString("base64"),
+  }));
+}
+
+export function parseBusinessPrWorkerImages(
+  raw: unknown,
+): UploadedImage[] {
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  const images: UploadedImage[] = [];
+
+  for (const item of raw) {
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const record = item as {
+      contentType?: unknown;
+      bytes?: unknown;
+    };
+    const encoded = String(record.bytes ?? "").trim();
+
+    if (!encoded) {
+      continue;
+    }
+
+    const contentType = (String(record.contentType ?? "")
+      .split(";")[0]
+      .trim()
+      .toLowerCase() || "image/jpeg");
+    const bytes = Buffer.from(encoded, "base64");
+
+    if (bytes.byteLength < 32) {
+      continue;
+    }
+
+    if (bytes.byteLength > MAX_IMAGE_BYTES) {
+      throw new MarketingAgentError(
+        "INVALID_IMAGE_URL",
+        "画像サイズが大きすぎます。1枚8MBまでです。",
+      );
+    }
+
+    images.push({
+      bytes,
+      contentType: ALLOWED_TYPES.has(contentType)
+        ? contentType
+        : "image/jpeg",
+    });
+  }
+
+  return images;
+}
 
 function extForContentType(
   contentType: string,

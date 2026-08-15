@@ -5,7 +5,7 @@
 set -euo pipefail
 PROJECT="${GCP_PROJECT_ID:-glassy-filament-413307}"
 REGION="${GCP_REGION:-asia-northeast1}"
-SERVICE="${CLOUD_RUN_SERVICE:-brandbridge-pr-video-worker}"
+SERVICE="${CLOUD_RUN_SERVICE:-pr-video-worker}"
 REPO="${ARTIFACT_REPO:-pr-video}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT}/${REPO}/${SERVICE}:$(git rev-parse --short HEAD)"
 
@@ -47,7 +47,7 @@ gcloud run deploy "$SERVICE" \
   --region="$REGION" \
   --allow-unauthenticated \
   --cpu=2 \
-  --memory=2Gi \
+  --memory=4Gi \
   --timeout=300 \
   --concurrency=1 \
   --max-instances=3 \

@@ -3,6 +3,11 @@ import { createServer } from "node:http";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
+import {
+  generateBusinessPrVideoFromUploads,
+  MIN_BUSINESS_PR_IMAGES,
+  parseBusinessPrWorkerImages,
+} from "@/lib/marketing-agent/business-pr-video";
 import { generatePrVideoFromRemote } from "@/lib/marketing-agent/pr-video-core";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
 import {
@@ -69,7 +74,7 @@ async function readJson(req: import("node:http").IncomingMessage): Promise<unkno
   for await (const chunk of req) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
     const total = chunks.reduce((sum, part) => sum + part.byteLength, 0);
-    if (total > 2 * 1024 * 1024) {
+    if (total > 32 * 1024 * 1024) {
       throw new Error("Request body too large.");
     }
   }
@@ -84,16 +89,25 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     caseId?: string;
     script?: unknown;
     imageUrl?: string;
+    images?: unknown;
     productName?: string;
+    companyName?: string;
+    bgmEnabled?: boolean;
   };
+  const images = parseBusinessPrWorkerImages(body.images);
+  const companyName =
+    String(body.companyName ?? body.productName ?? "").trim() || "BrandBridge";
+  const bgmEnabled = body.bgmEnabled !== false;
   const caseId = String(body.caseId ?? "").trim();
   const imageUrl = String(body.imageUrl ?? "").trim();
-  if (!caseId || !imageUrl) {
+
+  if (images.length < MIN_BUSINESS_PR_IMAGES && (!caseId || !imageUrl)) {
     throw new MarketingAgentError(
       "INVALID_CASE",
-      "caseId and imageUrl are required.",
+      "images (2 or more) or caseId and imageUrl are required.",
     );
   }
+
   const script = normalizePrVideoScript(body.script);
   if (!script) {
     throw new MarketingAgentError(
@@ -102,12 +116,31 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     );
   }
 
-  const rendered = await generatePrVideoFromRemote({
-    caseId,
-    script,
-    imageUrl,
-    productName: body.productName,
-  });
+  let rendered: Awaited<ReturnType<typeof generatePrVideoFromRemote>>;
+  let key: string;
+
+  if (images.length >= MIN_BUSINESS_PR_IMAGES) {
+    rendered = await generateBusinessPrVideoFromUploads({
+      script,
+      images,
+      companyName,
+      bgmEnabled,
+    });
+    key = `pr-videos/business/${randomUUID()}.mp4`;
+  } else if (caseId && imageUrl) {
+    rendered = await generatePrVideoFromRemote({
+      caseId,
+      script,
+      imageUrl,
+      productName: body.productName,
+    });
+    key = `pr-videos/${caseId}/${randomUUID()}.mp4`;
+  } else {
+    throw new MarketingAgentError(
+      "INVALID_CASE",
+      "images (2 or more) or caseId and imageUrl are required.",
+    );
+  }
 
   let client: S3Client;
   let bucket: string;
@@ -122,7 +155,6 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     );
   }
 
-  const key = `pr-videos/${caseId}/${randomUUID()}.mp4`;
   try {
     await client.send(
       new PutObjectCommand({

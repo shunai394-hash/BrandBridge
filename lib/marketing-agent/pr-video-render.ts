@@ -11,12 +11,20 @@ export const VIDEO_WIDTH = 1080;
 export const VIDEO_HEIGHT = 1920;
 export const VIDEO_FPS = 24;
 
-const BGM_PATH = path.join(
-  process.cwd(),
-  "public",
-  "audio",
-  "brandbridge-bgm.wav",
-);
+const BGM_CANDIDATES = [
+  path.join(process.cwd(), "public", "audio", "brandbridge-bgm.wav"),
+  path.join(process.cwd(), "public", "brandbridge-bgm.wav"),
+  path.join(process.cwd(), "brandbridge-bgm.wav"),
+];
+
+async function resolveBgmPath(): Promise<string | null> {
+  for (const candidate of BGM_CANDIDATES) {
+    if (await fileExists(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
 
 const BGM_VOLUME = 0.12;
 
@@ -413,11 +421,9 @@ export async function renderPrVideoMp4(input: {
 
   const bgmEnabled =
     input.bgmEnabled ?? true;
+  const bgmPath = bgmEnabled ? await resolveBgmPath() : null;
 
-  if (
-    bgmEnabled &&
-    !(await fileExists(BGM_PATH))
-  ) {
+  if (bgmEnabled && !bgmPath) {
     throw new MarketingAgentError(
       "RENDER_FAILURE",
       "BrandBridge BGMファイルが見つかりません。",
@@ -443,12 +449,12 @@ export async function renderPrVideoMp4(input: {
     narrationInput,
   ];
 
-  if (bgmEnabled) {
+  if (bgmEnabled && bgmPath) {
     muxArgs.push(
       "-stream_loop",
       "-1",
       "-i",
-      BGM_PATH,
+      bgmPath,
     );
   }
 

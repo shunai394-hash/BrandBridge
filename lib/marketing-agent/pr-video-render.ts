@@ -6,13 +6,17 @@ import {
 } from "@/lib/marketing-agent/pr-video-ffmpeg";
 import type { PrVideoScene } from "@/lib/marketing-agent/pr-script";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const VIDEO_WIDTH = 1080;
 export const VIDEO_HEIGHT = 1920;
 export const VIDEO_FPS = 24;
 
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+
 const BGM_CANDIDATES = [
   path.join(process.cwd(), "public", "audio", "brandbridge-bgm.wav"),
+  path.join(HERE, "..", "..", "public", "audio", "brandbridge-bgm.wav"),
   path.join(process.cwd(), "public", "brandbridge-bgm.wav"),
   path.join(process.cwd(), "brandbridge-bgm.wav"),
 ];
@@ -26,7 +30,19 @@ async function resolveBgmPath(): Promise<string | null> {
   return null;
 }
 
-const BGM_VOLUME = 0.12;
+const BGM_VOLUME = 0.55;
+
+function isBgmEnabled(value: unknown): boolean {
+  if (value === false || value === 0) return false;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "false" || normalized === "0" || normalized === "off") {
+      return false;
+    }
+  }
+  if (value === undefined || value === null) return true;
+  return Boolean(value);
+}
 
 type KenBurns = {
   z: string;
@@ -419,8 +435,7 @@ export async function renderPrVideoMp4(input: {
     );
   }
 
-  const bgmEnabled =
-    input.bgmEnabled ?? true;
+  const bgmEnabled = isBgmEnabled(input.bgmEnabled);
   const bgmPath = bgmEnabled ? await resolveBgmPath() : null;
 
   if (bgmEnabled && !bgmPath) {
@@ -459,12 +474,12 @@ export async function renderPrVideoMp4(input: {
   }
 
   const filterParts: string[] = [
-    `[1:a]apad=whole_dur=${finalDuration.toFixed(3)}[narration]`,
+    `[1:a]aformat=sample_rates=44100:channel_layouts=stereo,apad=whole_dur=${finalDuration.toFixed(3)}[narration]`,
   ];
 
-  if (bgmEnabled) {
+  if (bgmEnabled && bgmPath) {
     filterParts.push(
-      `[2:a]volume=${BGM_VOLUME.toFixed(2)},atrim=duration=${finalDuration.toFixed(3)},asetpts=N/SR/TB[bgm]`,
+      `[2:a]aformat=sample_rates=44100:channel_layouts=stereo,volume=${BGM_VOLUME.toFixed(2)},atrim=duration=${finalDuration.toFixed(3)},asetpts=N/SR/TB[bgm]`,
       `[narration][bgm]amix=inputs=2:duration=longest:dropout_transition=2:normalize=0[aout]`,
     );
   } else {

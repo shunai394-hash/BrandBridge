@@ -1,4 +1,4 @@
-﻿import { execFile } from "node:child_process";
+﻿import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -37,6 +37,63 @@ export async function resolveEspeakBin(): Promise<string> {
   );
 }
 
+function runWithStdin(
+  command: string,
+  args: string[],
+  input: string,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { timeout: 10_000 });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0 && stdout.trim()) {
+        resolve(stdout.replace(/\s+/g, " ").trim());
+        return;
+      }
+      reject(new Error(stderr.trim() || `${command} failed`));
+    });
+    child.stdin.write(input, "utf8");
+    child.stdin.end();
+  });
+}
+
+/**
+ * espeak-ng -v ja reads unknown kanji as "Chinese letter" / "Japanese letter"
+ * and repeats that English placeholder. Convert to kana first.
+ */
+async function japaneseYomi(text: string): Promise<string> {
+  try {
+    return await runWithStdin("mecab", ["-Oyomi"], text);
+  } catch {
+    /* fall through */
+  }
+
+  try {
+    return await runWithStdin(
+      "kakasi",
+      ["-iutf8", "-outf8", "-JH", "-KH"],
+      text,
+    );
+  } catch {
+    /* fall through */
+  }
+
+  throw new MarketingAgentError(
+    "TTS_FAILURE",
+    "Japanese TTS requires mecab (mecab-ipadic-utf8) so kanji can be read as Japanese.",
+  );
+}
+
 export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
@@ -49,25 +106,20 @@ export async function synthesizeNarrationWav(input: {
 
   const bin = await resolveEspeakBin();
   const voice = detectSpeechVoice(text);
+  const spoken = voice === "ja" ? await japaneseYomi(text) : text;
   const textFile = path.join(path.dirname(input.outFile), "narration.txt");
 
-  await writeFile(textFile, text, "utf8");
+  await writeFile(textFile, spoken, "utf8");
+
+  const voiceArgs =
+    voice === "ja"
+      ? ["-v", "ja", "-s", "120", "-p", "50", "-a", "140"]
+      : ["-v", "en", "-s", "135", "-p", "40"];
 
   try {
     await execFileAsync(
       bin,
-      [
-        "-v",
-        voice,
-        "-s",
-        "135",
-        "-p",
-        "40",
-        "-f",
-        textFile,
-        "-w",
-        input.outFile,
-      ],
+      [...voiceArgs, "-f", textFile, "-w", input.outFile],
       {
         timeout: 40_000,
         maxBuffer: 2 * 1024 * 1024,

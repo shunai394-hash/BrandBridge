@@ -207,7 +207,12 @@ const server = createServer((req, res) => {
     try {
       const path = req.url?.split("?")[0] || "/";
       if (req.method === "GET" && (path === "/health" || path === "/")) {
-        json(res, 200, { ok: true });
+        json(res, 200, {
+          ok: true,
+          service: "pr-video-worker",
+          images: true,
+          bgm: true,
+        });
         return;
       }
       if (req.method !== "POST" || path !== "/render") {

@@ -208,6 +208,10 @@ export async function collectBusinessPrImages(
   return images;
 }
 
+/**
+ * Phase 1: use the uploaded stills in order (cycle if fewer than scenes).
+ * Script location / character / visual are display-only and never generate or pick images.
+ */
 export async function generateBusinessPrVideoFromUploads(
   input: {
     script: PrVideoScript;

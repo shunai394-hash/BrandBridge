@@ -8,6 +8,7 @@ import {
 } from "@/lib/marketing-agent/business-pr-video";
 import { parseJsonValue } from "@/lib/marketing-agent/json";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
+import { prVideoWorkerConfig } from "@/lib/marketing-agent/pr-video-worker";
 import {
   describePrVideoStage,
   redactSecrets,
@@ -110,10 +111,7 @@ function fail(error: unknown, status = 400): NextResponse {
 }
 
 function workerConfig(): { url: string; secret: string } | null {
-  const url = process.env.PR_VIDEO_WORKER_URL?.trim().replace(/\/$/, "");
-  const secret = process.env.PR_VIDEO_WORKER_SECRET?.trim();
-  if (!url || !secret) return null;
-  return { url, secret };
+  return prVideoWorkerConfig();
 }
 
 export async function POST(request: Request) {
@@ -217,10 +215,13 @@ export async function POST(request: Request) {
         payload = {};
       }
       if (!response.ok) {
-        const message =
+        const rawMessage =
           typeof payload.error === "string"
             ? payload.error
             : `Cloud Run worker error (HTTP ${response.status}).`;
+        const message = /caseId and imageUrl are required/i.test(rawMessage)
+          ? "Cloud Run worker が複数画像に未対応です。pr-video-worker Service を再デプロイしてください。"
+          : rawMessage;
         const code = typeof payload.code === "string" ? payload.code : undefined;
         const stage =
           (typeof payload.stage === "string"

@@ -9,6 +9,7 @@ import {
 } from "@/lib/marketing-agent/pr-video";
 import { assertSafeProductImageUrl } from "@/lib/marketing-agent/pr-video-image";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
+import { prVideoWorkerConfig } from "@/lib/marketing-agent/pr-video-worker";
 import {
   describePrVideoStage,
   redactSecrets,
@@ -78,10 +79,7 @@ function fail(error: unknown, status = 400): NextResponse {
 }
 
 function workerConfig(): { url: string; secret: string } | null {
-  const url = process.env.PR_VIDEO_WORKER_URL?.trim().replace(/\/$/, "");
-  const secret = process.env.PR_VIDEO_WORKER_SECRET?.trim();
-  if (!url || !secret) return null;
-  return { url, secret };
+  return prVideoWorkerConfig();
 }
 
 export async function POST(request: Request) {

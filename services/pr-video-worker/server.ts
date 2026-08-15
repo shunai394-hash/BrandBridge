@@ -1,5 +1,7 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
+import { existsSync } from "node:fs";
 import { createServer } from "node:http";
+import nodePath from "node:path";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
@@ -232,11 +234,21 @@ const server = createServer((req, res) => {
     try {
       const path = req.url?.split("?")[0] || "/";
       if (req.method === "GET" && (path === "/health" || path === "/")) {
+        const bgmFile = nodePath.join(
+          process.cwd(),
+          "public",
+          "audio",
+          "brandbridge-bgm.wav",
+        );
         json(res, 200, {
           ok: true,
           service: "pr-video-worker",
           images: true,
           bgm: true,
+          jaTts: true,
+          cwd: process.cwd(),
+          bgmFile,
+          bgmExists: existsSync(bgmFile),
         });
         return;
       }

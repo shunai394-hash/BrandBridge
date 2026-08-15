@@ -438,6 +438,16 @@ export async function renderPrVideoMp4(input: {
   const bgmEnabled = isBgmEnabled(input.bgmEnabled);
   const bgmPath = bgmEnabled ? await resolveBgmPath() : null;
 
+  console.log(
+    JSON.stringify({
+      msg: "pr-video-bgm",
+      cwd: process.cwd(),
+      bgmEnabled,
+      bgmPath,
+      bgmVolume: BGM_VOLUME,
+    }),
+  );
+
   if (bgmEnabled && !bgmPath) {
     throw new MarketingAgentError(
       "RENDER_FAILURE",

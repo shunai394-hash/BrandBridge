@@ -68,30 +68,48 @@ function runWithStdin(
 }
 
 /**
- * espeak-ng -v ja reads unknown kanji as "Chinese letter" / "Japanese letter"
- * and repeats that English placeholder. Convert to kana first.
+ * espeak-ng -v ja (voice file jpx/ja) only knows hiragana/katakana.
+ * Unknown kanji is spoken as English "Chinese letter"; an unknown kana
+ * codepoint is spoken as "Japanese letter". `-v jpx` is not a voice
+ * (empty phoneme table / segfault). After kana conversion, ASCII tokens
+ * such as BrandBridge must be spaced so espeak can leave English mode.
  */
+function spaceLatinForEspeak(text: string): string {
+  return text
+    .replace(/[A-Za-z][A-Za-z0-9._-]*/g, " $& ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function japaneseYomi(text: string): Promise<string> {
+  let yomi = "";
+
   try {
-    return await runWithStdin("mecab", ["-Oyomi"], text);
+    yomi = await runWithStdin("mecab", ["-Oyomi"], text);
   } catch {
     /* fall through */
   }
 
-  try {
-    return await runWithStdin(
-      "kakasi",
-      ["-iutf8", "-outf8", "-JH", "-KH"],
-      text,
+  if (!yomi) {
+    try {
+      yomi = await runWithStdin(
+        "kakasi",
+        ["-iutf8", "-outf8", "-JH", "-KH"],
+        text,
+      );
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (!yomi) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      "Japanese TTS requires mecab (mecab-ipadic-utf8) so kanji can be read as Japanese.",
     );
-  } catch {
-    /* fall through */
   }
 
-  throw new MarketingAgentError(
-    "TTS_FAILURE",
-    "Japanese TTS requires mecab (mecab-ipadic-utf8) so kanji can be read as Japanese.",
-  );
+  return spaceLatinForEspeak(yomi);
 }
 
 export async function synthesizeNarrationWav(input: {

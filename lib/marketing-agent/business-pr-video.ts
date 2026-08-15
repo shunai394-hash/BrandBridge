@@ -58,8 +58,16 @@ export function parseBusinessPrWorkerImages(
     const record = item as {
       contentType?: unknown;
       bytes?: unknown;
+      data?: unknown;
+      base64?: unknown;
     };
-    const encoded = String(record.bytes ?? "").trim();
+    let encoded = String(
+      record.bytes ?? record.data ?? record.base64 ?? "",
+    ).trim();
+    const dataUrl = encoded.match(/^data:[^;]+;base64,(.+)$/i);
+    if (dataUrl?.[1]) {
+      encoded = dataUrl[1];
+    }
 
     if (!encoded) {
       continue;

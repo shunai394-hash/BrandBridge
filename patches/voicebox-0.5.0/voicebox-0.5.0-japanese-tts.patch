@@ -1,0 +1,365 @@
+diff --git a/backend/backends/kokoro_backend.py b/backend/backends/kokoro_backend.py
+index efe91df..45cb290 100644
+--- a/backend/backends/kokoro_backend.py
++++ b/backend/backends/kokoro_backend.py
+@@ -181,6 +181,11 @@ class KokoroTTSBackend:
+         if kokoro_lang not in self._pipelines:
+             from kokoro import KPipeline
+ 
++            if kokoro_lang == "j":
++                from ..mecab_dict import configure_mecab_dictionary
++
++                configure_mecab_dictionary()
++
+             # Create pipeline with our existing model (no redundant model loading)
+             self._pipelines[kokoro_lang] = KPipeline(
+                 lang_code=kokoro_lang,
+@@ -259,6 +264,16 @@ class KokoroTTSBackend:
+ 
+         voice_name = voice_prompt.get("preset_voice_id") or voice_prompt.get("kokoro_voice") or KOKORO_DEFAULT_VOICE
+ 
++        # Japanese G2P needs a jf_/jm_ voice. English preset ids (af_jessica)
++        # with language=ja still construct KPipeline("j") and would crash
++        # MeCab, then sound wrong even after the dict fix.
++        if language == "ja" and not str(voice_name).startswith(("jf_", "jm_")):
++            logger.warning(
++                "Kokoro voice %s is not Japanese; using jf_alpha for language=ja",
++                voice_name,
++            )
++            voice_name = "jf_alpha"
++
+         def _generate_sync():
+             import torch
+ 
+diff --git a/backend/build_binary.py b/backend/build_binary.py
+index 7079d11..93a2683 100644
+--- a/backend/build_binary.py
++++ b/backend/build_binary.py
+@@ -68,6 +68,10 @@ def build_server(cuda=False):
+             # PyInstaller. See pyi_rth_torch_compiler_disable.py.
+             "--runtime-hook",
+             "pyi_rth_torch_compiler_disable.py",
++            # Redirect empty `unidic.DICDIR` to bundled unidic_lite before
++            # Kokoro/misaki/fugashi construct MeCab (Japanese G2P).
++            "--runtime-hook",
++            "pyi_rth_unidic.py",
+             # Per-module collection overrides (e.g. forcing scipy.stats._distn_infrastructure
+             # to bundle .py source alongside .pyc so the runtime hook can source-patch it).
+             "--additional-hooks-dir",
+@@ -294,6 +298,10 @@ def build_server(cuda=False):
+             "--collect-all",
+             "unidic_lite",
+             "--hidden-import",
++            "unidic_lite",
++            "--hidden-import",
++            "backend.mecab_dict",
++            "--hidden-import",
+             "loguru",
+             # MCP server — Streamable-HTTP endpoint and the 4 voicebox.* tools.
+             # FastMCP pulls in a chain of deps (mcp, cyclopts, openapi-pydantic,
+diff --git a/backend/mecab_dict.py b/backend/mecab_dict.py
+new file mode 100644
+index 0000000..120a83c
+--- /dev/null
++++ b/backend/mecab_dict.py
+@@ -0,0 +1,92 @@
++"""Resolve a usable MeCab dictionary for Kokoro Japanese G2P.
++
++fugashi.Tagger() prefers ``unidic.DICDIR`` over ``unidic_lite.DICDIR``.
++``misaki[ja]`` pulls in the full ``unidic`` package, which does **not**
++ship dictionary data (it expects ``python -m unidic download``). Voicebox
++bundles ``unidic_lite`` (see ``--collect-all unidic_lite``), so frozen
++Windows builds have:
++
++    <_MEIPASS>/unidic_lite/dicdir/mecabrc   # present
++    <_MEIPASS>/unidic/dicdir/mecabrc        # missing → Failed initializing MeCab
++
++This module finds a dicdir that actually contains mecabrc and, if the
++empty ``unidic`` package is importable, points ``unidic.DICDIR`` at it so
++fugashi's try_import_unidic() succeeds without a hardcoded path.
++"""
++
++from __future__ import annotations
++
++import logging
++import os
++import sys
++from pathlib import Path
++
++logger = logging.getLogger(__name__)
++
++
++def _has_mecabrc(dicdir: str | os.PathLike[str] | None) -> bool:
++    if not dicdir:
++        return False
++    return Path(dicdir, "mecabrc").is_file()
++
++
++def _candidate_dicdirs() -> list[str]:
++    dirs: list[str] = []
++    meipass = getattr(sys, "_MEIPASS", None)
++    if meipass:
++        dirs.append(os.path.join(meipass, "unidic_lite", "dicdir"))
++        dirs.append(os.path.join(meipass, "unidic", "dicdir"))
++    try:
++        import unidic_lite
++
++        dirs.append(getattr(unidic_lite, "DICDIR", ""))
++    except Exception:
++        pass
++    try:
++        import unidic
++
++        dirs.append(getattr(unidic, "DICDIR", ""))
++    except Exception:
++        pass
++    seen: set[str] = set()
++    unique: list[str] = []
++    for item in dirs:
++        if not item:
++            continue
++        key = os.path.normcase(os.path.abspath(item))
++        if key in seen:
++            continue
++        seen.add(key)
++        unique.append(item)
++    return unique
++
++
++def resolve_mecab_dicdir() -> str:
++    """Return a dicdir that contains mecabrc, preferring unidic_lite."""
++    for dicdir in _candidate_dicdirs():
++        if _has_mecabrc(dicdir):
++            return dicdir
++    tried = ", ".join(_candidate_dicdirs()) or "(none)"
++    raise FileNotFoundError(
++        "MeCab dictionary mecabrc was not found. "
++        f"Looked in: {tried}. Frozen builds must collect unidic_lite."
++    )
++
++
++def configure_mecab_dictionary() -> str:
++    """Point fugashi/unidic at a real dictionary. Safe to call more than once."""
++    dicdir = resolve_mecab_dicdir()
++    mecabrc = os.path.join(dicdir, "mecabrc")
++    os.environ.setdefault("MECABRC", mecabrc)
++
++    try:
++        import unidic
++
++        if not _has_mecabrc(getattr(unidic, "DICDIR", None)):
++            unidic.DICDIR = dicdir
++            logger.info("Redirected unidic.DICDIR to %s", dicdir)
++    except ImportError:
++        pass
++
++    logger.info("MeCab dictionary: %s", dicdir)
++    return dicdir
+diff --git a/backend/pyi_rth_unidic.py b/backend/pyi_rth_unidic.py
+new file mode 100644
+index 0000000..b6b83f4
+--- /dev/null
++++ b/backend/pyi_rth_unidic.py
+@@ -0,0 +1,50 @@
++"""
++PyInstaller runtime hook: point fugashi at unidic_lite.
++
++Must run before Kokoro/misaki import fugashi.Tagger(). Keep this file
++self-contained — runtime hooks can execute before backend imports work.
++"""
++
++from __future__ import annotations
++
++import os
++import sys
++
++
++def _configure() -> None:
++    meipass = getattr(sys, "_MEIPASS", None)
++    candidates = []
++    if meipass:
++        candidates.append(os.path.join(meipass, "unidic_lite", "dicdir"))
++        candidates.append(os.path.join(meipass, "unidic", "dicdir"))
++    try:
++        import unidic_lite
++
++        candidates.append(getattr(unidic_lite, "DICDIR", ""))
++    except Exception:
++        pass
++    try:
++        import unidic
++
++        candidates.append(getattr(unidic, "DICDIR", ""))
++    except Exception:
++        unidic = None  # type: ignore
++    else:
++        unidic = sys.modules.get("unidic")
++
++    dicdir = None
++    for path in candidates:
++        if path and os.path.isfile(os.path.join(path, "mecabrc")):
++            dicdir = path
++            break
++    if not dicdir:
++        return
++
++    os.environ.setdefault("MECABRC", os.path.join(dicdir, "mecabrc"))
++    if unidic is not None:
++        current = getattr(unidic, "DICDIR", "")
++        if not current or not os.path.isfile(os.path.join(current, "mecabrc")):
++            unidic.DICDIR = dicdir
++
++
++_configure()
+diff --git a/backend/routes/generations.py b/backend/routes/generations.py
+index 215c96c..b41a81a 100644
+--- a/backend/routes/generations.py
++++ b/backend/routes/generations.py
+@@ -88,10 +88,14 @@ async def generate_speech(
+             raise HTTPException(status_code=500, detail="LLM produced empty output; nothing to speak.")
+         source = "personality_speak"
+ 
++    from ..utils.tts_language import resolve_tts_language
++
++    language = resolve_tts_language(data.language, getattr(profile, "language", None), data.text)
++
+     generation = await history.create_generation(
+         profile_id=data.profile_id,
+         text=text,
+-        language=data.language,
++        language=language,
+         audio_path="",
+         duration=0,
+         seed=data.seed,
+@@ -129,7 +133,7 @@ async def generate_speech(
+             generation_id=generation_id,
+             profile_id=data.profile_id,
+             text=text,
+-            language=data.language,
++            language=language,
+             engine=engine,
+             model_size=model_size,
+             seed=data.seed,
+diff --git a/backend/routes/speak.py b/backend/routes/speak.py
+index 0c81846..09458ba 100644
+--- a/backend/routes/speak.py
++++ b/backend/routes/speak.py
+@@ -70,12 +70,15 @@ async def speak(
+         engine = binding.default_engine
+ 
+     from .generations import generate_speech
++    from ..utils.tts_language import resolve_tts_language
++
++    language = resolve_tts_language(data.language, getattr(profile, "language", None), data.text)
+ 
+     generation = await generate_speech(
+         models.GenerationRequest(
+             profile_id=profile.id,
+             text=data.text,
+-            language=data.language or "en",
++            language=language,
+             engine=engine,
+             personality=bool(personality_flag),
+         ),
+diff --git a/backend/tests/test_mecab_dict.py b/backend/tests/test_mecab_dict.py
+new file mode 100644
+index 0000000..451490c
+--- /dev/null
++++ b/backend/tests/test_mecab_dict.py
+@@ -0,0 +1,37 @@
++import os
++import sys
++import types
++from pathlib import Path
++
++from backend.mecab_dict import configure_mecab_dictionary, resolve_mecab_dicdir
++from backend.utils.tts_language import resolve_tts_language, text_looks_japanese
++
++
++def test_resolve_language_japanese_text_overrides_default_en():
++    assert text_looks_japanese("ブランドブリッジ")
++    assert resolve_tts_language("en", "en", "ブランドブリッジ") == "ja"
++    assert resolve_tts_language(None, "ja", "hello") == "ja"
++    assert resolve_tts_language("en", "en", "Hello from BrandBridge.") == "en"
++
++
++def test_configure_redirects_empty_unidic(tmp_path, monkeypatch):
++    lite = tmp_path / "unidic_lite" / "dicdir"
++    lite.mkdir(parents=True)
++    (lite / "mecabrc").write_text("dicdir: .\n", encoding="utf-8")
++    empty = tmp_path / "unidic" / "dicdir"
++    empty.mkdir(parents=True)
++
++    lite_mod = types.ModuleType("unidic_lite")
++    lite_mod.DICDIR = str(lite)
++    uni_mod = types.ModuleType("unidic")
++    uni_mod.DICDIR = str(empty)
++    monkeypatch.setitem(sys.modules, "unidic_lite", lite_mod)
++    monkeypatch.setitem(sys.modules, "unidic", uni_mod)
++    monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path), raising=False)
++
++    dicdir = configure_mecab_dictionary()
++    assert Path(dicdir, "mecabrc").is_file()
++    assert Path(dicdir) == lite
++    assert uni_mod.DICDIR == str(lite)
++    assert os.environ.get("MECABRC", "").endswith("mecabrc")
++    assert resolve_mecab_dicdir() == str(lite)
+diff --git a/backend/utils/tts_language.py b/backend/utils/tts_language.py
+new file mode 100644
+index 0000000..65a4f22
+--- /dev/null
++++ b/backend/utils/tts_language.py
+@@ -0,0 +1,31 @@
++"""Pick the language Voicebox should pass to TTS engines."""
++
++from __future__ import annotations
++
++import re
++
++_JA_RE = re.compile(r"[\u3040-\u30ff\u4e00-\u9faf]")
++
++
++def text_looks_japanese(text: str) -> bool:
++    return bool(_JA_RE.search(text or ""))
++
++
++def resolve_tts_language(
++    requested: str | None,
++    profile_language: str | None,
++    text: str,
++) -> str:
++    """Prefer an explicit non-English request, then the profile, then script.
++
++    POST /speak defaults language to English when omitted. Japanese text
++    would then be synthesized as English and sound unintelligible. Treat
++    ``en`` as a weak default when the profile or the text is Japanese.
++    """
++    if requested and requested not in ("en",):
++        return requested
++    if profile_language and profile_language not in ("en",):
++        return profile_language
++    if text_looks_japanese(text):
++        return "ja"
++    return requested or profile_language or "en"
+diff --git a/backend/voicebox-server.spec b/backend/voicebox-server.spec
+index d0e8d97..05abfdb 100644
+--- a/backend/voicebox-server.spec
++++ b/backend/voicebox-server.spec
+@@ -5,7 +5,7 @@ from PyInstaller.utils.hooks import copy_metadata
+ 
+ datas = []
+ binaries = []
+-hiddenimports = ['backend', 'backend.main', 'backend.config', 'backend.database', 'backend.models', 'backend.services.profiles', 'backend.services.history', 'backend.services.tts', 'backend.services.transcribe', 'backend.utils.platform_detect', 'backend.backends', 'backend.backends.pytorch_backend', 'backend.backends.qwen_custom_voice_backend', 'backend.utils.audio', 'backend.utils.cache', 'backend.utils.progress', 'backend.utils.hf_progress', 'backend.services.cuda', 'backend.services.effects', 'backend.utils.effects', 'backend.services.versions', 'pedalboard', 'chatterbox', 'chatterbox.tts_turbo', 'chatterbox.mtl_tts', 'backend.backends.chatterbox_backend', 'backend.backends.chatterbox_turbo_backend', 'backend.backends.luxtts_backend', 'zipvoice', 'zipvoice.luxvoice', 'torch', 'transformers', 'fastapi', 'uvicorn', 'sqlalchemy', 'soundfile', 'qwen_tts', 'qwen_tts.inference', 'qwen_tts.inference.qwen3_tts_model', 'qwen_tts.inference.qwen3_tts_tokenizer', 'qwen_tts.core', 'qwen_tts.cli', 'requests', 'pkg_resources.extern', 'backend.backends.hume_backend', 'tada', 'tada.modules', 'tada.modules.tada', 'tada.modules.encoder', 'tada.modules.decoder', 'tada.modules.aligner', 'tada.modules.acoustic_spkr_verf', 'tada.nn', 'tada.nn.vibevoice', 'tada.utils', 'tada.utils.gray_code', 'tada.utils.text', 'backend.utils.dac_shim', 'torchaudio', 'backend.backends.kokoro_backend', 'en_core_web_sm', 'loguru', 'backend.mcp_server', 'backend.mcp_server.server', 'backend.mcp_server.tools', 'backend.mcp_server.context', 'backend.mcp_server.resolve', 'backend.mcp_server.events', 'sse_starlette', 'backend.backends.mlx_backend', 'mlx', 'mlx.core', 'mlx.nn', 'mlx_audio', 'mlx_audio.tts', 'mlx_audio.stt', 'mlx_lm', 'backend.backends.qwen_llm_backend']
++hiddenimports = ['backend', 'backend.main', 'backend.config', 'backend.database', 'backend.models', 'backend.mecab_dict', 'backend.utils.tts_language', 'backend.services.profiles', 'backend.services.history', 'backend.services.tts', 'backend.services.transcribe', 'backend.utils.platform_detect', 'backend.backends', 'backend.backends.pytorch_backend', 'backend.backends.qwen_custom_voice_backend', 'backend.utils.audio', 'backend.utils.cache', 'backend.utils.progress', 'backend.utils.hf_progress', 'backend.services.cuda', 'backend.services.effects', 'backend.utils.effects', 'backend.services.versions', 'pedalboard', 'chatterbox', 'chatterbox.tts_turbo', 'chatterbox.mtl_tts', 'backend.backends.chatterbox_backend', 'backend.backends.chatterbox_turbo_backend', 'backend.backends.luxtts_backend', 'zipvoice', 'zipvoice.luxvoice', 'torch', 'transformers', 'fastapi', 'uvicorn', 'sqlalchemy', 'soundfile', 'qwen_tts', 'qwen_tts.inference', 'qwen_tts.inference.qwen3_tts_model', 'qwen_tts.inference.qwen3_tts_tokenizer', 'qwen_tts.core', 'qwen_tts.cli', 'requests', 'pkg_resources.extern', 'backend.backends.hume_backend', 'tada', 'tada.modules', 'tada.modules.tada', 'tada.modules.encoder', 'tada.modules.decoder', 'tada.modules.aligner', 'tada.modules.acoustic_spkr_verf', 'tada.nn', 'tada.nn.vibevoice', 'tada.utils', 'tada.utils.gray_code', 'tada.utils.text', 'backend.utils.dac_shim', 'torchaudio', 'backend.backends.kokoro_backend', 'en_core_web_sm', 'loguru', 'backend.mcp_server', 'backend.mcp_server.server', 'backend.mcp_server.tools', 'backend.mcp_server.context', 'backend.mcp_server.resolve', 'backend.mcp_server.events', 'sse_starlette', 'backend.backends.mlx_backend', 'mlx', 'mlx.core', 'mlx.nn', 'mlx_audio', 'mlx_audio.tts', 'mlx_audio.stt', 'mlx_lm', 'backend.backends.qwen_llm_backend']
+ datas += copy_metadata('qwen-tts')
+ datas += copy_metadata('requests')
+ datas += copy_metadata('transformers')
+@@ -69,7 +69,7 @@ a = Analysis(
+     hiddenimports=hiddenimports,
+     hookspath=['pyi_hooks'],
+     hooksconfig={},
+-    runtime_hooks=['pyi_rth_numpy_compat.py', 'pyi_rth_torch_compiler_disable.py'],
++    runtime_hooks=['pyi_rth_numpy_compat.py', 'pyi_rth_torch_compiler_disable.py', 'pyi_rth_unidic.py'],
+     excludes=['nvidia', 'nvidia.cublas', 'nvidia.cuda_cupti', 'nvidia.cuda_nvrtc', 'nvidia.cuda_runtime', 'nvidia.cudnn', 'nvidia.cufft', 'nvidia.curand', 'nvidia.cusolver', 'nvidia.cusparse', 'nvidia.nccl', 'nvidia.nvjitlink', 'nvidia.nvtx'],
+     noarchive=False,
+     optimize=0,

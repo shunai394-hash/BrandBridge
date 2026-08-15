@@ -112,6 +112,105 @@ async function japaneseYomi(text: string): Promise<string> {
   return spaceLatinForEspeak(yomi);
 }
 
+function voiceboxBaseUrl(): string {
+  return (process.env.VOICEBOX_URL || "http://127.0.0.1:17493").replace(
+    /\/$/,
+    "",
+  );
+}
+
+async function voiceboxAvailable(): Promise<boolean> {
+  try {
+    const response = await fetch(`${voiceboxBaseUrl()}/`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!response.ok) return false;
+    const body = (await response.json()) as { message?: string; version?: string };
+    return Boolean(body.message || body.version);
+  } catch {
+    return false;
+  }
+}
+
+async function waitVoiceboxCompleted(generationId: string): Promise<void> {
+  const started = Date.now();
+  while (Date.now() - started < 120_000) {
+    const response = await fetch(
+      `${voiceboxBaseUrl()}/generate/${generationId}/status`,
+      { signal: AbortSignal.timeout(10_000) },
+    );
+    const body = (await response.json()) as {
+      status?: string;
+      error?: string;
+      detail?: string;
+    };
+    if (!response.ok) {
+      throw new Error(body.error || body.detail || `status HTTP ${response.status}`);
+    }
+    if (body.status === "completed") return;
+    if (body.status === "failed" || body.status === "error") {
+      throw new Error(body.error || body.detail || "Voicebox generation failed");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error("Voicebox generation timed out");
+}
+
+async function synthesizeViaVoicebox(input: {
+  text: string;
+  outFile: string;
+}): Promise<{ durationSeconds: number }> {
+  const profile =
+    process.env.VOICEBOX_PROFILE || process.env.VOICEBOX_PROFILE_ID || "";
+  const speakBody: Record<string, string> = {
+    text: input.text,
+    language: "ja",
+  };
+  if (profile) speakBody.profile = profile;
+
+  const speakResponse = await fetch(`${voiceboxBaseUrl()}/speak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify(speakBody),
+    signal: AbortSignal.timeout(15_000),
+  });
+  const speakJson = (await speakResponse.json()) as {
+    id?: string;
+    error?: string;
+    detail?: string;
+  };
+  if (!speakResponse.ok || !speakJson.id) {
+    throw new Error(
+      speakJson.error ||
+        speakJson.detail ||
+        `Voicebox /speak HTTP ${speakResponse.status}`,
+    );
+  }
+
+  await waitVoiceboxCompleted(speakJson.id);
+
+  const audioResponse = await fetch(
+    `${voiceboxBaseUrl()}/audio/${speakJson.id}`,
+    { signal: AbortSignal.timeout(30_000) },
+  );
+  if (!audioResponse.ok) {
+    throw new Error(
+      `Voicebox /audio HTTP ${audioResponse.status} (status was completed but audio was empty)`,
+    );
+  }
+  const bytes = Buffer.from(await audioResponse.arrayBuffer());
+  if (bytes.byteLength < 256) {
+    throw new Error("Voicebox returned an empty audio file");
+  }
+  await writeFile(input.outFile, bytes);
+
+  const durationSeconds = await probeAudioDuration(input.outFile);
+  if (!Number.isFinite(durationSeconds) || durationSeconds < 0.5) {
+    throw new MarketingAgentError("TTS_FAILURE", "TTS produced empty audio.");
+  }
+  return { durationSeconds };
+}
+
 export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
@@ -122,8 +221,32 @@ export async function synthesizeNarrationWav(input: {
     throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
   }
 
-  const bin = await resolveEspeakBin();
   const voice = detectSpeechVoice(text);
+  const required = process.env.VOICEBOX_REQUIRED === "1";
+
+  if (voice === "ja") {
+    const available = await voiceboxAvailable();
+    if (available) {
+      try {
+        return await synthesizeViaVoicebox({ text, outFile: input.outFile });
+      } catch (error) {
+        if (required) {
+          const message = error instanceof Error ? error.message : "Voicebox failed";
+          throw new MarketingAgentError(
+            "TTS_FAILURE",
+            `Voicebox TTS failed: ${message.slice(0, 180)}`,
+          );
+        }
+      }
+    } else if (required) {
+      throw new MarketingAgentError(
+        "TTS_UNAVAILABLE",
+        `Voicebox is not reachable at ${voiceboxBaseUrl()}.`,
+      );
+    }
+  }
+
+  const bin = await resolveEspeakBin();
   const spoken = voice === "ja" ? await japaneseYomi(text) : text;
   const textFile = path.join(path.dirname(input.outFile), "narration.txt");
 

@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+﻿import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
@@ -120,7 +120,7 @@ export async function renderPrVideoWithImage(input: {
     const outFile = path.join(workDir, "pr-video.mp4");
     const rendered = await renderPrVideoMp4({
       workDir,
-      imagePath,
+      imagePaths: [imagePath],
       audioPath,
       scenes,
       outFile,
@@ -151,3 +151,4 @@ export async function renderPrVideoWithImage(input: {
     await rm(workDir, { recursive: true, force: true });
   }
 }
+

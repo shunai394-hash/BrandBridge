@@ -11,9 +11,12 @@ import {
   assertSafeProductImageUrl,
   readSafeProductImage,
 } from "@/lib/marketing-agent/pr-video-image";
-import { assertFfmpegAvailable } from "@/lib/marketing-agent/pr-video-ffmpeg";
+import { assertFfmpegAvailable, runFfmpeg } from "@/lib/marketing-agent/pr-video-ffmpeg";
 import { renderPrVideoMp4 } from "@/lib/marketing-agent/pr-video-render";
-import { synthesizeNarrationWav } from "@/lib/marketing-agent/pr-video-tts";
+import {
+  probeAudioDuration,
+  synthesizeNarrationWav,
+} from "@/lib/marketing-agent/pr-video-tts";
 
 const TARGET_MIN = 25;
 const TARGET_MAX = 35;
@@ -26,6 +29,42 @@ function joinNarration(scenes: PrVideoScene[]): string {
     .join(" ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+export async function fitNarrationDuration(
+  audioPath: string,
+  durationSeconds: number,
+  targetSeconds = TARGET,
+): Promise<number> {
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= TARGET_MAX + 0.15) {
+    return durationSeconds;
+  }
+
+  const safeTarget = Math.min(TARGET_MAX, Math.max(TARGET_MIN, targetSeconds));
+  let remaining = durationSeconds / safeTarget;
+  const filters: string[] = [];
+
+  while (remaining > 2) {
+    filters.push("atempo=2.0");
+    remaining /= 2;
+  }
+
+  filters.push(`atempo=${Math.max(0.5, remaining).toFixed(3)}`);
+  const fitted = `${audioPath}.fit.wav`;
+  await runFfmpeg(
+    ["-y", "-i", audioPath, "-filter:a", filters.join(","), fitted],
+    30_000,
+  );
+  const { rename } = await import("node:fs/promises");
+  await rename(fitted, audioPath);
+  const next = await probeAudioDuration(audioPath);
+  if (!Number.isFinite(next) || next < 0.5) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      "Could not fit narration duration to the 25-35s target.",
+    );
+  }
+  return next;
 }
 
 export function scaleSceneDurations(
@@ -111,10 +150,14 @@ export async function renderPrVideoWithImage(input: {
     const narration = joinNarration(scenes);
     const audioPath = path.join(workDir, "narration.wav");
     const tts = await synthesizeNarrationWav({ text: narration, outFile: audioPath });
+    const narrationDuration = await fitNarrationDuration(
+      audioPath,
+      tts.durationSeconds,
+    );
 
     const visualSum = scenes.reduce((total, scene) => total + scene.durationSeconds, 0);
-    if (tts.durationSeconds > visualSum + 0.4) {
-      scenes = scaleSceneDurations(scenes, tts.durationSeconds);
+    if (narrationDuration > visualSum + 0.4) {
+      scenes = scaleSceneDurations(scenes, narrationDuration);
     }
 
     const outFile = path.join(workDir, "pr-video.mp4");

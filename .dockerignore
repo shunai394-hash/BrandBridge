@@ -1,0 +1,10 @@
+.git
+.next
+node_modules
+**/node_modules
+**/.next
+coverage
+*.md
+.env
+.env.*
+services/pr-video-worker/node_modules

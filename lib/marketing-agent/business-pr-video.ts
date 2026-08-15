@@ -7,6 +7,7 @@ import {
   type PrVideoScript,
 } from "@/lib/marketing-agent/pr-script";
 import {
+  fitNarrationDuration,
   scaleSceneDurations,
   type PrVideoRenderResult,
 } from "@/lib/marketing-agent/pr-video-core";
@@ -313,6 +314,11 @@ export async function generateBusinessPrVideoFromUploads(
         text: narration,
         outFile: audioPath,
       });
+    const narrationDuration =
+      await fitNarrationDuration(
+        audioPath,
+        tts.durationSeconds,
+      );
 
     const visualSum =
       scenes.reduce(
@@ -323,13 +329,13 @@ export async function generateBusinessPrVideoFromUploads(
       );
 
     if (
-      tts.durationSeconds >
+      narrationDuration >
       visualSum + 0.4
     ) {
       scenes =
         scaleSceneDurations(
           scenes,
-          tts.durationSeconds,
+          narrationDuration,
         );
     }
 

@@ -1,5 +1,5 @@
 import { listModelCaseSlugs } from "@/lib/model-cases";
-import { getSiteUrl, toSiteUrl } from "@/lib/site";
+import { getSiteUrl } from "@/lib/site";
 import type { CatalogPage } from "@/lib/marketing-agent/types";
 
 const STATIC_PAGES: CatalogPage[] = [
@@ -281,7 +281,7 @@ export function normalizeCatalogPath(path: string): string {
 export function catalogPathToUrl(path: string, origin = getSiteUrl()): string {
   const normalized = normalizeCatalogPath(path);
   if (!normalized) return origin;
-  if (origin === getSiteUrl()) return toSiteUrl(normalized);
+  
   return `${origin}${normalized}`;
 }
 
@@ -299,3 +299,4 @@ export function listFetchTargets(): CatalogPage[] {
     (page) => page.fetchLive && page.published && page.seoImportance !== "low",
   );
 }
+

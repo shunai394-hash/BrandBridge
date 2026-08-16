@@ -1,10 +1,13 @@
 import { randomUUID, timingSafeEqual } from "node:crypto";
+import { existsSync } from "node:fs";
 import { createServer } from "node:http";
+import nodePath from "node:path";
 import { GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import {
   generateBusinessPrVideoFromUploads,
+  MAX_BUSINESS_PR_IMAGES,
   MIN_BUSINESS_PR_IMAGES,
   parseBusinessPrWorkerImages,
 } from "@/lib/marketing-agent/business-pr-video";
@@ -83,6 +86,17 @@ async function readJson(req: import("node:http").IncomingMessage): Promise<unkno
   return JSON.parse(raw) as unknown;
 }
 
+function parseBgmEnabled(value: unknown): boolean {
+  if (value === false || value === 0) return false;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "false" || normalized === "0" || normalized === "off") {
+      return false;
+    }
+  }
+  return true;
+}
+
 async function handleRender(req: import("node:http").IncomingMessage) {
   const started = Date.now();
   const body = (await readJson(req)) as {
@@ -92,16 +106,16 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     images?: unknown;
     productName?: string;
     companyName?: string;
-    bgmEnabled?: boolean;
+    bgmEnabled?: boolean | string;
   };
-  const images = parseBusinessPrWorkerImages(body.images);
   const companyName =
     String(body.companyName ?? body.productName ?? "").trim() || "BrandBridge";
-  const bgmEnabled = body.bgmEnabled !== false;
+  const bgmEnabled = parseBgmEnabled(body.bgmEnabled);
   const caseId = String(body.caseId ?? "").trim();
   const imageUrl = String(body.imageUrl ?? "").trim();
+  const hasBusinessImages = Array.isArray(body.images);
 
-  if (images.length < MIN_BUSINESS_PR_IMAGES && (!caseId || !imageUrl)) {
+  if (!hasBusinessImages && (!caseId || !imageUrl)) {
     throw new MarketingAgentError(
       "INVALID_CASE",
       "images (2 or more) or caseId and imageUrl are required.",
@@ -119,13 +133,34 @@ async function handleRender(req: import("node:http").IncomingMessage) {
   let rendered: Awaited<ReturnType<typeof generatePrVideoFromRemote>>;
   let key: string;
 
-  if (images.length >= MIN_BUSINESS_PR_IMAGES) {
+  if (hasBusinessImages) {
+    const images = parseBusinessPrWorkerImages(body.images);
+    if (images.length < MIN_BUSINESS_PR_IMAGES) {
+      throw new MarketingAgentError(
+        "MISSING_IMAGE",
+        "画像を2枚以上追加してください。",
+      );
+    }
+    if (images.length > MAX_BUSINESS_PR_IMAGES) {
+      throw new MarketingAgentError(
+        "INVALID_IMAGE_URL",
+        `画像は最大${MAX_BUSINESS_PR_IMAGES}枚までです。`,
+      );
+    }
     rendered = await generateBusinessPrVideoFromUploads({
       script,
       images,
       companyName,
       bgmEnabled,
     });
+    console.log(
+      JSON.stringify({
+        msg: "pr-video-worker-render",
+        path: "generateBusinessPrVideoFromUploads",
+        bgmEnabled,
+        durationSeconds: rendered.durationSeconds,
+      }),
+    );
     key = `pr-videos/business/${randomUUID()}.mp4`;
   } else if (caseId && imageUrl) {
     rendered = await generatePrVideoFromRemote({
@@ -197,6 +232,7 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     width: rendered.width,
     height: rendered.height,
     renderMs: Date.now() - started,
+    bgmEnabled,
     stage: "r2" as const,
     status: "completed" as const,
   };
@@ -207,11 +243,21 @@ const server = createServer((req, res) => {
     try {
       const path = req.url?.split("?")[0] || "/";
       if (req.method === "GET" && (path === "/health" || path === "/")) {
+        const bgmFile = nodePath.join(
+          process.cwd(),
+          "public",
+          "audio",
+          "brandbridge-bgm.wav",
+        );
         json(res, 200, {
           ok: true,
           service: "pr-video-worker",
           images: true,
           bgm: true,
+          jaTts: true,
+          cwd: process.cwd(),
+          bgmFile,
+          bgmExists: existsSync(bgmFile),
         });
         return;
       }

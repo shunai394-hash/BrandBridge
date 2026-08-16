@@ -1,6 +1,8 @@
 ﻿import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import {
   normalizePrVideoScript,
@@ -14,6 +16,8 @@ import {
 import { assertFfmpegAvailable } from "@/lib/marketing-agent/pr-video-ffmpeg";
 import { renderPrVideoMp4 } from "@/lib/marketing-agent/pr-video-render";
 import { synthesizeNarrationWav } from "@/lib/marketing-agent/pr-video-tts";
+
+const execFileAsync = promisify(execFile);
 
 export const MIN_BUSINESS_PR_IMAGES = 2;
 export const MAX_BUSINESS_PR_IMAGES = 16;
@@ -58,8 +62,16 @@ export function parseBusinessPrWorkerImages(
     const record = item as {
       contentType?: unknown;
       bytes?: unknown;
+      data?: unknown;
+      base64?: unknown;
     };
-    const encoded = String(record.bytes ?? "").trim();
+    let encoded = String(
+      record.bytes ?? record.data ?? record.base64 ?? "",
+    ).trim();
+    const dataUrl = encoded.match(/^data:[^;]+;base64,(.+)$/i);
+    if (dataUrl?.[1]) {
+      encoded = dataUrl[1];
+    }
 
     if (!encoded) {
       continue;
@@ -169,6 +181,52 @@ async function readUploadedImage(
         ? type
         : "image/jpeg",
   };
+}
+
+async function assertFinalMp4Audio(
+  outFile: string,
+  bgmEnabled: boolean,
+): Promise<void> {
+  const { stdout } = await execFileAsync(
+    "ffprobe",
+    [
+      "-v",
+      "error",
+      "-show_entries",
+      "stream=codec_type,codec_name,channels:format=duration",
+      "-of",
+      "json",
+      outFile,
+    ],
+    { timeout: 10_000 },
+  );
+  const probed = JSON.parse(stdout) as {
+    streams?: Array<{
+      codec_type?: string;
+      codec_name?: string;
+      channels?: number;
+    }>;
+    format?: { duration?: string };
+  };
+  const streams = probed.streams ?? [];
+  const hasVideo = streams.some((stream) => stream.codec_type === "video");
+  const audio = streams.find((stream) => stream.codec_type === "audio");
+  if (!hasVideo || !audio) {
+    throw new MarketingAgentError(
+      "RENDER_FAILURE",
+      "最終MP4に映像または音声ストリームがありません。",
+    );
+  }
+  console.log(
+    JSON.stringify({
+      msg: "pr-video-final-mp4",
+      bgmEnabled,
+      duration: Number(probed.format?.duration),
+      video: true,
+      audioCodec: audio.codec_name,
+      audioChannels: audio.channels,
+    }),
+  );
 }
 
 export async function collectBusinessPrImages(
@@ -359,6 +417,11 @@ export async function generateBusinessPrVideoFromUploads(
         bgmEnabled:
           input.bgmEnabled ?? true,
       });
+
+    await assertFinalMp4Audio(
+      outFile,
+      input.bgmEnabled ?? true,
+    );
 
     const { readFile } =
       await import(

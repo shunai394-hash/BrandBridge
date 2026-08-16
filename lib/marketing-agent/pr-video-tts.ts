@@ -1,4 +1,4 @@
-﻿import { execFile } from "node:child_process";
+﻿import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -8,6 +8,42 @@ const execFileAsync = promisify(execFile);
 
 export function detectSpeechVoice(text: string): "ja" | "en" {
   return /[\u3040-\u30ff\u4e00-\u9faf]/.test(text) ? "ja" : "en";
+}
+
+const LANGUAGE_LABEL_NAMES =
+  "Chinese|English|Japanese|Korean|Spanish|French|German|Italian|Portuguese|Russian|Arabic|Hindi|Thai|Vietnamese|Indonesian|Mandarin|Cantonese|Language";
+
+/**
+ * Groq / script dumps sometimes include language labels such as
+ * "Chinese narrator". Those must never reach a TTS engine.
+ * Isolated language-name tokens are also removed; Japanese body text stays.
+ */
+export function stripLanguageLabels(text: string): string {
+  let out = String(text ?? "");
+
+  out = out.replace(
+    new RegExp(
+      `\\b(?:${LANGUAGE_LABEL_NAMES})\\s+(?:narrator|narration|voice(?:over)?|speaker|reader|tts)\\b[:：]?`,
+      "gi",
+    ),
+    " ",
+  );
+  out = out.replace(
+    new RegExp(
+      `(?:Language|lang|voice)\\s*[:：=]\\s*(?:${LANGUAGE_LABEL_NAMES})\\b`,
+      "gi",
+    ),
+    " ",
+  );
+  out = out.replace(new RegExp(`\\[(?:${LANGUAGE_LABEL_NAMES})\\]`, "gi"), " ");
+  out = out.replace(new RegExp(`\\((?:${LANGUAGE_LABEL_NAMES})\\)`, "gi"), " ");
+  out = out.replace(new RegExp(`\\b(?:${LANGUAGE_LABEL_NAMES})\\b`, "gi"), " ");
+  out = out.replace(
+    /(?:中国語|英語|韓国語|スペイン語|フランス語|ドイツ語)(?:ナレーター|ナレーション|ボイス|音声)?/g,
+    " ",
+  );
+
+  return out.replace(/\s+/g, " ").trim();
 }
 
 export async function resolveEspeakBin(): Promise<string> {
@@ -37,37 +73,301 @@ export async function resolveEspeakBin(): Promise<string> {
   );
 }
 
+function runWithStdin(
+  command: string,
+  args: string[],
+  input: string,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { timeout: 10_000 });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.setEncoding("utf8");
+    child.stderr.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk;
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk;
+    });
+    child.on("error", reject);
+    child.on("close", (code) => {
+      if (code === 0 && stdout.trim()) {
+        resolve(stdout.replace(/\s+/g, " ").trim());
+        return;
+      }
+      reject(new Error(stderr.trim() || `${command} failed`));
+    });
+    child.stdin.write(input, "utf8");
+    child.stdin.end();
+  });
+}
+
+/**
+ * espeak-ng -v ja (voice file jpx/ja) only knows hiragana/katakana.
+ * Unknown kanji is spoken as English "Chinese letter"; an unknown kana
+ * codepoint is spoken as "Japanese letter". `-v jpx` is not a voice
+ * (empty phoneme table / segfault). After kana conversion, ASCII tokens
+ * such as BrandBridge must be spaced so espeak can leave English mode.
+ */
+function spaceLatinForEspeak(text: string): string {
+  return text
+    .replace(/[A-Za-z][A-Za-z0-9._-]*/g, " $& ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const CJK_IDEOGRAPH = /[\u4e00-\u9fff]/;
+
+function leftoverKanji(text: string): string[] {
+  return Array.from(text).filter((ch) => {
+    const code = ch.codePointAt(0) ?? 0;
+    return code >= 0x4e00 && code <= 0x9fff;
+  });
+}
+
+async function japaneseYomi(text: string): Promise<string> {
+  let yomi = "";
+
+  try {
+    yomi = await runWithStdin("mecab", ["-Oyomi"], text);
+  } catch {
+    /* fall through */
+  }
+
+  if (!yomi) {
+    try {
+      yomi = await runWithStdin(
+        "kakasi",
+        ["-iutf8", "-outf8", "-JH", "-KH"],
+        text,
+      );
+    } catch {
+      /* fall through */
+    }
+  }
+
+  if (!yomi) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      "Japanese TTS requires mecab (mecab-ipadic-utf8) so kanji can be read as Japanese.",
+    );
+  }
+
+  return spaceLatinForEspeak(yomi);
+}
+
+/**
+ * Final string written to narration.txt and passed to espeak-ng / Voicebox.
+ * Kanji is converted via MeCab; leftover CJK (U+4E00-U+9FFF) is a hard failure.
+ */
+export async function prepareJapaneseTtsInput(text: string): Promise<string> {
+  const cleaned = stripLanguageLabels(text.replace(/\s+/g, " ").trim());
+  if (!cleaned) return "";
+
+  const yomi = await japaneseYomi(cleaned);
+  const leftover = leftoverKanji(yomi);
+  if (leftover.length > 0 || CJK_IDEOGRAPH.test(yomi)) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      `Japanese TTS still contains CJK kanji after MeCab yomi: ${leftover.slice(0, 24).join("")}`,
+    );
+  }
+
+  return yomi;
+}
+
+function voiceboxBaseUrl(): string | null {
+  const raw = process.env.VOICEBOX_URL?.trim();
+  if (!raw) return null;
+  return raw.replace(/\/$/, "");
+}
+
+async function voiceboxAvailable(): Promise<boolean> {
+  const base = voiceboxBaseUrl();
+  if (!base) return false;
+  try {
+    const response = await fetch(`${base}/`, {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!response.ok) return false;
+    const body = (await response.json()) as { message?: string; version?: string };
+    return Boolean(body.message || body.version);
+  } catch {
+    return false;
+  }
+}
+
+async function waitVoiceboxCompleted(generationId: string): Promise<void> {
+  const started = Date.now();
+  while (Date.now() - started < 120_000) {
+    const base = voiceboxBaseUrl();
+    if (!base) {
+      throw new Error("VOICEBOX_URL is not set");
+    }
+    const response = await fetch(
+      `${base}/generate/${generationId}/status`,
+      { signal: AbortSignal.timeout(10_000) },
+    );
+    const body = (await response.json()) as {
+      status?: string;
+      error?: string;
+      detail?: string;
+    };
+    if (!response.ok) {
+      throw new Error(body.error || body.detail || `status HTTP ${response.status}`);
+    }
+    if (body.status === "completed") return;
+    if (body.status === "failed" || body.status === "error") {
+      throw new Error(body.error || body.detail || "Voicebox generation failed");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error("Voicebox generation timed out");
+}
+
+async function synthesizeViaVoicebox(input: {
+  text: string;
+  outFile: string;
+}): Promise<{ durationSeconds: number }> {
+  const profile =
+    process.env.VOICEBOX_PROFILE || process.env.VOICEBOX_PROFILE_ID || "";
+  const speakBody: Record<string, string> = {
+    text: input.text,
+    language: "ja",
+  };
+  if (profile) speakBody.profile = profile;
+
+  const base = voiceboxBaseUrl();
+  if (!base) {
+    throw new Error("VOICEBOX_URL is not set");
+  }
+
+  const speakResponse = await fetch(`${base}/speak`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify(speakBody),
+    signal: AbortSignal.timeout(15_000),
+  });
+  const speakJson = (await speakResponse.json()) as {
+    id?: string;
+    error?: string;
+    detail?: string;
+  };
+  if (!speakResponse.ok || !speakJson.id) {
+    throw new Error(
+      speakJson.error ||
+        speakJson.detail ||
+        `Voicebox /speak HTTP ${speakResponse.status}`,
+    );
+  }
+
+  await waitVoiceboxCompleted(speakJson.id);
+
+  const audioResponse = await fetch(
+    `${base}/audio/${speakJson.id}`,
+    { signal: AbortSignal.timeout(30_000) },
+  );
+  if (!audioResponse.ok) {
+    throw new Error(
+      `Voicebox /audio HTTP ${audioResponse.status} (status was completed but audio was empty)`,
+    );
+  }
+  const bytes = Buffer.from(await audioResponse.arrayBuffer());
+  if (bytes.byteLength < 256) {
+    throw new Error("Voicebox returned an empty audio file");
+  }
+  await writeFile(input.outFile, bytes);
+
+  const durationSeconds = await probeAudioDuration(input.outFile);
+  if (!Number.isFinite(durationSeconds) || durationSeconds < 0.5) {
+    throw new MarketingAgentError("TTS_FAILURE", "TTS produced empty audio.");
+  }
+  return { durationSeconds };
+}
+
 export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
 }): Promise<{ durationSeconds: number }> {
-  const text = input.text.replace(/\s+/g, " ").trim();
+  const text = stripLanguageLabels(input.text.replace(/\s+/g, " ").trim());
 
   if (!text) {
     throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
   }
 
-  const bin = await resolveEspeakBin();
   const voice = detectSpeechVoice(text);
-  const textFile = path.join(path.dirname(input.outFile), "narration.txt");
+  const spoken =
+    voice === "ja" ? await prepareJapaneseTtsInput(text) : text;
+  if (!spoken) {
+    throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
+  }
+  if (voice === "ja" && leftoverKanji(spoken).length > 0) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      "Japanese TTS refused to pass CJK kanji to the speech engine.",
+    );
+  }
 
-  await writeFile(textFile, text, "utf8");
+  const textFile = path.join(path.dirname(input.outFile), "narration.txt");
+  await writeFile(textFile, spoken, "utf8");
+
+  const required = process.env.VOICEBOX_REQUIRED === "1";
+  const voiceboxUrl = voiceboxBaseUrl();
+
+  if (voice === "ja" && voiceboxUrl) {
+    const available = await voiceboxAvailable();
+    if (available) {
+      try {
+        console.log(
+          JSON.stringify({
+            msg: "pr-video-tts",
+            voice,
+            engine: "voicebox",
+            spokenPreview: spoken,
+          }),
+        );
+        return await synthesizeViaVoicebox({
+          text: spoken,
+          outFile: input.outFile,
+        });
+      } catch (error) {
+        if (required) {
+          const message = error instanceof Error ? error.message : "Voicebox failed";
+          throw new MarketingAgentError(
+            "TTS_FAILURE",
+            `Voicebox TTS failed: ${message.slice(0, 180)}`,
+          );
+        }
+      }
+    } else if (required) {
+      throw new MarketingAgentError(
+        "TTS_UNAVAILABLE",
+        `Voicebox is not reachable at ${voiceboxUrl}.`,
+      );
+    }
+  }
+
+  const bin = await resolveEspeakBin();
+
+  console.log(
+    JSON.stringify({
+      msg: "pr-video-tts",
+      voice,
+      engine: "espeak-ng",
+      spokenPreview: spoken,
+    }),
+  );
+
+  const voiceArgs =
+    voice === "ja"
+      ? ["-v", "ja", "-s", "135", "-p", "40"]
+      : ["-v", "en", "-s", "135", "-p", "40"];
 
   try {
     await execFileAsync(
       bin,
-      [
-        "-v",
-        voice,
-        "-s",
-        "135",
-        "-p",
-        "40",
-        "-f",
-        textFile,
-        "-w",
-        input.outFile,
-      ],
+      [...voiceArgs, "-f", textFile, "-w", input.outFile],
       {
         timeout: 40_000,
         maxBuffer: 2 * 1024 * 1024,

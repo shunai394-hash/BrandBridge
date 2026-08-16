@@ -5,6 +5,10 @@ import {
   runFfmpeg,
 } from "@/lib/marketing-agent/pr-video-ffmpeg";
 import type { PrVideoScene } from "@/lib/marketing-agent/pr-script";
+import {
+  directCinematography,
+  needsCinematicUpgrade,
+} from "@/lib/marketing-agent/cinematography";
 import path from "node:path";
 
 export const VIDEO_WIDTH = 1080;
@@ -39,102 +43,168 @@ function cameraToKenBurns(
   frames: number,
 ): KenBurns {
   const n = Math.max(frames, 1);
+  const ease = `min(on/${n},1)`;
 
   switch (camera) {
     case "wide":
       return {
-        z: "1.01",
+        z: "1.04",
         x: "iw/2-(iw/zoom/2)",
         y: "ih/2-(ih/zoom/2)",
       };
-
     case "medium":
       return {
-        z: "min(1+0.0008*on,1.10)",
+        z: `min(1.04+0.0012*on,1.14)`,
         x: "iw/2-(iw/zoom/2)",
-        y: "ih/2-(ih/zoom/2)",
+        y: `ih/2-(ih/zoom/2)+0.02*(ih-ih/zoom)*sin(on/14)`,
       };
-
     case "close":
       return {
-        z: "min(1+0.0018*on,1.22)",
+        z: `min(1.12+0.0016*on,1.24)`,
         x: "iw/2-(iw/zoom/2)",
-        y: "ih/2-(ih/zoom/2)",
+        y: "(ih-ih/zoom)*0.28",
       };
-
     case "zoom_in":
       return {
-        z: "min(1+0.0030*on,1.35)",
+        z: `min(1.02+0.0026*on,1.28)`,
         x: "iw/2-(iw/zoom/2)",
         y: "ih/2-(ih/zoom/2)",
       };
-
     case "zoom_out":
       return {
-        z: "max(1.32-0.0030*on,1.02)",
+        z: `max(1.28-0.0026*on,1.04)`,
         x: "iw/2-(iw/zoom/2)",
         y: "ih/2-(ih/zoom/2)",
       };
-
     case "pan_left":
       return {
-        z: "1.18",
-        x: `(iw-iw/zoom)*(1-min(on/${n},1))`,
+        z: "1.20",
+        x: `(iw-iw/zoom)*(1-${ease})`,
         y: "ih/2-(ih/zoom/2)",
       };
-
     case "pan_right":
       return {
-        z: "1.18",
-        x: `(iw-iw/zoom)*min(on/${n},1)`,
+        z: "1.20",
+        x: `(iw-iw/zoom)*${ease}`,
         y: "ih/2-(ih/zoom/2)",
       };
-
+    case "tilt_up":
+      return {
+        z: "1.18",
+        x: "iw/2-(iw/zoom/2)",
+        y: `(ih-ih/zoom)*(1-${ease})`,
+      };
+    case "tilt_down":
+      return {
+        z: "1.18",
+        x: "iw/2-(iw/zoom/2)",
+        y: `(ih-ih/zoom)*${ease}`,
+      };
+    case "dolly_in":
+      return {
+        z: `min(1.06+0.0034*on,1.38)`,
+        x: "iw/2-(iw/zoom/2)",
+        y: `ih/2-(ih/zoom/2)+0.04*(ih-ih/zoom)*${ease}`,
+      };
+    case "dolly_out":
+      return {
+        z: `max(1.34-0.0032*on,1.06)`,
+        x: "iw/2-(iw/zoom/2)",
+        y: `ih/2-(ih/zoom/2)-0.03*(ih-ih/zoom)*${ease}`,
+      };
     case "tracking":
       return {
-        z: "1.14",
-        x: `(iw-iw/zoom)*min(on/${n},1)`,
-        y: `(ih-ih/zoom)*min(on/${n},1)`,
+        z: "1.16",
+        x: `(iw-iw/zoom)*${ease}`,
+        y: `ih/2-(ih/zoom/2)+0.06*(ih-ih/zoom)*sin(on/16)`,
       };
-
+    case "orbit":
+      return {
+        z: "1.18",
+        x: `iw/2-(iw/zoom/2)+0.16*(iw-iw/zoom)*sin(2*PI*on/${n})`,
+        y: `ih/2-(ih/zoom/2)+0.08*(ih-ih/zoom)*cos(2*PI*on/${n})`,
+      };
+    case "parallax":
+      return {
+        z: `min(1.08+0.0030*on,1.32)`,
+        x: `(iw-iw/zoom)*${ease}`,
+        y: `ih/2-(ih/zoom/2)+0.07*(ih-ih/zoom)*sin(on/18)`,
+      };
+    case "focus_pull":
+      return {
+        z: `min(1.10+0.0022*on,1.30)`,
+        x: "iw/2-(iw/zoom/2)",
+        y: `(ih-ih/zoom)*0.32`,
+      };
     case "over_shoulder":
       return {
-        z: "1.20",
-        x: "iw/2-(iw/zoom/2)",
-        y: "(ih-ih/zoom)*0.35",
+        z: `min(1.16+0.0014*on,1.26)`,
+        x: `(iw-iw/zoom)*0.22`,
+        y: "(ih-ih/zoom)*0.38",
       };
-
+    case "drift":
+      return {
+        z: "1.14",
+        x: `iw/2-(iw/zoom/2)+0.05*(iw-iw/zoom)*sin(on/13)`,
+        y: `ih/2-(ih/zoom/2)+0.04*(ih-ih/zoom)*cos(on/17)`,
+      };
     default:
       return {
-        z: "1.08",
+        z: "1.10",
         x: "iw/2-(iw/zoom/2)",
         y: "ih/2-(ih/zoom/2)",
       };
   }
 }
 
+function extraSceneFilters(
+  camera: PrVideoScene["camera"],
+  frames: number,
+): string[] {
+  if (camera === "orbit") {
+    return [`rotate=0.018*sin(2*PI*n/${Math.max(frames, 1)}):ow=iw:oh=ih:c=black`];
+  }
+  if (camera === "drift") {
+    return [`rotate=0.01*sin(2*PI*n/${Math.max(frames, 1)}):ow=iw:oh=ih:c=black`];
+  }
+  return [];
+}
+
 function transitionToXfade(
   transition: PrVideoScene["transition"],
+  previousCamera?: PrVideoScene["camera"],
 ): string {
   switch (transition) {
     case "fade":
       return "fade";
-
     case "dissolve":
       return "dissolve";
-
     case "slide_left":
       return "slideleft";
-
     case "slide_right":
       return "slideright";
-
     case "wipe":
       return "wipeleft";
-
     case "zoom":
       return "zoomin";
-
+    case "motion_blur":
+      return "hblur";
+    case "match_cut":
+      return "fade";
+    case "continue":
+      if (previousCamera === "pan_right" || previousCamera === "tracking") {
+        return "slideright";
+      }
+      if (previousCamera === "pan_left") {
+        return "slideleft";
+      }
+      if (previousCamera === "tilt_up") {
+        return "slideup";
+      }
+      if (previousCamera === "tilt_down") {
+        return "slidedown";
+      }
+      return "dissolve";
     case "cut":
     default:
       return "fade";
@@ -144,10 +214,12 @@ function transitionToXfade(
 function transitionDuration(
   transition: PrVideoScene["transition"],
 ): number {
-  if (transition === "cut") {
-    return 0.01;
+  if (transition === "cut" || transition === "match_cut") {
+    return 0.04;
   }
-
+  if (transition === "motion_blur") {
+    return 0.28;
+  }
   return 0.45;
 }
 
@@ -196,6 +268,7 @@ async function buildTransitionVideo(
       continue;
     }
 
+    const previous = scenes[i - 1];
     const duration =
       transitionDuration(
         scene.transition,
@@ -204,6 +277,7 @@ async function buildTransitionVideo(
     const transition =
       transitionToXfade(
         scene.transition,
+        previous?.camera,
       );
 
     const nextLabel =
@@ -282,15 +356,19 @@ export async function renderPrVideoMp4(input: {
     );
   }
 
+  const directedScenes = needsCinematicUpgrade(input.scenes)
+    ? directCinematography(input.scenes, input.outFile)
+    : input.scenes;
+
   const sceneFiles: string[] = [];
 
   for (
     let i = 0;
-    i < input.scenes.length;
+    i < directedScenes.length;
     i += 1
   ) {
     const scene =
-      input.scenes[i];
+      directedScenes[i];
 
     if (!scene) {
       continue;
@@ -335,6 +413,7 @@ export async function renderPrVideoMp4(input: {
       `scale=${VIDEO_WIDTH}:${VIDEO_HEIGHT}:force_original_aspect_ratio=increase`,
       `crop=${VIDEO_WIDTH}:${VIDEO_HEIGHT}`,
       `zoompan=z='${kb.z}':x='${kb.x}':y='${kb.y}':d=1:s=${VIDEO_WIDTH}x${VIDEO_HEIGHT}:fps=${VIDEO_FPS}`,
+      ...extraSceneFilters(scene.camera, frames),
       "format=yuv420p",
     ].join(",");
 
@@ -385,7 +464,7 @@ export async function renderPrVideoMp4(input: {
 
   await buildTransitionVideo(
     sceneFiles,
-    input.scenes,
+    directedScenes,
     transitionedFile,
   );
 

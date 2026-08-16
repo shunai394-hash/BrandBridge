@@ -3,6 +3,7 @@ import {
   CONTENT_OPPORTUNITIES_TASK,
   GEO_TASK,
   INTERNAL_LINKS_TASK,
+  JA_PARTNER_PR_TASK,
   SITE_ANALYSIS_TASK,
   SOCIAL_TASK,
   systemPrompt,
@@ -206,7 +207,9 @@ export async function proposeInternalLinksWithAi(input: {
 
 export async function generateSocialWithAi(input: {
   title: string;
-  slug: string | null;
+  canonicalUrl: string;
+  siteOrigin: string;
+  pagePath: string;
   excerpt: string;
   metaDescription: string | null;
 }): Promise<Record<string, unknown>> {
@@ -215,10 +218,47 @@ export async function generateSocialWithAi(input: {
       { role: "system", content: systemPrompt(SOCIAL_TASK) },
       {
         role: "user",
-        content: JSON.stringify(input),
+        content: JSON.stringify({
+          title: input.title,
+          canonicalUrl: input.canonicalUrl,
+          siteOrigin: input.siteOrigin,
+          pagePath: input.pagePath,
+          excerpt: input.excerpt,
+          metaDescription: input.metaDescription,
+          allowedUrls: [input.canonicalUrl],
+        }),
       },
     ],
     { temperature: 0.65, maxTokens: 2500 },
+  );
+}
+
+export async function generateJapanesePartnerPrWithAi(input: {
+  title: string;
+  canonicalUrl: string;
+  siteOrigin: string;
+  pagePath: string;
+  excerpt: string;
+}): Promise<Record<string, unknown>> {
+  return completeJson(
+    [
+      { role: "system", content: systemPrompt(JA_PARTNER_PR_TASK) },
+      {
+        role: "user",
+        content: JSON.stringify({
+          title: input.title,
+          canonicalUrl: input.canonicalUrl,
+          siteOrigin: input.siteOrigin,
+          pagePath: input.pagePath,
+          excerpt: input.excerpt,
+          allowedUrls: [input.canonicalUrl],
+          language: "ja",
+          audience:
+            "日本のEC事業者・卸売業者・小売事業者・バイヤー・海外商品の仕入れに関心がある事業者",
+        }),
+      },
+    ],
+    { temperature: 0.65, maxTokens: 2200 },
   );
 }
 

@@ -7,6 +7,7 @@ import type { Case } from "@/lib/types";
 import { completeJson, MarketingAgentError } from "@/lib/marketing-agent/ai";
 import { asRecord } from "@/lib/marketing-agent/json";
 import { PR_VIDEO_SCRIPT_TASK, systemPrompt } from "@/lib/marketing-agent/prompts";
+import { directCinematography } from "@/lib/marketing-agent/cinematography";
 
 export type PrVideoCamera =
   | "wide"
@@ -16,8 +17,16 @@ export type PrVideoCamera =
   | "zoom_out"
   | "pan_left"
   | "pan_right"
+  | "tilt_up"
+  | "tilt_down"
+  | "dolly_in"
+  | "dolly_out"
   | "tracking"
-  | "over_shoulder";
+  | "orbit"
+  | "parallax"
+  | "focus_pull"
+  | "over_shoulder"
+  | "drift";
 
 export type PrVideoTransition =
   | "cut"
@@ -26,7 +35,10 @@ export type PrVideoTransition =
   | "slide_left"
   | "slide_right"
   | "wipe"
-  | "zoom";
+  | "zoom"
+  | "match_cut"
+  | "motion_blur"
+  | "continue";
 export type PrVideoScene = {
   sceneNumber: number;
   durationSeconds: number;
@@ -127,8 +139,16 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     "zoom_out",
     "pan_left",
     "pan_right",
+    "tilt_up",
+    "tilt_down",
+    "dolly_in",
+    "dolly_out",
     "tracking",
+    "orbit",
+    "parallax",
+    "focus_pull",
     "over_shoulder",
+    "drift",
   ];
 
   const allowedTransitions: PrVideoTransition[] = [
@@ -139,10 +159,19 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     "slide_right",
     "wipe",
     "zoom",
+    "match_cut",
+    "motion_blur",
+    "continue",
   ];
 
-  const camera = cameraValue as PrVideoCamera | null;
-  const transition = transitionValue as PrVideoTransition | null;
+  const cameraKey = (cameraValue ?? "").toLowerCase().replace(/[\s-]+/g, "_");
+  const transitionKey = (transitionValue ?? "").toLowerCase().replace(/[\s-]+/g, "_");
+  const camera = allowedCameras.includes(cameraKey as PrVideoCamera)
+    ? (cameraKey as PrVideoCamera)
+    : "medium";
+  const transition = allowedTransitions.includes(transitionKey as PrVideoTransition)
+    ? (transitionKey as PrVideoTransition)
+    : "cut";
 
   if (
     !durationSeconds ||
@@ -150,11 +179,7 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     !character ||
     !action ||
     !visual ||
-    !narrationText ||
-    !camera ||
-    !allowedCameras.includes(camera) ||
-    !transition ||
-    !allowedTransitions.includes(transition)
+    !narrationText
   ) {
     return null;
   }
@@ -222,7 +247,13 @@ export async function generatePrVideoScript(
       "AI returned invalid JSON. Please try again.",
     );
   }
-  return script;
+  return {
+    ...script,
+    scenes: directCinematography(
+      script.scenes,
+      `${facts.productName ?? ""}|${facts.category ?? ""}|${Date.now()}`,
+    ),
+  };
 }
 
 

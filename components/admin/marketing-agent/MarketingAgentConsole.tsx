@@ -6,6 +6,7 @@ import {
   discoverOpportunitiesAction,
   fetchSearchConsoleAction,
   generateArticleAction,
+  generateJapanesePartnerPrAction,
   generateSocialAction,
   proposeGeoAction,
   proposeInternalLinksAction,
@@ -24,6 +25,7 @@ import type {
   MarketingCompetitorGap,
   MarketingContentDraft,
   MarketingContentIdea,
+  MarketingPublishedPage,
   MarketingRecommendation,
 } from "@/lib/marketing-agent/types";
 import { asRecord, asString } from "@/lib/marketing-agent/json";
@@ -43,6 +45,7 @@ type MarketingAgentConsoleProps = {
   recommendations: MarketingRecommendation[];
   competitors: MarketingCompetitor[];
   gaps: MarketingCompetitorGap[];
+  publishedPages: MarketingPublishedPage[];
 };
 
 function formatDate(iso: string | null): string {
@@ -163,6 +166,7 @@ export function MarketingAgentConsole({
   recommendations,
   competitors,
   gaps,
+  publishedPages,
 }: MarketingAgentConsoleProps) {
   const gsc = overview.connections.searchConsole;
   const ai = overview.connections.ai;
@@ -178,7 +182,18 @@ export function MarketingAgentConsole({
     (item) => item.category === "internal_link",
   );
   const socialRecs = recommendations.filter((item) => item.category === "social");
+  const enSocialRecs = socialRecs.filter(
+    (item) => asString(item.data.kind) !== "ja_partner_pr",
+  );
+  const jaPrRecs = socialRecs.filter(
+    (item) => asString(item.data.kind) === "ja_partner_pr",
+  );
   const proposedIdeas = ideas.filter((idea) => idea.status === "proposed");
+  const jaPublishedPages = publishedPages.filter((page) => page.language === "ja");
+  const defaultJaPage =
+    jaPublishedPages.find((page) => page.path === "/for-partners")?.path ??
+    jaPublishedPages[0]?.path ??
+    "";
   const latestGsc = runs.find((run) => run.runType === "search_console");
   const gscResult = latestGsc ? asRecord(latestGsc.result) : {};
   const gscRows = Array.isArray(gscResult.rows) ? gscResult.rows : [];
@@ -220,9 +235,15 @@ export function MarketingAgentConsole({
         />
         <Card
           href="#drafts"
+          label="公開ページ"
+          value={String(overview.publishedPageCount)}
+          hint="サイトに実在するURLのみ SNS 対象"
+        />
+        <Card
+          href="#drafts"
           label="Draft articles"
           value={String(overview.draftCount)}
-          hint="未公開ドラフト（自動公開なし）"
+          hint="未公開ドラフト（SNS生成不可）"
         />
         <Card
           href="#seo"
@@ -533,7 +554,7 @@ export function MarketingAgentConsole({
       <Section
         id="drafts"
         title="4. Article Drafts"
-        description="選択した記事案から英語ドラフトを生成します。DB に draft として保存し、サイトへは公開しません。"
+        description="選択した記事案から英語ドラフトを生成します。DB に draft として保存するだけで、サイトへは公開しません。未公開ドラフトから SNS 投稿は作れません。"
       >
         <ActionForm
           action={generateArticleAction}
@@ -572,6 +593,7 @@ export function MarketingAgentConsole({
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <div className="mb-1 flex flex-wrap items-center gap-2">
+                      <StatusBadge label="未公開ドラフト" tone="amber" />
                       <StatusBadge label={draft.status} tone="navy" />
                       <StatusBadge label={draft.language} />
                     </div>
@@ -583,7 +605,8 @@ export function MarketingAgentConsole({
                       {draft.title}
                     </Link>
                     <p className="mt-1 text-xs text-muted">
-                      /{draft.slug ?? ""} · {formatDate(draft.createdAt)}
+                      公開URLがありません · 提案slug: {draft.slug || "—"} ·{" "}
+                      {formatDate(draft.createdAt)}
                     </p>
                   </div>
                 </div>
@@ -711,48 +734,46 @@ export function MarketingAgentConsole({
       <Section
         id="social"
         title="7. Social Content"
-        description="LinkedIn / X / Substack / Reddit 向け英語投稿案。媒体ごとに文面を分けます。自動投稿はしません。"
+        description="生成のたびに AI が海外ブランド向けの新しいテーマを決め、LinkedIn / X / Substack / Reddit 向けに書き分けます。リンクは公式の公開URLのみ。自動投稿はありません。"
       >
-        <ActionForm
+        <VoidActionForm
           action={generateSocialAction}
           label="SNS投稿を生成"
-          pendingLabel="生成中…"
-        >
-          <label className="block text-sm text-muted">
-            ドラフト
-            <select
-              name="draftId"
-              className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
-              defaultValue={drafts[0]?.id ?? ""}
-            >
-              {drafts.length === 0 ? (
-                <option value="">先に記事ドラフトを生成してください</option>
-              ) : (
-                drafts.map((draft) => (
-                  <option key={draft.id} value={draft.id}>
-                    {draft.title}
-                  </option>
-                ))
-              )}
-            </select>
-          </label>
-        </ActionForm>
-        {socialRecs.length === 0 ? (
+          pendingLabel="テーマ選定・生成中…"
+        />
+        {enSocialRecs.length === 0 ? (
           <p className="mt-4 text-sm text-muted">SNS 案はまだありません。</p>
         ) : (
           <ul className="mt-6 space-y-4">
-            {socialRecs.slice(0, 8).map((item) => {
+            {enSocialRecs.slice(0, 8).map((item) => {
               const posts = asRecord(asRecord(item.data).posts);
               const linkedin = asRecord(posts.linkedin);
               const substack = asRecord(posts.substack);
               const reddit = asRecord(posts.reddit);
               const tweets = Array.isArray(posts.x) ? posts.x : [];
+              const publishedUrl =
+                asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
+              const theme = asString(item.data.theme);
+              const angle = asString(item.data.angle);
               return (
                 <li
                   key={item.id}
                   className="space-y-3 rounded-lg border border-border bg-surface p-4"
                 >
                   <p className="font-medium text-navy">{item.title}</p>
+                  {angle ? (
+                    <p className="text-sm text-muted">切り口: {angle}</p>
+                  ) : null}
+                  {theme && !item.title.includes(theme) ? (
+                    <p className="text-sm text-muted">{theme}</p>
+                  ) : null}
+                  {publishedUrl ? (
+                    <p className="break-all font-mono text-xs text-muted">
+                      公開URL: {publishedUrl}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-red-700">公開URLがありません</p>
+                  )}
                   <SocialBlock label="LinkedIn" text={asString(linkedin.text)} />
                   {tweets.map((tweet, index) => (
                     <SocialBlock
@@ -777,8 +798,77 @@ export function MarketingAgentConsole({
       </Section>
 
       <Section
+        id="ja-pr"
+        title="8. 日本語PR（販売パートナー向け）"
+        description="日本のEC・卸・小売・バイヤー向けの LinkedIn / X / Facebook 投稿案。海外ブランドの商品を日本で販売したい事業者を集客します。リンクは日本語の公開ページのみ。自動投稿はありません。"
+      >
+        {jaPublishedPages.length === 0 ? (
+          <p className="text-sm text-red-700">公開URLがありません</p>
+        ) : (
+          <ActionForm
+            action={generateJapanesePartnerPrAction}
+            label="日本語PRを生成"
+            pendingLabel="生成中…"
+          >
+            <label className="block text-sm text-muted">
+              公開ページ
+              <select
+                name="pagePath"
+                className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
+                defaultValue={defaultJaPage}
+              >
+                {jaPublishedPages.map((page) => (
+                  <option key={page.path} value={page.path}>
+                    {page.label} — {page.url}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </ActionForm>
+        )}
+        {jaPrRecs.length === 0 ? (
+          <p className="mt-4 text-sm text-muted">日本語PR案はまだありません。</p>
+        ) : (
+          <ul className="mt-6 space-y-4">
+            {jaPrRecs.slice(0, 8).map((item) => {
+              const posts = asRecord(asRecord(item.data).posts);
+              const linkedin = asRecord(posts.linkedin);
+              const facebook = asRecord(posts.facebook);
+              const tweets = Array.isArray(posts.x) ? posts.x : [];
+              const publishedUrl =
+                asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
+              return (
+                <li
+                  key={item.id}
+                  className="space-y-3 rounded-lg border border-border bg-surface p-4"
+                >
+                  <p className="font-medium text-navy">{item.title}</p>
+                  {publishedUrl ? (
+                    <p className="break-all font-mono text-xs text-muted">
+                      公開URL: {publishedUrl}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-red-700">公開URLがありません</p>
+                  )}
+                  <SocialBlock label="LinkedIn" text={asString(linkedin.text)} />
+                  {tweets.map((tweet, index) => (
+                    <SocialBlock
+                      key={index}
+                      label={`X ${index + 1}`}
+                      text={asString(asRecord(tweet).text)}
+                    />
+                  ))}
+                  <SocialBlock label="Facebook" text={asString(facebook.text)} />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Section>
+
+      <Section
         id="competitors"
-        title="8. Competitor Analysis"
+        title="9. Competitor Analysis"
         description="公開情報のみ。自動DM・自動メール・自動接続はしません。Cookie は BrandBridge に保存しません。"
       >
         <div className="grid gap-6 lg:grid-cols-2">

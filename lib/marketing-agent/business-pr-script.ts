@@ -7,6 +7,7 @@ import {
   BUSINESS_PR_VIDEO_SCRIPT_TASK,
   systemPrompt,
 } from "@/lib/marketing-agent/prompts";
+import { directCinematography } from "@/lib/marketing-agent/cinematography";
 import {
   normalizePrVideoScript,
   type PrVideoScene,
@@ -148,7 +149,13 @@ export async function generateBusinessPrVideoScript(
       lastError = "ナレーションが自然な日本語ではありません。もう一度生成してください。";
       continue;
     }
-    return script;
+    return {
+      ...script,
+      scenes: directCinematography(
+        script.scenes,
+        `${brief.companyName}|${brief.mood ?? ""}|${brief.imageHints?.join(",") ?? ""}|${Date.now()}`,
+      ),
+    };
   }
 
   throw new MarketingAgentError("INVALID_AI_RESPONSE", lastError);
@@ -220,7 +227,7 @@ export function fallbackBusinessPrScript(brief: BusinessPrBrief): PrVideoScript 
   return {
     title: `${brief.companyName}の事業紹介`,
     hook: "日本市場に挑戦したい海外ブランドへ。",
-    scenes,
+    scenes: directCinematography(scenes, `${brief.companyName}|${brief.businessDescription}|${Date.now()}`),
     totalDurationSeconds: 30,
     cta: "日本市場への進出を考えているなら、BrandBridgeへ。",
   };

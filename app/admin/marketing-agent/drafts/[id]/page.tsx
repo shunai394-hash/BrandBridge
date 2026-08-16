@@ -44,14 +44,18 @@ export default async function MarketingAgentDraftPage({ params }: PageProps) {
         </Link>
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-2">
+        <StatusBadge label="未公開ドラフト" tone="amber" />
         <StatusBadge label={draft.status} tone="navy" />
         <StatusBadge label={draft.language} />
-        <span className="text-xs text-muted">自動公開なし</span>
+        <span className="text-xs text-muted">サイト未公開 · 自動公開なし · SNS生成不可</span>
       </div>
       <h1 className="mt-3 font-[family-name:var(--font-shippori)] text-3xl text-navy">
         {draft.title}
       </h1>
-      <p className="mt-2 font-mono text-sm text-muted">/{draft.slug}</p>
+      <p className="mt-2 text-sm text-red-700">公開URLがありません</p>
+      <p className="mt-1 font-mono text-xs text-muted">
+        提案slug（公開URLではありません）: {draft.slug || "—"}
+      </p>
 
       <dl className="mt-6 grid gap-4 rounded-lg border border-border bg-surface p-5 text-sm md:grid-cols-2">
         <div>

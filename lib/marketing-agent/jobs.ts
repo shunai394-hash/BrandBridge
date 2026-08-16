@@ -2,7 +2,7 @@ import { MarketingAgentError } from "@/lib/marketing-agent/ai";
 import {
   analyzeSiteWithAi,
   discoverOpportunitiesWithAi,
-  generateSocialWithAi,
+  generateJapanesePartnerPrWithAi,
   mapRecommendationItems,
   parseIdeaRecords,
   parseInternalLinks,
@@ -25,13 +25,27 @@ import {
   insertRecommendations,
   insertRun,
   listCompetitorGaps,
+  listRecommendations,
   updateRun,
 } from "@/lib/marketing-agent/store";
 import type {
   AnalyzedPage,
   SearchConsoleResult,
 } from "@/lib/marketing-agent/types";
-import { asRecord } from "@/lib/marketing-agent/json";
+import { asRecord, asString } from "@/lib/marketing-agent/json";
+import { getSiteUrl } from "@/lib/site";
+import {
+  PUBLIC_URL_MISSING,
+  assertPublishedUrlLive,
+  listSocialTargetPages,
+  resolvePublishedPageOrThrow,
+  sanitizeSocialPayload,
+} from "@/lib/marketing-agent/published-urls";
+import {
+  buildVerifiedSocialPack,
+  pickSocialTheme,
+  type PastSocialTheme,
+} from "@/lib/marketing-agent/social-pack";
 
 function errorMessage(error: unknown): string {
   if (error instanceof MarketingAgentError) return error.message;
@@ -353,34 +367,135 @@ export async function jobProposeInternalLinks() {
   }
 }
 
-export async function jobGenerateSocial(draftId: string) {
-  const draft = await getDraftById(draftId);
-  if (!draft) throw new Error("ドラフトが見つかりません。");
+export async function jobGenerateSocial(input?: {
+  pagePath?: string;
+  draftId?: string;
+}) {
+  const origin = getSiteUrl();
+  const catalog = listSocialTargetPages("en");
+  if (catalog.length === 0) {
+    throw new Error(PUBLIC_URL_MISSING);
+  }
+
+  const pastRecs = (await listRecommendations(80).catch(() => [])).filter(
+    (item) =>
+      item.category === "social" &&
+      asString(item.data.kind) !== "ja_partner_pr",
+  );
+  const pastThemes: PastSocialTheme[] = pastRecs.map((item) => ({
+    theme: asString(item.data.theme) || item.title,
+    angle: asString(item.data.angle) || undefined,
+  }));
+
+  const theme = await pickSocialTheme({
+    pastThemes,
+    catalog,
+    siteOrigin: origin,
+  });
+  if (input?.pagePath) {
+    const hinted = resolvePublishedPageOrThrow(input.pagePath);
+    theme.relatedPagePath = hinted.path;
+  }
 
   const run = await insertRun({
     runType: "social",
-    input: { draftId },
+    input: {
+      theme: theme.theme,
+      angle: theme.angle,
+      autoPost: false,
+    },
   });
 
   try {
-    const posts = await generateSocialWithAi({
-      title: draft.title,
-      slug: draft.slug,
-      excerpt: draft.content.slice(0, 2000),
-      metaDescription: draft.metaDescription,
-    });
+    const pack = await buildVerifiedSocialPack({ theme });
     const saved = await insertRecommendations([
       {
         category: "social",
-        title: `Social pack: ${draft.title}`,
-        description: "LinkedIn / X / Substack / Reddit 投稿案（自動投稿なし）",
+        title: `Social: ${pack.theme.theme}`,
+        description: `${pack.theme.angle}\n公開URL: ${pack.page.url}`,
         priority: "medium",
-        data: { draftId: draft.id, posts },
+        data: {
+          kind: "en_social",
+          theme: pack.theme.theme,
+          angle: pack.theme.angle,
+          whyNow: pack.theme.whyNow,
+          pagePath: pack.page.path,
+          publishedUrl: pack.page.url,
+          posts: pack.posts,
+          autoPost: false,
+        },
       },
     ]);
     await updateRun(run.id, {
       status: "succeeded",
-      result: { posts, recommendationIds: saved.map((item) => item.id) },
+      result: {
+        theme: pack.theme,
+        posts: pack.posts,
+        publishedUrl: pack.page.url,
+        recommendationIds: saved.map((item) => item.id),
+        autoPost: false,
+      },
+    });
+    return { runId: run.id };
+  } catch (error) {
+    await updateRun(run.id, {
+      status: "failed",
+      result: { error: errorMessage(error) },
+    });
+    throw error;
+  }
+}
+
+export async function jobGenerateJapanesePartnerPr(pagePath: string) {
+  const page = resolvePublishedPageOrThrow(pagePath);
+  if (page.language !== "ja") {
+    throw new Error(PUBLIC_URL_MISSING);
+  }
+  const live = await assertPublishedUrlLive(page.url);
+  const origin = getSiteUrl();
+
+  const run = await insertRun({
+    runType: "social",
+    input: {
+      kind: "ja_partner_pr",
+      pagePath: page.path,
+      canonicalUrl: page.url,
+      autoPost: false,
+    },
+  });
+
+  try {
+    const rawPosts = await generateJapanesePartnerPrWithAi({
+      title: live.title || live.h1 || page.label,
+      canonicalUrl: page.url,
+      siteOrigin: origin,
+      pagePath: page.path,
+      excerpt: live.description || page.label,
+    });
+    const posts = sanitizeSocialPayload(rawPosts, page.url, origin);
+    const saved = await insertRecommendations([
+      {
+        category: "social",
+        title: `日本語PR: ${live.title || page.label}`,
+        description: `LinkedIn / X / Facebook 投稿案（販売パートナー向け・自動投稿なし）\n公開URL: ${page.url}`,
+        priority: "medium",
+        data: {
+          kind: "ja_partner_pr",
+          pagePath: page.path,
+          publishedUrl: page.url,
+          posts,
+          autoPost: false,
+        },
+      },
+    ]);
+    await updateRun(run.id, {
+      status: "succeeded",
+      result: {
+        posts,
+        publishedUrl: page.url,
+        recommendationIds: saved.map((item) => item.id),
+        autoPost: false,
+      },
     });
     return { runId: run.id };
   } catch (error) {

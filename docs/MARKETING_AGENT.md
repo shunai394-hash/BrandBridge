@@ -67,11 +67,15 @@ Vercel: Project → Settings → Environment Variables に Production / Preview 
 1. **分析開始** … 公開ページを取得し、SEO 分析（GSC があれば併用）
 2. **検索パフォーマンスを取得** … GSC のみ
 3. **コンテンツ機会を分析** … 今書くべき英語記事案
-4. **記事を生成** … 選択した案からドラフト（非公開）
-5. **GEO向け提案** / **内部リンクを提案** / **SNS投稿を生成**
-6. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
-7. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
-8. 旧・商品PRコンポーネント（`PrScriptGenerator`）はファイルとして残るが、`/admin/marketing-agent` からは呼ばない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
+4. **記事を生成** … 選択した案からドラフト（非公開。公開URLにはならない）
+5. **GEO向け提案** / **内部リンクを提案**
+6. **SNS投稿を生成** … 毎回 AI が新しいテーマを決める（過去テーマと重複しない）。LinkedIn / X×2 / Substack / Reddit を媒体別に作成。URL は公式公開ページのみ。自動投稿なし
+7. **日本語PR** … 日本の販売パートナー向け LinkedIn / X / Facebook。公開URLのみ。自動投稿なし
+8. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
+9. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
+10. 旧・商品PRコンポーネント（`PrScriptGenerator`）はファイルとして残るが、`/admin/marketing-agent` からは呼ばない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
+
+記事URL・SNSリンクのオリジンは `NEXT_PUBLIC_SITE_URL`（`lib/site.ts` の `getSiteUrl()`）のみ。`brandbridge.co` などの推測ドメインは使いません。
 
 
 ## 5. AgentReach（ローカルリサーチ基盤）

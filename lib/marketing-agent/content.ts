@@ -3,6 +3,7 @@ import { ARTICLE_DRAFT_TASK, systemPrompt } from "@/lib/marketing-agent/prompts"
 import { asRecord, asString } from "@/lib/marketing-agent/json";
 import type { MarketingContentIdea } from "@/lib/marketing-agent/types";
 import { listPublicCatalogPages } from "@/lib/marketing-agent/site-catalog";
+import { getSiteUrl } from "@/lib/site";
 
 export async function generateArticleDraftWithAi(input: {
   idea: MarketingContentIdea;
@@ -41,7 +42,9 @@ export async function generateArticleDraftWithAi(input: {
             reasoning: input.idea.reasoning,
           },
           internalLinkCatalog: catalog,
+          officialOrigin: getSiteUrl(),
           language: "en",
+          note: "slug is editorial only and is not a live public URL",
         }),
       },
     ],

@@ -36,6 +36,7 @@ export default async function AdminMarketingAgentPage() {
         recommendations={data.recommendations}
         competitors={data.competitors}
         gaps={data.gaps}
+        publishedPages={data.publishedPages}
       />
     </div>
   );

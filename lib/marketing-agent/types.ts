@@ -174,6 +174,13 @@ export type MarketingAgentConnections = {
   agentReach: AgentReachConnectionStatus;
 };
 
+export type MarketingPublishedPage = {
+  path: string;
+  label: string;
+  language: "ja" | "en";
+  url: string;
+};
+
 export type MarketingAgentOverview = {
   connections: MarketingAgentConnections;
   lastAnalysisAt: string | null;
@@ -184,6 +191,7 @@ export type MarketingAgentOverview = {
   geoRecommendationCount: number;
   competitorCount: number;
   gapCount: number;
+  publishedPageCount: number;
   migrationError?: string;
 };
 

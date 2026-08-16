@@ -20,6 +20,7 @@ import {
   jobDiscoverOpportunities,
   jobFetchSearchConsole,
   jobGenerateArticle,
+  jobGenerateJapanesePartnerPr,
   jobGenerateSocial,
   jobMarketResearch,
   jobProposeGeo,
@@ -146,13 +147,26 @@ export async function proposeInternalLinksAction(): Promise<{ error?: string }> 
 }
 
 export async function generateSocialAction(
+  _formData?: FormData,
+): Promise<{ error?: string }> {
+  try {
+    await gateAdmin();
+    await jobGenerateSocial();
+    refresh();
+    return {};
+  } catch (error) {
+    return fail(error);
+  }
+}
+
+export async function generateJapanesePartnerPrAction(
   formData: FormData,
 ): Promise<{ error?: string }> {
   try {
     await gateAdmin();
-    const draftId = String(formData.get("draftId") ?? "").trim();
-    if (!draftId) return { error: "ドラフトを選択してください。" };
-    await jobGenerateSocial(draftId);
+    const pagePath = String(formData.get("pagePath") ?? "").trim();
+    if (!pagePath) return { error: "公開URLがありません" };
+    await jobGenerateJapanesePartnerPr(pagePath);
     refresh();
     return {};
   } catch (error) {

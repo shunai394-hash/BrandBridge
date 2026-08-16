@@ -21,6 +21,8 @@ import { asRecord } from "@/lib/marketing-agent/json";
 import { getAiConnection } from "@/lib/marketing-agent/ai";
 import { getSearchConsoleConnection } from "@/lib/marketing-agent/search-console";
 import { getAgentReachConnection } from "@/lib/marketing-agent/research";
+import { listSocialTargetPages } from "@/lib/marketing-agent/published-urls";
+import type { MarketingPublishedPage } from "@/lib/marketing-agent/types";
 
 type RunRow = {
   id: string;
@@ -413,12 +415,21 @@ export async function loadMarketingAgentPageData(): Promise<{
   recommendations: MarketingRecommendation[];
   competitors: MarketingCompetitor[];
   gaps: MarketingCompetitorGap[];
+  publishedPages: MarketingPublishedPage[];
 }> {
   const connections = {
     ai: getAiConnection(),
     searchConsole: getSearchConsoleConnection(),
     agentReach: getAgentReachConnection(),
   };
+  const publishedPages: MarketingPublishedPage[] = listSocialTargetPages().map(
+    (page) => ({
+      path: page.path,
+      label: page.label,
+      language: page.language,
+      url: page.url,
+    }),
+  );
 
   try {
     const [runs, ideas, drafts, recommendations, lastAnalysis, competitors, gaps] =
@@ -451,6 +462,7 @@ export async function loadMarketingAgentPageData(): Promise<{
         competitorCount: competitors.filter((item) => item.status !== "dismissed")
           .length,
         gapCount: gaps.filter((item) => item.status === "open").length,
+        publishedPageCount: publishedPages.length,
       },
       runs,
       ideas,
@@ -458,6 +470,7 @@ export async function loadMarketingAgentPageData(): Promise<{
       recommendations,
       competitors,
       gaps,
+      publishedPages,
     };
   } catch (error) {
     const err = error as { message?: string; code?: string };
@@ -476,6 +489,7 @@ export async function loadMarketingAgentPageData(): Promise<{
         geoRecommendationCount: 0,
         competitorCount: 0,
         gapCount: 0,
+        publishedPageCount: publishedPages.length,
         migrationError,
       },
       runs: [],
@@ -484,6 +498,7 @@ export async function loadMarketingAgentPageData(): Promise<{
       recommendations: [],
       competitors: [],
       gaps: [],
+      publishedPages,
     };
   }
 }

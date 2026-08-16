@@ -79,6 +79,7 @@ Rules:
 - No generic filler. No fake stats or invented interviews.
 - Include a natural BrandBridge path (list brand / Japan opportunities) without aggressive selling.
 - Use clear H2/H3, short paragraphs, bullets, at least one comparison or checklist, and FAQ.
+- The slug is an editorial suggestion only. It is NOT a live public URL. Do not invent domains (never brandbridge.co or any host other than the provided official origin). Internal links must use paths from internalLinkCatalog only.
 Return JSON:
 {
   "title": "",
@@ -132,19 +133,65 @@ Return JSON:
 Return 8 to 15 high-quality links. Prefer EN Japan-market-entry cluster and JA for-makers/for-partners/pricing. No circular spam.
 `.trim();
 
+export const SOCIAL_THEME_TASK = `
+Choose the NEXT social-content theme for BrandBridge. Audience: overseas brand/manufacturer decision-makers considering Japan market entry (founders, export managers, brand owners).
+Rules:
+- Pick a specific, useful theme. Not a generic "doing business in Japan" essay.
+- Use varied angles across: Japan market entry, finding Japanese sales partners/distributors, retail vs wholesale, MOQ and commercial terms, negotiating with Japanese companies, import/logistics realities, category-specific cautions, common mistakes.
+- Do NOT repeat or lightly rephrase any item in pastThemes.
+- Prefer a theme that helps the reader take a practical next step.
+- If a catalog page genuinely supports the theme, set relatedPagePath to that exact path. Otherwise null. Never invent a path or domain.
+Return JSON:
+{
+  "theme": "short specific theme title",
+  "angle": "the unique angle for THIS post, not used recently",
+  "whyNow": "why this helps overseas brands now",
+  "relatedPagePath": "/en/..." 
+}
+relatedPagePath must be copied from catalog.path or be null.
+`.trim();
+
 export const SOCIAL_TASK = `
-Create social/off-platform posts in English promoting a BrandBridge article/topic for overseas brand operators.
-Do NOT reuse the same copy across platforms.
-- LinkedIn: for overseas founders/export managers; professional, insight-led, 120-220 words, 1 CTA.
-- X: 1-2 short posts, information-dense, no hashtag stuffing, max 260 chars each.
-- Substack: newsletter-style, 300-500 words, deepens the article, ends with a soft CTA.
-- Reddit: helpful answer to a realistic community question (r/Entrepreneur, r/smallbusiness, or export-adjacent). No blatant spam; mention BrandBridge once, only if useful.
+Create social/off-platform posts in English for ONE chosen BrandBridge theme, for overseas brand operators.
+Do NOT reuse the same copy across platforms. Do not paraphrase the same paragraph.
+- LinkedIn: B2B, professional, insight-led, 120-220 words, 1 CTA.
+- X: exactly TWO posts. Short, curiosity-led, information-dense, max 260 chars each. Different hooks. No hashtag stuffing.
+- Substack: explanatory newsletter, 300-500 words, deepens the theme, soft CTA at the end.
+- Reddit: discussion/experience-sharing. Helpful first. No blatant promo. Mention BrandBridge at most once, only if useful.
+URL rules (mandatory):
+- The only allowed link is canonicalUrl from the user payload.
+- Use that exact URL. Do not invent, shorten, slugify, or guess URLs.
+- Never output brandbridge.co or any host other than the official origin.
+Return JSON:
+{
+  "linkedin": {"text": ""},
+  "x": [{"text": ""}, {"text": ""}],
+  "substack": {"subject": "", "text": ""},
+  "reddit": {"title": "", "text": ""}
+}
+`.trim();
+
+export const JA_PARTNER_PR_TASK = `
+日本の販売パートナー獲得用の日本語PR投稿を作成する。
+対象読者: 日本のEC事業者、卸売業者、小売事業者、バイヤー、海外商品の仕入れに関心がある事業者。
+目的: 海外ブランドの商品を日本で販売したい事業者を BrandBridge へ集客する。
+切り口の例（そのままコピーせず、媒体向けに自然な日本語にする）:
+- 海外ブランドの商品を日本で販売しませんか？
+- 新しい海外商品を探している販売事業者へ
+媒体:
+- LinkedIn: 法人向け。信頼・取引条件・マッチングの実務。200〜400字。CTAは1つ。
+- X: 1〜2投稿。情報が濃い短文。各140字以内を目安。ハッシュタグの連打は禁止。
+- Facebook: 事業者向け。具体的なメリットをやさしく。200〜350字。
+ルール:
+- 自動投稿しない。管理画面で確認して人が貼る文面。
+- 使えるリンクは user payload の canonicalUrl のみ。タイトルからURLを作らない。
+- brandbridge.co など公式オリジン以外のドメインを出さない。
+- 実績数・提携社数・売上など事実でない数字を捏造しない。
 Return JSON:
 {
   "linkedin": {"text": ""},
   "x": [{"text": ""}],
-  "substack": {"subject": "", "text": ""},
-  "reddit": {"title": "", "text": ""}
+  "facebook": {"text": ""}
 }
 `.trim();
 
@@ -190,6 +237,7 @@ Each scene must contain:
 - camera
 - transition
 
+Choose camera and transition from the allowed lists based on THIS scene's content (city night vs office vs person vs street). Do not use the same camera for every scene.
 Allowed camera styles:
 - wide
 - medium
@@ -198,9 +246,16 @@ Allowed camera styles:
 - zoom_out
 - pan_left
 - pan_right
+- tilt_up
+- tilt_down
+- dolly_in
+- dolly_out
 - tracking
+- orbit
+- parallax
+- focus_pull
 - over_shoulder
-
+- drift
 Allowed transitions:
 - cut
 - fade
@@ -209,6 +264,9 @@ Allowed transitions:
 - slide_right
 - wipe
 - zoom
+- match_cut
+- motion_blur
+- continue
 
 Narration:
 - Natural spoken language.
@@ -242,8 +300,8 @@ Return JSON:
       "location": "",
       "character": "",
       "action": "",
-      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tracking|over_shoulder",
-      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom",
+      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tilt_up|tilt_down|dolly_in|dolly_out|tracking|orbit|parallax|focus_pull|over_shoulder|drift",
+      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom|match_cut|motion_blur|continue",
       "visual": "",
       "narrationText": "",
       "onScreenText": ""
@@ -271,6 +329,7 @@ Language (mandatory):
 - onScreenText must be an empty string.
 
 Each scene needs location, character, action, camera, transition (from the allowed lists), visual, and one short Japanese narration sentence (about 12–28 characters). Total spoken narration about 90–120 characters so TTS fits ~25–35 seconds.
+Camera/transition must match the scene (night city = parallax/drift/tilt; office+person = orbit/focus_pull; street = tracking/pan). Never use the same camera on every scene.
 
 CTA examples to adapt: 「日本市場への進出を考えているなら、BrandBridgeへ。」「詳しくはBrandBridgeをご覧ください。」
 
@@ -285,8 +344,8 @@ Return JSON:
       "location": "場所（日本語）",
       "character": "人物（日本語）",
       "action": "動作（日本語）",
-      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tracking|over_shoulder",
-      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom",
+      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tilt_up|tilt_down|dolly_in|dolly_out|tracking|orbit|parallax|focus_pull|over_shoulder|drift",
+      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom|match_cut|motion_blur|continue",
       "visual": "映像の説明（日本語）",
       "narrationText": "短い日本語ナレーション",
       "onScreenText": ""

@@ -148,6 +148,22 @@ async function japaneseYomi(text: string): Promise<string> {
   return spaceLatinForEspeak(yomi);
 }
 
+/**
+ * Final string written to narration.txt and passed to espeak-ng.
+ * Live worker 00016 writes raw kanji here; espeak then speaks
+ * "Chinese letter" once per unknown CJK character.
+ */
+export async function prepareJapaneseTtsInput(text: string): Promise<string> {
+  const cleaned = stripLanguageLabels(text.replace(/\s+/g, " ").trim());
+  if (!cleaned) return "";
+
+  const yomi = await japaneseYomi(cleaned);
+  return yomi
+    .replace(/[\u4e00-\u9fff]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function voiceboxBaseUrl(): string | null {
   const raw = process.env.VOICEBOX_URL?.trim();
   if (!raw) return null;
@@ -294,7 +310,11 @@ export async function synthesizeNarrationWav(input: {
   }
 
   const bin = await resolveEspeakBin();
-  const spoken = voice === "ja" ? await japaneseYomi(text) : text;
+  const spoken =
+    voice === "ja" ? await prepareJapaneseTtsInput(text) : stripLanguageLabels(text);
+  if (!spoken) {
+    throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
+  }
   const textFile = path.join(path.dirname(input.outFile), "narration.txt");
 
   console.log(
@@ -308,9 +328,11 @@ export async function synthesizeNarrationWav(input: {
 
   await writeFile(textFile, spoken, "utf8");
 
+  // Same espeak-ng invocation as the working Cloud Run image; only the
+  // text file contents differ (kana, no language labels, no leftover kanji).
   const voiceArgs =
     voice === "ja"
-      ? ["-v", "ja", "-s", "120", "-p", "50", "-a", "140"]
+      ? ["-v", "ja", "-s", "135", "-p", "40"]
       : ["-v", "en", "-s", "135", "-p", "40"];
 
   try {

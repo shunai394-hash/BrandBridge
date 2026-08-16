@@ -153,6 +153,14 @@ async function handleRender(req: import("node:http").IncomingMessage) {
       companyName,
       bgmEnabled,
     });
+    console.log(
+      JSON.stringify({
+        msg: "pr-video-worker-render",
+        path: "generateBusinessPrVideoFromUploads",
+        bgmEnabled,
+        durationSeconds: rendered.durationSeconds,
+      }),
+    );
     key = `pr-videos/business/${randomUUID()}.mp4`;
   } else if (caseId && imageUrl) {
     rendered = await generatePrVideoFromRemote({
@@ -224,6 +232,7 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     width: rendered.width,
     height: rendered.height,
     renderMs: Date.now() - started,
+    bgmEnabled,
     stage: "r2" as const,
     status: "completed" as const,
   };

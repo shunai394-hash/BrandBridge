@@ -117,6 +117,15 @@ function spaceLatinForEspeak(text: string): string {
     .trim();
 }
 
+const CJK_IDEOGRAPH = /[\u4e00-\u9fff]/;
+
+function leftoverKanji(text: string): string[] {
+  return Array.from(text).filter((ch) => {
+    const code = ch.codePointAt(0) ?? 0;
+    return code >= 0x4e00 && code <= 0x9fff;
+  });
+}
+
 async function japaneseYomi(text: string): Promise<string> {
   let yomi = "";
 
@@ -149,19 +158,23 @@ async function japaneseYomi(text: string): Promise<string> {
 }
 
 /**
- * Final string written to narration.txt and passed to espeak-ng.
- * Live worker 00016 writes raw kanji here; espeak then speaks
- * "Chinese letter" once per unknown CJK character.
+ * Final string written to narration.txt and passed to espeak-ng / Voicebox.
+ * Kanji is converted via MeCab; leftover CJK (U+4E00-U+9FFF) is a hard failure.
  */
 export async function prepareJapaneseTtsInput(text: string): Promise<string> {
   const cleaned = stripLanguageLabels(text.replace(/\s+/g, " ").trim());
   if (!cleaned) return "";
 
   const yomi = await japaneseYomi(cleaned);
-  return yomi
-    .replace(/[\u4e00-\u9fff]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const leftover = leftoverKanji(yomi);
+  if (leftover.length > 0 || CJK_IDEOGRAPH.test(yomi)) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      `Japanese TTS still contains CJK kanji after MeCab yomi: ${leftover.slice(0, 24).join("")}`,
+    );
+  }
+
+  return yomi;
 }
 
 function voiceboxBaseUrl(): string | null {
@@ -284,6 +297,21 @@ export async function synthesizeNarrationWav(input: {
   }
 
   const voice = detectSpeechVoice(text);
+  const spoken =
+    voice === "ja" ? await prepareJapaneseTtsInput(text) : text;
+  if (!spoken) {
+    throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
+  }
+  if (voice === "ja" && leftoverKanji(spoken).length > 0) {
+    throw new MarketingAgentError(
+      "TTS_FAILURE",
+      "Japanese TTS refused to pass CJK kanji to the speech engine.",
+    );
+  }
+
+  const textFile = path.join(path.dirname(input.outFile), "narration.txt");
+  await writeFile(textFile, spoken, "utf8");
+
   const required = process.env.VOICEBOX_REQUIRED === "1";
   const voiceboxUrl = voiceboxBaseUrl();
 
@@ -291,7 +319,18 @@ export async function synthesizeNarrationWav(input: {
     const available = await voiceboxAvailable();
     if (available) {
       try {
-        return await synthesizeViaVoicebox({ text, outFile: input.outFile });
+        console.log(
+          JSON.stringify({
+            msg: "pr-video-tts",
+            voice,
+            engine: "voicebox",
+            spokenPreview: spoken,
+          }),
+        );
+        return await synthesizeViaVoicebox({
+          text: spoken,
+          outFile: input.outFile,
+        });
       } catch (error) {
         if (required) {
           const message = error instanceof Error ? error.message : "Voicebox failed";
@@ -310,26 +349,16 @@ export async function synthesizeNarrationWav(input: {
   }
 
   const bin = await resolveEspeakBin();
-  const spoken =
-    voice === "ja" ? await prepareJapaneseTtsInput(text) : stripLanguageLabels(text);
-  if (!spoken) {
-    throw new MarketingAgentError("TTS_FAILURE", "Narration text is empty.");
-  }
-  const textFile = path.join(path.dirname(input.outFile), "narration.txt");
 
   console.log(
     JSON.stringify({
       msg: "pr-video-tts",
       voice,
       engine: "espeak-ng",
-      spokenPreview: spoken.slice(0, 160),
+      spokenPreview: spoken,
     }),
   );
 
-  await writeFile(textFile, spoken, "utf8");
-
-  // Same espeak-ng invocation as the working Cloud Run image; only the
-  // text file contents differ (kana, no language labels, no leftover kanji).
   const voiceArgs =
     voice === "ja"
       ? ["-v", "ja", "-s", "135", "-p", "40"]

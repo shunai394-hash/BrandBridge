@@ -13,6 +13,11 @@
   },
 } as const;
 
+/**
+ * Official BrandBridge public origin.
+ * Marketing Agent article URLs and SNS links must be built from this value.
+ * Never invent hosts such as brandbridge.co.
+ */
 export function getSiteUrl(): string {
   const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
   const fallback = process.env.VERCEL_URL
@@ -32,6 +37,30 @@ export function getSiteUrl(): string {
       candidate,
     );
     return "http://localhost:3000";
+  }
+}
+
+export function getSiteHost(): string {
+  return new URL(getSiteUrl()).hostname.replace(/^www\./i, "").toLowerCase();
+}
+
+export function toSiteUrl(path = ""): string {
+  const origin = getSiteUrl();
+  const trimmed = path.trim();
+  if (!trimmed || trimmed === "/") return origin;
+  const withSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return `${origin}${withSlash.replace(/\/+$/, "")}`;
+}
+
+export function isOfficialSiteUrl(value: string, origin = getSiteUrl()): boolean {
+  try {
+    const expected = new URL(origin);
+    const actual = new URL(value);
+    const expectedHost = expected.hostname.replace(/^www\./i, "").toLowerCase();
+    const actualHost = actual.hostname.replace(/^www\./i, "").toLowerCase();
+    return actual.protocol === expected.protocol && actualHost === expectedHost;
+  } catch {
+    return false;
   }
 }
 

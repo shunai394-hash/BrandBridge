@@ -46,6 +46,8 @@ import {
   pickSocialTheme,
   type PastSocialTheme,
 } from "@/lib/marketing-agent/social-pack";
+import { socialInsertsFromPack } from "@/lib/social/from-pack";
+import { insertSocialPosts } from "@/lib/social/store";
 
 function errorMessage(error: unknown): string {
   if (error instanceof MarketingAgentError) return error.message;
@@ -426,6 +428,17 @@ export async function jobGenerateSocial(input?: {
         },
       },
     ]);
+    try {
+      const rows = await socialInsertsFromPack(pack.posts);
+      await insertSocialPosts(
+        rows.map((item) => ({
+          ...item,
+          recommendationId: saved[0]?.id ?? null,
+        })),
+      );
+    } catch (persistError) {
+      console.error("[jobGenerateSocial] social_posts persist", persistError);
+    }
     await updateRun(run.id, {
       status: "succeeded",
       result: {

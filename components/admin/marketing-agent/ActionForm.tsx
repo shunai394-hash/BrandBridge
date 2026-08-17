@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import type { ReactNode } from "react";
 import { SubmitButton } from "@/components/admin/marketing-agent/SubmitButton";
 
-type ActionResult = { error?: string };
+type ActionResult = { error?: string; message?: string };
 
 type ActionFormProps = {
   action: (formData: FormData) => Promise<ActionResult>;
@@ -39,6 +39,9 @@ export function ActionForm({
         </SubmitButton>
         {state.error ? (
           <p className="text-sm text-red-700">{state.error}</p>
+        ) : null}
+        {!state.error && state.message ? (
+          <p className="text-sm text-teal">{state.message}</p>
         ) : null}
       </div>
     </form>

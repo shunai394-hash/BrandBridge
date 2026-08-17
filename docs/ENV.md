@@ -28,7 +28,7 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 
 ### Marketing Agent（任意・管理者のみ）
 
-`/admin/marketing-agent` 用。未設定でも管理画面は壊れません（Search Console未接続 / AI API未設定と表示）。**自動公開・自動投稿はしません。** 詳細は [MARKETING_AGENT.md](./MARKETING_AGENT.md)。
+`/admin/marketing-agent` 用。未設定でも管理画面は壊れません（Search Console未接続 / AI API未設定と表示）。**自動公開・自動投稿はしません。** X は確認後の手動投稿のみ。詳細は [MARKETING_AGENT.md](./MARKETING_AGENT.md)。
 
 | 変数名 | 公開範囲 | 説明 |
 |--------|----------|------|
@@ -47,6 +47,9 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `GOOGLE_SEARCH_CONSOLE_SERVICE_ACCOUNT_JSON` | サーバーのみ | 上記 email/key の代わりに JSON 1本 |
 | `AGENT_REACH_BIN` | サーバーのみ | 任意。ローカル `agent-reach` CLI パス。未設定でも Jina 公開Webは利用 |
 | `AGENT_REACH_DISABLED` | サーバーのみ | `true` で外部リサーチを止める |
+| `X_API_KEY` / `X_API_SECRET` / `X_ACCESS_TOKEN` / `X_ACCESS_TOKEN_SECRET` | サーバーのみ | X OAuth 1.0a。管理画面「Xに投稿」 |
+| `LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET` | サーバーのみ | LinkedIn 個人 OAuth（`w_member_social`）。会社ページは作らない |
+| `LINKEDIN_ACCESS_TOKEN` | サーバーのみ | 任意。個人アクセストークン |
 
 未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
 本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。

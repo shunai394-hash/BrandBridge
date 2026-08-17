@@ -4,7 +4,7 @@ BrandBridge 自身の集客・SEO・GEO・コンテンツ企画を支援する�
 
 - URL: `/admin/marketing-agent`
 - **第4ロールではありません。** `profiles.role` は `maker` / `partner` / `admin` のままです。
-- **自動公開・自動SNS投稿はしません。** 生成物は管理画面で確認し、採用／見送りします。
+- **自動公開はしません。** 生成物は管理画面で確認し、採用／見送りします。X への投稿は管理画面の確認後に手動実行します。自動投稿（`autoPost`）はオフです。
 
 ## 1. Supabase
 
@@ -13,6 +13,7 @@ SQL Editor で次を実行します（既存 migration は変更しません）�
 ```text
 supabase/migrations/052_marketing_agent.sql
 supabase/migrations/053_marketing_competitors.sql
+supabase/migrations/054_social_posts.sql
 ```
 
 作成されるテーブル（RLS: `is_admin()` のみ）:
@@ -23,6 +24,8 @@ supabase/migrations/053_marketing_competitors.sql
 - `marketing_recommendations`
 - `marketing_competitors`
 - `marketing_competitor_gaps`
+- `social_posts`（SNS投稿履歴。Secret は保存しない）
+- `social_oauth_tokens`（LinkedIn 個人トークン。サーバーのみ）
 
 未実行でも `/admin` 自体は落ちません。Marketing Agent ページに「052 を実行してください」と出ます。
 
@@ -69,13 +72,27 @@ Vercel: Project → Settings → Environment Variables に Production / Preview 
 3. **コンテンツ機会を分析** … 今書くべき英語記事案
 4. **記事を生成** … 選択した案からドラフト（非公開。公開URLにはならない）
 5. **GEO向け提案** / **内部リンクを提案**
-6. **SNS投稿を生成** … 毎回 AI が新しいテーマを決める（過去テーマと重複しない）。LinkedIn / X×2 / Substack / Reddit を媒体別に作成。URL は公式公開ページのみ。自動投稿なし
+6. **SNS投稿を生成** … 毎回 AI が新しいテーマを決める（過去テーマと重複しない）。LinkedIn / X×2 / Substack / Reddit / Instagram / TikTok を媒体別に作成。URL は公式公開ページのみ。自動投稿なし。X は確認後に `[Xに投稿]` で API 投稿
 7. **日本語PR** … 日本の販売パートナー向け LinkedIn / X / Facebook。公開URLのみ。自動投稿なし
 8. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
 9. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
 10. 旧・商品PRコンポーネント（`PrScriptGenerator`）はファイルとして残るが、`/admin/marketing-agent` からは呼ばない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
 
 記事URL・SNSリンクのオリジンは `NEXT_PUBLIC_SITE_URL`（`lib/site.ts` の `getSiteUrl()`）のみ。`brandbridge.co` などの推測ドメインは使いません。
+
+## 6. SNS投稿（X 実投稿 / LinkedIn 個人プロフィール）
+
+サーバー専用。ブラウザや `NEXT_PUBLIC_*` に Secret を置かないこと。Client Component から SNS API は呼びません。
+
+| 変数 | 用途 |
+|------|------|
+| `X_API_KEY` / `X_API_SECRET` / `X_ACCESS_TOKEN` / `X_ACCESS_TOKEN_SECRET` | X OAuth 1.0a。管理画面の「Xに投稿」からのみ使用 |
+| `LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET` | LinkedIn 個人 OAuth（`openid profile w_member_social`）。Callback は `/api/linkedin/callback` |
+| `LINKEDIN_ACCESS_TOKEN` | 任意。OAuth の代わりにサーバーへ置く個人トークン |
+
+- 投稿先 LinkedIn は個人プロフィール `https://www.linkedin.com/in/brandbridge/`。会社ページは作成しません。
+- Instagram / TikTok は今回、文面・キャプションの生成とコピーまで。API 自動投稿は未接続です。
+- Substack / Reddit は既存どおり生成のみです。
 
 
 ## 5. AgentReach（ローカルリサーチ基盤）

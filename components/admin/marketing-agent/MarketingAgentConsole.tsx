@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   discoverOpportunitiesAction,
   fetchSearchConsoleAction,
@@ -18,6 +18,18 @@ import {
   setIdeaStatusAction,
   setRecommendationStatusAction,
 } from "@/lib/marketing-agent/actions";
+import {
+  publishLinkedInPostAction,
+  publishXPostAction,
+  startLinkedInOAuthAction,
+  verifyXAuthAction,
+} from "@/lib/social/actions";
+import type { SocialDashboard } from "@/lib/social/types";
+import type {
+  SocialPlatform,
+  SocialPost,
+  SocialPostStatus,
+} from "@/lib/social/types";
 import type {
   MarketingAgentOverview,
   MarketingAgentRun,
@@ -46,6 +58,8 @@ type MarketingAgentConsoleProps = {
   competitors: MarketingCompetitor[];
   gaps: MarketingCompetitorGap[];
   publishedPages: MarketingPublishedPage[];
+  social: SocialDashboard;
+  linkedInNotice?: { tone: "ok" | "error"; text: string } | null;
 };
 
 function formatDate(iso: string | null): string {
@@ -167,6 +181,8 @@ export function MarketingAgentConsole({
   competitors,
   gaps,
   publishedPages,
+  social,
+  linkedInNotice,
 }: MarketingAgentConsoleProps) {
   const gsc = overview.connections.searchConsole;
   const ai = overview.connections.ai;
@@ -271,7 +287,7 @@ export function MarketingAgentConsole({
       <Section
         id="overview"
         title="1. Overview"
-        description="AI と Search Console の接続状態。v1 は確認してから採用する運用です。公開・SNS投稿は自動では行いません。"
+        description="AI と Search Console、SNS接続の状態。生成後に確認してから採用・投稿します。自動公開・自動投稿はありません。"
       >
         <dl className="mb-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-lg border border-border bg-surface p-4">
@@ -319,6 +335,30 @@ export function MarketingAgentConsole({
                 <p className="mt-2 text-xs text-red-700">{gscResult.error}</p>
               ) : null}
             </dd>
+          </div>
+          <div className="rounded-lg border border-border bg-surface p-4 sm:col-span-2">
+            <dt className="text-sm text-muted">SNS 接続</dt>
+            <dd className="mt-2 flex flex-wrap gap-2">
+              <StatusBadge
+                label={social.x.label}
+                tone={social.x.configured ? "teal" : "amber"}
+              />
+              <StatusBadge
+                label={social.linkedin.label}
+                tone={social.linkedin.configured ? "teal" : "amber"}
+              />
+              <StatusBadge
+                label={social.instagram.label}
+                tone="muted"
+              />
+              <StatusBadge
+                label={social.tiktok.label}
+                tone="muted"
+              />
+            </dd>
+            <p className="mt-2 text-xs text-muted">
+              X は確認後に API 投稿できます。LinkedIn は個人プロフィールのみ。Instagram / TikTok は今回コピーまでです。
+            </p>
           </div>
         </dl>
 
@@ -734,13 +774,50 @@ export function MarketingAgentConsole({
       <Section
         id="social"
         title="7. Social Content"
-        description="生成のたびに AI が海外ブランド向けの新しいテーマを決め、LinkedIn / X / Substack / Reddit 向けに書き分けます。リンクは公式の公開URLのみ。自動投稿はありません。"
+        description="生成のたびに AI が海外ブランド向けの新しいテーマを決め、LinkedIn / X / Substack / Reddit / Instagram / TikTok 向けに書き分けます。リンクは公式の公開URLのみ。自動投稿はありません。X は確認後に投稿できます。"
       >
-        <VoidActionForm
-          action={generateSocialAction}
-          label="SNS投稿を生成"
-          pendingLabel="テーマ選定・生成中…"
-        />
+        {linkedInNotice ? (
+          <p
+            className={`mb-4 rounded-md px-3 py-2 text-sm ${
+              linkedInNotice.tone === "ok"
+                ? "border border-teal/30 bg-teal/10 text-navy"
+                : "border border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {linkedInNotice.text}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap items-start gap-4">
+          <VoidActionForm
+            action={generateSocialAction}
+            label="SNS投稿を生成"
+            pendingLabel="テーマ選定・生成中…"
+          />
+          <VoidActionForm
+            action={verifyXAuthAction}
+            label="X接続を確認"
+            pendingLabel="確認中…"
+            variant="outline"
+          />
+          {social.linkedin.canAuthorize ? (
+            <VoidActionForm
+              action={startLinkedInOAuthAction}
+              label="LinkedInと接続"
+              pendingLabel="移動中…"
+              variant="outline"
+            />
+          ) : null}
+        </div>
+        <p className="mt-3 text-xs text-muted">{social.x.note}</p>
+        {!social.linkedin.configured ? (
+          <p className="mt-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            LinkedIn API未接続。個人プロフィール投稿の認証情報が揃うまで投稿ボタンは表示しません。会社ページは作成しません。
+          </p>
+        ) : (
+          <p className="mt-1 text-xs text-muted">{social.linkedin.note}</p>
+        )}
+        <p className="mt-1 text-xs text-muted">{social.instagram.note}</p>
+        <p className="mt-1 text-xs text-muted">{social.tiktok.note}</p>
         {enSocialRecs.length === 0 ? (
           <p className="mt-4 text-sm text-muted">SNS 案はまだありません。</p>
         ) : (
@@ -750,11 +827,62 @@ export function MarketingAgentConsole({
               const linkedin = asRecord(posts.linkedin);
               const substack = asRecord(posts.substack);
               const reddit = asRecord(posts.reddit);
+              const instagram = asRecord(posts.instagram);
+              const tiktok = asRecord(posts.tiktok);
               const tweets = Array.isArray(posts.x) ? posts.x : [];
               const publishedUrl =
                 asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
               const theme = asString(item.data.theme);
               const angle = asString(item.data.angle);
+              const igHashtags = Array.isArray(instagram.hashtags)
+                ? instagram.hashtags
+                    .filter((tag): tag is string => typeof tag === "string")
+                    .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+                    .join(" ")
+                : "";
+              const linkedinPost = matchSocialPost(
+                social.posts,
+                item.id,
+                "linkedin",
+              );
+              const substackPost = matchSocialPost(
+                social.posts,
+                item.id,
+                "substack",
+              );
+              const redditPost = matchSocialPost(social.posts, item.id, "reddit");
+              const instagramPost = matchSocialPost(
+                social.posts,
+                item.id,
+                "instagram",
+              );
+              const tiktokPost = matchSocialPost(social.posts, item.id, "tiktok");
+              const igMedia =
+                asString(instagram.media) ||
+                asString(instagram.mediaPurpose) ||
+                asString(instagramPost?.metadata.mediaPurpose);
+              const igText =
+                [asString(instagram.caption) || asString(instagram.text), igHashtags]
+                  .filter(Boolean)
+                  .join("\n\n") ||
+                instagramPost?.content ||
+                "";
+              const ttHashtags = Array.isArray(tiktok.hashtags)
+                ? tiktok.hashtags
+                    .filter((tag): tag is string => typeof tag === "string")
+                    .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+                    .join(" ")
+                : "";
+              const ttText =
+                [
+                  asString(tiktok.title),
+                  asString(tiktok.caption) || asString(tiktok.text),
+                  ttHashtags,
+                ]
+                  .filter(Boolean)
+                  .join("\n\n") ||
+                tiktokPost?.content ||
+                "";
               return (
                 <li
                   key={item.id}
@@ -774,27 +902,103 @@ export function MarketingAgentConsole({
                   ) : (
                     <p className="text-sm text-red-700">公開URLがありません</p>
                   )}
-                  <SocialBlock label="LinkedIn" text={asString(linkedin.text)} />
-                  {tweets.map((tweet, index) => (
-                    <SocialBlock
-                      key={index}
-                      label={`X ${index + 1}`}
-                      text={asString(asRecord(tweet).text)}
-                    />
-                  ))}
+                  <SocialBlock
+                    label="LinkedIn"
+                    text={asString(linkedin.text)}
+                    post={linkedinPost}
+                    fallbackStatus={
+                      social.linkedin.configured ? undefined : "api_unavailable"
+                    }
+                    copyLabel="コピー"
+                    actions={
+                      social.linkedin.configured &&
+                      linkedinPost &&
+                      linkedinPost.status !== "posted" ? (
+                        <ActionForm
+                          action={publishLinkedInPostAction}
+                          label="LinkedInに投稿"
+                          pendingLabel="投稿中…"
+                          className="inline-block"
+                        >
+                          <input type="hidden" name="postId" value={linkedinPost.id} />
+                        </ActionForm>
+                      ) : null
+                    }
+                  />
+                  {tweets.map((tweet, index) => {
+                    const xPost = matchSocialPost(
+                      social.posts,
+                      item.id,
+                      "x",
+                      index,
+                    );
+                    return (
+                      <SocialBlock
+                        key={index}
+                        label={`X ${index + 1}`}
+                        text={asString(asRecord(tweet).text)}
+                        post={xPost}
+                        fallbackStatus={
+                          social.x.configured ? undefined : "api_unavailable"
+                        }
+                        copyLabel="コピー"
+                        actions={
+                          social.x.configured &&
+                          xPost &&
+                          xPost.status !== "posted" ? (
+                            <ActionForm
+                              action={publishXPostAction}
+                              label="Xに投稿"
+                              pendingLabel="投稿中…"
+                              className="inline-block"
+                            >
+                              <input type="hidden" name="postId" value={xPost.id} />
+                            </ActionForm>
+                          ) : null
+                        }
+                      />
+                    );
+                  })}
                   <SocialBlock
                     label="Substack"
                     text={`${asString(substack.subject)}\n\n${asString(substack.text)}`}
+                    post={substackPost}
+                    fallbackStatus="manual"
+                    copyLabel="コピー"
                   />
                   <SocialBlock
                     label="Reddit"
                     text={`${asString(reddit.title)}\n\n${asString(reddit.text)}`}
+                    post={redditPost}
+                    fallbackStatus="manual"
+                    copyLabel="コピー"
+                  />
+                  <SocialBlock
+                    label="Instagram"
+                    text={igText}
+                    post={instagramPost}
+                    fallbackStatus="api_unavailable"
+                    mediaHint={
+                      igMedia
+                        ? `media用途: ${igMedia}`
+                        : "media用途: still / carousel"
+                    }
+                    copyLabel="コピー"
+                  />
+                  <SocialBlock
+                    label="TikTok"
+                    text={ttText}
+                    post={tiktokPost}
+                    fallbackStatus="api_unavailable"
+                    copyLabel="コピー"
+                    confirmOnly
                   />
                 </li>
               );
             })}
           </ul>
         )}
+        <SocialHistory posts={social.posts} />
       </Section>
 
       <Section
@@ -1041,16 +1245,197 @@ function GapList({
   );
 }
 
-function SocialBlock({ label, text }: { label: string; text: string }) {
+function matchSocialPost(
+  posts: SocialPost[],
+  recommendationId: string,
+  platform: SocialPlatform,
+  index?: number,
+): SocialPost | undefined {
+  const matches = posts.filter(
+    (post) =>
+      post.recommendationId === recommendationId && post.platform === platform,
+  );
+  if (index !== undefined) {
+    return (
+      matches.find((post) => Number(post.metadata.index) === index) ??
+      matches[index]
+    );
+  }
+  return matches[0];
+}
+
+function socialStatusLabel(status: SocialPostStatus): string {
+  if (status === "draft") return "Draft";
+  if (status === "ready") return "Ready";
+  if (status === "posted") return "Posted";
+  if (status === "failed") return "Failed";
+  if (status === "manual") return "Manual";
+  return "API unavailable";
+}
+
+function socialStatusTone(
+  status: SocialPostStatus,
+): "teal" | "amber" | "red" | "muted" | "navy" {
+  if (status === "posted") return "teal";
+  if (status === "ready") return "navy";
+  if (status === "failed") return "red";
+  if (status === "manual") return "amber";
+  return "muted";
+}
+
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className="inline-flex cursor-pointer items-center justify-center rounded-md border border-border bg-transparent px-4 py-2 text-sm font-medium text-navy transition hover:border-teal hover:text-teal"
+      onClick={async () => {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 1500);
+      }}
+    >
+      {copied ? "コピーしました" : label}
+    </button>
+  );
+}
+
+function SocialBlock({
+  label,
+  text,
+  post,
+  actions,
+  copyLabel,
+  confirmOnly,
+  fallbackStatus,
+  mediaHint,
+}: {
+  label: string;
+  text: string;
+  post?: SocialPost;
+  actions?: ReactNode;
+  copyLabel?: string;
+  confirmOnly?: boolean;
+  fallbackStatus?: SocialPostStatus;
+  mediaHint?: string;
+}) {
   if (!text.trim()) return null;
+  const status = post?.status ?? fallbackStatus;
+  const body = (
+    <pre className="mt-1 whitespace-pre-wrap rounded-md bg-cream/70 p-3 text-sm text-navy">
+      {text.trim()}
+    </pre>
+  );
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-teal">
-        {label}
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-teal">
+          {label}
+        </p>
+        {status ? (
+          <StatusBadge
+            label={socialStatusLabel(status)}
+            tone={socialStatusTone(status)}
+          />
+        ) : null}
+      </div>
+      {confirmOnly ? (
+        <details className="mt-1">
+          <summary className="cursor-pointer text-sm text-navy">
+            投稿素材を確認
+          </summary>
+          {body}
+          {post?.mediaUrl ? (
+            <p className="mt-2 break-all font-mono text-xs text-muted">
+              media: {post.mediaUrl}
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-muted">
+              動画ファイルは未接続です。TikTok Content Posting API の審査前に自動投稿しません。
+            </p>
+          )}
+        </details>
+      ) : (
+        body
+      )}
+      {mediaHint ? (
+        <p className="mt-1 text-xs text-muted">{mediaHint}</p>
+      ) : null}
+      {post?.externalPostUrl ? (
+        <p className="mt-2 break-all text-xs">
+          <a
+            href={post.externalPostUrl}
+            className="text-teal hover:underline"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {post.externalPostUrl}
+          </a>
+        </p>
+      ) : null}
+      {post?.errorMessage ? (
+        <p className="mt-2 text-xs text-red-700">{post.errorMessage}</p>
+      ) : null}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {copyLabel ? <CopyButton text={text.trim()} label={copyLabel} /> : null}
+        {actions}
+      </div>
+    </div>
+  );
+}
+
+function SocialHistory({ posts }: { posts: SocialPost[] }) {
+  if (posts.length === 0) return null;
+  return (
+    <div className="mt-8">
+      <h3 className="text-sm font-medium text-navy">投稿履歴</h3>
+      <p className="mt-1 text-xs text-muted">
+        social_posts に保存された最新の投稿です。Secret は含まれません。
       </p>
-      <pre className="mt-1 whitespace-pre-wrap rounded-md bg-cream/70 p-3 text-sm text-navy">
-        {text.trim()}
-      </pre>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border bg-surface">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-border bg-cream/50 text-xs text-muted">
+            <tr>
+              <th className="px-3 py-2 font-medium">platform</th>
+              <th className="px-3 py-2 font-medium">status</th>
+              <th className="px-3 py-2 font-medium">posted</th>
+              <th className="px-3 py-2 font-medium">URL / error</th>
+            </tr>
+          </thead>
+          <tbody>
+            {posts.slice(0, 20).map((post) => (
+              <tr key={post.id} className="border-b border-border last:border-0">
+                <td className="px-3 py-2 uppercase">{post.platform}</td>
+                <td className="px-3 py-2">
+                  <StatusBadge
+                    label={socialStatusLabel(post.status)}
+                    tone={socialStatusTone(post.status)}
+                  />
+                </td>
+                <td className="px-3 py-2 text-xs text-muted">
+                  {formatDate(post.postedAt ?? post.createdAt)}
+                </td>
+                <td className="px-3 py-2 text-xs">
+                  {post.externalPostUrl ? (
+                    <a
+                      href={post.externalPostUrl}
+                      className="break-all text-teal hover:underline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {post.externalPostUrl}
+                    </a>
+                  ) : (
+                    <span className="text-muted">
+                      {post.errorMessage || post.content.slice(0, 80)}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -158,16 +158,21 @@ Do NOT reuse the same copy across platforms. Do not paraphrase the same paragrap
 - X: exactly TWO posts. Short, curiosity-led, information-dense, max 260 chars each. Different hooks. No hashtag stuffing.
 - Substack: explanatory newsletter, 300-500 words, deepens the theme, soft CTA at the end.
 - Reddit: discussion/experience-sharing. Helpful first. No blatant promo. Mention BrandBridge at most once, only if useful.
+- Instagram: caption for a still/carousel. 80-150 words, 5-8 relevant hashtags. Different wording from LinkedIn. No invented URLs. Set media to still or carousel.
+- TikTok: short-form video package. title (max 80 chars), spoken/on-screen caption (max 150 chars), 4-6 hashtags. Do not invent a video file or media URL. This is copy only.
 URL rules (mandatory):
 - The only allowed link is canonicalUrl from the user payload.
 - Use that exact URL. Do not invent, shorten, slugify, or guess URLs.
 - Never output brandbridge.co or any host other than the official origin.
+- Instagram/TikTok may omit the URL if it does not fit; if included it must be canonicalUrl.
 Return JSON:
 {
   "linkedin": {"text": ""},
   "x": [{"text": ""}, {"text": ""}],
   "substack": {"subject": "", "text": ""},
-  "reddit": {"title": "", "text": ""}
+  "reddit": {"title": "", "text": ""},
+  "instagram": {"caption": "", "hashtags": [""], "media": "still or carousel"},
+  "tiktok": {"title": "", "caption": "", "hashtags": [""]}
 }
 `.trim();
 

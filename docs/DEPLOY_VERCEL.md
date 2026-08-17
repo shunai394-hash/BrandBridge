@@ -44,7 +44,7 @@ vercel --prod
 
 Authentication → URL Configuration:
 
-- Site URL = 本番 URL（例: `https://brandbridge.vercel.app` またはカスタムドメイン）
+- Site URL = `https://www.brandbridge.jp`
 - Redirect URLs に本番 URL（`https://.../**`）を追加
 
 これを忘れると、ログイン・登録後のリダイレクトが失敗します。

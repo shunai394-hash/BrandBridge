@@ -1,5 +1,5 @@
 import { listModelCaseSlugs } from "@/lib/model-cases";
-import { getSiteUrl } from "@/lib/site";
+import { getOfficialPublicOrigin } from "@/lib/site";
 import type { CatalogPage } from "@/lib/marketing-agent/types";
 
 const STATIC_PAGES: CatalogPage[] = [
@@ -287,7 +287,10 @@ export function normalizeCatalogPath(path: string): string {
   return withSlash.replace(/\/+$/, "");
 }
 
-export function catalogPathToUrl(path: string, origin = getSiteUrl()): string {
+export function catalogPathToUrl(
+  path: string,
+  origin = getOfficialPublicOrigin(),
+): string {
   const normalized = normalizeCatalogPath(path);
   if (!normalized) return origin;
   

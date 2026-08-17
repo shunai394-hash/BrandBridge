@@ -51,8 +51,8 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET` | サーバーのみ | LinkedIn 個人 OAuth（`w_member_social`）。会社ページは作らない |
 | `LINKEDIN_ACCESS_TOKEN` | サーバーのみ | 任意。個人アクセストークン |
 
-未設定時は `VERCEL_URL`（Vercel 自動）→ なければ `http://localhost:3000` にフォールバックします。  
-本番では必ず独自ドメイン（または Vercel の本番 URL）を明示してください。
+未設定時は本番の正式ドメイン `https://www.brandbridge.jp` を使います（`VERCEL_URL` / `*.vercel.app` は使いません）。  
+ローカル開発のみ `http://localhost:3000` です。本番では `NEXT_PUBLIC_SITE_URL=https://www.brandbridge.jp` を明示してください。
 
 ### 案件公開ルール（ベータ）
 
@@ -68,7 +68,7 @@ Supabase で migration `012_restore_case_review_select.sql` を実行し、RLS �
 
 | 変数名 | 提供元 | 用途 |
 |--------|--------|------|
-| `VERCEL_URL` | Vercel | `NEXT_PUBLIC_SITE_URL` 未設定時のフォールバック |
+| `VERCEL_URL` | Vercel | アプリの公開URLには使わない（SNS・canonical は `www.brandbridge.jp`） |
 | `NODE_ENV` | Next.js / 実行環境 | `development` / `production` |
 
 ## ローカル設定例

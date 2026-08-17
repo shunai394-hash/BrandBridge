@@ -1,4 +1,6 @@
 import { asRecord, asString, asStringArray } from "@/lib/marketing-agent/json";
+import { rewriteToCanonicalUrl } from "@/lib/marketing-agent/published-urls";
+import { getOfficialPublicOrigin, toOfficialPublicUrl } from "@/lib/site";
 import { getInstagramConnection } from "@/lib/social/instagram";
 import { getTikTokConnection } from "@/lib/social/tiktok";
 import { getXConnection } from "@/lib/social/x";
@@ -34,6 +36,10 @@ function tiktokStatus(): SocialPostStatus {
 export async function socialInsertsFromPack(
   posts: Record<string, unknown>,
 ): Promise<SocialPackInsert[]> {
+  const canonicalUrl = toOfficialPublicUrl(
+    asString(posts.canonicalUrl) || getOfficialPublicOrigin(),
+  );
+  const clean = (text: string) => rewriteToCanonicalUrl(text, canonicalUrl);
   const linkedin = asRecord(posts.linkedin);
   const substack = asRecord(posts.substack);
   const reddit = asRecord(posts.reddit);
@@ -44,7 +50,7 @@ export async function socialInsertsFromPack(
   const linkedinStatus = await linkedInStatus();
   const igHashtags = asStringArray(instagram.hashtags);
   const ttHashtags = asStringArray(tiktok.hashtags);
-  const linkedinText = asString(linkedin.text);
+  const linkedinText = clean(asString(linkedin.text));
   const items: SocialPackInsert[] = [];
 
   if (linkedinText) {
@@ -56,7 +62,7 @@ export async function socialInsertsFromPack(
   }
 
   tweets.forEach((tweet, index) => {
-    const text = asString(asRecord(tweet).text);
+    const text = clean(asString(asRecord(tweet).text));
     if (!text) return;
     items.push({
       platform: "x",
@@ -66,7 +72,10 @@ export async function socialInsertsFromPack(
     });
   });
 
-  const substackText = [asString(substack.subject), asString(substack.text)]
+  const substackText = [
+    clean(asString(substack.subject)),
+    clean(asString(substack.text)),
+  ]
     .filter(Boolean)
     .join("\n\n");
   if (substackText) {
@@ -78,7 +87,10 @@ export async function socialInsertsFromPack(
     });
   }
 
-  const redditText = [asString(reddit.title), asString(reddit.text)]
+  const redditText = [
+    clean(asString(reddit.title)),
+    clean(asString(reddit.text)),
+  ]
     .filter(Boolean)
     .join("\n\n");
   if (redditText) {
@@ -90,7 +102,7 @@ export async function socialInsertsFromPack(
     });
   }
 
-  const facebookText = asString(facebook.text);
+  const facebookText = clean(asString(facebook.text));
   if (facebookText) {
     items.push({
       platform: "facebook",
@@ -99,7 +111,9 @@ export async function socialInsertsFromPack(
     });
   }
 
-  const igCaption = asString(instagram.caption) || asString(instagram.text);
+  const igCaption = clean(
+    asString(instagram.caption) || asString(instagram.text),
+  );
   if (igCaption) {
     const mediaPurpose =
       asString(instagram.media) ||
@@ -124,8 +138,8 @@ export async function socialInsertsFromPack(
     });
   }
 
-  const ttCaption = asString(tiktok.caption) || asString(tiktok.text);
-  const ttTitle = asString(tiktok.title);
+  const ttCaption = clean(asString(tiktok.caption) || asString(tiktok.text));
+  const ttTitle = clean(asString(tiktok.title));
   if (ttCaption || ttTitle) {
     items.push({
       platform: "tiktok",

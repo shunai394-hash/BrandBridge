@@ -5,7 +5,13 @@ import {
   normalizeCatalogPath,
 } from "@/lib/marketing-agent/site-catalog";
 import type { CatalogPage } from "@/lib/marketing-agent/types";
-import { getSiteUrl, isOfficialSiteUrl } from "@/lib/site";
+import {
+  getOfficialPublicOrigin,
+  isAllowedSnsPublicUrl,
+  isVercelDeploymentHost,
+  rewriteVercelAppUrls,
+  toOfficialPublicUrl,
+} from "@/lib/site";
 
 export const PUBLIC_URL_MISSING = "公開URLがありません";
 export const JA_PUBLIC_URL_MISSING = "日本語公開ページがありません";
@@ -29,7 +35,10 @@ const SOCIAL_PAGE_TYPES = new Set<CatalogPage["pageType"]>([
   "company",
 ]);
 
-function toRef(page: CatalogPage, origin = getSiteUrl()): PublishedPageRef {
+function toRef(
+  page: CatalogPage,
+  origin = getOfficialPublicOrigin(),
+): PublishedPageRef {
   const path = normalizeCatalogPath(page.path);
   return {
     path: path || "/",
@@ -41,7 +50,7 @@ function toRef(page: CatalogPage, origin = getSiteUrl()): PublishedPageRef {
 }
 
 export function listPublishedPageRefs(
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): PublishedPageRef[] {
   return listPublicCatalogPages()
     .filter((page) => page.published)
@@ -50,7 +59,7 @@ export function listPublishedPageRefs(
 
 export function listSocialTargetPages(
   language?: CatalogPage["language"],
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): PublishedPageRef[] {
   return listPublicCatalogPages()
     .filter(
@@ -63,14 +72,19 @@ export function listSocialTargetPages(
     .map((page) => toRef(page, origin));
 }
 
-function parseUrlOrPath(value: string, origin = getSiteUrl()): string | null {
+function parseUrlOrPath(value: string): string | null {
   const trimmed = value.trim();
   if (!trimmed) return null;
   if (/^https?:\/\//i.test(trimmed)) {
     try {
       const url = new URL(trimmed);
-      if (!isOfficialSiteUrl(url.toString(), origin)) return null;
-      return normalizeCatalogPath(url.pathname);
+      const path = normalizeCatalogPath(url.pathname);
+      if (isVercelDeploymentHost(url.hostname)) {
+        return path;
+      }
+      const host = url.hostname.replace(/^www\./i, "").toLowerCase();
+      if (host !== "brandbridge.jp") return null;
+      return path;
     } catch {
       return null;
     }
@@ -84,9 +98,9 @@ function parseUrlOrPath(value: string, origin = getSiteUrl()): string | null {
  */
 export function findPublishedPage(
   pathOrUrl: string,
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): PublishedPageRef | null {
-  const path = parseUrlOrPath(pathOrUrl, origin);
+  const path = parseUrlOrPath(pathOrUrl);
   if (path === null) return null;
   const page = findCatalogPageByPath(path);
   if (!page?.published) return null;
@@ -95,7 +109,7 @@ export function findPublishedPage(
 
 export function resolvePublishedPageOrThrow(
   pathOrUrl: string,
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): PublishedPageRef {
   const page = findPublishedPage(pathOrUrl, origin);
   if (!page) {
@@ -107,7 +121,7 @@ export function resolvePublishedPageOrThrow(
 /** Draft slugs are not public URLs unless they exactly match a catalog path. */
 export function publishedPageForDraftSlug(
   slug: string | null | undefined,
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): PublishedPageRef | null {
   if (!slug?.trim()) return null;
   return findPublishedPage(slug, origin);
@@ -120,18 +134,23 @@ const BARE_BRANDBRIDGE_RE =
 export function rewriteToCanonicalUrl(
   text: string,
   canonicalUrl: string,
-  origin = getSiteUrl(),
+  origin = getOfficialPublicOrigin(),
 ): string {
   if (!text) return text;
+  const officialCanonical = toOfficialPublicUrl(canonicalUrl);
   const officialHost = new URL(origin).hostname.replace(/^www\./i, "").toLowerCase();
-  const rewrittenHttp = text.replace(HTTP_URL_RE, (raw) => {
+  const withoutVercel = rewriteVercelAppUrls(text);
+  const rewrittenHttp = withoutVercel.replace(HTTP_URL_RE, (raw) => {
     const trailing = raw.match(/[.,;:]+$/)?.[0] ?? "";
     const candidate = trailing ? raw.slice(0, -trailing.length) : raw;
     try {
       const url = new URL(candidate);
+      if (isVercelDeploymentHost(url.hostname)) {
+        return `${officialCanonical}${trailing}`;
+      }
       const host = url.hostname.replace(/^www\./i, "").toLowerCase();
       if (host === officialHost || host.includes("brandbridge")) {
-        return `${canonicalUrl}${trailing}`;
+        return `${officialCanonical}${trailing}`;
       }
       return raw;
     } catch {
@@ -139,32 +158,37 @@ export function rewriteToCanonicalUrl(
     }
   });
   const rewritten = rewrittenHttp.replace(BARE_BRANDBRIDGE_RE, (raw) => {
-    if (raw === canonicalUrl) return raw;
+    if (raw === officialCanonical) return raw;
     try {
       const url = new URL(raw.startsWith("http") ? raw : `https://${raw}`);
+      if (isVercelDeploymentHost(url.hostname)) {
+        return officialCanonical;
+      }
       const host = url.hostname.replace(/^www\./i, "").toLowerCase();
       if (host === officialHost || host.includes("brandbridge")) {
-        return canonicalUrl;
+        return officialCanonical;
       }
       return raw;
     } catch {
-      return canonicalUrl;
+      return officialCanonical;
     }
   });
 
-  const hasCanonical = rewritten.includes(canonicalUrl);
+  const hasCanonical = rewritten.includes(officialCanonical);
   if (hasCanonical) return rewritten;
-  return `${rewritten.trim()}\n\n${canonicalUrl}`.trim();
+  return `${rewritten.trim()}\n\n${officialCanonical}`.trim();
 }
 
 export function sanitizeSocialPayload(
   posts: Record<string, unknown>,
   canonicalUrl: string,
-  origin = getSiteUrl(),
+  _origin = getOfficialPublicOrigin(),
 ): Record<string, unknown> {
+  const officialCanonical = toOfficialPublicUrl(canonicalUrl);
+  const officialOrigin = getOfficialPublicOrigin();
   const rewriteValue = (value: unknown): unknown => {
     if (typeof value === "string") {
-      return rewriteToCanonicalUrl(value, canonicalUrl, origin);
+      return rewriteToCanonicalUrl(value, officialCanonical, officialOrigin);
     }
     if (Array.isArray(value)) {
       return value.map((item) => rewriteValue(item));
@@ -188,8 +212,8 @@ export function sanitizeSocialPayload(
 
   return {
     ...record,
-    canonicalUrl,
-    siteOrigin: origin,
+    canonicalUrl: officialCanonical,
+    siteOrigin: officialOrigin,
   };
 }
 
@@ -214,16 +238,16 @@ function isAuthWallHtml(html: string, title: string | null): boolean {
 
 export async function assertPublishedUrlLive(
   url: string,
-  origin = getSiteUrl(),
 ): Promise<{ title: string | null; description: string | null; h1: string | null }> {
-  if (!isOfficialSiteUrl(url, origin)) {
+  const officialUrl = toOfficialPublicUrl(url);
+  if (!isAllowedSnsPublicUrl(officialUrl)) {
     throw new Error(PUBLIC_URL_MISSING);
   }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
-    const response = await fetch(url, {
+    const response = await fetch(officialUrl, {
       method: "GET",
       redirect: "follow",
       cache: "no-store",

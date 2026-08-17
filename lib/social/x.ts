@@ -5,6 +5,7 @@
  */
 import crypto from "node:crypto";
 import OAuth from "oauth-1.0a";
+import { assertNoVercelAppUrl, rewriteVercelAppUrls } from "@/lib/site";
 import type { SocialConnectionStatus, SocialPublishResult } from "@/lib/social/types";
 
 const USERS_ME = "https://api.x.com/2/users/me";
@@ -97,10 +98,11 @@ export async function verifyXAuth(): Promise<{
 }
 
 export async function postToX(text: string): Promise<SocialPublishResult> {
-  const trimmed = text.trim();
+  const trimmed = rewriteVercelAppUrls(text.trim());
   if (!trimmed) {
     throw new Error("投稿文が空です。");
   }
+  assertNoVercelAppUrl(trimmed);
   const response = await signedFetch(TWEETS, "POST", { text: trimmed });
   const raw = await response.text();
   if (!response.ok) {

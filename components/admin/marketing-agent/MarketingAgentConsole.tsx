@@ -41,6 +41,8 @@ import type {
   MarketingRecommendation,
 } from "@/lib/marketing-agent/types";
 import { asRecord, asString } from "@/lib/marketing-agent/json";
+import { rewriteToCanonicalUrl } from "@/lib/marketing-agent/published-urls";
+import { toOfficialPublicUrl } from "@/lib/site";
 import { ActionForm, VoidActionForm } from "@/components/admin/marketing-agent/ActionForm";
 import { BusinessPrVideoGenerator } from "@/components/admin/marketing-agent/BusinessPrVideoGenerator";
 import {
@@ -61,6 +63,12 @@ type MarketingAgentConsoleProps = {
   social: SocialDashboard;
   linkedInNotice?: { tone: "ok" | "error"; text: string } | null;
 };
+
+function officialDisplayUrl(path: string, stored: string): string {
+  if (path.trim()) return toOfficialPublicUrl(path);
+  if (stored.trim()) return toOfficialPublicUrl(stored);
+  return "";
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
@@ -827,8 +835,10 @@ export function MarketingAgentConsole({
           <ul className="mt-6 space-y-4">
             {enSocialRecs.slice(0, 8).map((item) => {
               const posts = asRecord(asRecord(item.data).posts);
-              const publishedUrl =
-                asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
+              const publishedUrl = officialDisplayUrl(
+                asString(item.data.pagePath),
+                asString(item.data.publishedUrl) || asString(posts.canonicalUrl),
+              );
               const theme = asString(item.data.theme);
               const angle = asString(item.data.angle);
               return (
@@ -898,8 +908,10 @@ export function MarketingAgentConsole({
             <ul className="mt-6 space-y-4">
               {jaPrRecs.slice(0, 8).map((item) => {
                 const posts = asRecord(asRecord(item.data).posts);
-                const publishedUrl =
-                  asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
+                const publishedUrl = officialDisplayUrl(
+                  asString(item.data.pagePath),
+                  asString(item.data.publishedUrl) || asString(posts.canonicalUrl),
+                );
                 return (
                   <li
                     key={item.id}
@@ -1167,6 +1179,10 @@ function SocialPackBlocks({
   posts: Record<string, unknown>;
   social: SocialDashboard;
 }) {
+  const canonicalUrl = toOfficialPublicUrl(
+    asString(posts.canonicalUrl) || asString(posts.pagePath),
+  );
+  const show = (text: string) => rewriteToCanonicalUrl(text, canonicalUrl);
   const linkedin = asRecord(posts.linkedin);
   const substack = asRecord(posts.substack);
   const reddit = asRecord(posts.reddit);
@@ -1217,7 +1233,7 @@ function SocialPackBlocks({
     <>
       <SocialBlock
         label="LinkedIn"
-        text={asString(linkedin.text)}
+        text={show(asString(linkedin.text))}
         post={linkedinPost}
         fallbackStatus={
           social.linkedin.configured ? undefined : "api_unavailable"
@@ -1244,7 +1260,7 @@ function SocialPackBlocks({
           <SocialBlock
             key={index}
             label={`X ${index + 1}`}
-            text={asString(asRecord(tweet).text)}
+            text={show(asString(asRecord(tweet).text))}
             post={xPost}
             fallbackStatus={social.x.configured ? undefined : "api_unavailable"}
             copyLabel="コピー"
@@ -1265,28 +1281,30 @@ function SocialPackBlocks({
       })}
       <SocialBlock
         label="Facebook"
-        text={asString(facebook.text)}
+        text={show(asString(facebook.text))}
         post={facebookPost}
         fallbackStatus="manual"
         copyLabel="コピー"
       />
       <SocialBlock
         label="Substack"
-        text={`${asString(substack.subject)}\n\n${asString(substack.text)}`}
+        text={show(
+          `${asString(substack.subject)}\n\n${asString(substack.text)}`,
+        )}
         post={substackPost}
         fallbackStatus="manual"
         copyLabel="コピー"
       />
       <SocialBlock
         label="Reddit"
-        text={`${asString(reddit.title)}\n\n${asString(reddit.text)}`}
+        text={show(`${asString(reddit.title)}\n\n${asString(reddit.text)}`)}
         post={redditPost}
         fallbackStatus="manual"
         copyLabel="コピー"
       />
       <SocialBlock
         label="Instagram"
-        text={igText}
+        text={show(igText)}
         post={instagramPost}
         fallbackStatus="api_unavailable"
         mediaHint={
@@ -1300,7 +1318,7 @@ function SocialPackBlocks({
       />
       <SocialBlock
         label="TikTok"
-        text={ttText}
+        text={show(ttText)}
         post={tiktokPost}
         fallbackStatus="api_unavailable"
         copyLabel="コピー"

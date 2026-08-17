@@ -1,4 +1,8 @@
-import { getSiteUrl } from "@/lib/site";
+import {
+  assertNoVercelAppUrl,
+  getSiteUrl,
+  rewriteVercelAppUrls,
+} from "@/lib/site";
 import type { SocialConnectionStatus, SocialPublishResult } from "@/lib/social/types";
 
 const AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization";
@@ -116,8 +120,9 @@ export async function postToLinkedInMember(
   text: string,
   storedToken: string | null,
 ): Promise<SocialPublishResult> {
-  const trimmed = text.trim();
+  const trimmed = rewriteVercelAppUrls(text.trim());
   if (!trimmed) throw new Error("投稿文が空です。");
+  assertNoVercelAppUrl(trimmed);
   const token = await resolveAccessToken(storedToken);
 
   const me = await fetch(USERINFO_URL, {

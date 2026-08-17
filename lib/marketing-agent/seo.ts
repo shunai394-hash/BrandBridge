@@ -1,4 +1,4 @@
-import { getSiteUrl } from "@/lib/site";
+import { getOfficialPublicOrigin } from "@/lib/site";
 import type { AnalyzedPage, CatalogPage } from "@/lib/marketing-agent/types";
 import {
   catalogPathToUrl,
@@ -219,7 +219,7 @@ async function mapPool<T, R>(
 export async function crawlPublicPages(options?: {
   maxPages?: number;
 }): Promise<AnalyzedPage[]> {
-  const origin = getSiteUrl();
+  const origin = getOfficialPublicOrigin();
   const targets = listFetchTargets().slice(0, options?.maxPages ?? 28);
   if (targets.length === 0) return [];
   return mapPool(targets, 4, (page) => fetchOne(page, origin));

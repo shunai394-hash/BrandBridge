@@ -13,7 +13,12 @@ import {
   sanitizeSocialPayload,
   type PublishedPageRef,
 } from "@/lib/marketing-agent/published-urls";
-import { getSiteUrl, isOfficialSiteUrl } from "@/lib/site";
+import {
+  containsVercelAppUrl,
+  getOfficialPublicOrigin,
+  isAllowedSnsPublicUrl,
+  toOfficialPublicUrl,
+} from "@/lib/site";
 
 export type SocialTheme = {
   theme: string;
@@ -185,37 +190,33 @@ export async function generateSocialPostsWithAi(input: {
 export function assertSocialPayloadUrls(
   posts: Record<string, unknown>,
   canonicalUrl: string,
-  origin = getSiteUrl(),
 ): void {
+  const officialCanonical = toOfficialPublicUrl(canonicalUrl);
+  const officialOrigin = getOfficialPublicOrigin();
   const blobs: string[] = [];
   const walk = (value: unknown) => {
     if (typeof value === "string") blobs.push(value);
     else if (Array.isArray(value)) value.forEach(walk);
     else if (value && typeof value === "object") {
-      Object.entries(value as Record<string, unknown>).forEach(([key, item]) => {
-        if (key === "canonicalUrl" || key === "siteOrigin") return;
-        walk(item);
-      });
+      Object.values(value as Record<string, unknown>).forEach(walk);
     }
   };
   walk(posts);
 
   const text = blobs.join("\n");
-  if (/brandbridge\.co\b/i.test(text)) {
+  if (containsVercelAppUrl(text) || /brandbridge\.co\b/i.test(text)) {
     throw new Error(PUBLIC_URL_MISSING);
   }
   const urls = text.match(/https?:\/\/[^\s<>"')\]]+/gi) ?? [];
   for (const raw of urls) {
     const candidate = raw.replace(/[.,;:]+$/, "");
-    if (!isOfficialSiteUrl(candidate, origin)) {
+    if (!isAllowedSnsPublicUrl(candidate)) {
       throw new Error(PUBLIC_URL_MISSING);
     }
     const normalizedCandidate = candidate.replace(/\/$/, "");
-    const normalizedCanonical = canonicalUrl.replace(/\/$/, "");
-    const normalizedOrigin = origin.replace(/\/$/, "");
     if (
-      normalizedCandidate !== normalizedCanonical &&
-      normalizedCandidate !== normalizedOrigin
+      normalizedCandidate !== officialCanonical.replace(/\/$/, "") &&
+      normalizedCandidate !== officialOrigin
     ) {
       throw new Error(PUBLIC_URL_MISSING);
     }
@@ -229,16 +230,16 @@ export async function buildVerifiedSocialPack(input: {
   page: PublishedPageRef;
   posts: Record<string, unknown>;
 }> {
-  const origin = getSiteUrl();
+  const origin = getOfficialPublicOrigin();
   const page = resolveThemePublishedPage(input.theme);
-  await assertPublishedUrlLive(page.url, origin);
+  await assertPublishedUrlLive(page.url);
   const raw = await generateSocialPostsWithAi({
     theme: input.theme,
     canonicalUrl: page.url,
     siteOrigin: origin,
     pageLabel: page.label,
   });
-  const posts = sanitizeSocialPayload(raw, page.url, origin);
-  assertSocialPayloadUrls(posts, page.url, origin);
+  const posts = sanitizeSocialPayload(raw, page.url);
+  assertSocialPayloadUrls(posts, page.url);
   return { theme: input.theme, page, posts };
 }

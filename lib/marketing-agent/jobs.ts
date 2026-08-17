@@ -33,7 +33,7 @@ import type {
   SearchConsoleResult,
 } from "@/lib/marketing-agent/types";
 import { asRecord, asString } from "@/lib/marketing-agent/json";
-import { getSiteUrl } from "@/lib/site";
+import { getOfficialPublicOrigin } from "@/lib/site";
 import {
   PUBLIC_URL_MISSING,
   JA_PUBLIC_URL_MISSING,
@@ -44,6 +44,7 @@ import {
   usableFetchedPageText,
 } from "@/lib/marketing-agent/published-urls";
 import {
+  assertSocialPayloadUrls,
   buildVerifiedSocialPack,
   pickSocialTheme,
   type PastSocialTheme,
@@ -392,7 +393,7 @@ export async function jobGenerateSocial(input?: {
   pagePath?: string;
   draftId?: string;
 }) {
-  const origin = getSiteUrl();
+  const origin = getOfficialPublicOrigin();
   const catalog = listSocialTargetPages("en");
   if (catalog.length === 0) {
     throw new Error(PUBLIC_URL_MISSING);
@@ -474,11 +475,8 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
     throw new Error(JA_PUBLIC_URL_MISSING);
   }
   const live = await assertPublishedUrlLive(page.url);
-  const origin = getSiteUrl();
-  const pageTitle =
-    usableFetchedPageText(live.title) ||
-    usableFetchedPageText(live.h1) ||
-    page.label;
+  const origin = getOfficialPublicOrigin();
+  const pageTitle = page.label;
   const pageExcerpt = usableFetchedPageText(live.description) || page.label;
 
   const run = await insertRun({
@@ -499,7 +497,8 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
       pagePath: page.path,
       excerpt: pageExcerpt,
     });
-    const posts = sanitizeSocialPayload(rawPosts, page.url, origin);
+    const posts = sanitizeSocialPayload(rawPosts, page.url);
+    assertSocialPayloadUrls(posts, page.url);
     const saved = await insertRecommendations([
       {
         category: "social",

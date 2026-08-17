@@ -258,7 +258,7 @@ export async function generateJapanesePartnerPrWithAi(input: {
         }),
       },
     ],
-    { temperature: 0.65, maxTokens: 2200 },
+    { temperature: 0.65, maxTokens: 3600 },
   );
 }
 

@@ -178,7 +178,7 @@ export async function generateSocialPostsWithAi(input: {
         }),
       },
     ],
-    { temperature: 0.7, maxTokens: 2800 },
+    { temperature: 0.7, maxTokens: 3600 },
   );
 }
 

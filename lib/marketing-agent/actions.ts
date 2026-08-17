@@ -165,7 +165,7 @@ export async function generateJapanesePartnerPrAction(
   try {
     await gateAdmin();
     const pagePath = String(formData.get("pagePath") ?? "").trim();
-    if (!pagePath) return { error: "公開URLがありません" };
+    if (!pagePath) return { error: "日本語公開ページがありません" };
     await jobGenerateJapanesePartnerPr(pagePath);
     refresh();
     return {};

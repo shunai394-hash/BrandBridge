@@ -39,6 +39,7 @@ export async function socialInsertsFromPack(
   const reddit = asRecord(posts.reddit);
   const instagram = asRecord(posts.instagram);
   const tiktok = asRecord(posts.tiktok);
+  const facebook = asRecord(posts.facebook);
   const tweets = Array.isArray(posts.x) ? posts.x : [];
   const linkedinStatus = await linkedInStatus();
   const igHashtags = asStringArray(instagram.hashtags);
@@ -86,6 +87,15 @@ export async function socialInsertsFromPack(
       content: redditText,
       status: "manual",
       metadata: { title: asString(reddit.title) },
+    });
+  }
+
+  const facebookText = asString(facebook.text);
+  if (facebookText) {
+    items.push({
+      platform: "facebook",
+      content: facebookText,
+      status: "manual",
     });
   }
 

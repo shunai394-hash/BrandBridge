@@ -4,7 +4,8 @@ export type SocialPlatform =
   | "instagram"
   | "tiktok"
   | "substack"
-  | "reddit";
+  | "reddit"
+  | "facebook";
 
 export type SocialPostStatus =
   | "draft"

@@ -14,6 +14,7 @@ SQL Editor で次を実行します（既存 migration は変更しません）�
 supabase/migrations/052_marketing_agent.sql
 supabase/migrations/053_marketing_competitors.sql
 supabase/migrations/054_social_posts.sql
+supabase/migrations/055_social_posts_facebook.sql
 ```
 
 作成されるテーブル（RLS: `is_admin()` のみ）:
@@ -24,7 +25,7 @@ supabase/migrations/054_social_posts.sql
 - `marketing_recommendations`
 - `marketing_competitors`
 - `marketing_competitor_gaps`
-- `social_posts`（SNS投稿履歴。Secret は保存しない）
+- `social_posts`（SNS投稿履歴。Secret は保存しない。`055` で facebook を追加）
 - `social_oauth_tokens`（LinkedIn 個人トークン。サーバーのみ）
 
 未実行でも `/admin` 自体は落ちません。Marketing Agent ページに「052 を実行してください」と出ます。
@@ -72,11 +73,10 @@ Vercel: Project → Settings → Environment Variables に Production / Preview 
 3. **コンテンツ機会を分析** … 今書くべき英語記事案
 4. **記事を生成** … 選択した案からドラフト（非公開。公開URLにはならない）
 5. **GEO向け提案** / **内部リンクを提案**
-6. **SNS投稿を生成** … 毎回 AI が新しいテーマを決める（過去テーマと重複しない）。LinkedIn / X×2 / Substack / Reddit / Instagram / TikTok を媒体別に作成。URL は公式公開ページのみ。自動投稿なし。X は確認後に `[Xに投稿]` で API 投稿
-7. **日本語PR** … 日本の販売パートナー向け LinkedIn / X / Facebook。公開URLのみ。自動投稿なし
-8. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
-9. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
-10. 旧・商品PRコンポーネント（`PrScriptGenerator`）はファイルとして残るが、`/admin/marketing-agent` からは呼ばない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
+6. **SNS投稿を生成** … 英語は毎回 AI が新しいテーマを決める。日本語PRは日本語の公開ページを選んで LinkedIn / X / Facebook / Instagram / TikTok / Substack / Reddit を媒体別に作成。URL は公式公開ページのみ。日本語ページが無いときは「日本語公開ページがありません」。自動投稿なし。X は確認後に `[Xに投稿]`
+7. **市場リサーチ** / **競合分析** … 公開情報のみ。自動営業・自動DMなし
+8. **事業PR動画を作成** … 会社・事業情報と複数画像から、認知・アクセスUPの日本語縦動画。商品選択は不要
+9. 旧・商品PRコンポーネント（`PrScriptGenerator`）はファイルとして残るが、`/admin/marketing-agent` からは呼ばない。詳細は [MARKETING_PR_VIDEO.md](./MARKETING_PR_VIDEO.md)
 
 記事URL・SNSリンクのオリジンは `NEXT_PUBLIC_SITE_URL`（`lib/site.ts` の `getSiteUrl()`）のみ。`brandbridge.co` などの推測ドメインは使いません。
 

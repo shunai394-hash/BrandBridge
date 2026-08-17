@@ -58,6 +58,15 @@ const STATIC_PAGES: CatalogPage[] = [
     label: "How to sell in Japan (JA)",
   },
   {
+    path: "/ja/blog/how-to-sell-overseas-brands-in-japan",
+    language: "ja",
+    pageType: "guide",
+    seoImportance: "high",
+    published: true,
+    fetchLive: true,
+    label: "海外ブランドを日本で販売するガイド",
+  },
+  {
     path: "/product-showcase",
     language: "ja",
     pageType: "showcase",

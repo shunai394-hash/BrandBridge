@@ -24,8 +24,8 @@ import {
   startLinkedInOAuthAction,
   verifyXAuthAction,
 } from "@/lib/social/actions";
-import type { SocialDashboard } from "@/lib/social/types";
 import type {
+  SocialDashboard,
   SocialPlatform,
   SocialPost,
   SocialPostStatus,
@@ -774,7 +774,7 @@ export function MarketingAgentConsole({
       <Section
         id="social"
         title="7. Social Content"
-        description="生成のたびに AI が海外ブランド向けの新しいテーマを決め、LinkedIn / X / Substack / Reddit / Instagram / TikTok 向けに書き分けます。リンクは公式の公開URLのみ。自動投稿はありません。X は確認後に投稿できます。"
+        description="英語SNSは海外ブランド向け。日本語PRは日本語の公開ページを選んで生成します。リンクは公式の公開URLのみ。自動投稿はありません。X は確認後に投稿できます。"
       >
         {linkedInNotice ? (
           <p
@@ -824,65 +824,10 @@ export function MarketingAgentConsole({
           <ul className="mt-6 space-y-4">
             {enSocialRecs.slice(0, 8).map((item) => {
               const posts = asRecord(asRecord(item.data).posts);
-              const linkedin = asRecord(posts.linkedin);
-              const substack = asRecord(posts.substack);
-              const reddit = asRecord(posts.reddit);
-              const instagram = asRecord(posts.instagram);
-              const tiktok = asRecord(posts.tiktok);
-              const tweets = Array.isArray(posts.x) ? posts.x : [];
               const publishedUrl =
                 asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
               const theme = asString(item.data.theme);
               const angle = asString(item.data.angle);
-              const igHashtags = Array.isArray(instagram.hashtags)
-                ? instagram.hashtags
-                    .filter((tag): tag is string => typeof tag === "string")
-                    .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
-                    .join(" ")
-                : "";
-              const linkedinPost = matchSocialPost(
-                social.posts,
-                item.id,
-                "linkedin",
-              );
-              const substackPost = matchSocialPost(
-                social.posts,
-                item.id,
-                "substack",
-              );
-              const redditPost = matchSocialPost(social.posts, item.id, "reddit");
-              const instagramPost = matchSocialPost(
-                social.posts,
-                item.id,
-                "instagram",
-              );
-              const tiktokPost = matchSocialPost(social.posts, item.id, "tiktok");
-              const igMedia =
-                asString(instagram.media) ||
-                asString(instagram.mediaPurpose) ||
-                asString(instagramPost?.metadata.mediaPurpose);
-              const igText =
-                [asString(instagram.caption) || asString(instagram.text), igHashtags]
-                  .filter(Boolean)
-                  .join("\n\n") ||
-                instagramPost?.content ||
-                "";
-              const ttHashtags = Array.isArray(tiktok.hashtags)
-                ? tiktok.hashtags
-                    .filter((tag): tag is string => typeof tag === "string")
-                    .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
-                    .join(" ")
-                : "";
-              const ttText =
-                [
-                  asString(tiktok.title),
-                  asString(tiktok.caption) || asString(tiktok.text),
-                  ttHashtags,
-                ]
-                  .filter(Boolean)
-                  .join("\n\n") ||
-                tiktokPost?.content ||
-                "";
               return (
                 <li
                   key={item.id}
@@ -902,177 +847,87 @@ export function MarketingAgentConsole({
                   ) : (
                     <p className="text-sm text-red-700">公開URLがありません</p>
                   )}
-                  <SocialBlock
-                    label="LinkedIn"
-                    text={asString(linkedin.text)}
-                    post={linkedinPost}
-                    fallbackStatus={
-                      social.linkedin.configured ? undefined : "api_unavailable"
-                    }
-                    copyLabel="コピー"
-                    actions={
-                      social.linkedin.configured &&
-                      linkedinPost &&
-                      linkedinPost.status !== "posted" ? (
-                        <ActionForm
-                          action={publishLinkedInPostAction}
-                          label="LinkedInに投稿"
-                          pendingLabel="投稿中…"
-                          className="inline-block"
-                        >
-                          <input type="hidden" name="postId" value={linkedinPost.id} />
-                        </ActionForm>
-                      ) : null
-                    }
-                  />
-                  {tweets.map((tweet, index) => {
-                    const xPost = matchSocialPost(
-                      social.posts,
-                      item.id,
-                      "x",
-                      index,
-                    );
-                    return (
-                      <SocialBlock
-                        key={index}
-                        label={`X ${index + 1}`}
-                        text={asString(asRecord(tweet).text)}
-                        post={xPost}
-                        fallbackStatus={
-                          social.x.configured ? undefined : "api_unavailable"
-                        }
-                        copyLabel="コピー"
-                        actions={
-                          social.x.configured &&
-                          xPost &&
-                          xPost.status !== "posted" ? (
-                            <ActionForm
-                              action={publishXPostAction}
-                              label="Xに投稿"
-                              pendingLabel="投稿中…"
-                              className="inline-block"
-                            >
-                              <input type="hidden" name="postId" value={xPost.id} />
-                            </ActionForm>
-                          ) : null
-                        }
-                      />
-                    );
-                  })}
-                  <SocialBlock
-                    label="Substack"
-                    text={`${asString(substack.subject)}\n\n${asString(substack.text)}`}
-                    post={substackPost}
-                    fallbackStatus="manual"
-                    copyLabel="コピー"
-                  />
-                  <SocialBlock
-                    label="Reddit"
-                    text={`${asString(reddit.title)}\n\n${asString(reddit.text)}`}
-                    post={redditPost}
-                    fallbackStatus="manual"
-                    copyLabel="コピー"
-                  />
-                  <SocialBlock
-                    label="Instagram"
-                    text={igText}
-                    post={instagramPost}
-                    fallbackStatus="api_unavailable"
-                    mediaHint={
-                      igMedia
-                        ? `media用途: ${igMedia}`
-                        : "media用途: still / carousel"
-                    }
-                    copyLabel="コピー"
-                  />
-                  <SocialBlock
-                    label="TikTok"
-                    text={ttText}
-                    post={tiktokPost}
-                    fallbackStatus="api_unavailable"
-                    copyLabel="コピー"
-                    confirmOnly
+                  <SocialPackBlocks
+                    recommendationId={item.id}
+                    posts={posts}
+                    social={social}
                   />
                 </li>
               );
             })}
           </ul>
         )}
+
+        <div id="ja-pr" className="mt-10 border-t border-border pt-6">
+          <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+            日本語PR
+          </h3>
+          <p className="mt-1 text-sm text-muted">
+            日本語の公開ページを選び、LinkedIn / X / Facebook / Instagram / TikTok / Substack / Reddit 向けに日本語で書き分けます。リンクはその公開URLのみ。英語ページの翻訳公開はしません。X は確認後に投稿できます。
+          </p>
+          {jaPublishedPages.length === 0 ? (
+            <p className="mt-4 text-sm text-red-700">日本語公開ページがありません</p>
+          ) : (
+            <ActionForm
+              action={generateJapanesePartnerPrAction}
+              label="日本語PRを生成"
+              pendingLabel="生成中…"
+            >
+              <label className="block text-sm text-muted">
+                日本語の公開ページ
+                <select
+                  name="pagePath"
+                  className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
+                  defaultValue={defaultJaPage}
+                >
+                  {jaPublishedPages.map((page) => (
+                    <option key={page.path} value={page.path}>
+                      {page.label} — {page.url}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </ActionForm>
+          )}
+          {jaPrRecs.length === 0 ? (
+            <p className="mt-4 text-sm text-muted">日本語PR案はまだありません。</p>
+          ) : (
+            <ul className="mt-6 space-y-4">
+              {jaPrRecs.slice(0, 8).map((item) => {
+                const posts = asRecord(asRecord(item.data).posts);
+                const publishedUrl =
+                  asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
+                return (
+                  <li
+                    key={item.id}
+                    className="space-y-3 rounded-lg border border-border bg-surface p-4"
+                  >
+                    <p className="font-medium text-navy">{item.title}</p>
+                    {publishedUrl ? (
+                      <p className="break-all font-mono text-xs text-muted">
+                        公開URL: {publishedUrl}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-red-700">日本語公開ページがありません</p>
+                    )}
+                    <SocialPackBlocks
+                      recommendationId={item.id}
+                      posts={posts}
+                      social={social}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
         <SocialHistory posts={social.posts} />
       </Section>
 
       <Section
-        id="ja-pr"
-        title="8. 日本語PR（販売パートナー向け）"
-        description="日本のEC・卸・小売・バイヤー向けの LinkedIn / X / Facebook 投稿案。海外ブランドの商品を日本で販売したい事業者を集客します。リンクは日本語の公開ページのみ。自動投稿はありません。"
-      >
-        {jaPublishedPages.length === 0 ? (
-          <p className="text-sm text-red-700">公開URLがありません</p>
-        ) : (
-          <ActionForm
-            action={generateJapanesePartnerPrAction}
-            label="日本語PRを生成"
-            pendingLabel="生成中…"
-          >
-            <label className="block text-sm text-muted">
-              公開ページ
-              <select
-                name="pagePath"
-                className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
-                defaultValue={defaultJaPage}
-              >
-                {jaPublishedPages.map((page) => (
-                  <option key={page.path} value={page.path}>
-                    {page.label} — {page.url}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </ActionForm>
-        )}
-        {jaPrRecs.length === 0 ? (
-          <p className="mt-4 text-sm text-muted">日本語PR案はまだありません。</p>
-        ) : (
-          <ul className="mt-6 space-y-4">
-            {jaPrRecs.slice(0, 8).map((item) => {
-              const posts = asRecord(asRecord(item.data).posts);
-              const linkedin = asRecord(posts.linkedin);
-              const facebook = asRecord(posts.facebook);
-              const tweets = Array.isArray(posts.x) ? posts.x : [];
-              const publishedUrl =
-                asString(item.data.publishedUrl) || asString(posts.canonicalUrl);
-              return (
-                <li
-                  key={item.id}
-                  className="space-y-3 rounded-lg border border-border bg-surface p-4"
-                >
-                  <p className="font-medium text-navy">{item.title}</p>
-                  {publishedUrl ? (
-                    <p className="break-all font-mono text-xs text-muted">
-                      公開URL: {publishedUrl}
-                    </p>
-                  ) : (
-                    <p className="text-sm text-red-700">公開URLがありません</p>
-                  )}
-                  <SocialBlock label="LinkedIn" text={asString(linkedin.text)} />
-                  {tweets.map((tweet, index) => (
-                    <SocialBlock
-                      key={index}
-                      label={`X ${index + 1}`}
-                      text={asString(asRecord(tweet).text)}
-                    />
-                  ))}
-                  <SocialBlock label="Facebook" text={asString(facebook.text)} />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Section>
-
-      <Section
         id="competitors"
-        title="9. Competitor Analysis"
+        title="8. Competitor Analysis"
         description="公開情報のみ。自動DM・自動メール・自動接続はしません。Cookie は BrandBridge に保存しません。"
       >
         <div className="grid gap-6 lg:grid-cols-2">
@@ -1297,6 +1152,158 @@ function CopyButton({ text, label }: { text: string; label: string }) {
     >
       {copied ? "コピーしました" : label}
     </button>
+  );
+}
+
+function SocialPackBlocks({
+  recommendationId,
+  posts,
+  social,
+}: {
+  recommendationId: string;
+  posts: Record<string, unknown>;
+  social: SocialDashboard;
+}) {
+  const linkedin = asRecord(posts.linkedin);
+  const substack = asRecord(posts.substack);
+  const reddit = asRecord(posts.reddit);
+  const instagram = asRecord(posts.instagram);
+  const tiktok = asRecord(posts.tiktok);
+  const facebook = asRecord(posts.facebook);
+  const tweets = Array.isArray(posts.x) ? posts.x : [];
+  const linkedinPost = matchSocialPost(social.posts, recommendationId, "linkedin");
+  const substackPost = matchSocialPost(social.posts, recommendationId, "substack");
+  const redditPost = matchSocialPost(social.posts, recommendationId, "reddit");
+  const instagramPost = matchSocialPost(social.posts, recommendationId, "instagram");
+  const tiktokPost = matchSocialPost(social.posts, recommendationId, "tiktok");
+  const facebookPost = matchSocialPost(social.posts, recommendationId, "facebook");
+  const igHashtags = Array.isArray(instagram.hashtags)
+    ? instagram.hashtags
+        .filter((tag): tag is string => typeof tag === "string")
+        .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+        .join(" ")
+    : "";
+  const igMedia =
+    asString(instagram.media) ||
+    asString(instagram.mediaPurpose) ||
+    asString(instagramPost?.metadata.mediaPurpose);
+  const igText =
+    [asString(instagram.caption) || asString(instagram.text), igHashtags]
+      .filter(Boolean)
+      .join("\n\n") ||
+    instagramPost?.content ||
+    "";
+  const ttHashtags = Array.isArray(tiktok.hashtags)
+    ? tiktok.hashtags
+        .filter((tag): tag is string => typeof tag === "string")
+        .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`))
+        .join(" ")
+    : "";
+  const ttText =
+    [
+      asString(tiktok.title),
+      asString(tiktok.caption) || asString(tiktok.text),
+      ttHashtags,
+    ]
+      .filter(Boolean)
+      .join("\n\n") ||
+    tiktokPost?.content ||
+    "";
+
+  return (
+    <>
+      <SocialBlock
+        label="LinkedIn"
+        text={asString(linkedin.text)}
+        post={linkedinPost}
+        fallbackStatus={
+          social.linkedin.configured ? undefined : "api_unavailable"
+        }
+        copyLabel="コピー"
+        actions={
+          social.linkedin.configured &&
+          linkedinPost &&
+          linkedinPost.status !== "posted" ? (
+            <ActionForm
+              action={publishLinkedInPostAction}
+              label="LinkedInに投稿"
+              pendingLabel="投稿中…"
+              className="inline-block"
+            >
+              <input type="hidden" name="postId" value={linkedinPost.id} />
+            </ActionForm>
+          ) : null
+        }
+      />
+      {tweets.map((tweet, index) => {
+        const xPost = matchSocialPost(social.posts, recommendationId, "x", index);
+        return (
+          <SocialBlock
+            key={index}
+            label={`X ${index + 1}`}
+            text={asString(asRecord(tweet).text)}
+            post={xPost}
+            fallbackStatus={social.x.configured ? undefined : "api_unavailable"}
+            copyLabel="コピー"
+            actions={
+              social.x.configured && xPost && xPost.status !== "posted" ? (
+                <ActionForm
+                  action={publishXPostAction}
+                  label="Xに投稿"
+                  pendingLabel="投稿中…"
+                  className="inline-block"
+                >
+                  <input type="hidden" name="postId" value={xPost.id} />
+                </ActionForm>
+              ) : null
+            }
+          />
+        );
+      })}
+      <SocialBlock
+        label="Facebook"
+        text={asString(facebook.text)}
+        post={facebookPost}
+        fallbackStatus="manual"
+        copyLabel="コピー"
+      />
+      <SocialBlock
+        label="Substack"
+        text={`${asString(substack.subject)}\n\n${asString(substack.text)}`}
+        post={substackPost}
+        fallbackStatus="manual"
+        copyLabel="コピー"
+      />
+      <SocialBlock
+        label="Reddit"
+        text={`${asString(reddit.title)}\n\n${asString(reddit.text)}`}
+        post={redditPost}
+        fallbackStatus="manual"
+        copyLabel="コピー"
+      />
+      <SocialBlock
+        label="Instagram"
+        text={igText}
+        post={instagramPost}
+        fallbackStatus="api_unavailable"
+        mediaHint={
+          igText
+            ? igMedia
+              ? `media用途: ${igMedia}`
+              : "media用途: still / carousel"
+            : undefined
+        }
+        copyLabel="コピー"
+      />
+      <SocialBlock
+        label="TikTok"
+        text={ttText}
+        post={tiktokPost}
+        fallbackStatus="api_unavailable"
+        copyLabel="コピー"
+        confirmOnly
+      />
+    </>
   );
 }
 

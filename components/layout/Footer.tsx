@@ -27,6 +27,10 @@ const ja = {
   supportLinks: [
     { href: "/contact", label: "お問い合わせ" },
     { href: "/how-to-sell-in-japan", label: "日本で販売する方法" },
+    {
+      href: "/ja/blog/how-to-sell-overseas-brands-in-japan",
+      label: "海外ブランドを日本で販売するには",
+    },
     { href: "/product-showcase", label: "商品掲載サンプル" },
     { href: "/company", label: "運営会社情報" },
     { href: "/terms", label: "利用規約" },

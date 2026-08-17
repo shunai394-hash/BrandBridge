@@ -8,6 +8,7 @@ import type { CatalogPage } from "@/lib/marketing-agent/types";
 import { getSiteUrl, isOfficialSiteUrl } from "@/lib/site";
 
 export const PUBLIC_URL_MISSING = "公開URLがありません";
+export const JA_PUBLIC_URL_MISSING = "日本語公開ページがありません";
 
 export type PublishedPageRef = {
   path: string;

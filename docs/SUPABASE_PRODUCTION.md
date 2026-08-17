@@ -22,7 +22,7 @@ SQL Editor で **番号順** に実行:
 8. `supabase/migrations/008_contact_inquiries.sql`
 9. `supabase/migrations/009_maker_registration.sql`
 10. `supabase/migrations/010_partner_profile.sql`
-11. （以降番号順）`011` 以降を適用。`052_marketing_agent.sql` / `053_marketing_competitors.sql` / `054_social_posts.sql` は管理者向け Marketing Agent 用（`is_admin()` のみ。既存の profiles / 案件 / 交渉 RLS は変更しない）
+11. （以降番号順）`011` 以降を適用。`052_marketing_agent.sql` / `053_marketing_competitors.sql` / `054_social_posts.sql` / `055_social_posts_facebook.sql` は管理者向け Marketing Agent 用（`is_admin()` のみ。既存の profiles / 案件 / 交渉 RLS は変更しない）
 
 実行後の確認例:
 

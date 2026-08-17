@@ -42,6 +42,10 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
           label: "日本で販売する方法",
         },
         {
+          href: "/ja/blog/how-to-sell-overseas-brands-in-japan",
+          label: "海外ブランドを日本で販売するには",
+        },
+        {
           href: "/product-showcase",
           label: "商品掲載サンプル",
         },

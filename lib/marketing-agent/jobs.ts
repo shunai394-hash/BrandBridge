@@ -36,6 +36,7 @@ import { asRecord, asString } from "@/lib/marketing-agent/json";
 import { getSiteUrl } from "@/lib/site";
 import {
   PUBLIC_URL_MISSING,
+  JA_PUBLIC_URL_MISSING,
   assertPublishedUrlLive,
   listSocialTargetPages,
   resolvePublishedPageOrThrow,
@@ -53,6 +54,23 @@ function errorMessage(error: unknown): string {
   if (error instanceof MarketingAgentError) return error.message;
   if (error instanceof Error) return error.message;
   return String(error);
+}
+
+async function persistGeneratedSocialPosts(
+  posts: Record<string, unknown>,
+  recommendationId?: string,
+) {
+  try {
+    const rows = await socialInsertsFromPack(posts);
+    await insertSocialPosts(
+      rows.map((item) => ({
+        ...item,
+        recommendationId: recommendationId ?? null,
+      })),
+    );
+  } catch (persistError) {
+    console.error("[social_posts] persist", persistError);
+  }
 }
 
 function gscFromLatest(
@@ -428,17 +446,7 @@ export async function jobGenerateSocial(input?: {
         },
       },
     ]);
-    try {
-      const rows = await socialInsertsFromPack(pack.posts);
-      await insertSocialPosts(
-        rows.map((item) => ({
-          ...item,
-          recommendationId: saved[0]?.id ?? null,
-        })),
-      );
-    } catch (persistError) {
-      console.error("[jobGenerateSocial] social_posts persist", persistError);
-    }
+    await persistGeneratedSocialPosts(pack.posts, saved[0]?.id);
     await updateRun(run.id, {
       status: "succeeded",
       result: {
@@ -462,7 +470,7 @@ export async function jobGenerateSocial(input?: {
 export async function jobGenerateJapanesePartnerPr(pagePath: string) {
   const page = resolvePublishedPageOrThrow(pagePath);
   if (page.language !== "ja") {
-    throw new Error(PUBLIC_URL_MISSING);
+    throw new Error(JA_PUBLIC_URL_MISSING);
   }
   const live = await assertPublishedUrlLive(page.url);
   const origin = getSiteUrl();
@@ -490,7 +498,7 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
       {
         category: "social",
         title: `日本語PR: ${live.title || page.label}`,
-        description: `LinkedIn / X / Facebook 投稿案（販売パートナー向け・自動投稿なし）\n公開URL: ${page.url}`,
+        description: `日本語SNS広報（販売パートナー向け・自動投稿なし）\n公開URL: ${page.url}`,
         priority: "medium",
         data: {
           kind: "ja_partner_pr",
@@ -501,6 +509,7 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
         },
       },
     ]);
+    await persistGeneratedSocialPosts(posts, saved[0]?.id);
     await updateRun(run.id, {
       status: "succeeded",
       result: {

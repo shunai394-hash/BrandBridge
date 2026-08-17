@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
@@ -175,6 +176,13 @@ export default function HowToFindJapaneseRetailersArticlePage() {
               {"\u2190"} Back to Japan Market Entry
             </Link>
           </p>
+          <BlogImage
+            id="souvenirShop"
+            alt="Japanese souvenir plates in a shop display — products on retail shelves in Japan"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -209,6 +217,10 @@ export default function HowToFindJapaneseRetailersArticlePage() {
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
               1. Understand the Japanese Retail Landscape
             </h2>
+            <BlogImage
+              id="shoppingStreet"
+              alt="A busy Japanese shopping street — specialty shops, markets, and neighborhood retail"
+            />
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               Japan has a diverse retail market.
             </p>

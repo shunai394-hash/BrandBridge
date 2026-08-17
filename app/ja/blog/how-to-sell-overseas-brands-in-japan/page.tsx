@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
@@ -167,6 +168,13 @@ export default function HowToSellOverseasBrandsInJapanPage() {
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
             EC事業者、卸売業者、小売店、バイヤー、販売代理店が、海外ブランドの商品を日本で販売するための実務ガイドです。
           </p>
+          <BlogImage
+            id="mtFuji"
+            alt="雲海の上に見える富士山。海外ブランドが目指す日本市場の象徴"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -193,6 +201,10 @@ export default function HowToSellOverseasBrandsInJapanPage() {
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               海外ブランドの商品を日本で販売する方法には、いくつかの選択肢があります。
             </p>
+            <BlogImage
+              id="shoppingStreet"
+              alt="日本の商店街。小売店や街中での販売チャネルをイメージした風景"
+            />
             <ul className="mt-8 grid gap-4">
               {salesMethods.map((item) => (
                 <li
@@ -217,6 +229,10 @@ export default function HowToSellOverseasBrandsInJapanPage() {
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               海外商品を仕入れる前に、最低限次のポイントを確認しましょう。
             </p>
+            <BlogImage
+              id="consultant"
+              alt="取引条件や数字を確認する手元。卸価格やMOQなどの確認作業"
+            />
             <ul className="mt-8 space-y-4">
               {selectionPoints.map((item) => (
                 <li
@@ -239,6 +255,10 @@ export default function HowToSellOverseasBrandsInJapanPage() {
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               海外ブランドの商品を探すときにありがちな失敗が、「海外で売れているから日本でも売れるだろう」と考えてしまうことです。
             </p>
+            <BlogImage
+              id="kyotoStreet"
+              alt="京都の通りを歩く舞妓。日本の消費者や街の空気感に合うかを見極めるイメージ"
+            />
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               実際には、海外で人気の商品でも、日本では認知度が低く、販売方法を工夫する必要があります。
             </p>
@@ -257,6 +277,10 @@ export default function HowToSellOverseasBrandsInJapanPage() {
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               興味のある商品が見つかったら、次はブランド側との商談です。最初の段階では、次の情報を確認するとスムーズです。
             </p>
+            <BlogImage
+              id="handshake"
+              alt="商談がまとまったときの握手。海外ブランド側との取引開始を表す"
+            />
             <BulletList items={negotiationItems} />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
               特に重要なのが、
@@ -274,6 +298,10 @@ export default function HowToSellOverseasBrandsInJapanPage() {
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               初めて扱う海外ブランドでは、いきなり大きな数量を発注するよりも、まず市場反応を確認する方法があります。例えば、
             </p>
+            <BlogImage
+              id="analytics"
+              alt="タブレットで販売データを確認する様子。テスト販売の反応を見るイメージ"
+            />
             <ol className="mt-6 space-y-3">
               {testSteps.map((step, index) => (
                 <li key={step} className="flex items-start gap-3">

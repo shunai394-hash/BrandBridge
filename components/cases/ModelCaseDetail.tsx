@@ -1,11 +1,35 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import {
   MODEL_CASE_DISCLAIMER,
   MODEL_CASE_TYPE_LABEL,
   type ModelCase,
 } from "@/lib/model-cases";
+import type { BlogJapanImageId } from "@/lib/blog/japan-images";
+
+type CaseVisual = {
+  id: BlogJapanImageId;
+  alt: string;
+};
+
+/** Optional atmosphere images only. Omit handshake/docs/analytics — those read as real deals. */
+const MODEL_CASE_VISUALS: Record<
+  string,
+  { hero: CaseVisual; whyJapan: CaseVisual }
+> = {
+  "australian-clean-beauty": {
+    hero: {
+      id: "gardenTsukubai",
+      alt: "A stone water basin in a Japanese garden — atmospheric setting for this illustrative Japan market-entry model case, not a photo of the brand",
+    },
+    whyJapan: {
+      id: "shoppingStreet",
+      alt: "A Japanese shopping street — illustrative specialty-retail context for this model case, not a completed listing or store placement",
+    },
+  },
+};
 
 type ModelCaseDetailProps = {
   modelCase: ModelCase;
@@ -40,6 +64,7 @@ function GlanceCard({ label, value }: { label: string; value: string }) {
 }
 
 export function ModelCaseDetail({ modelCase }: ModelCaseDetailProps) {
+  const visuals = MODEL_CASE_VISUALS[modelCase.slug];
   const glance = [
     { label: "Brand Origin", value: modelCase.country },
     { label: "Category", value: modelCase.category },
@@ -87,6 +112,15 @@ export function ModelCaseDetail({ modelCase }: ModelCaseDetailProps) {
             results.
           </p>
         </div>
+
+        {visuals ? (
+          <BlogImage
+            id={visuals.hero.id}
+            alt={visuals.hero.alt}
+            variant="hero"
+            priority
+          />
+        ) : null}
       </header>
 
       {/* B. At a Glance */}
@@ -205,6 +239,9 @@ export function ModelCaseDetail({ modelCase }: ModelCaseDetailProps) {
           General considerations for category and channel fit—not forecasts or
           performance claims.
         </p>
+        {visuals ? (
+          <BlogImage id={visuals.whyJapan.id} alt={visuals.whyJapan.alt} />
+        ) : null}
         <ul className="space-y-3">
           {modelCase.whyJapan.map((item) => (
             <li

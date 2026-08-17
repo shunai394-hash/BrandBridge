@@ -15,10 +15,25 @@ export class MarketingAgentError extends Error {
 
 export type AiProvider = "groq" | "openai";
 
-const DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile";
+/** Groq production replacement for retired llama-3.3-70b-versatile (shutdown 2026-08-16). */
+const DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b";
 const DEFAULT_GROQ_BASE = "https://api.groq.com/openai/v1";
 const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 const DEFAULT_OPENAI_BASE = "https://api.openai.com/v1";
+
+/** Env may still hold retired Groq IDs. Map them so EN SNS and JA PR keep working. */
+const GROQ_MODEL_ALIASES: Record<string, string> = {
+  "llama-3.3-70b-versatile": DEFAULT_GROQ_MODEL,
+  "llama-3.1-70b-versatile": DEFAULT_GROQ_MODEL,
+  "llama3-70b-8192": DEFAULT_GROQ_MODEL,
+  "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+  "llama3-8b-8192": "openai/gpt-oss-20b",
+};
+
+function resolveGroqModel(requested: string): string {
+  const key = requested.trim();
+  return GROQ_MODEL_ALIASES[key] ?? key;
+}
 
 type ProviderConfig = {
   provider: AiProvider;
@@ -74,10 +89,11 @@ function providerConfig(): ProviderConfig {
       process.env.AI_BASE_URL?.trim().replace(/\/$/, "") ||
       process.env.GROQ_BASE_URL?.trim().replace(/\/$/, "") ||
       DEFAULT_GROQ_BASE,
-    model:
+    model: resolveGroqModel(
       process.env.AI_MODEL?.trim() ||
-      process.env.GROQ_MODEL?.trim() ||
-      DEFAULT_GROQ_MODEL,
+        process.env.GROQ_MODEL?.trim() ||
+        DEFAULT_GROQ_MODEL,
+    ),
   };
 }
 

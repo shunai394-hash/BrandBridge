@@ -207,6 +207,9 @@ export function MarketingAgentConsole({
   const proposedIdeas = ideas.filter((idea) => idea.status === "proposed");
   const jaPublishedPages = publishedPages.filter((page) => page.language === "ja");
   const defaultJaPage =
+    jaPublishedPages.find(
+      (page) => page.path === "/ja/blog/how-to-sell-overseas-brands-in-japan",
+    )?.path ??
     jaPublishedPages.find((page) => page.path === "/for-partners")?.path ??
     jaPublishedPages[0]?.path ??
     "";

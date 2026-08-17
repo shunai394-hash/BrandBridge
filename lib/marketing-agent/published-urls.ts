@@ -193,6 +193,25 @@ export function sanitizeSocialPayload(
   };
 }
 
+const AUTH_WALL_TITLE_RE =
+  /login\s*[–—\-]\s*vercel|authentication required|vercel sso|deployment protection/i;
+
+export function usableFetchedPageText(value: string | null | undefined): string | null {
+  const text = value?.replace(/\s+/g, " ").trim() ?? "";
+  if (!text) return null;
+  if (AUTH_WALL_TITLE_RE.test(text)) return null;
+  return text;
+}
+
+function isAuthWallHtml(html: string, title: string | null): boolean {
+  if (title && AUTH_WALL_TITLE_RE.test(title)) return true;
+  if (/Login\s*[–—-]\s*Vercel/i.test(html)) return true;
+  if (/vercel\.com\/login/i.test(html) && /deployment protection/i.test(html)) {
+    return true;
+  }
+  return false;
+}
+
 export async function assertPublishedUrlLive(
   url: string,
   origin = getSiteUrl(),
@@ -214,6 +233,9 @@ export async function assertPublishedUrlLive(
       },
       signal: controller.signal,
     });
+    if (response.status === 401 || response.status === 403) {
+      return { title: null, description: null, h1: null };
+    }
     if (response.status === 404 || response.status === 410 || !response.ok) {
       throw new Error(PUBLIC_URL_MISSING);
     }
@@ -234,7 +256,14 @@ export async function assertPublishedUrlLive(
       ?.replace(/<[^>]+>/g, " ")
       .replace(/\s+/g, " ")
       .trim() ?? null;
-    return { title, description, h1 };
+    if (isAuthWallHtml(html, title)) {
+      return { title: null, description: null, h1: null };
+    }
+    return {
+      title: usableFetchedPageText(title),
+      description: usableFetchedPageText(description),
+      h1: usableFetchedPageText(h1),
+    };
   } catch (error) {
     if (error instanceof Error && error.message === PUBLIC_URL_MISSING) {
       throw error;

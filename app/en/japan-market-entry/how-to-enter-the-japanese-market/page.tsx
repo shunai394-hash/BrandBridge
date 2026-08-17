@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
@@ -156,6 +157,13 @@ export default function HowToEnterTheJapaneseMarketArticlePage() {
               ← Back to Japan Market Entry
             </Link>
           </p>
+          <BlogImage
+            id="fushimiTorii"
+            alt="A path of vermilion torii gates — entering Japan through the right channel"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -182,6 +190,10 @@ export default function HowToEnterTheJapaneseMarketArticlePage() {
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
               1. Understand the Japanese Market
             </h2>
+            <BlogImage
+              id="chureitoPagoda"
+              alt="Chureito Pagoda with Mount Fuji — a landmark view of the Japanese market"
+            />
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               Before approaching Japanese companies, start by understanding
               whether there is a real opportunity for your product.

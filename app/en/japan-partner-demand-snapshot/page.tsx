@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 
 export const metadata: Metadata = {
@@ -124,6 +125,13 @@ export default function JapanPartnerDemandSnapshotPage() {
               List Your Brand
             </Button>
           </div>
+          <BlogImage
+            id="consultant"
+            alt="Hands reviewing documents and figures — what Japanese partners check before a first conversation"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 

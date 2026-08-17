@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
@@ -207,6 +208,13 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               {"\u2190"} Back to Japan Market Entry
             </Link>
           </p>
+          <BlogImage
+            id="gardenTsukubai"
+            alt="A stone water basin in a Japanese garden — careful evaluation before choosing a partner"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -237,6 +245,10 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               </Link>
               .
             </p>
+            <BlogImage
+              id="handshake"
+              alt="A handshake after commercial terms are agreed — committing to a Japanese distributor"
+            />
           </section>
 
           <section className="mt-12 border-t border-border pt-10">

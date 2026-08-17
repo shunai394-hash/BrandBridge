@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { BlogImage } from "@/components/blog/BlogImage";
 import {
   HowToSellInJapanEnSeoEarly,
   HowToSellInJapanEnSeoLate,
@@ -465,6 +466,18 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
               {t.introBody}
             </p>
           </div>
+          <BlogImage
+            id="villageRoad"
+            alt={
+              locale === "ja"
+                ? "霧に包まれた日本の古い町並み。日本で販売を始めるまでの道のり"
+                : "A historic Japanese street in the mist — the path to selling products in Japan"
+            }
+            variant="hero"
+            look="guide"
+            className="mx-auto mt-10 max-w-3xl text-left"
+            priority
+          />
         </div>
       </section>
 
@@ -495,6 +508,15 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
       <section className="border-b border-black/8 bg-white py-16 md:py-20">
         <div className="mx-auto max-w-3xl px-5">
           <SectionTitle eyebrow="STEP 2" title={t.step2Title} />
+          <BlogImage
+            id="analytics"
+            alt={
+              locale === "ja"
+                ? "タブレットで数字を確認する様子。販売条件やテスト販売の検討"
+                : "Reviewing figures on a tablet — preparing commercial terms before selling in Japan"
+            }
+            look="guide"
+          />
           <ol className="relative mt-12 space-y-0">
             <div
               className="absolute top-3 bottom-3 left-[1.15rem] w-px bg-gradient-to-b from-[#C4A35A] via-black/15 to-transparent md:left-[1.35rem]"

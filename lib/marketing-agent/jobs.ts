@@ -41,6 +41,7 @@ import {
   listSocialTargetPages,
   resolvePublishedPageOrThrow,
   sanitizeSocialPayload,
+  usableFetchedPageText,
 } from "@/lib/marketing-agent/published-urls";
 import {
   buildVerifiedSocialPack,
@@ -474,6 +475,11 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
   }
   const live = await assertPublishedUrlLive(page.url);
   const origin = getSiteUrl();
+  const pageTitle =
+    usableFetchedPageText(live.title) ||
+    usableFetchedPageText(live.h1) ||
+    page.label;
+  const pageExcerpt = usableFetchedPageText(live.description) || page.label;
 
   const run = await insertRun({
     runType: "social",
@@ -487,17 +493,17 @@ export async function jobGenerateJapanesePartnerPr(pagePath: string) {
 
   try {
     const rawPosts = await generateJapanesePartnerPrWithAi({
-      title: live.title || live.h1 || page.label,
+      title: pageTitle,
       canonicalUrl: page.url,
       siteOrigin: origin,
       pagePath: page.path,
-      excerpt: live.description || page.label,
+      excerpt: pageExcerpt,
     });
     const posts = sanitizeSocialPayload(rawPosts, page.url, origin);
     const saved = await insertRecommendations([
       {
         category: "social",
-        title: `日本語PR: ${live.title || page.label}`,
+        title: `日本語PR: ${page.label}`,
         description: `日本語SNS広報（販売パートナー向け・自動投稿なし）\n公開URL: ${page.url}`,
         priority: "medium",
         data: {

@@ -35,7 +35,7 @@ BrandBridge が参照する環境変数です。**秘密情報はリポジトリ
 | `MARKETING_AI_PROVIDER` | サーバーのみ | `groq`（既定）または `openai` |
 | `GROQ_API_KEY` | サーバーのみ | Groq Chat Completions。`MARKETING_AI_PROVIDER=groq` で必須 |
 | `GROQ_BASE_URL` | サーバーのみ | 省略時 `https://api.groq.com/openai/v1` |
-| `GROQ_MODEL` | サーバーのみ | 省略時 `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | サーバーのみ | 省略時 `openai/gpt-oss-120b`（旧 `llama-3.3-70b-versatile` は自動で読み替え） |
 | `OPENAI_API_KEY` | サーバーのみ | OpenAI Chat Completions。`MARKETING_AI_PROVIDER=openai` で必須 |
 | `OPENAI_MODEL` | サーバーのみ | 省略時 `gpt-4o-mini` |
 | `OPENAI_BASE_URL` | サーバーのみ | 省略時 `https://api.openai.com/v1` |
@@ -97,7 +97,7 @@ Project → Settings → Environment Variables に以下を追加:
 | `MARKETING_AI_PROVIDER` | `groq` |
 | `GROQ_API_KEY` | Groq の API キー（値はダッシュボードのみ） |
 | `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` |
-| `GROQ_MODEL` | `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` |
 | `PR_VIDEO_WORKER_URL` | Cloud Run worker URL |
 | `PR_VIDEO_WORKER_SECRET` | Cloud Run と同じ Bearer |
 

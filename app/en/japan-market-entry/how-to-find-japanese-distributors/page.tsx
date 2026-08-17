@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
 
@@ -180,6 +181,13 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
               ← Back to Japan Market Entry
             </Link>
           </p>
+          <BlogImage
+            id="fujiSakura"
+            alt="Mount Fuji, a pagoda, and cherry blossoms — Japan as a destination for distribution partners"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -229,6 +237,10 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
               1. Understand What a Japanese Distributor Does
             </h2>
+            <BlogImage
+              id="templeLantern"
+              alt="A lantern-lit temple gate at night — local Japanese business districts and partner networks"
+            />
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               A distributor may help an overseas brand with:
             </p>

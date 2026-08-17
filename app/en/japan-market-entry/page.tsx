@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import {
   listPublishedModelCases,
@@ -274,6 +275,13 @@ export default function JapanMarketEntryPage() {
               List Your Brand
             </Button>
           </div>
+          <BlogImage
+            id="citySkyline"
+            alt="Tokyo business district skyline — Japan as a structured wholesale market"
+            variant="hero"
+            look="onDark"
+            priority
+          />
         </div>
       </section>
 
@@ -288,6 +296,11 @@ export default function JapanMarketEntryPage() {
             channels and structured wholesale relationships. The points below are
             general market-entry considerations—not performance promises.
           </p>
+          <BlogImage
+            id="waterTorii"
+            alt="A torii gate standing in water — a gateway image for entering the Japanese market"
+            className="max-w-3xl"
+          />
           <ul className="mt-10 grid list-none gap-6 md:grid-cols-3">
             {whyJapan.map((item) => (
               <li

@@ -1,0 +1,63 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { JaBlogArticle } from "@/components/blog/JaBlogArticle";
+import {
+  getJaBlogArticle,
+  listJaBlogSlugs,
+} from "@/lib/blog/ja-articles";
+
+type JaBlogSlugPageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export function generateStaticParams() {
+  return listJaBlogSlugs().map((slug) => ({ slug }));
+}
+
+export const dynamic = "force-static";
+export const dynamicParams = false;
+
+export async function generateMetadata({
+  params,
+}: JaBlogSlugPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const article = getJaBlogArticle(slug);
+
+  if (!article) {
+    return { title: "記事が見つかりません" };
+  }
+
+  const path = `/ja/blog/${article.slug}`;
+
+  return {
+    title: article.title,
+    description: article.description,
+    alternates: {
+      canonical: path,
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    openGraph: {
+      title: article.title,
+      description: article.description,
+      url: path,
+      locale: "ja_JP",
+      type: "article",
+    },
+  };
+}
+
+export default async function JapaneseBlogArticlePage({
+  params,
+}: JaBlogSlugPageProps) {
+  const { slug } = await params;
+  const article = getJaBlogArticle(slug);
+
+  if (!article) {
+    notFound();
+  }
+
+  return <JaBlogArticle article={article} />;
+}

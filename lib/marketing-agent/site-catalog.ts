@@ -1,3 +1,4 @@
+import { listJaBlogArticles } from "@/lib/blog/ja-articles";
 import { listModelCaseSlugs } from "@/lib/model-cases";
 import { getOfficialPublicOrigin } from "@/lib/site";
 import type { CatalogPage } from "@/lib/marketing-agent/types";
@@ -56,6 +57,15 @@ const STATIC_PAGES: CatalogPage[] = [
     published: true,
     fetchLive: true,
     label: "How to sell in Japan (JA)",
+  },
+  {
+    path: "/ja/blog",
+    language: "ja",
+    pageType: "guide",
+    seoImportance: "high",
+    published: true,
+    fetchLive: true,
+    label: "日本語ガイド",
   },
   {
     path: "/ja/blog/how-to-sell-overseas-brands-in-japan",
@@ -277,7 +287,17 @@ export function listPublicCatalogPages(): CatalogPage[] {
     label: `Model case ${slug}`,
   }));
 
-  return [...STATIC_PAGES, ...modelPages];
+  const jaBlogPages: CatalogPage[] = listJaBlogArticles().map((article) => ({
+    path: `/ja/blog/${article.slug}`,
+    language: "ja" as const,
+    pageType: "guide" as const,
+    seoImportance: "medium" as const,
+    published: true,
+    fetchLive: true,
+    label: article.title,
+  }));
+
+  return [...STATIC_PAGES, ...modelPages, ...jaBlogPages];
 }
 
 export function normalizeCatalogPath(path: string): string {

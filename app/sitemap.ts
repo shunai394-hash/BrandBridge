@@ -39,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/how-to-sell-in-japan",
     "/ja/blog",
     "/ja/blog/how-to-sell-overseas-brands-in-japan",
+    "/ja/blog/how-to-start-overseas-brand-wholesale",
     ...listJaBlogSlugs().map((slug) => `/ja/blog/${slug}`),
     "/ja/categories",
     ...listJaCategorySlugs().map((slug) => `/ja/categories/${slug}`),

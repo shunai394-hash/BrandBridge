@@ -7,6 +7,7 @@ import {
 import {
   EXISTING_JA_BLOG,
   JA_BLOG_CLUSTER_LABEL,
+  JA_WHOLESALE_GUIDE,
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { getSiteUrl } from "@/lib/site";
@@ -121,6 +122,10 @@ export default function JapaneseBlogHubPage() {
                     {
                       href: EXISTING_JA_BLOG.path,
                       title: "海外ブランドの商品を日本で販売するには？｜基本ガイド",
+                    },
+                    {
+                      href: JA_WHOLESALE_GUIDE.path,
+                      title: JA_WHOLESALE_GUIDE.title,
                     },
                   ]
                 : [];

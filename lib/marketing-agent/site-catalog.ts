@@ -77,6 +77,15 @@ const STATIC_PAGES: CatalogPage[] = [
     label: "海外ブランドを日本で販売するガイド",
   },
   {
+    path: "/ja/blog/how-to-start-overseas-brand-wholesale",
+    language: "ja",
+    pageType: "guide",
+    seoImportance: "high",
+    published: true,
+    fetchLive: true,
+    label: "海外ブランドの仕入れ・卸取引ガイド",
+  },
+  {
     path: "/product-showcase",
     language: "ja",
     pageType: "showcase",

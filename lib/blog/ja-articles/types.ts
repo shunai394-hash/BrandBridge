@@ -55,3 +55,11 @@ export const EXISTING_JA_BLOG = {
   title: "海外ブランドの商品を日本で販売するには？",
   cluster: "partner" as const,
 } as const;
+
+export const JA_WHOLESALE_GUIDE = {
+  slug: "how-to-start-overseas-brand-wholesale",
+  path: "/ja/blog/how-to-start-overseas-brand-wholesale",
+  title:
+    "海外ブランドの仕入れ・卸取引を始める方法｜仕入先の探し方・MOQ・輸入まで解説",
+  cluster: "partner" as const,
+} as const;

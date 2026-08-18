@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { getJaBlogArticle } from "@/lib/blog/ja-articles";
+import { getDedicatedJaBlog } from "@/lib/blog/ja-articles/types";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 import {
   jaCategoryCasesHref,
@@ -8,6 +9,21 @@ import {
   type JaCategoryLanding,
 } from "@/lib/ja-categories";
 import { getSiteUrl } from "@/lib/site";
+
+function relatedCategoryLinks(slugs: readonly string[]) {
+  return slugs
+    .map((slug) => {
+      const dedicated = getDedicatedJaBlog(slug);
+      if (dedicated) {
+        return { href: dedicated.path, title: dedicated.title };
+      }
+      const item = getJaBlogArticle(slug);
+      return item
+        ? { href: `/ja/blog/${item.slug}`, title: item.title }
+        : null;
+    })
+    .filter((item): item is { href: string; title: string } => item !== null);
+}
 
 type JaCategoryLandingPageProps = {
   category: JaCategoryLanding;
@@ -37,7 +53,8 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
   const siteUrl = getSiteUrl();
   const path = jaCategoryPath(category.slug);
   const casesHref = jaCategoryCasesHref(category.caseCategory);
-  const blog = getJaBlogArticle(category.relatedBlogSlug);
+  const relatedBlogs = relatedCategoryLinks(category.relatedBlogSlugs);
+  const footerCasesFirst = category.cta.footerPrimary === "cases";
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -106,20 +123,22 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
             {category.label}
           </p>
 
-          <p className="mt-6 text-sm leading-relaxed text-muted md:text-base">
-            {category.intro}
-          </p>
+          <div className="mt-6 space-y-5 text-sm leading-relaxed text-muted md:text-base">
+            {category.intro.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button href={casesHref} className="w-full sm:w-auto">
-              {category.label}の商品を探す
+              {category.cta.introPrimaryLabel}
             </Button>
             <Button
-              href="/register/partner"
+              href={category.cta.introSecondary.href}
               variant="outline"
               className="w-full sm:w-auto"
             >
-              販売パートナーとして登録
+              {category.cta.introSecondary.label}
             </Button>
           </div>
 
@@ -160,16 +179,20 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
               {category.label}の掲載商品を見る
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              カテゴリー「{category.caseCategory}」の商品一覧へ進めます。気になる商品があれば、詳細で条件を確認できます。
+              カテゴリー「{category.caseCategory}」の
+              <Link href="/cases" className="text-teal hover:underline">
+                商品一覧
+              </Link>
+              へ進めます。気になる商品があれば、各商品の詳細で条件を確認し、問い合わせできます。
             </p>
             <div className="mt-6">
               <Button href={casesHref} className="w-full sm:w-auto">
-                {category.caseCategory}の商品一覧を見る
+                {category.cta.productListLabel}
               </Button>
             </div>
           </section>
 
-          {blog ? (
+          {relatedBlogs.length > 0 ? (
             <section className="mt-12 border-t border-border pt-10">
               <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
                 関連する日本語ブログ
@@ -177,14 +200,15 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
               <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
                 日本で販売するときの実務解説は、ブログ側で扱っています。仕入れ候補を探す場合はこのページの商品一覧を優先してください。
               </p>
-              <p className="mt-4">
-                <Link
-                  href={`/ja/blog/${blog.slug}`}
-                  className="text-teal hover:underline"
-                >
-                  {blog.title}
-                </Link>
-              </p>
+              <ul className="mt-4 space-y-2">
+                {relatedBlogs.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="text-teal hover:underline">
+                      {item.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </section>
           ) : null}
         </div>
@@ -204,22 +228,44 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
             取り扱いを進めるなら
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">
-            商品条件を確認したうえで、販売パートナーとして登録できます。登録は無料です。
+            {footerCasesFirst
+              ? "商品条件を確認したうえで、商品一覧から問い合わせできます。販売パートナー登録は補助として利用できます。"
+              : "商品条件を確認したうえで、販売パートナーとして登録できます。登録は無料です。"}
           </p>
           <div className="mx-auto mt-8 flex w-full max-w-lg flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
-            <Button
-              href="/register/partner"
-              className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
-            >
-              販売パートナーとして登録する
-            </Button>
-            <Button
-              href={casesHref}
-              variant="outline"
-              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              商品一覧を見る
-            </Button>
+            {footerCasesFirst ? (
+              <>
+                <Button
+                  href={casesHref}
+                  className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
+                >
+                  商品一覧を見る
+                </Button>
+                <Button
+                  href="/register/partner"
+                  variant="outline"
+                  className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
+                >
+                  販売パートナーとして登録する
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  href="/register/partner"
+                  className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
+                >
+                  販売パートナーとして登録する
+                </Button>
+                <Button
+                  href={casesHref}
+                  variant="outline"
+                  className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
+                >
+                  商品一覧を見る
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>

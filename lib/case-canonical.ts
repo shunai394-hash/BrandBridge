@@ -15,6 +15,8 @@ export const CANONICAL_PTIT_NINJA_CASE_ID =
 /** Duplicate public URL → canonical case id. Do not delete the source row. */
 export const KNOWN_CASE_ID_REDIRECTS: Record<string, string> = {
   "7c990b6e-6dc8-49ea-99b8-11da060a4327": CANONICAL_PTIT_NINJA_CASE_ID,
+  // Live duplicate of the same listing (SKU missing in DB; 99b8 was the brief ID).
+  "7c990b6e-6dc8-49ea-99d8-11da060a4327": CANONICAL_PTIT_NINJA_CASE_ID,
 };
 
 export function resolveKnownCanonicalCaseId(caseId: string): string | null {

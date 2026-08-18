@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
+import { headers } from "next/headers";
 import Script from "next/script";
 import { Suspense } from "react";
 
@@ -106,14 +107,18 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const lang =
+    pathname === "/en" || pathname.startsWith("/en/") ? "en" : "ja";
+
   return (
     <html
-      lang="ja"
+      lang={lang}
       className={`${shippori.variable} ${zen.variable} h-full`}
     >
       <body className="flex min-h-full flex-col antialiased">

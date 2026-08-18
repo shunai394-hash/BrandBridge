@@ -16,6 +16,16 @@ const nextConfig: NextConfig = {
         destination: "/en/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
         permanent: true,
       },
+      {
+        source: "/cases/7c990b6e-6dc8-49ea-99d8-11da060a4327",
+        destination: "/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
+        permanent: true,
+      },
+      {
+        source: "/en/cases/7c990b6e-6dc8-49ea-99d8-11da060a4327",
+        destination: "/en/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
+        permanent: true,
+      },
     ];
   },
   experimental: {

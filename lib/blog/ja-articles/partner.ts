@@ -165,9 +165,7 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       },
     ],
     relatedSlugs: [
-      EXISTING_JA_BLOG.slug,
       "what-is-moq-for-overseas-products",
-      "conditions-to-check-before-sourcing-overseas-brands",
       "common-problems-sourcing-overseas-products",
     ],
     existingLinks: [...partnerLinks],
@@ -567,7 +565,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       },
     ],
     relatedSlugs: [
-      EXISTING_JA_BLOG.slug,
       "how-to-find-overseas-wholesale-suppliers",
       "how-to-find-overseas-brands-that-can-sell-in-japan",
     ],
@@ -620,7 +617,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     relatedSlugs: [
       "how-to-find-overseas-wholesale-suppliers",
       "buyer-guide-to-finding-new-overseas-brands",
-      EXISTING_JA_BLOG.slug,
     ],
     existingLinks: [...partnerLinks],
     cta: partnerCta,
@@ -906,7 +902,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     relatedSlugs: [
       "how-to-become-japan-agent-for-overseas-brands",
       "buyer-guide-to-finding-new-overseas-brands",
-      EXISTING_JA_BLOG.slug,
     ],
     existingLinks: [...partnerLinks],
     cta: partnerCta,

@@ -72,7 +72,6 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     relatedSlugs: [
       "how-to-sell-overseas-supplements-in-japan",
       "how-to-find-overseas-brands-that-can-sell-in-japan",
-      EXISTING_JA_BLOG.slug,
     ],
     existingLinks: [...categoryLinks],
     cta: categoryCtaPartner,
@@ -128,7 +127,6 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     relatedSlugs: [
       "how-to-sell-overseas-supplements-in-japan",
       "logistics-lead-time-samples-for-import",
-      EXISTING_JA_BLOG.slug,
     ],
     existingLinks: [...categoryLinks],
     cta: categoryCtaPartner,

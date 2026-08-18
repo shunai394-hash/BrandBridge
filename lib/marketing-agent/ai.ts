@@ -180,7 +180,7 @@ export async function completeChat(
   const body = {
     model: cfg.model,
     temperature: options.temperature ?? 0.4,
-    max_tokens: options.maxTokens ?? 4000,
+    max_tokens: options.maxTokens ?? 8000,
     response_format: { type: "json_object" as const },
     messages,
   };

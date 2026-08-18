@@ -19,7 +19,7 @@ Voice:
 `.trim();
 
 export const JSON_ONLY =
-  "Respond with a single JSON object only. No markdown outside JSON. Do not wrap in code fences.";
+  "Respond with a single complete JSON object only. No markdown outside JSON. Do not wrap in code fences. Close every string and brace; never stop mid-field.";
 
 export function systemPrompt(task: string): string {
   return `${BRAND_CONTEXT}\n\nTask: ${task}\n\n${JSON_ONLY}`;
@@ -153,12 +153,12 @@ relatedPagePath must be copied from catalog.path or be null.
 
 export const SOCIAL_TASK = `
 Create social/off-platform posts in English for ONE chosen BrandBridge theme, for overseas brand operators.
-Do NOT reuse the same copy across platforms. Do not paraphrase the same paragraph.
-- LinkedIn: B2B, professional, insight-led, 120-220 words, 1 CTA.
+Do NOT reuse the same copy across platforms. Do not paraphrase the same paragraph. Keep each field compact so the JSON can finish.
+- LinkedIn: B2B, professional, insight-led, 80-140 words, 1 CTA.
 - X: exactly TWO posts. Short, curiosity-led, information-dense, max 260 chars each. Different hooks. No hashtag stuffing.
-- Substack: explanatory newsletter, 300-500 words, deepens the theme, soft CTA at the end.
-- Reddit: discussion/experience-sharing. Helpful first. No blatant promo. Mention BrandBridge at most once, only if useful.
-- Instagram: caption for a still/carousel. 80-150 words, 5-8 relevant hashtags. Different wording from LinkedIn. No invented URLs. Set media to still or carousel.
+- Substack: explanatory newsletter, 120-200 words, deepens the theme, soft CTA at the end.
+- Reddit: discussion/experience-sharing, 80-140 words. Helpful first. No blatant promo. Mention BrandBridge at most once, only if useful.
+- Instagram: caption for a still/carousel. 60-110 words, 5-8 relevant hashtags. Different wording from LinkedIn. No invented URLs. Set media to still or carousel.
 - TikTok: short-form video package. title (max 80 chars), spoken/on-screen caption (max 150 chars), 4-6 hashtags. Do not invent a video file or media URL. This is copy only.
 URL rules (mandatory):
 - The only allowed link is canonicalUrl from the user payload.
@@ -183,14 +183,14 @@ export const JA_PARTNER_PR_TASK = `
 切り口の例（そのままコピーせず、媒体向けに自然な日本語にする）:
 - 海外ブランドの商品を日本で販売しませんか？
 - 新しい海外商品を探している販売事業者へ
-媒体（同じ文章を使い回さない。媒体ごとに切り口を変える）:
-- LinkedIn: 法人向け。信頼・取引条件・マッチングの実務。200〜400字。CTAは1つ。
-- X: 2〜3投稿。情報が濃い短文。各140字以内を目安。フックを変える。ハッシュタグの連打は禁止。
-- Facebook: 事業者向け。具体的なメリットをやさしく。200〜350字。
-- Instagram: 静止画/カルーセル向けキャプション。80〜150字＋ハッシュタグ5〜8。LinkedInと同じ文にしない。
-- TikTok: 短尺動画用。タイトル（80字以内）とキャプション（150字以内）＋ハッシュタグ4〜6。動画ファイルやURLは捏造しない。
-- Substack: 解説ニュースレター。400〜700字。テーマを深掘りし、末尾にやわらかいCTA。
-- Reddit: 経験談・議論。売り込みを前面に出さない。BrandBridgeの言及は有用な場合のみ1回まで。
+媒体（同じ文章を使い回さない。媒体ごとに切り口を変える。JSONは途中で切らず全キーを埋める）:
+- LinkedIn: 法人向け。信頼・取引条件・マッチングの実務。150〜250字。CTAは1つ。
+- X: 投稿は2本。情報が濃い短文。各140字以内。フックを変える。ハッシュタグの連打は禁止。
+- Facebook: 事業者向け。具体的なメリットをやさしく。150〜220字。
+- Instagram: 静止画/カルーセル向けキャプション。80〜120字＋ハッシュタグ5〜8。LinkedInと同じ文にしない。
+- TikTok: 短尺動画用。タイトル（80字以内）とキャプション（120字以内）＋ハッシュタグ4〜6。動画ファイルやURLは捏造しない。
+- Substack: 解説ニュースレター。200〜320字。末尾にやわらかいCTA。
+- Reddit: 経験談・議論。150〜250字。売り込みを前面に出さない。BrandBridgeの言及は有用な場合のみ1回まで。
 ルール:
 - すべて日本語。英語ページを翻訳しただけの文にしない。
 - 自動投稿しない。管理画面で確認して人が貼る／投稿する文面。

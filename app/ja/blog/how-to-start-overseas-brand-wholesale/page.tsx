@@ -170,7 +170,14 @@ export default async function HowToStartOverseasBrandWholesalePage() {
               海外ブランドの探し方
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              仕入先探しは、連絡先の件数より、再販できる地域と数量が見えるかを基準にします。展示会、メーカーへの直接問い合わせ、海外の卸、条件が見える掲載ページなど、ルートは複数あります。
+              仕入先探しは、連絡先の件数より、再販できる地域と数量が見えるかを基準にします。展示会、メーカーへの直接問い合わせ、海外の卸、条件が見える掲載ページなど、ルートは複数あります。メーカー・卸・展示会・マッチングの比較は
+              <Link
+                href="/ja/blog/how-to-find-overseas-wholesale-suppliers"
+                className="text-teal hover:underline"
+              >
+                仕入れ先の探し方
+              </Link>
+              で扱っています。
             </p>
             <BlogImage
               id="shoppingStreet"
@@ -291,7 +298,14 @@ export default async function HowToStartOverseasBrandWholesalePage() {
               ]}
             />
             <p className="mt-5 text-sm leading-relaxed text-muted md:text-base">
-              個別案件の税務・規制は、この記事では断定しません。該当しそうなカテゴリーは、発注前に専門家へ確認してください。
+              費用と輸送・支払の確認項目は
+              <Link
+                href="/ja/blog/logistics-lead-time-samples-for-import"
+                className="text-teal hover:underline"
+              >
+                輸入・仕入れの費用と条件
+              </Link>
+              に分けてあります。個別案件の税務・規制は、この記事では断定しません。該当しそうなカテゴリーは、発注前に専門家へ確認してください。
             </p>
           </section>
 
@@ -303,7 +317,14 @@ export default async function HowToStartOverseasBrandWholesalePage() {
               海外で流通していることと、日本で販売してよいことは別です。食品、化粧品、健康関連、電気製品などは、表示や認証の確認が先になります。効能や売上を断定せず、「自社チャネルで扱えるか」を先に調べます。
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              あわせて、日本国内の既存販売先と独占の範囲を確認します。すでに独占契約がある場合、新しい卸として入れないことがあります。
+              食品・化粧品・雑貨ごとの注意は
+              <Link
+                href="/ja/blog/cautions-when-selling-overseas-brands-in-japan"
+                className="text-teal hover:underline"
+              >
+                日本販売の注意点
+              </Link>
+              を参照してください。あわせて、日本国内の既存販売先と独占の範囲を確認します。すでに独占契約がある場合、新しい卸として入れないことがあります。
             </p>
           </section>
 

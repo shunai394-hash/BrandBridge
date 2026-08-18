@@ -16,76 +16,6 @@ const makerLinks = [
 
 export const MAKER_ARTICLES: JaBlogArticle[] = [
   {
-    slug: "how-overseas-brands-enter-japan",
-    cluster: "maker",
-    title: "海外ブランドが日本市場に参入する方法｜最初の進め方",
-    description:
-      "海外ブランドが日本市場へ参入する最初の進め方。販路の選び方、商品情報、取引条件、販売パートナー探しの順を実務目線で解説します。",
-    eyebrow: "海外ブランド向け日本市場ガイド",
-    lede: "日本参入の最初の仕事は、店舗を出すことより、誰が・どの条件で売るかを決めることです。",
-    intro: [
-      "日本市場への参入は、法人設立や大規模な広告から始める必要はありません。多くの海外ブランドが先に直面するのは、卸・小売・ECのうち、誰が自社商品を扱うかが見えないことです。",
-      "この記事では、最初の進め方だけを扱います。代理店探しや価格設計の詳細は、関連ガイドに分けています。",
-    ],
-    hero: {
-      id: "citySkyline",
-      alt: "日本の都市のスカイライン。海外ブランドが日本市場を見渡すイメージ",
-    },
-    sections: [
-      {
-        heading: "最初に決めること",
-        paragraphs: [
-          "自社が日本で担う範囲です。在庫を日本に置くのか、輸出して相手に任せるのか、独占を求めるのか、並売でよいか。ここが空のままパートナーを探すと、条件の話が噛み合いません。",
-        ],
-        bullets: [
-          "希望する販売チャネル（卸、店舗、EC）",
-          "日本側に求める役割（仕入れ、紹介、在庫）",
-          "初回で出せる数量",
-          "日本での価格の目安",
-        ],
-      },
-      {
-        heading: "参入ルートの選び方",
-        paragraphs: [
-          "直営、現地法人、代理店、卸、越境ECは、投資とコントロールが違います。BrandBridgeが扱うのは、商品を掲載し、日本の販売パートナーと条件を確認する経路です。輸入代行や在庫の買い取りは行いません。",
-        ],
-        cards: [
-          {
-            title: "販売パートナー経由",
-            body: "日本側が仕入れと販売を担う形です。自社は商品情報と取引条件を先に揃えます。",
-          },
-          {
-            title: "自社での直販",
-            body: "顧客との距離は近い一方、日本語対応、物流、決済を自社で持つ必要があります。",
-          },
-          {
-            title: "展示会だけの接点",
-            body: "名刺は集まりますが、その後の条件確認が残ります。展示会後に文書化する前提が必要です。",
-          },
-        ],
-      },
-      {
-        heading: "商品情報を先に揃える",
-        paragraphs: [
-          "日本の事業者は、世界観だけでなく、卸価格、MOQ、納期、販売制限を見ます。写真とストーリーだけでは、発注判断に進みにくいです。",
-        ],
-      },
-      {
-        heading: "BrandBridgeでの次の一歩",
-        paragraphs: [
-          "商品提供企業として登録し、商品と取引条件を掲載できます。登録は無料です。日本で販売する方法のガイドで、登録から商談までの流れも確認できます。",
-        ],
-      },
-    ],
-    relatedSlugs: [
-      "how-to-find-japan-sales-agents",
-      "japan-product-information-checklist",
-      "how-to-set-japan-wholesale-price",
-    ],
-    existingLinks: [...makerLinks],
-    cta: makerCta,
-  },
-  {
     slug: "how-to-find-japan-sales-agents",
     cluster: "maker",
     title: "日本の販売代理店を探す方法｜海外ブランド向け実務ガイド",
@@ -130,6 +60,7 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
       "cautions-when-contracting-japan-agents",
       "how-to-find-japan-wholesalers",
       "how-overseas-brands-enter-japan",
+      "cautions-when-selling-overseas-brands-in-japan",
     ],
     existingLinks: [...makerLinks],
     cta: makerCta,

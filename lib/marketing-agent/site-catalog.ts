@@ -1,4 +1,5 @@
 import { listJaBlogArticles } from "@/lib/blog/ja-articles";
+import { JA_DEDICATED_GUIDES } from "@/lib/blog/ja-articles/types";
 import { listModelCaseSlugs } from "@/lib/model-cases";
 import { getOfficialPublicOrigin } from "@/lib/site";
 import type { CatalogPage } from "@/lib/marketing-agent/types";
@@ -66,24 +67,6 @@ const STATIC_PAGES: CatalogPage[] = [
     published: true,
     fetchLive: true,
     label: "日本語ガイド",
-  },
-  {
-    path: "/ja/blog/how-to-sell-overseas-brands-in-japan",
-    language: "ja",
-    pageType: "guide",
-    seoImportance: "high",
-    published: true,
-    fetchLive: true,
-    label: "海外ブランドを日本で販売する方法",
-  },
-  {
-    path: "/ja/blog/how-to-start-overseas-brand-wholesale",
-    language: "ja",
-    pageType: "guide",
-    seoImportance: "high",
-    published: true,
-    fetchLive: true,
-    label: "海外ブランドの仕入れ・卸取引ガイド",
   },
   {
     path: "/product-showcase",
@@ -296,6 +279,16 @@ export function listPublicCatalogPages(): CatalogPage[] {
     label: `Model case ${slug}`,
   }));
 
+  const jaDedicatedPages: CatalogPage[] = JA_DEDICATED_GUIDES.map((guide) => ({
+    path: guide.path,
+    language: "ja" as const,
+    pageType: "guide" as const,
+    seoImportance: "high" as const,
+    published: true,
+    fetchLive: true,
+    label: guide.title,
+  }));
+
   const jaBlogPages: CatalogPage[] = listJaBlogArticles().map((article) => ({
     path: `/ja/blog/${article.slug}`,
     language: "ja" as const,
@@ -306,7 +299,7 @@ export function listPublicCatalogPages(): CatalogPage[] {
     label: article.title,
   }));
 
-  return [...STATIC_PAGES, ...modelPages, ...jaBlogPages];
+  return [...STATIC_PAGES, ...modelPages, ...jaDedicatedPages, ...jaBlogPages];
 }
 
 export function normalizeCatalogPath(path: string): string {

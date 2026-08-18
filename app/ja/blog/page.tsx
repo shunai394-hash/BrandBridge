@@ -5,9 +5,8 @@ import {
   listJaBlogArticlesByCluster,
 } from "@/lib/blog/ja-articles";
 import {
-  EXISTING_JA_BLOG,
   JA_BLOG_CLUSTER_LABEL,
-  JA_WHOLESALE_GUIDE,
+  listDedicatedJaBlogsByCluster,
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { getSiteUrl } from "@/lib/site";
@@ -116,22 +115,12 @@ export default function JapaneseBlogHubPage() {
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
           {CLUSTERS.map((cluster) => {
             const articles = listJaBlogArticlesByCluster(cluster.id);
-            const extra =
-              cluster.id === "partner"
-                ? [
-                    {
-                      href: JA_WHOLESALE_GUIDE.path,
-                      title: JA_WHOLESALE_GUIDE.title,
-                    },
-                  ]
-                : cluster.id === "maker"
-                  ? [
-                      {
-                        href: EXISTING_JA_BLOG.path,
-                        title: EXISTING_JA_BLOG.title,
-                      },
-                    ]
-                  : [];
+            const extra = listDedicatedJaBlogsByCluster(cluster.id).map(
+              (item) => ({
+                href: item.path,
+                title: item.title,
+              }),
+            );
 
             return (
               <section

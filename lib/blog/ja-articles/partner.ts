@@ -166,6 +166,8 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     ],
     relatedSlugs: [
       "what-is-moq-for-overseas-products",
+      "how-to-find-overseas-wholesale-suppliers",
+      "logistics-lead-time-samples-for-import",
       "common-problems-sourcing-overseas-products",
     ],
     existingLinks: [...partnerLinks],
@@ -251,70 +253,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     cta: partnerCta,
   },
   {
-    slug: "how-to-find-overseas-wholesale-suppliers",
-    cluster: "partner",
-    title: "海外商品の卸売仕入れ先を探す方法｜小売・EC事業者向け",
-    description:
-      "海外商品の卸売仕入れ先を探したい小売・EC事業者向け。メーカー直、海外卸、マッチングの使い分けと、仕入れ先を見極める観点を解説します。",
-    eyebrow: "販売パートナー向けガイド",
-    lede: "卸売の仕入れ先探しは、連絡先の数より、再販条件が見えるかどうかを基準にします。",
-    intro: [
-      "小売店やEC事業者が海外商品を増やすとき、メーカー公式サイトだけでは卸条件にたどり着けないことがよくあります。",
-      "この記事では、卸売仕入れ先の探し方と、候補を絞り込むときに見る項目を整理します。",
-    ],
-    hero: {
-      id: "souvenirShop",
-      alt: "店頭に並ぶ商品。小売やECが卸で仕入れるときの売場イメージ",
-    },
-    sections: [
-      {
-        heading: "卸売仕入れ先の探し方",
-        paragraphs: [
-          "探し方は、展示会、海外卸のディレクトリ、ブランドへの直接問い合わせ、条件が見える掲載ページ、に大別できます。",
-          "連絡する前に、自社の月間販売数量と希望小売価格帯を持っておくと、相手も卸可否を判断しやすくなります。",
-        ],
-        cards: [
-          {
-            title: "メーカー直",
-            body: "条件交渉の余地は大きい一方、小ロットに応じないことがあります。",
-          },
-          {
-            title: "海外卸",
-            body: "複数ブランドをまとめて見られることがあります。日本再販の許可を必ず確認します。",
-          },
-          {
-            title: "条件付きの掲載",
-            body: "MOQや卸の目安が見えると、問い合わせ前に候補を減らせます。",
-          },
-        ],
-      },
-      {
-        heading: "仕入れ先を見極める観点",
-        paragraphs: ["安さだけで選ぶと、納期と不良対応で利益が消えることがあります。"],
-        bullets: [
-          "再販可能な地域とチャネル",
-          "リードタイムのばらつき",
-          "最小ロットと再発注単位",
-          "不良時の写真証拠や交換のルール",
-          "日本向け情報（成分、サイズ、電圧）の有無",
-        ],
-      },
-      {
-        heading: "BrandBridgeで卸条件を見る",
-        paragraphs: [
-          "掲載商品では、卸価格やMOQなどの取引条件を確認できます。小売・ECが「この数量なら扱えるか」を先に判断するための材料です。",
-        ],
-      },
-    ],
-    relatedSlugs: [
-      "how-to-source-overseas-brands",
-      "how-to-sell-overseas-brands-on-japan-ec",
-      "how-to-sell-overseas-products-in-japan-retail",
-    ],
-    existingLinks: [...partnerLinks],
-    cta: partnerCta,
-  },
-  {
     slug: "conditions-to-check-before-sourcing-overseas-brands",
     cluster: "partner",
     title: "海外ブランドを仕入れる前に確認すべき条件とは？",
@@ -370,57 +308,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "how-to-source-overseas-brands",
       "what-is-moq-for-overseas-products",
       "exclusive-distribution-rights-in-japan",
-    ],
-    existingLinks: [...partnerLinks],
-    cta: partnerCta,
-  },
-  {
-    slug: "what-is-moq-for-overseas-products",
-    cluster: "partner",
-    title: "MOQとは？海外商品の小ロット仕入れで失敗しない考え方",
-    description:
-      "海外商品のMOQ（最低発注数量）の意味と、小ロット仕入れで在庫リスクを抑える考え方。単価だけで判断しない手順を解説します。",
-    eyebrow: "販売パートナー向けガイド",
-    lede: "MOQは割引の条件ではなく、在庫として抱えられる上限を決める数字です。",
-    intro: [
-      "海外ブランドとのやりとりで最初に出てくる数字の一つがMOQです。小さく見せるために単価だけを見ると、売れ残りが残ります。",
-      "この記事では、MOQの意味と、小ロットで始めるときの見方を説明します。",
-    ],
-    hero: {
-      id: "villageRoad",
-      alt: "霧の中の通り。小ロットから海外商品の取り扱いを始める道のりのイメージ",
-    },
-    sections: [
-      {
-        heading: "MOQの意味",
-        paragraphs: [
-          "Minimum Order Quantityは、一度の発注で求められる最小数量、または最小金額です。生産ロット、輸出梱包、ブランドの在庫方針によって決まります。",
-          "「MOQを下げてほしい」は、相手のコスト構造への変更依頼です。代替案として、色やSKUを絞る、初回だけ混ぜる、再発注で単価を見直す、といった話になります。",
-        ],
-      },
-      {
-        heading: "小ロットで見るべき計算",
-        paragraphs: [
-          "単価が高くても、売れる見込みの範囲なら、初回は小さくてよいことがあります。計算は、希望小売価格から卸、送料、関税、返品を引いた残りが、自社の作業に見合うかです。",
-        ],
-        bullets: [
-          "何個までなら保管できるか",
-          "何週間で売り切る想定か",
-          "再発注までの日数",
-          "SKUをいくつ同時に抱えるか",
-        ],
-      },
-      {
-        heading: "BrandBridgeでの確認",
-        paragraphs: [
-          "掲載商品にはMOQの目安が書かれていることがあります。数字がある場合は、自社の販売計画と突き合わせてから問い合わせると、商談が具体的になります。",
-        ],
-      },
-    ],
-    relatedSlugs: [
-      "how-to-source-overseas-brands",
-      "price-and-moq-negotiation-with-overseas-brands",
-      "japan-moq-for-overseas-brands",
     ],
     existingLinks: [...partnerLinks],
     cta: partnerCta,
@@ -797,62 +684,6 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "what-is-moq-for-overseas-products",
       "how-to-trade-directly-with-overseas-makers",
       "how-to-set-japan-wholesale-price",
-    ],
-    existingLinks: [...partnerLinks],
-    cta: partnerCta,
-  },
-  {
-    slug: "logistics-lead-time-samples-for-import",
-    cluster: "partner",
-    title: "海外商品の輸入販売で確認したい物流・納期・サンプル条件",
-    description:
-      "海外商品を輸入販売する前に確認したい物流、納期、サンプル条件。費用の分岐と、販売開始日の決め方を実務目線で整理します。",
-    eyebrow: "販売パートナー向けガイド",
-    lede: "物流とサンプルは、価格表の外にあるコストと時間です。ここを後回しにすると、利益計算が崩れます。",
-    intro: [
-      "仕入れ判断で卸価格とMOQは見えやすい一方、誰が輸出するか、サンプルは有償か、納期の起算はいつかは、問い合わせるまで分からないことがあります。",
-      "制度の詳細や税率は案件ごとに異なるため、この記事では確認項目に留めます。",
-    ],
-    hero: {
-      id: "chureitoPagoda",
-      alt: "五重塔と富士。国境を越えて商品が届くまでの距離を示すイメージ",
-    },
-    sections: [
-      {
-        heading: "物流で確認すること",
-        paragraphs: [
-          "輸出者、輸入者、インコタームズ、輸送手段、梱包単位です。EXWとFOBでは、現地での引き取り負担が違います。用語が出てきたら、費用と危険の分岐を確認してください。",
-        ],
-        bullets: [
-          "出荷地と梱包の最小単位",
-          "船便・航空便の想定",
-          "保険の付保者",
-          "日本到着後の国内配送",
-        ],
-      },
-      {
-        heading: "納期の見方",
-        paragraphs: [
-          "生産リードタイム、輸送日数、通関、国内配送を分けて聞くと、販売計画に載せられます。繁忙期や連休前後は、同じ「4週間」でも着日がずれます。",
-        ],
-      },
-      {
-        heading: "サンプル条件",
-        paragraphs: [
-          "有償か無償か、送料はどちらか、量産と同じ仕様か、返送が必要かです。サンプルなしの大量発注は、パッケージや中身の差を後から吸収しにくくなります。",
-        ],
-      },
-      {
-        heading: "BrandBridge上での使い方",
-        paragraphs: [
-          "掲載に納期や送料の目安がある場合は、それを起点に不足分を質問します。輸入代行はBrandBridgeの機能ではありません。通関や税の判断は、必要に応じて専門家へ確認してください。",
-        ],
-      },
-    ],
-    relatedSlugs: [
-      "common-problems-sourcing-overseas-products",
-      "how-to-source-overseas-brands",
-      "japan-logistics-import-basics",
     ],
     existingLinks: [...partnerLinks],
     cta: partnerCta,

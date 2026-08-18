@@ -1,5 +1,6 @@
 ﻿import type { MetadataRoute } from "next";
 import { listJaBlogSlugs } from "@/lib/blog/ja-articles";
+import { JA_DEDICATED_GUIDES } from "@/lib/blog/ja-articles/types";
 import { pickCanonicalPublicCases } from "@/lib/case-canonical";
 import { listOpenCases } from "@/lib/cases";
 import { listJaCategorySlugs } from "@/lib/ja-categories";
@@ -38,8 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/product-showcase",
     "/how-to-sell-in-japan",
     "/ja/blog",
-    "/ja/blog/how-to-sell-overseas-brands-in-japan",
-    "/ja/blog/how-to-start-overseas-brand-wholesale",
+    ...JA_DEDICATED_GUIDES.map((item) => item.path),
     ...listJaBlogSlugs().map((slug) => `/ja/blog/${slug}`),
     "/ja/categories",
     ...listJaCategorySlugs().map((slug) => `/ja/categories/${slug}`),

@@ -153,7 +153,21 @@ export default function HowToSellOverseasBrandsInJapanPage() {
               日本の卸・小売・ECは、世界観だけでなく、卸価格、MOQ、納期、日本での販売制限を見ます。条件が空のままパートナーを探すと、興味はあっても発注判断に進みません。
             </p>
             <p>
-              この記事は海外ブランド側の実務です。日本の事業者が仕入れを始める手順は、
+              この記事は海外ブランド側の実務です。販売パートナーの探し方は
+              <Link
+                href="/ja/blog/how-overseas-brands-enter-japan"
+                className="text-teal hover:underline"
+              >
+                日本進出ガイド
+              </Link>
+              、食品・化粧品・雑貨の注意は
+              <Link
+                href="/ja/blog/cautions-when-selling-overseas-brands-in-japan"
+                className="text-teal hover:underline"
+              >
+                日本販売の注意点
+              </Link>
+              で扱っています。日本の事業者が仕入れを始める手順は、
               <Link
                 href="/ja/blog/how-to-start-overseas-brand-wholesale"
                 className="text-teal hover:underline"
@@ -167,7 +181,7 @@ export default function HowToSellOverseasBrandsInJapanPage() {
               >
                 仕入れ方法のガイド
               </Link>
-              で扱っています。
+              です。
             </p>
           </div>
 

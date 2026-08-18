@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import {
   EXISTING_JA_BLOG,
   JA_BLOG_CLUSTER_LABEL,
+  getDedicatedJaBlog,
   type JaBlogArticle as JaBlogArticleData,
 } from "@/lib/blog/ja-articles/types";
 import { getJaBlogArticle } from "@/lib/blog/ja-articles";
@@ -41,19 +42,22 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
   const path = jaBlogPath(article.slug);
   const pageUrl = `${siteUrl}${path}`;
   const related = article.relatedSlugs
-    .map((slug) =>
-      slug === EXISTING_JA_BLOG.slug
-        ? {
-            href: EXISTING_JA_BLOG.path,
-            title: EXISTING_JA_BLOG.title,
-          }
-        : (() => {
-            const item = getJaBlogArticle(slug);
-            return item
-              ? { href: jaBlogPath(item.slug), title: item.title }
-              : null;
-          })(),
-    )
+    .map((slug) => {
+      const dedicated = getDedicatedJaBlog(slug);
+      if (dedicated) {
+        return { href: dedicated.path, title: dedicated.title };
+      }
+      if (slug === EXISTING_JA_BLOG.slug) {
+        return {
+          href: EXISTING_JA_BLOG.path,
+          title: EXISTING_JA_BLOG.title,
+        };
+      }
+      const item = getJaBlogArticle(slug);
+      return item
+        ? { href: jaBlogPath(item.slug), title: item.title }
+        : null;
+    })
     .filter((item): item is { href: string; title: string } => item !== null);
 
   const jsonLd = {

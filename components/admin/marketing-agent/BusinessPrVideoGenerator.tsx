@@ -101,6 +101,7 @@ export function BusinessPrVideoGenerator() {
   const [copyState, setCopyState] = useState<string | null>(null);
   const [images, setImages] = useState<ImageItem[]>([]);
   const [bgmEnabled, setBgmEnabled] = useState(true);
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(true);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoName, setVideoName] = useState("brandbridge-pr-video.mp4");
   const [videoStatus, setVideoStatus] = useState<
@@ -459,6 +460,10 @@ export function BusinessPrVideoGenerator() {
                   "bgmEnabled",
                   String(bgmEnabled),
                 );
+                body.set(
+                  "subtitlesEnabled",
+                  String(subtitlesEnabled),
+                );
 
                 for (const item of images) {
                   const file = await compressBusinessPrImage(item.file);
@@ -604,6 +609,20 @@ export function BusinessPrVideoGenerator() {
             }
           >
             BGM: {bgmEnabled ? "ON" : "OFF"}
+          </button>
+
+          <button
+            type="button"
+            className={`inline-flex cursor-pointer items-center justify-center rounded-md border px-4 py-2 text-sm font-medium transition ${
+              subtitlesEnabled
+                ? "border-teal bg-teal/10 text-teal"
+                : "border-border bg-transparent text-navy"
+            }`}
+            onClick={() =>
+              setSubtitlesEnabled((current) => !current)
+            }
+          >
+            字幕: {subtitlesEnabled ? "ON" : "OFF"}
           </button>
 
           {script ? (

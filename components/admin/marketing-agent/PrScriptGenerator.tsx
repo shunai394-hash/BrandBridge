@@ -218,7 +218,7 @@ export function PrScriptGenerator({
       <div className="space-y-3 rounded-lg border border-teal/40 bg-surface p-4">
         <p className="text-sm font-medium text-navy">PR Video Generator</p>
         <p className="text-xs text-muted">
-          台本の narration / 字幕と商品画像1枚から、約30秒の 9:16 MP4 を生成します。公開・SNS投稿はしません。
+          台本の narration / 字幕と商品画像から、約30秒の 9:16 MP4 を生成します。MoneyPrinterTurbo が使える場合はシーン切替・カメラワーク・BGM・字幕で合成します。公開・SNS投稿はしません。
         </p>
         <div className="flex flex-wrap gap-2">
           <button

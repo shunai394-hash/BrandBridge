@@ -72,7 +72,7 @@ fetch する前に検証します。許可:
 - 1080x1920、24fps、H.264 + AAC
 - シーン duration は台本の `durationSeconds`。合計が 25–35 秒から大きく外れる場合は比例調整
 - ナレーションは切らない。音声の方が長い場合は映像を伸ばす
-- 字幕は `onScreenText` をシーンごとに焼き込み
+- 字幕はナレーションを句読点で分割し、音声尺に比例して焼き込む（MoneyPrinterTurbo 互換のフォールバック方式）。`onScreenText` は使わない。字幕焼き込みに失敗しても映像・BGM・TTS はそのまま残る
 - 同一商品画像に Ken Burns（zoom / pan）
 
 ## やらないこと

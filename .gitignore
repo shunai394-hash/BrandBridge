@@ -26,6 +26,10 @@ node_modules/
 *.pem
 .tmp/
 
+# MoneyPrinterTurbo local clone + venv (MIT upstream, not bundled)
+/vendor/MoneyPrinterTurbo/
+/tmp/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

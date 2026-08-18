@@ -93,11 +93,13 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     productName?: string;
     companyName?: string;
     bgmEnabled?: boolean;
+    subtitlesEnabled?: boolean;
   };
   const images = parseBusinessPrWorkerImages(body.images);
   const companyName =
     String(body.companyName ?? body.productName ?? "").trim() || "BrandBridge";
   const bgmEnabled = body.bgmEnabled !== false;
+  const subtitlesEnabled = body.subtitlesEnabled !== false;
   const caseId = String(body.caseId ?? "").trim();
   const imageUrl = String(body.imageUrl ?? "").trim();
 
@@ -125,6 +127,7 @@ async function handleRender(req: import("node:http").IncomingMessage) {
       images,
       companyName,
       bgmEnabled,
+      subtitlesEnabled,
     });
     key = `pr-videos/business/${randomUUID()}.mp4`;
   } else if (caseId && imageUrl) {
@@ -133,6 +136,8 @@ async function handleRender(req: import("node:http").IncomingMessage) {
       script,
       imageUrl,
       productName: body.productName,
+      bgmEnabled,
+      subtitlesEnabled,
     });
     key = `pr-videos/${caseId}/${randomUUID()}.mp4`;
   } else {
@@ -212,6 +217,7 @@ const server = createServer((req, res) => {
           service: "pr-video-worker",
           images: true,
           bgm: true,
+          subtitles: true,
         });
         return;
       }

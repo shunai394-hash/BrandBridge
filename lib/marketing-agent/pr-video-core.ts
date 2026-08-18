@@ -1,4 +1,4 @@
-﻿import { mkdtemp, rm, writeFile } from "node:fs/promises";
+﻿import { mkdtemp, rm, writeFile, copyFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { MarketingAgentError } from "@/lib/marketing-agent/ai";
@@ -17,6 +17,7 @@ import {
   probeAudioDuration,
   synthesizeNarrationWav,
 } from "@/lib/marketing-agent/pr-video-tts";
+import type { PrVideoEngine, PrVideoProductContext } from "@/lib/marketing-agent/pr-video-engine";
 
 const TARGET_MIN = 25;
 const TARGET_MAX = 35;
@@ -103,6 +104,9 @@ export async function generatePrVideoFromRemote(input: {
   script: PrVideoScript;
   imageUrl: string;
   productName?: string;
+  bgmEnabled?: boolean;
+  subtitlesEnabled?: boolean;
+  engine?: PrVideoEngine;
 }): Promise<PrVideoRenderResult> {
   await assertFfmpegAvailable();
 
@@ -126,25 +130,64 @@ export async function generatePrVideoFromRemote(input: {
     script,
     safeImage,
     productName: input.productName || input.caseId,
+    bgmEnabled: input.bgmEnabled,
+    subtitlesEnabled: input.subtitlesEnabled,
+    engine: input.engine,
+    product: {
+      productName: input.productName || input.caseId,
+      cta: script.cta,
+    },
   });
 }
 
 export async function renderPrVideoWithImage(input: {
   script: PrVideoScript;
   safeImage: ReturnType<typeof assertSafeProductImageUrl>;
+  extraSafeImages?: Array<ReturnType<typeof assertSafeProductImageUrl>>;
   productName: string;
+  bgmEnabled?: boolean;
+  subtitlesEnabled?: boolean;
+  engine?: PrVideoEngine;
+  product?: PrVideoProductContext;
+  extraVideoPaths?: string[];
 }): Promise<PrVideoRenderResult> {
   const workDir = await mkdtemp(path.join(tmpdir(), "bb-pr-video-"));
   try {
-    const image = await readSafeProductImage(input.safeImage);
-    const ext =
-      image.contentType.includes("png")
-        ? "png"
-        : image.contentType.includes("webp")
-          ? "webp"
-          : "jpg";
-    const imagePath = path.join(workDir, `product.${ext}`);
-    await writeFile(imagePath, image.bytes);
+    const sources = [input.safeImage, ...(input.extraSafeImages ?? [])];
+    const imagePaths: string[] = [];
+    for (let index = 0; index < sources.length; index += 1) {
+      const source = sources[index];
+      if (!source) continue;
+      const image = await readSafeProductImage(source);
+      const ext =
+        image.contentType.includes("png")
+          ? "png"
+          : image.contentType.includes("webp")
+            ? "webp"
+            : "jpg";
+      const imagePath = path.join(workDir, `product-${index}.${ext}`);
+      await writeFile(imagePath, image.bytes);
+      imagePaths.push(imagePath);
+    }
+    if (imagePaths.length === 0) {
+      throw new MarketingAgentError("MISSING_IMAGE", "This product has no image.");
+    }
+
+    const videoPaths: string[] = [];
+    const videoExts = new Set([".mp4", ".mov", ".webm", ".mkv"]);
+    for (let index = 0; index < (input.extraVideoPaths ?? []).length; index += 1) {
+      const source = input.extraVideoPaths?.[index];
+      if (!source) continue;
+      const ext = path.extname(source).toLowerCase();
+      if (!videoExts.has(ext)) continue;
+      const dest = path.join(workDir, `product-video-${index}${ext}`);
+      try {
+        await copyFile(source, dest);
+        videoPaths.push(dest);
+      } catch {
+        continue;
+      }
+    }
 
     let scenes = scaleSceneDurations(input.script.scenes);
     const narration = joinNarration(scenes);
@@ -163,10 +206,18 @@ export async function renderPrVideoWithImage(input: {
     const outFile = path.join(workDir, "pr-video.mp4");
     const rendered = await renderPrVideoMp4({
       workDir,
-      imagePaths: [imagePath],
+      imagePaths,
       audioPath,
       scenes,
       outFile,
+      bgmEnabled: input.bgmEnabled,
+      subtitlesEnabled: input.subtitlesEnabled,
+      engine: input.engine,
+      product: input.product ?? {
+        productName: input.productName,
+        cta: input.script.cta,
+      },
+      videoPaths,
     });
 
     const { readFile } = await import("node:fs/promises");

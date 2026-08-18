@@ -218,6 +218,7 @@ export async function generateBusinessPrVideoFromUploads(
     images: UploadedImage[];
     companyName: string;
     bgmEnabled?: boolean;
+    subtitlesEnabled?: boolean;
   },
 ): Promise<PrVideoRenderResult> {
   await assertFfmpegAvailable();
@@ -358,6 +359,12 @@ export async function generateBusinessPrVideoFromUploads(
         outFile,
         bgmEnabled:
           input.bgmEnabled ?? true,
+        subtitlesEnabled:
+          input.subtitlesEnabled ?? true,
+        product: {
+          productName: input.companyName,
+          cta: script.cta,
+        },
       });
 
     const { readFile } =

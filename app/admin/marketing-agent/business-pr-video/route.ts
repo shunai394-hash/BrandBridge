@@ -165,6 +165,10 @@ export async function POST(request: Request) {
       String(
         form.get("bgmEnabled") ?? "true",
       ).toLowerCase() === "true";
+    const subtitlesEnabled =
+      String(
+        form.get("subtitlesEnabled") ?? "true",
+      ).toLowerCase() !== "false";
 
     const images =
       await collectBusinessPrImages(form);
@@ -185,6 +189,7 @@ export async function POST(request: Request) {
             companyName,
             productName: companyName,
             bgmEnabled,
+            subtitlesEnabled,
           }),
           signal: AbortSignal.timeout(WORKER_WAIT_MS),
         });
@@ -251,6 +256,7 @@ export async function POST(request: Request) {
         height: Number(payload.height) || 1920,
         renderMs: Number(payload.renderMs) || undefined,
         bgmEnabled,
+        subtitlesEnabled,
         stage: "r2",
         status: "completed",
       });
@@ -270,6 +276,7 @@ export async function POST(request: Request) {
         images,
         companyName,
         bgmEnabled,
+        subtitlesEnabled,
       });
 
     return new NextResponse(
@@ -288,6 +295,8 @@ export async function POST(request: Request) {
             String(result.height),
           "X-Pr-Video-BGM":
             String(bgmEnabled),
+          "X-Pr-Video-Subtitles":
+            String(subtitlesEnabled),
           "Cache-Control": "no-store",
         },
       },

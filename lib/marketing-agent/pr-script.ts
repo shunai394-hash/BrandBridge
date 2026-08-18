@@ -194,9 +194,7 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     transition,
     visual,
     narrationText,
-
-    // 字幕なし
-    onScreenText: "",
+    onScreenText: presentText(row.onScreenText) ?? "",
   };
 }
 

@@ -9,6 +9,19 @@ import {
   directCinematography,
   needsCinematicUpgrade,
 } from "@/lib/marketing-agent/cinematography";
+import {
+  burnSubtitlesOntoVideo,
+  resolveSubtitleFont,
+  writeNarrationAssFile,
+} from "@/lib/marketing-agent/pr-video-subtitles";
+import {
+  resolvePrVideoEngine,
+  type PrVideoEngine,
+  type PrVideoProductContext,
+} from "@/lib/marketing-agent/pr-video-engine";
+import {
+  renderPrVideoWithMoneyPrinterTurbo,
+} from "@/lib/marketing-agent/pr-video-mpt";
 import path from "node:path";
 
 export const VIDEO_WIDTH = 1080;
@@ -337,11 +350,47 @@ export async function renderPrVideoMp4(input: {
   scenes: PrVideoScene[];
   outFile: string;
   bgmEnabled?: boolean;
+  subtitlesEnabled?: boolean;
+  engine?: PrVideoEngine;
+  product?: PrVideoProductContext;
+  videoPaths?: string[];
 }): Promise<{
   width: number;
   height: number;
   durationSeconds: number;
 }> {
+  const engine = input.engine ?? resolvePrVideoEngine();
+  if (engine === "moneyprinterturbo") {
+    try {
+      const mpt = await renderPrVideoWithMoneyPrinterTurbo({
+        workDir: input.workDir,
+        imagePaths: input.imagePaths,
+        audioPath: input.audioPath,
+        scenes: input.scenes,
+        outFile: input.outFile,
+        bgmEnabled: input.bgmEnabled,
+        subtitlesEnabled: input.subtitlesEnabled,
+        product: input.product,
+        videoPaths: input.videoPaths,
+      });
+      if (mpt) {
+        return mpt;
+      }
+    } catch (error) {
+      if (
+        error instanceof MarketingAgentError &&
+        (error.code === "MISSING_IMAGE" || error.code === "INVALID_IMAGE_URL")
+      ) {
+        throw error;
+      }
+      const detail =
+        error instanceof Error ? error.message : "MoneyPrinterTurbo unavailable";
+      console.warn(
+        `[pr-video] MoneyPrinterTurbo failed, falling back to BrandBridge renderer: ${detail}`,
+      );
+    }
+  }
+
   if (input.imagePaths.length === 0) {
     throw new MarketingAgentError(
       "MISSING_IMAGE",
@@ -500,6 +549,8 @@ export async function renderPrVideoMp4(input: {
 
   const bgmEnabled =
     input.bgmEnabled ?? true;
+  const subtitlesEnabled =
+    input.subtitlesEnabled ?? true;
   const bgmPath = bgmEnabled ? await resolveBgmPath() : null;
 
   if (bgmEnabled && !bgmPath) {
@@ -507,6 +558,46 @@ export async function renderPrVideoMp4(input: {
       "RENDER_FAILURE",
       "BrandBridge BGMファイルが見つかりません。",
     );
+  }
+
+  let videoForMux = transitionedFile;
+
+  if (subtitlesEnabled) {
+    const font = await resolveSubtitleFont();
+    const assPath = path.join(input.workDir, "narration.ass");
+    const subtitledFile = path.join(
+      input.workDir,
+      "subtitled.mp4",
+    );
+    const subtitleDuration = Math.max(
+      videoDur,
+      narrationDur,
+    );
+
+    if (font) {
+      try {
+        const wrote = await writeNarrationAssFile({
+          scenes: directedScenes,
+          durationSeconds: subtitleDuration,
+          outFile: assPath,
+          width: VIDEO_WIDTH,
+          height: VIDEO_HEIGHT,
+          fontFamily: font.family,
+        });
+
+        if (wrote) {
+          await burnSubtitlesOntoVideo({
+            videoPath: transitionedFile,
+            assPath,
+            fontsDir: font.fontsDir,
+            outFile: subtitledFile,
+          });
+          videoForMux = subtitledFile;
+        }
+      } catch {
+        videoForMux = transitionedFile;
+      }
+    }
   }
 
   const finalDuration =
@@ -522,7 +613,7 @@ export async function renderPrVideoMp4(input: {
     "-y",
 
     "-i",
-    transitionedFile,
+    videoForMux,
 
     "-i",
     narrationInput,

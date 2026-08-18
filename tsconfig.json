@@ -34,6 +34,8 @@
     "node_modules",
     "**/*.backup.ts",
     "**/*.backup.tsx",
-    "services/pr-video-worker"
+    "services/pr-video-worker",
+    "vendor",
+    "scripts/pr-video-mpt-smoke.ts"
   ]
 }

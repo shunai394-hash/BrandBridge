@@ -210,7 +210,11 @@ export default function LogisticsLeadTimeSamplesForImportPage() {
               <Link href="/cases" className="text-teal hover:underline">
                 商品一覧
               </Link>
-              に納期や送料の目安がある場合は、それを起点に不足分を質問します。BrandBridgeは輸入代行を行いません。通関や税の判断は専門家へ確認してください。</p>
+              に納期や送料の目安がある場合は、それを起点に不足分を質問します。分野から絞る場合は
+              <Link href="/ja/categories" className="text-teal hover:underline">
+                カテゴリー
+              </Link>
+              も参照できます。BrandBridgeは輸入代行を行いません。通関や税の判断は専門家へ確認してください。</p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
@@ -267,7 +271,14 @@ export default function LogisticsLeadTimeSamplesForImportPage() {
               href="/cases"
               className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
             >
-              商品一覧を見る
+              海外ブランドの商品を探す
+            </Button>
+            <Button
+              href="/register/partner"
+              variant="outline"
+              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[180px]"
+            >
+              販売パートナーとして登録
             </Button>
           </div>
         </div>

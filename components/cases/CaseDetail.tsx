@@ -20,6 +20,10 @@ import {
 } from "@/lib/price-display";
 import type { Case, SessionUser } from "@/lib/types";
 import { reviewStatusLabels, targetCountryLabel } from "@/lib/types";
+import {
+  getJaCategoryByCaseCategory,
+  jaCategoryPath,
+} from "@/lib/ja-categories";
 
 type CaseDetailProps = {
   caseItem: Case;
@@ -67,6 +71,7 @@ export function CaseDetailView({
   showPartnerPricing,
 }: CaseDetailProps) {
   const negotiateHref = `/cases/${caseItem.id}/negotiation`;
+  const jaCategory = getJaCategoryByCaseCategory(caseItem.category);
 
   const canStartNegotiation =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
@@ -454,6 +459,14 @@ export function CaseDetailView({
 
         <Button href="/cases" variant="ghost">
           商品一覧に戻る
+        </Button>
+        {jaCategory ? (
+          <Button href={jaCategoryPath(jaCategory.slug)} variant="ghost">
+            {jaCategory.label}のカテゴリー
+          </Button>
+        ) : null}
+        <Button href="/contact" variant="outline">
+          お問い合わせ
         </Button>
       </div>
     </article>

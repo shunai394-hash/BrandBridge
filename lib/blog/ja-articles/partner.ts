@@ -4,12 +4,13 @@ import { EXISTING_JA_BLOG } from "@/lib/blog/ja-articles/types";
 const partnerCta = {
   heading: "海外ブランドの商品を探している方へ",
   body: "掲載商品の取引条件を確認しながら、取り扱い候補を探せます。登録は販売パートナー向けのページから進められます。",
-  primary: { href: "/cases", label: "商品一覧を見る" },
+  primary: { href: "/cases", label: "海外ブランドの商品を探す" },
   secondary: { href: "/register/partner", label: "販売パートナーとして登録する" },
 } as const;
 
 const partnerLinks = [
   { href: "/cases", label: "掲載商品を見る" },
+  { href: "/ja/categories", label: "カテゴリーから探す" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
   { href: "/register/partner", label: "販売パートナー登録" },
   { href: EXISTING_JA_BLOG.path, label: EXISTING_JA_BLOG.title },

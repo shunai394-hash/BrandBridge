@@ -95,6 +95,7 @@ export const JA_CATEGORIES: readonly JaCategoryLanding[] = [
       "how-to-sell-overseas-cosmetics-in-japan",
       "cautions-when-selling-overseas-brands-in-japan",
       "what-is-moq-for-overseas-products",
+      "how-to-start-overseas-brand-wholesale",
     ],
     cta: {
       introPrimaryLabel: "コスメの商品を探す",
@@ -221,4 +222,10 @@ export function jaCategoryPath(slug: JaCategorySlug): string {
 
 export function jaCategoryCasesHref(caseCategory: CaseCategory): string {
   return `/cases?category=${encodeURIComponent(caseCategory)}`;
+}
+
+export function getJaCategoryByCaseCategory(
+  caseCategory: string,
+): JaCategoryLanding | undefined {
+  return JA_CATEGORIES.find((item) => item.caseCategory === caseCategory);
 }

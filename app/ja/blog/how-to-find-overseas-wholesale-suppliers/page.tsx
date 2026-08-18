@@ -250,7 +250,11 @@ export default function HowToFindOverseasWholesaleSuppliersPage() {
               <Link href="/cases" className="text-teal hover:underline">
                 商品一覧
               </Link>
-              では、カテゴリやMOQ、参考卸価格帯を先に比較できます。未記載の項目は、商談で埋める前提でリスト化してください。掲載条件は目安です。</p>
+              では、カテゴリやMOQ、参考卸価格帯を先に比較できます。
+              <Link href="/ja/categories" className="text-teal hover:underline">
+                カテゴリー
+              </Link>
+              から食品やコスメなど分野を絞ることもできます。未記載の項目は、商談で埋める前提でリスト化してください。掲載条件は目安です。</p>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
@@ -311,14 +315,14 @@ export default function HowToFindOverseasWholesaleSuppliersPage() {
               href="/cases"
               className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
             >
-              商品一覧を見る
+              海外ブランドの商品を探す
             </Button>
             <Button
-              href={JA_IMPORT_COST.path}
+              href="/register/partner"
               variant="outline"
               className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto sm:min-w-[180px]"
             >
-              輸入の費用と条件を見る
+              販売パートナーとして登録
             </Button>
           </div>
         </div>

@@ -1,10 +1,11 @@
 import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
 import { EXISTING_JA_BLOG } from "@/lib/blog/ja-articles/types";
+import { jaCategoryPath } from "@/lib/ja-categories";
 
 const categoryCtaPartner = {
   heading: "このカテゴリーの海外商品を探している方へ",
   body: "掲載商品の取引条件を確認しながら、取り扱い候補を探せます。ブランド側は、商品情報の掲載から始められます。",
-  primary: { href: "/cases", label: "商品一覧を見る" },
+  primary: { href: "/cases", label: "海外ブランドの商品を探す" },
   secondary: { href: "/register/partner", label: "販売パートナーとして登録する" },
 } as const;
 
@@ -74,7 +75,10 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
       "how-to-find-overseas-brands-that-can-sell-in-japan",
       "cautions-when-selling-overseas-brands-in-japan",
     ],
-    existingLinks: [...categoryLinks],
+    existingLinks: [
+      { href: jaCategoryPath("cosmetics"), label: "海外コスメを探す" },
+      ...categoryLinks,
+    ],
     cta: categoryCtaPartner,
   },
   {
@@ -130,7 +134,10 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
       "logistics-lead-time-samples-for-import",
       "cautions-when-selling-overseas-brands-in-japan",
     ],
-    existingLinks: [...categoryLinks],
+    existingLinks: [
+      { href: jaCategoryPath("food"), label: "海外食品を探す" },
+      ...categoryLinks,
+    ],
     cta: categoryCtaPartner,
   },
   {
@@ -186,7 +193,10 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
       "how-to-sell-overseas-food-brands-in-japan",
       "japan-product-information-checklist",
     ],
-    existingLinks: [...categoryLinks],
+    existingLinks: [
+      { href: jaCategoryPath("health"), label: "海外ウェルネス商品を探す" },
+      ...categoryLinks,
+    ],
     cta: categoryCtaPartner,
   },
   {
@@ -241,7 +251,10 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
       "what-is-moq-for-overseas-products",
       EXISTING_JA_BLOG.slug,
     ],
-    existingLinks: [...categoryLinks],
+    existingLinks: [
+      { href: jaCategoryPath("apparel"), label: "海外アパレルを探す" },
+      ...categoryLinks,
+    ],
     cta: categoryCtaPartner,
   },
   {
@@ -296,7 +309,10 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
       "logistics-lead-time-samples-for-import",
       "how-to-source-overseas-brands",
     ],
-    existingLinks: [...categoryLinks],
+    existingLinks: [
+      { href: jaCategoryPath("home"), label: "海外雑貨・ホーム商品を探す" },
+      ...categoryLinks,
+    ],
     cta: categoryCtaPartner,
   },
 ];

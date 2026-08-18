@@ -11,6 +11,7 @@ import {
 import { getCaseById } from "@/lib/cases";
 import { isFavorite } from "@/lib/favorites";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
+import { jaCategoryPath, getJaCategoryByCaseCategory } from "@/lib/ja-categories";
 import { hasAppliedToCase } from "@/lib/negotiations";
 import { productJsonLd } from "@/lib/seo-jsonld";
 
@@ -88,6 +89,7 @@ export default async function CaseDetailPage({
       : false;
   const favorited = user ? await isFavorite(user.id, caseItem.id) : false;
   const productName = caseItem.productName?.trim() || caseItem.title;
+  const jaCategory = getJaCategoryByCaseCategory(caseItem.category);
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 md:py-16">
@@ -95,6 +97,14 @@ export default async function CaseDetailPage({
         items={[
           { name: "ホーム", path: "/" },
           { name: "商品一覧", path: "/cases" },
+          ...(jaCategory
+            ? [
+                {
+                  name: jaCategory.label,
+                  path: jaCategoryPath(jaCategory.slug),
+                },
+              ]
+            : []),
           { name: productName },
         ]}
       />

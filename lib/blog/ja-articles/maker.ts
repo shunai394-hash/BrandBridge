@@ -3,8 +3,8 @@ import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
 const makerCta = {
   heading: "日本の販売パートナーを探している方へ",
   body: "商品情報と取引条件を掲載し、日本の卸・小売・EC・バイヤーとの接点を作れます。登録は無料です。個別の相談はお問い合わせからも受け付けています。",
-  primary: { href: "/register/maker", label: "BrandBridgeにブランドを掲載する" },
-  secondary: { href: "/contact", label: "日本市場への参入について相談する" },
+  primary: { href: "/for-makers", label: "日本の販売パートナーを探す" },
+  secondary: { href: "/register/maker", label: "商品提供企業として登録" },
 } as const;
 
 const makerLinks = [

@@ -1,14 +1,17 @@
 ﻿import type { Metadata } from "next";
 import { HowToSellInJapan } from "@/components/guides/HowToSellInJapan";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getSiteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "How to Sell in Japan",
   description:
     "Learn how to sell in Japan and sell products to Japanese partners. Compare Japanese distributor, agent, retailer, and ecommerce models, then prepare MOQ, wholesale price, shipping, and exclusivity terms on BrandBridge.",
-  alternates: {
-    canonical: "/en/how-to-sell-in-japan",
-  },
+  ...pairedLanguageAlternates(
+    "/how-to-sell-in-japan",
+    "/en/how-to-sell-in-japan",
+    "en",
+  ),
 };
 
 const faqJsonLd = {

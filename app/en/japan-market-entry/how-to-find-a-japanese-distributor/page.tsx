@@ -3,14 +3,16 @@ import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "How to Evaluate a Japanese Distributor for Your Brand",
   description:
     "Learn how to evaluate a Japanese distributor for fit, wholesale price, MOQ, exclusivity, territory, responsibilities, and performance after you have candidates.",
-  alternates: {
-    canonical: "/en/japan-market-entry/how-to-find-a-japanese-distributor",
-  },
+  ...selfLanguageAlternates(
+    "/en/japan-market-entry/how-to-find-a-japanese-distributor",
+    "en",
+  ),
 };
 
 const distributorDoes = [

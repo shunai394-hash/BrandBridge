@@ -1,18 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Find Qualified Japanese Distributors for Your Brand",
   description:
     "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners with transparent commercial terms before contact.",
-  alternates: {
-    canonical: "/en",
-    languages: {
-      en: "/en",
-      ja: "/",
-    },
-  },
+  ...pairedLanguageAlternates("/", "/en", "en"),
 };
 
 const heroBenefits = [

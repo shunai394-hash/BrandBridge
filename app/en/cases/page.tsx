@@ -9,6 +9,7 @@ import { ModelCaseCard } from "@/components/cases/ModelCaseCard";
 import { listMyCases, listOpenCases } from "@/lib/cases";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { brandDisplayName } from "@/lib/en-japan-opportunity";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { listPublishedModelCases } from "@/lib/model-cases";
 import type { Case } from "@/lib/types";
 
@@ -38,6 +39,7 @@ export const metadata: Metadata = {
   title: "Japan Expansion Opportunities",
   description:
     "Browse overseas brands seeking Japanese distributors, retailers, and e-commerce partners—Japan expansion opportunities on BrandBridge.",
+  ...pairedLanguageAlternates("/cases", "/en/cases", "en"),
 };
 
 export const dynamic = "force-dynamic";

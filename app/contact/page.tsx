@@ -1,12 +1,14 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/contact/ContactForm";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { siteConfig } from "@/lib/site";
 import type { ContactCategory } from "@/lib/contact-types";
 
 export const metadata: Metadata = {
   title: "お問い合わせ",
   description: `${siteConfig.name}へのお問い合わせフォームです。通常1〜2営業日以内にご返信します。`,
+  ...pairedLanguageAlternates("/contact", "/en/contact", "ja"),
 };
 
 type ContactPageProps = {

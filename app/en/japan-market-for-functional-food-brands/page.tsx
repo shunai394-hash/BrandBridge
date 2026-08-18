@@ -1,11 +1,16 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Expand Your Functional Food Brand Into Japan | BrandBridge",
   description:
     "BrandBridge helps overseas functional food and wellness brands explore Japan through qualified distributors, retailers, and e-commerce partners.",
+  ...selfLanguageAlternates(
+    "/en/japan-market-for-functional-food-brands",
+    "en",
+  ),
 };
 
 const whyJapan = [

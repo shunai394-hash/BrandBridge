@@ -1,11 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
     "BrandBridge pricing. Sales partners can use BrandBridge for free, while manufacturers can join and use the platform for free during the beta period.",
+  ...pairedLanguageAlternates("/pricing", "/en/pricing", "en"),
 };
 
 const partnerFreeFeatures = [

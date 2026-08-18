@@ -2,11 +2,13 @@
 import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Japan Partner Demand Snapshot | BrandBridge",
   description:
     "What Japanese distributors, retailers, and e-commerce partners look for when evaluating overseas brands—and how clear business information starts better conversations.",
+  ...selfLanguageAlternates("/en/japan-partner-demand-snapshot", "en"),
 };
 
 const lookForByCategory = [

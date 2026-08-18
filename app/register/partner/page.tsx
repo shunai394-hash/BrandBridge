@@ -3,12 +3,18 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AuthRegisterForm } from "@/components/forms/AuthRegisterForm";
 import { getSessionUser } from "@/lib/auth";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "販売パートナー登録",
   description:
     "BrandBridgeへの販売パートナー登録。メール認証後にプロフィールを入力します。",
+  ...pairedLanguageAlternates(
+    "/register/partner",
+    "/en/register/partner",
+    "ja",
+  ),
 };
 
 export const dynamic = "force-dynamic";

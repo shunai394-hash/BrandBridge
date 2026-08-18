@@ -7,14 +7,13 @@ import {
   MODEL_CASE_TYPE_LABEL,
 } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "How to Enter the Japanese Market",
   description:
     "A practical guide for overseas brands entering Japan, covering Japanese distributors, importers, retailers, e-commerce partners, wholesale terms, and market entry considerations.",
-  alternates: {
-    canonical: "/en/japan-market-entry",
-  },
+  ...selfLanguageAlternates("/en/japan-market-entry", "en"),
 };
 
 const whyJapan = [

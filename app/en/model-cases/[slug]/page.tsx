@@ -7,6 +7,7 @@ import {
   MODEL_CASE_DISCLAIMER,
 } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 type ModelCasePageProps = {
   params: Promise<{ slug: string }>;
@@ -29,9 +30,7 @@ export async function generateMetadata({
   return {
     title: `${modelCase.title} | BrandBridge`,
     description: modelCase.description,
-    alternates: {
-      canonical: `/en/model-cases/${modelCase.slug}`,
-    },
+    ...selfLanguageAlternates(`/en/model-cases/${modelCase.slug}`, "en"),
   };
 }
 

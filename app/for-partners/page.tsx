@@ -1,11 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "販売パートナー・バイヤーの方へ",
   description:
     "売れる商品を探す時間を効率化。BrandBridgeで販売パートナー向けに新しい取り扱い商材の発見をサポート。登録無料・初期費用なし。",
+  ...selfLanguageAlternates("/for-partners", "ja"),
 };
 
 const pains = [

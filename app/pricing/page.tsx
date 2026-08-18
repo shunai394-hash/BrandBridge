@@ -1,11 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "料金",
   description:
     "BrandBridgeの料金表。販売パートナーは無料、商品提供企業はベータ期間中無料で利用できます。",
+  ...pairedLanguageAlternates("/pricing", "/en/pricing", "ja"),
 };
 
 const partnerFreeFeatures = [

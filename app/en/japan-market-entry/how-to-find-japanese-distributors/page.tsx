@@ -3,14 +3,16 @@ import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "How to Find Japanese Distributors for Your Brand",
   description:
     "A practical guide for overseas and DTC brands on how to identify, evaluate, and approach Japanese distributors, importers, wholesalers, retailers, and ecommerce partners.",
-  alternates: {
-    canonical: "/en/japan-market-entry/how-to-find-japanese-distributors",
-  },
+  ...selfLanguageAlternates(
+    "/en/japan-market-entry/how-to-find-japanese-distributors",
+    "en",
+  ),
 };
 
 const distributorRoles = [

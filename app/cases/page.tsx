@@ -4,7 +4,9 @@ import { unstable_noStore as noStore } from "next/cache";
 import { CaseList, type CaseListItem } from "@/components/cases/CaseList";
 import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
 import { listOpenCases } from "@/lib/cases";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getPlatformStats } from "@/lib/platform-stats";
+import { caseCategories } from "@/lib/types";
 
 function toListItem(
   item: Awaited<ReturnType<typeof listOpenCases>>[number],
@@ -34,12 +36,25 @@ function toListItem(
 export const metadata: Metadata = {
   title: "事例一覧",
   description: "BrandBridgeに掲載中の商品一覧です。",
+  ...pairedLanguageAlternates("/cases", "/en/cases", "ja"),
 };
 
 export const dynamic = "force-dynamic";
 
-export default async function CasesPage() {
+type CasesPageProps = {
+  searchParams: Promise<{ category?: string }>;
+};
+
+export default async function CasesPage({ searchParams }: CasesPageProps) {
   noStore();
+
+  const params = await searchParams;
+  const requested = params.category?.trim() ?? "";
+  const initialCategory = (caseCategories as readonly string[]).includes(
+    requested,
+  )
+    ? requested
+    : undefined;
 
   const cases = await listOpenCases();
   const listItems = cases.map(toListItem);
@@ -58,7 +73,7 @@ export default async function CasesPage() {
 
       <PlatformStatsCard stats={await getPlatformStats()} />
 
-      <CaseList items={listItems} />
+      <CaseList items={listItems} initialCategory={initialCategory} />
     </main>
   );
 }

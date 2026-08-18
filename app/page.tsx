@@ -1,12 +1,30 @@
-﻿import { CaseCard } from "@/components/cases/CaseCard";
+﻿import type { Metadata } from "next";
+import { CaseCard } from "@/components/cases/CaseCard";
 import { Button } from "@/components/ui/Button";
 import { getLatestCases, getPopularCases } from "@/lib/cases";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { caseCategories } from "@/lib/types";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: "海外ブランドの商品を探す｜日本の販売パートナー向け",
+  description:
+    "バイヤー・卸売業者・小売店・EC事業者が、海外ブランドの商品を探し、MOQや卸価格などの条件を確認し、販売パートナーとして商談できるBtoBプラットフォームです。",
+  ...pairedLanguageAlternates("/", "/en", "ja"),
+};
+
 const browseCategories = caseCategories.filter((c) => c !== "すべて");
+
+const partnerCategories = [
+  { label: "食品", category: "食品・飲料" },
+  { label: "コスメ", category: "美容・コスメ" },
+  { label: "アパレル", category: "ファッション" },
+  { label: "ホーム", category: "ホーム・インテリア" },
+  { label: "アウトドア", category: "スポーツ" },
+  { label: "ヘルスケア", category: "健康・サプリ" },
+] as const;
 
 const conditionTags = [
   "卸売",
@@ -72,41 +90,41 @@ const makerPains = [
 ];
 
 const partnerPains = [
-  "売れる商材を探すのに時間がかかる",
-  "問い合わせても条件が曖昧",
-  "交渉前に対応国や販売形式を知りたい",
+  "取り扱える海外商品を探すのに時間がかかる",
+  "問い合わせても卸価格やMOQが曖昧",
+  "バイヤー・卸・小売・ECとして条件を先に確認したい",
 ];
 
 const reasons = [
   {
-    title: "両方の目的がはっきりしている",
-    body: "商品提供企業は販路開拓、販売パートナーは商材探し。誰向けかが明確なので、迷わず始められます。",
+    title: "日本の販売事業者が探しやすい",
+    body: "バイヤー、卸売業者、小売店、EC事業者が、取り扱いたい海外商品を条件つきで比較できます。",
   },
   {
     title: "条件が最初から見える",
-    body: "販売形式・対応国・独占可否などを商品に載せられるため、交渉前のミスマッチを減らせます。",
+    body: "卸価格・MOQ・販売形式・独占可否などを商品に載せられるため、交渉前のミスマッチを減らせます。",
   },
   {
-    title: "交渉から成約までつながる",
-    body: "探すだけで終わらず、申し込み・メッセージ・成約まで一つの流れで商談を前に進められます。",
+    title: "探すだけで終わらない",
+    body: "商品確認から商談、販売パートナー登録まで、一つの流れで進められます。",
   },
 ];
 
 const steps = [
   {
     n: "01",
-    title: "掲載",
-    body: "商品情報・MOQ・卸価格・販売条件を登録",
+    title: "海外商品を探す",
+    body: "カテゴリーや商品一覧から、取り扱い候補を探す",
   },
   {
     n: "02",
-    title: "マッチング",
-    body: "条件に合う販売パートナーと出会う",
+    title: "条件を確認する",
+    body: "MOQ・卸価格・販売形式などの取引条件を見る",
   },
   {
     n: "03",
-    title: "商談・契約",
-    body: "交渉から取引開始へ進む",
+    title: "商談する",
+    body: "合う商品があれば、販売パートナーとして商談へ進む",
   },
 ];
 
@@ -170,52 +188,52 @@ export default async function HomePage() {
           </p>
 
           <h1 className="animate-fade-up delay-1 mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.4] text-white drop-shadow-sm sm:text-3xl md:mt-8 md:text-4xl lg:text-[2.45rem]">
-            日本進出したい海外ブランドと、
+            海外ブランドの商品を探している
             <br />
-            売れる販売パートナーをつなぐ。
+            日本の事業者へ
           </h1>
 
           <p className="animate-fade-up delay-2 mt-5 max-w-xl text-[0.95rem] leading-relaxed text-white/90 sm:text-base md:mt-6 md:text-lg">
-            BrandBridgeは、MOQ・卸価格・独占可否・輸送条件まで整理された、
+            卸売・小売・ECで取り扱いたい海外商品を探し、条件を確認し、
             <br />
-            交渉可能なBtoB商談プラットフォームです。
+            販売パートナーとして商談できます。
           </p>
 
           <p className="animate-fade-up delay-2 mt-4 max-w-xl text-sm leading-relaxed text-white/75">
-            紹介だけで終わるマッチングではなく、
+            バイヤー、卸売業者、小売店、EC事業者向け。
             <br />
-            条件が合えば、そのまま商談・交渉へ進めます。
+            MOQ・卸価格などの取引条件を見てから、商談に進めます。
           </p>
 
           <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
-              href="#early-access"
+              href="/cases"
               className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto sm:min-w-[168px]"
             >
-              先行登録する
+              商品一覧を見る
             </Button>
             <Button
-              href="/cases"
+              href="/register/partner"
               variant="outline"
               className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              公開予定の商品を見る
+              販売パートナーとして登録
             </Button>
             <Button
-              href="/contact?topic=listing"
+              href="/register/maker"
               variant="outline"
               className="w-full border-white/25 px-6 py-3.5 text-base text-white/90 hover:border-white/50 hover:bg-white/5 hover:text-white sm:w-auto"
             >
-              掲載相談をする
+              商品提供企業として登録
             </Button>
           </div>
 
           <p className="animate-fade-up delay-3 mt-6">
             <Link
-              href="/how-to-sell-in-japan"
+              href="/for-partners"
               className="text-sm text-teal underline-offset-4 transition hover:text-white hover:underline"
             >
-              日本で販売する流れを見る
+              販売パートナーの方へ
             </Link>
           </p>
 
@@ -235,10 +253,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <div className="max-w-2xl rounded-xl border border-border bg-cream/40 p-6 md:p-8">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              はじめて海外商品を扱う方へ
+              はじめて海外商品を仕入れる方へ
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
-              海外ブランドとの取引方法を初心者向けに図解で解説しています。
+              バイヤー、卸、小売、EC事業者が海外ブランドを扱うときの進め方を図解しています。
             </p>
             <div className="mt-6">
               <Button href="/how-to-sell-in-japan" className="w-full sm:w-auto">
@@ -282,15 +300,15 @@ export default async function HomePage() {
           </ul>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button href="/register/maker" className="w-full sm:w-auto">
-              商品提供企業として登録
+            <Button href="/register/partner" className="w-full sm:w-auto">
+              販売パートナーとして登録
             </Button>
             <Button
-              href="/register/partner"
+              href="/register/maker"
               variant="outline"
               className="w-full sm:w-auto"
             >
-              販売パートナーとして登録
+              商品提供企業として登録
             </Button>
           </div>
         </div>
@@ -311,7 +329,7 @@ export default async function HomePage() {
               </p>
             </div>
             <Button href="/cases" variant="outline" className="w-full sm:w-auto">
-              公開予定の商品を見る
+              商品一覧を見る
             </Button>
           </div>
 
@@ -355,10 +373,25 @@ export default async function HomePage() {
           )}
 
           <div className="mt-10 border-t border-border pt-8">
-            <h3 className="font-medium text-navy">カテゴリ・条件の例</h3>
+            <h3 className="font-[family-name:var(--font-shippori)] text-xl text-navy md:text-2xl">
+              カテゴリーから探す
+            </h3>
             <p className="mt-1 text-sm text-muted">
-              興味のある分野や販売形式から商品一覧へ進めます。
+              既存の商品カテゴリーから、該当する商品一覧へ進めます。
             </p>
+            <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+              {partnerCategories.map((item) => (
+                <li key={item.category}>
+                  <Link
+                    href={`/cases?category=${encodeURIComponent(item.category)}`}
+                    className="flex h-full flex-col rounded-lg border border-border bg-background px-4 py-4 text-center transition hover:border-teal hover:text-teal"
+                  >
+                    <span className="font-medium text-navy">{item.label}</span>
+                    <span className="mt-1 text-xs text-muted">{item.category}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
             <ul className="mt-4 flex flex-wrap gap-2">
               {browseCategories.map((category) => (
                 <li key={category}>
@@ -392,19 +425,19 @@ export default async function HomePage() {
             こんな課題ありませんか
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            商品提供企業にも販売パートナーにも、条件が見えないまま探す負担があります。
+            海外商品を仕入れたい日本の事業者も、条件が見えないまま探す負担があります。
           </p>
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             <div className="rounded-lg border border-border bg-surface p-6 md:p-7">
               <p className="text-xs font-medium tracking-wider text-teal">
-                FOR MAKERS
+                FOR PARTNERS
               </p>
               <h3 className="mt-2 font-[family-name:var(--font-shippori)] text-xl text-navy">
-                商品提供企業の方
+                バイヤー・卸・小売・ECの方
               </h3>
               <ul className="mt-5 space-y-3">
-                {makerPains.map((pain) => (
+                {partnerPains.map((pain) => (
                   <li
                     key={pain}
                     className="flex gap-3 text-sm leading-relaxed text-muted"
@@ -418,13 +451,13 @@ export default async function HomePage() {
 
             <div className="rounded-lg border border-border bg-surface p-6 md:p-7">
               <p className="text-xs font-medium tracking-wider text-teal">
-                FOR PARTNERS
+                FOR MAKERS
               </p>
               <h3 className="mt-2 font-[family-name:var(--font-shippori)] text-xl text-navy">
-                販売パートナーの方
+                商品提供企業の方
               </h3>
               <ul className="mt-5 space-y-3">
-                {partnerPains.map((pain) => (
+                {makerPains.map((pain) => (
                   <li
                     key={pain}
                     className="flex gap-3 text-sm leading-relaxed text-muted"
@@ -471,7 +504,7 @@ export default async function HomePage() {
             使い方はシンプル
           </h2>
           <p className="mt-3 max-w-xl text-muted">
-            掲載から商談・契約まで、3ステップで進められます。
+            海外商品を探し、条件を確認し、販売パートナーとして商談する流れです。
           </p>
           <ol className="mt-10 grid gap-6 sm:grid-cols-3">
             {steps.map((step) => (
@@ -531,11 +564,29 @@ export default async function HomePage() {
               どちらで始めますか？
             </h2>
             <p className="mt-3 text-muted">
-              役割に合わせた入口から、詳しい説明ページへ進めます。
+              日本の販売事業者向けの入口を先に、商品提供企業向けの入口も用意しています。
             </p>
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-2 md:gap-6">
+            <Link
+              href="/for-partners"
+              className="group flex flex-col rounded-xl border border-border bg-surface p-6 shadow-[0_16px_40px_rgba(20,32,51,0.06)] transition hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-[0_18px_44px_rgba(20,32,51,0.1)] md:p-8"
+            >
+              <p className="text-xs font-medium tracking-wider text-teal">
+                FOR PARTNERS
+              </p>
+              <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-xl text-navy transition group-hover:text-teal md:text-2xl">
+                販売パートナーの方へ
+              </h3>
+              <p className="mt-3 flex-1 leading-relaxed text-muted">
+                バイヤー、卸売業者、小売店、EC事業者が、取り扱い可能な海外商品を探せます。
+              </p>
+              <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
+                販売パートナー向けページを見る
+              </span>
+            </Link>
+
             <Link
               href="/product-showcase"
               className="group flex flex-col rounded-xl border border-border bg-surface p-6 shadow-[0_16px_40px_rgba(20,32,51,0.06)] transition hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-[0_18px_44px_rgba(20,32,51,0.1)] md:p-8"
@@ -551,24 +602,6 @@ export default async function HomePage() {
               </p>
               <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
                 商品掲載サンプルを見る
-              </span>
-            </Link>
-
-            <Link
-              href="/for-partners"
-              className="group flex flex-col rounded-xl border border-border bg-surface p-6 shadow-[0_16px_40px_rgba(20,32,51,0.06)] transition hover:-translate-y-0.5 hover:border-teal/40 hover:shadow-[0_18px_44px_rgba(20,32,51,0.1)] md:p-8"
-            >
-              <p className="text-xs font-medium tracking-wider text-teal">
-                FOR PARTNERS
-              </p>
-              <h3 className="mt-3 font-[family-name:var(--font-shippori)] text-xl text-navy transition group-hover:text-teal md:text-2xl">
-                販売パートナーの方へ
-              </h3>
-              <p className="mt-3 flex-1 leading-relaxed text-muted">
-                新しい商材を探している店舗・EC事業者・代理店が、取り扱い商品を見つけられます。
-              </p>
-              <span className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-teal px-5 py-3.5 text-base font-medium text-white shadow-[0_8px_24px_rgba(26,138,138,0.28)] transition group-hover:bg-teal-dark sm:w-auto sm:self-start">
-                販売パートナー向けページを見る
               </span>
             </Link>
           </div>
@@ -622,31 +655,31 @@ export default async function HomePage() {
         />
         <div className="relative mx-auto max-w-6xl px-5 py-16 text-center md:py-20">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl md:text-3xl">
-            まずは、商品を見るか先行登録から始めましょう
+            海外商品を探し、条件を確認してから商談できます
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/75 md:text-base">
-            温度感に合わせて進め方を選べます。商品確認だけでも、掲載相談だけでも構いません。
+            まずは商品一覧から。取り扱いを進める場合は、販売パートナーとして登録できます。
           </p>
           <div className="mx-auto mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
             <Button
-              href="#early-access"
+              href="/cases"
               className="w-full py-3.5 text-base sm:w-auto sm:min-w-[168px]"
             >
-              先行登録する
+              商品一覧を見る
             </Button>
             <Button
-              href="/cases"
+              href="/register/partner"
               variant="outline"
               className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
             >
-              公開予定の商品を見る
+              販売パートナーとして登録
             </Button>
             <Button
-              href="/contact?topic=listing"
+              href="/register/maker"
               variant="outline"
               className="w-full border-white/25 py-3.5 text-base text-white/90 hover:border-white/50 hover:bg-white/5 hover:text-white sm:w-auto"
             >
-              掲載相談をする
+              商品提供企業として登録
             </Button>
           </div>
         </div>

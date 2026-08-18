@@ -3,12 +3,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EnMakerRegisterForm } from "@/components/forms/EnMakerRegisterForm";
 import { getSessionUser } from "@/lib/auth";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getProfileById } from "@/lib/profiles";
 
 export const metadata: Metadata = {
   title: "List Your Brand",
   description:
     "List your brand on BrandBridge for qualified Japanese distributors, retailers, wholesalers, and e-commerce partners.",
+  ...pairedLanguageAlternates("/register/maker", "/en/register/maker", "en"),
 };
 
 export const dynamic = "force-dynamic";

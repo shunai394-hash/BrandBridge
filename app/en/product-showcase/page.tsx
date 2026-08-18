@@ -1,11 +1,17 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Featured Brands | BrandBridge",
   description:
     "BrandBridge is onboarding founding international brands for Japan. List your brand for qualified Japanese distributors and retailers.",
+  ...pairedLanguageAlternates(
+    "/product-showcase",
+    "/en/product-showcase",
+    "en",
+  ),
 };
 
 export default function EnglishProductShowcasePage() {

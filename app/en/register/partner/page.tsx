@@ -1,11 +1,17 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Partner Inquiry",
   description:
     "Contact BrandBridge about becoming a sales partner for overseas brands in Japan.",
+  ...pairedLanguageAlternates(
+    "/register/partner",
+    "/en/register/partner",
+    "en",
+  ),
 };
 
 /**

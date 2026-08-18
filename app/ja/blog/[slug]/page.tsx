@@ -5,6 +5,7 @@ import {
   getJaBlogArticle,
   listJaBlogSlugs,
 } from "@/lib/blog/ja-articles";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 type JaBlogSlugPageProps = {
   params: Promise<{ slug: string }>;
@@ -32,9 +33,7 @@ export async function generateMetadata({
   return {
     title: article.title,
     description: article.description,
-    alternates: {
-      canonical: path,
-    },
+    ...selfLanguageAlternates(path, "ja"),
     robots: {
       index: true,
       follow: true,

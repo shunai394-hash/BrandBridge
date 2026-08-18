@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 const PATH = "/ja/blog/how-to-sell-overseas-brands-in-japan";
 const TITLE =
@@ -13,9 +14,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  alternates: {
-    canonical: PATH,
-  },
+  ...selfLanguageAlternates(PATH, "ja"),
   robots: {
     index: true,
     follow: true,

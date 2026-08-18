@@ -1,9 +1,11 @@
 ﻿import type { Metadata } from "next";
 import { LoginForm } from "@/components/forms/LoginForm";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "ログイン",
   description: "BrandBridgeへのログインページです。",
+  ...pairedLanguageAlternates("/login", "/en/login", "ja"),
 };
 
 type LoginPageProps = {

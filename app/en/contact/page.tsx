@@ -3,11 +3,13 @@ import Link from "next/link";
 import { EnContactForm } from "@/components/contact/EnContactForm";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { getCaseById } from "@/lib/cases";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "Contact BrandBridge",
   description:
     "Contact BrandBridge to discuss distributors, retailers, and sales partners in Japan. For overseas brands entering the Japanese market.",
+  ...pairedLanguageAlternates("/contact", "/en/contact", "en"),
 };
 
 type EnglishContactPageProps = {

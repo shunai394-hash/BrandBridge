@@ -3,14 +3,16 @@ import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "How to Enter the Japanese Market: A Practical Guide for Overseas Brands",
   description:
     "A practical guide for overseas brands entering Japan—market research, sales channels, commercial preparation, partner fit, and business conditions.",
-  alternates: {
-    canonical: "/en/japan-market-entry/how-to-enter-the-japanese-market",
-  },
+  ...selfLanguageAlternates(
+    "/en/japan-market-entry/how-to-enter-the-japanese-market",
+    "en",
+  ),
 };
 
 const marketConsiderations = [

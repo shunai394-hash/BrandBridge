@@ -2,11 +2,17 @@
 import { DummyCatalogShowcase } from "@/components/cases/DummyCatalogShowcase";
 import { ProductShowcase } from "@/components/cases/ProductShowcase";
 import { getJapaneseProductShowcaseSample } from "@/lib/product-showcase-sample";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "商品掲載サンプル | BrandBridge",
   description:
     "海外の商品提供企業が登録後の商品ページ完成イメージを確認できるサンプルです。商品画像・紹介動画・説明・特徴・取引条件を掲載しています。",
+  ...pairedLanguageAlternates(
+    "/product-showcase",
+    "/en/product-showcase",
+    "ja",
+  ),
 };
 
 export const dynamic = "force-dynamic";

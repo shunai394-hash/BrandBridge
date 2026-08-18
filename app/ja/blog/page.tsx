@@ -10,6 +10,7 @@ import {
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const dynamic = "force-static";
 
@@ -21,9 +22,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  alternates: {
-    canonical: PATH,
-  },
+  ...selfLanguageAlternates(PATH, "ja"),
   robots: {
     index: true,
     follow: true,
@@ -72,7 +71,7 @@ export default function JapaneseBlogHubPage() {
           {
             "@type": "ListItem",
             position: 2,
-            name: "日本語ガイド",
+            name: "日本語ブログ",
             item: `${siteUrl}${PATH}`,
           },
         ],
@@ -101,7 +100,7 @@ export default function JapaneseBlogHubPage() {
         />
         <div className="relative mx-auto max-w-3xl px-5 py-14 md:py-20">
           <p className="text-xs font-medium tracking-wider text-teal">
-            日本語ガイド
+            日本語ブログ
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
             販売パートナーと海外ブランドのための実務ガイド

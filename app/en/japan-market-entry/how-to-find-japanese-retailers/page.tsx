@@ -3,14 +3,16 @@ import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import { getSiteUrl } from "@/lib/site";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "How to Find Japanese Retailers for Your Brand",
   description:
     "A practical guide for overseas brands on how to identify, evaluate, and approach Japanese retailers, including specialty stores, department stores, and ecommerce channels.",
-  alternates: {
-    canonical: "/en/japan-market-entry/how-to-find-japanese-retailers",
-  },
+  ...selfLanguageAlternates(
+    "/en/japan-market-entry/how-to-find-japanese-retailers",
+    "en",
+  ),
 };
 
 const retailChannels = [

@@ -52,8 +52,8 @@ export const JA_BLOG_CLUSTER_LABEL: Record<JaBlogCluster, string> = {
 export const EXISTING_JA_BLOG = {
   slug: "how-to-sell-overseas-brands-in-japan",
   path: "/ja/blog/how-to-sell-overseas-brands-in-japan",
-  title: "海外ブランドの商品を日本で販売するには？",
-  cluster: "partner" as const,
+  title: "海外ブランドを日本で販売する方法｜販売チャネル・契約・輸入の基本",
+  cluster: "maker" as const,
 } as const;
 
 export const JA_WHOLESALE_GUIDE = {

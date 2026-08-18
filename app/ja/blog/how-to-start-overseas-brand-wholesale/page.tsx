@@ -154,12 +154,12 @@ export default async function HowToStartOverseasBrandWholesalePage() {
               海外商品の仕入れは、写真や世界観だけでは判断できません。卸価格、最低発注数量（MOQ）、輸送、輸入時の負担、日本での販売可否を揃えてから、初めて発注の是非を検討できます。
             </p>
             <p>
-              この記事では、海外ブランドの卸取引を始める手順を、探し方から確認項目まで実務の順にまとめます。販売チャネルの作り方そのものは、別の
+              この記事では、海外ブランドの卸取引を始める手順を、探し方から確認項目まで実務の順にまとめます。海外ブランド側の日本販売の進め方は、別の
               <Link
                 href="/ja/blog/how-to-sell-overseas-brands-in-japan"
                 className="text-teal hover:underline"
               >
-                日本で販売するガイド
+                日本で販売する方法
               </Link>
               で扱っています。
             </p>

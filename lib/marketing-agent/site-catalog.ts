@@ -74,7 +74,7 @@ const STATIC_PAGES: CatalogPage[] = [
     seoImportance: "high",
     published: true,
     fetchLive: true,
-    label: "海外ブランドを日本で販売するガイド",
+    label: "海外ブランドを日本で販売する方法",
   },
   {
     path: "/ja/blog/how-to-start-overseas-brand-wholesale",

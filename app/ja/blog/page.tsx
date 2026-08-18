@@ -120,15 +120,18 @@ export default function JapaneseBlogHubPage() {
               cluster.id === "partner"
                 ? [
                     {
-                      href: EXISTING_JA_BLOG.path,
-                      title: "海外ブランドの商品を日本で販売するには？｜基本ガイド",
-                    },
-                    {
                       href: JA_WHOLESALE_GUIDE.path,
                       title: JA_WHOLESALE_GUIDE.title,
                     },
                   ]
-                : [];
+                : cluster.id === "maker"
+                  ? [
+                      {
+                        href: EXISTING_JA_BLOG.path,
+                        title: EXISTING_JA_BLOG.title,
+                      },
+                    ]
+                  : [];
 
             return (
               <section

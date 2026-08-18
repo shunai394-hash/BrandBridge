@@ -14,9 +14,9 @@ import { getSiteUrl } from "@/lib/site";
 export const dynamic = "force-static";
 
 const PATH = "/ja/blog";
-const TITLE = "日本語ガイド｜販売パートナー・海外ブランド・カテゴリー別";
+const TITLE = "日本語ブログ｜販売パートナー・海外ブランド・カテゴリー別";
 const DESCRIPTION =
-  "日本の販売パートナー向け、海外ブランド向け、カテゴリー別の日本語ガイド。仕入れ、代理店、MOQ、日本市場参入の実務を、BrandBridgeの導線と合わせて読めます。";
+  "日本の販売パートナー向け、海外ブランド向け、カテゴリー別の日本語ガイド。仕入れ条件、MOQ、日本市場への進め方など、BrandBridgeの実務と合わせて読めます。";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -43,15 +43,15 @@ const CLUSTERS: {
 }[] = [
   {
     id: "partner",
-    lead: "卸・小売・EC・バイヤーが、海外ブランドの仕入れと取引条件を確認するためのガイドです。",
+    lead: "卸・小売・EC・バイヤーが、海外ブランドの商品を仕入れるときに、条件を確認するためのガイドです。",
   },
   {
     id: "maker",
-    lead: "海外ブランドが、日本の販売パートナーを探し、商品条件を整えるためのガイドです。",
+    lead: "海外ブランドが、日本の販売パートナーを探し、商品提供条件を整えるためのガイドです。",
   },
   {
     id: "category",
-    lead: "コスメ、食品、サプリ、アパレル、ホームなど、カテゴリーごとの確認視点です。",
+    lead: "コスメ、食品、サプリ、アパレル、ホームなど、カテゴリーごとの確認ポイントを整理したガイドです。",
   },
 ];
 
@@ -107,7 +107,7 @@ export default function JapaneseBlogHubPage() {
             販売パートナーと海外ブランドのための実務ガイド
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            仕入れ、代理店、MOQ、日本市場への参入など、検索意図に応じた日本語記事をまとめています。商品一覧と登録ページへ進む前の確認用です。
+            仕入れ条件、価格、MOQ、日本市場への進め方など、海外商品を日本で取り扱うための実務情報をまとめています。商品一覧と登録ページへ進む前の確認にも使えます。
           </p>
         </div>
       </section>
@@ -121,7 +121,7 @@ export default function JapaneseBlogHubPage() {
                 ? [
                     {
                       href: EXISTING_JA_BLOG.path,
-                      title: `${EXISTING_JA_BLOG.title}（既存ガイド）`,
+                      title: "海外ブランドの商品を日本で販売するには？｜基本ガイド",
                     },
                   ]
                 : [];

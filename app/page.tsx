@@ -3,6 +3,7 @@ import { CaseCard } from "@/components/cases/CaseCard";
 import { Button } from "@/components/ui/Button";
 import { getLatestCases, getPopularCases } from "@/lib/cases";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
+import { jaCategoryPath, listJaCategories } from "@/lib/ja-categories";
 import { caseCategories } from "@/lib/types";
 import Link from "next/link";
 
@@ -16,15 +17,39 @@ export const metadata: Metadata = {
 };
 
 const browseCategories = caseCategories.filter((c) => c !== "すべて");
-
-const partnerCategories = [
-  { label: "食品", category: "食品・飲料" },
-  { label: "コスメ", category: "美容・コスメ" },
-  { label: "アパレル", category: "ファッション" },
-  { label: "ホーム", category: "ホーム・インテリア" },
-  { label: "アウトドア", category: "スポーツ" },
-  { label: "ヘルスケア", category: "健康・サプリ" },
-] as const;
+const jaCategoryLandings = listJaCategories();
+const partnerCategoryEntries = [
+  {
+    label: "食品",
+    href: jaCategoryPath("food"),
+    note: "食品・飲料",
+  },
+  {
+    label: "コスメ",
+    href: jaCategoryPath("cosmetics"),
+    note: "美容・コスメ",
+  },
+  {
+    label: "アパレル",
+    href: jaCategoryPath("apparel"),
+    note: "ファッション",
+  },
+  {
+    label: "ホーム",
+    href: jaCategoryPath("home"),
+    note: "ホーム・インテリア",
+  },
+  {
+    label: "アウトドア",
+    href: `/cases?category=${encodeURIComponent("スポーツ")}`,
+    note: "スポーツ",
+  },
+  {
+    label: "ヘルスケア",
+    href: jaCategoryPath("health"),
+    note: "健康・サプリ",
+  },
+];
 
 const conditionTags = [
   "卸売",
@@ -380,29 +405,37 @@ export default async function HomePage() {
               既存の商品カテゴリーから、該当する商品一覧へ進めます。
             </p>
             <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
-              {partnerCategories.map((item) => (
-                <li key={item.category}>
+              {partnerCategoryEntries.map((item) => (
+                <li key={item.label}>
                   <Link
-                    href={`/cases?category=${encodeURIComponent(item.category)}`}
+                    href={item.href}
                     className="flex h-full flex-col rounded-lg border border-border bg-background px-4 py-4 text-center transition hover:border-teal hover:text-teal"
                   >
                     <span className="font-medium text-navy">{item.label}</span>
-                    <span className="mt-1 text-xs text-muted">{item.category}</span>
+                    <span className="mt-1 text-xs text-muted">{item.note}</span>
                   </Link>
                 </li>
               ))}
             </ul>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {browseCategories.map((category) => (
-                <li key={category}>
-                  <Link
-                    href={`/cases?category=${encodeURIComponent(category)}`}
-                    className="inline-flex rounded-md border border-border bg-background px-3.5 py-2.5 text-sm text-navy transition hover:border-teal hover:text-teal"
-                  >
-                    {category}
-                  </Link>
-                </li>
-              ))}
+              {browseCategories.map((category) => {
+                const landing = jaCategoryLandings.find(
+                  (item) => item.caseCategory === category,
+                );
+                const href = landing
+                  ? jaCategoryPath(landing.slug)
+                  : `/cases?category=${encodeURIComponent(category)}`;
+                return (
+                  <li key={category}>
+                    <Link
+                      href={href}
+                      className="inline-flex rounded-md border border-border bg-background px-3.5 py-2.5 text-sm text-navy transition hover:border-teal hover:text-teal"
+                    >
+                      {category}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
             <ul className="mt-3 flex flex-wrap gap-2">
               {conditionTags.map((tag) => (

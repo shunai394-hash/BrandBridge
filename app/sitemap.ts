@@ -1,6 +1,7 @@
 ﻿import type { MetadataRoute } from "next";
 import { listJaBlogSlugs } from "@/lib/blog/ja-articles";
 import { listOpenCases } from "@/lib/cases";
+import { listJaCategorySlugs } from "@/lib/ja-categories";
 import { listModelCaseSlugs } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
 
@@ -43,6 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/ja/blog",
     "/ja/blog/how-to-sell-overseas-brands-in-japan",
     ...listJaBlogSlugs().map((slug) => `/ja/blog/${slug}`),
+    "/ja/categories",
+    ...listJaCategorySlugs().map((slug) => `/ja/categories/${slug}`),
     "/product-showcase",
     "/ja/product-showcase",
     "/terms",

@@ -13,8 +13,17 @@ export default function robots(): MetadataRoute.Robots {
           "/admin/",
           "/profile/edit",
           "/negotiations",
-          "/maker/negotiations",
-          "/partner/negotiations",
+          "/negotiations/",
+          "/maker/",
+          "/partner/",
+          "/favorites",
+          "/deals",
+          "/en/negotiations",
+          "/en/negotiations/",
+          "/en/favorites",
+          "/en/deals",
+          "/en/profile",
+          "/en/maker/",
         ],
       },
     ],
@@ -22,4 +31,3 @@ export default function robots(): MetadataRoute.Robots {
     host: base,
   };
 }
-

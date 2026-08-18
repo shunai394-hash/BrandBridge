@@ -4,7 +4,8 @@ import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "ログイン",
-  description: "BrandBridgeへのログインページです。",
+  description:
+    "BrandBridgeにログインして、商品の閲覧、商談、掲載管理を行います。",
   ...pairedLanguageAlternates("/login", "/en/login", "ja"),
 };
 

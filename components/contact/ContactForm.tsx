@@ -8,6 +8,7 @@ import {
   contactCategoryOptions,
   type ContactCategory,
 } from "@/lib/contact-types";
+import { trackGaEvent } from "@/lib/ga";
 
 type ContactFormProps = {
   initialCategory?: ContactCategory;
@@ -40,6 +41,7 @@ export function ContactForm({
       setError(result.error);
       return;
     }
+    trackGaEvent("generate_lead", { method: "contact_form", category });
     setDone(true);
     e.currentTarget.reset();
     setCategory(initialCategory);

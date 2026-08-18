@@ -7,6 +7,7 @@ import { Input, TextArea } from "@/components/ui/Input";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { GoogleAuthButton } from "@/components/forms/GoogleAuthButton";
 import { createClient } from "@/lib/supabase/client";
+import { trackGaEvent } from "@/lib/ga";
 import { getSiteUrl } from "@/lib/site";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -160,6 +161,8 @@ export function EnMakerRegisterForm() {
       setError(`Auth error: ${signUpError.message}`);
       return;
     }
+
+    trackGaEvent("sign_up", { method: "email", role: "maker" });
 
     if (data.session && !data.user?.email_confirmed_at) {
       await supabase.auth.signOut();

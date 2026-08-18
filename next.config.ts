@@ -4,6 +4,20 @@ const nextConfig: NextConfig = {
   // localhost and 127.0.0.1 are different origins (cookies + HMR + Router Cache).
   // Allow both in dev so chunks/HMR work whichever host the user uses.
   allowedDevOrigins: ["localhost", "127.0.0.1"],
+  async redirects() {
+    return [
+      {
+        source: "/cases/7c990b6e-6dc8-49ea-99b8-11da060a4327",
+        destination: "/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
+        permanent: true,
+      },
+      {
+        source: "/en/cases/7c990b6e-6dc8-49ea-99b8-11da060a4327",
+        destination: "/en/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
+        permanent: true,
+      },
+    ];
+  },
   experimental: {
     // product image upload via server action (max 5MB + FormData overhead)
     serverActions: {

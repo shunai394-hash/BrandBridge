@@ -16,7 +16,7 @@ const ja = {
   service: "サービス",
   support: "サポート",
   serviceLinks: [
-    { href: "/cases", label: "案件一覧" },
+    { href: "/cases", label: "商品一覧" },
     { href: "/for-makers", label: ROLE_DISPLAY.makerForPage },
     { href: "/for-partners", label: "販売パートナーの方へ" },
     { href: "/pricing", label: "料金プラン" },

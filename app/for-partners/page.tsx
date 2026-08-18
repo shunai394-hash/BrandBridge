@@ -1,12 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
   title: "販売パートナー・バイヤーの方へ",
   description:
-    "売れる商品を探す時間を効率化。BrandBridgeで販売パートナー向けに新しい取り扱い商材の発見をサポート。登録無料・初期費用なし。",
+    "海外ブランドの商品を探している日本の卸・小売・EC・バイヤー向け。取引条件を確認してから、取り扱い候補の商談を始められます。",
   ...selfLanguageAlternates("/for-partners", "ja"),
 };
 
@@ -96,6 +97,17 @@ const faqs = [
 export default function ForPartnersPage() {
   return (
     <div>
+      <div className="border-b border-border bg-cream/80 px-5 py-3">
+        <div className="mx-auto max-w-6xl">
+          <PageBreadcrumbs
+            className="mb-0"
+            items={[
+              { name: "ホーム", path: "/" },
+              { name: "販売パートナーの方へ", path: "/for-partners" },
+            ]}
+          />
+        </div>
+      </div>
       {/* 1. Hero */}
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div

@@ -6,6 +6,7 @@ import {
   type EnCaseListItem,
 } from "@/components/cases/EnCaseList";
 import { ModelCaseCard } from "@/components/cases/ModelCaseCard";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { listMyCases, listOpenCases } from "@/lib/cases";
 import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { brandDisplayName } from "@/lib/en-japan-opportunity";
@@ -36,9 +37,9 @@ function toListItem(item: Case): EnCaseListItem {
 }
 
 export const metadata: Metadata = {
-  title: "Japan Expansion Opportunities",
+  title: "Japanese Sales Partner Opportunities",
   description:
-    "Browse overseas brands seeking Japanese distributors, retailers, and e-commerce partners—Japan expansion opportunities on BrandBridge.",
+    "Browse overseas brands seeking Japanese distributors, retailers, wholesalers, and e-commerce partners. Review MOQ and wholesale terms before you enquire.",
   ...pairedLanguageAlternates("/cases", "/en/cases", "en"),
 };
 
@@ -93,6 +94,12 @@ export default async function EnglishCasesPage({
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
+      <PageBreadcrumbs
+        items={[
+          { name: "Home", path: "/en" },
+          { name: "Opportunities", path: "/en/cases" },
+        ]}
+      />
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           Japan Expansion Opportunities

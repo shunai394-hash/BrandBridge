@@ -1,5 +1,6 @@
 ﻿import type { MetadataRoute } from "next";
 import { listJaBlogSlugs } from "@/lib/blog/ja-articles";
+import { pickCanonicalPublicCases } from "@/lib/case-canonical";
 import { listOpenCases } from "@/lib/cases";
 import { listJaCategorySlugs } from "@/lib/ja-categories";
 import { listModelCaseSlugs } from "@/lib/model-cases";
@@ -35,11 +36,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/japan-market-for-functional-food-brands",
     "/en/japan-partner-demand-snapshot",
     "/en/product-showcase",
-    "/en/negotiations",
-    "/en/deals",
-    "/en/favorites",
-    "/en/profile",
-    "/en/products",
     "/how-to-sell-in-japan",
     "/ja/blog",
     "/ja/blog/how-to-sell-overseas-brands-in-japan",
@@ -47,7 +43,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/ja/categories",
     ...listJaCategorySlugs().map((slug) => `/ja/categories/${slug}`),
     "/product-showcase",
-    "/ja/product-showcase",
     "/terms",
     "/privacy",
   ].map((path) => ({
@@ -68,17 +63,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let caseRoutes: MetadataRoute.Sitemap = [];
   try {
-    const cases = await listOpenCases();
-    caseRoutes = cases.map((item) => ({
-      url: `${base}/cases/${item.id}`,
-      lastModified: new Date(item.createdAt),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    const cases = pickCanonicalPublicCases(await listOpenCases());
+    caseRoutes = cases.flatMap((item) => [
+      {
+        url: `${base}/cases/${item.id}`,
+        lastModified: new Date(item.createdAt),
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+      },
+      {
+        url: `${base}/en/cases/${item.id}`,
+        lastModified: new Date(item.createdAt),
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      },
+    ]);
   } catch {
     caseRoutes = [];
   }
 
   return [...staticRoutes, ...modelCaseRoutes, ...caseRoutes];
 }
-

@@ -1,5 +1,4 @@
 ﻿import type { ReactNode } from "react";
-import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
 import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
@@ -143,12 +142,6 @@ export function EnCaseDetail({
 
   return (
     <article className="animate-fade-up" lang="en">
-      <div className="mb-6">
-        <Link href="/en/cases" className="text-sm text-teal hover:underline">
-          ← Back to opportunities
-        </Link>
-      </div>
-
       <header className="mt-3 space-y-5">
         <CaseImageGallery
           images={caseItem.images}
@@ -176,6 +169,9 @@ export function EnCaseDetail({
 
         <dl>
           <InfoRow label="Category" value={en.category} />
+          {caseItem.sku?.trim() ? (
+            <InfoRow label="SKU" value={caseItem.sku.trim()} />
+          ) : null}
           <InfoRow
             label="Wholesale Price"
             value={

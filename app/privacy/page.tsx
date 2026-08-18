@@ -1,10 +1,13 @@
 ﻿import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "プライバシーポリシー",
-  description: `${siteConfig.name}のプライバシーポリシーです。`,
+  description:
+    "BrandBridgeのプライバシーポリシーです。個人情報の取り扱いについて定めています。",
+  ...selfLanguageAlternates("/privacy", "ja"),
   robots: { index: true, follow: true },
 };
 

@@ -10,9 +10,12 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "海外ブランドの商品を探す｜日本の販売パートナー向け",
+  title: {
+    absolute:
+      "BrandBridge｜海外ブランドの日本進出・販売パートナーマッチング",
+  },
   description:
-    "バイヤー・卸売業者・小売店・EC事業者が、海外ブランドの商品を探し、MOQや卸価格などの条件を確認し、販売パートナーとして商談できるBtoBプラットフォームです。",
+    "海外ブランドの商品を探す日本の卸・小売・ECと、日本で販売したい海外ブランドをつなぐBtoBマッチング。MOQや卸価格などの条件を確認してから商談できます。",
   ...pairedLanguageAlternates("/", "/en", "ja"),
 };
 
@@ -230,27 +233,43 @@ export default async function HomePage() {
             MOQ・卸価格などの取引条件を見てから、商談に進めます。
           </p>
 
-          <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-md flex-col gap-3 sm:mt-10 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
-            <Button
-              href="/cases"
-              className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto sm:min-w-[168px]"
-            >
-              商品一覧を見る
-            </Button>
-            <Button
-              href="/register/partner"
-              variant="outline"
-              className="w-full border-white/40 px-6 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              販売パートナーとして登録
-            </Button>
-            <Button
-              href="/register/maker"
-              variant="outline"
-              className="w-full border-white/25 px-6 py-3.5 text-base text-white/90 hover:border-white/50 hover:bg-white/5 hover:text-white sm:w-auto"
-            >
-              商品提供企業として登録
-            </Button>
+          <div className="animate-fade-up delay-3 mt-9 flex w-full max-w-xl flex-col gap-5">
+            <div>
+              <Button
+                href="/cases"
+                className="w-full px-6 py-3.5 text-base shadow-[0_12px_32px_rgba(26,138,138,0.45)] sm:w-auto sm:min-w-[168px]"
+              >
+                商品一覧を見る
+              </Button>
+              <p className="mt-2 text-sm leading-relaxed text-white/70">
+                海外商品を探している日本の事業者の方
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Link
+                href="/register/partner"
+                className="rounded-md border border-white/40 bg-white/5 px-4 py-3.5 transition hover:border-white hover:bg-white/10"
+              >
+                <p className="text-sm font-medium text-white sm:text-base">
+                  販売パートナーとして登録
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/70 sm:text-sm">
+                  卸・小売・ECで、海外ブランドの商品を扱いたい方
+                </p>
+              </Link>
+              <Link
+                href="/register/maker"
+                className="rounded-md border border-white/25 bg-white/[0.03] px-4 py-3.5 transition hover:border-white/50 hover:bg-white/5"
+              >
+                <p className="text-sm font-medium text-white/95 sm:text-base">
+                  商品提供企業として登録
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-white/70 sm:text-sm">
+                  海外ブランドとして、日本の販売先を探している方
+                </p>
+              </Link>
+            </div>
           </div>
 
           <p className="animate-fade-up delay-3 mt-6">
@@ -693,27 +712,37 @@ export default async function HomePage() {
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/75 md:text-base">
             まずは商品一覧から。取り扱いを進める場合は、販売パートナーとして登録できます。
           </p>
-          <div className="mx-auto mt-8 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+          <div className="mx-auto mt-8 flex w-full max-w-md flex-col gap-4 sm:max-w-2xl sm:flex-row sm:justify-center">
             <Button
               href="/cases"
               className="w-full py-3.5 text-base sm:w-auto sm:min-w-[168px]"
             >
               商品一覧を見る
             </Button>
-            <Button
-              href="/register/partner"
-              variant="outline"
-              className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white sm:w-auto"
-            >
-              販売パートナーとして登録
-            </Button>
-            <Button
-              href="/register/maker"
-              variant="outline"
-              className="w-full border-white/25 py-3.5 text-base text-white/90 hover:border-white/50 hover:bg-white/5 hover:text-white sm:w-auto"
-            >
-              商品提供企業として登録
-            </Button>
+            <div className="flex flex-1 flex-col gap-1 sm:max-w-[200px]">
+              <Button
+                href="/register/partner"
+                variant="outline"
+                className="w-full border-white/40 py-3.5 text-base text-white hover:border-white hover:bg-white/10 hover:text-white"
+              >
+                販売パートナーとして登録
+              </Button>
+              <p className="text-center text-xs text-white/60">
+                海外商品を扱いたい方
+              </p>
+            </div>
+            <div className="flex flex-1 flex-col gap-1 sm:max-w-[200px]">
+              <Button
+                href="/register/maker"
+                variant="outline"
+                className="w-full border-white/25 py-3.5 text-base text-white/90 hover:border-white/50 hover:bg-white/5 hover:text-white"
+              >
+                商品提供企業として登録
+              </Button>
+              <p className="text-center text-xs text-white/60">
+                日本の販売先を探している方
+              </p>
+            </div>
           </div>
         </div>
       </section>

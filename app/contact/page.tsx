@@ -1,13 +1,15 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/contact/ContactForm";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { siteConfig } from "@/lib/site";
 import type { ContactCategory } from "@/lib/contact-types";
 
 export const metadata: Metadata = {
   title: "お問い合わせ",
-  description: `${siteConfig.name}へのお問い合わせフォームです。通常1〜2営業日以内にご返信します。`,
+  description:
+    "掲載相談、サービスに関する質問、不具合報告を受け付けています。通常1〜2営業日以内にご返信します。",
   ...pairedLanguageAlternates("/contact", "/en/contact", "ja"),
 };
 
@@ -27,6 +29,12 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 md:py-16">
+      <PageBreadcrumbs
+        items={[
+          { name: "ホーム", path: "/" },
+          { name: "お問い合わせ", path: "/contact" },
+        ]}
+      />
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           {isListingConsult ? "掲載相談" : "お問い合わせ"}

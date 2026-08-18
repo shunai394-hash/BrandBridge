@@ -9,7 +9,7 @@ import { getProfileById } from "@/lib/profiles";
 export const metadata: Metadata = {
   title: "販売パートナー登録",
   description:
-    "BrandBridgeへの販売パートナー登録。メール認証後にプロフィールを入力します。",
+    "日本の卸・小売・EC事業者として登録し、海外ブランドの商品と取引条件を確認して商談できます。",
   ...pairedLanguageAlternates(
     "/register/partner",
     "/en/register/partner",

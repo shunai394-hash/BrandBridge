@@ -1,10 +1,14 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "運営会社情報",
-  description: `${siteConfig.name}の運営会社情報です。`,
+  description:
+    "BrandBridgeの運営会社情報です。海外ブランドと日本の販売パートナーをつなぐBtoBマッチングサービスを運営しています。",
+  ...selfLanguageAlternates("/company", "ja"),
   robots: { index: true, follow: true },
 };
 
@@ -13,6 +17,12 @@ export default function CompanyPage() {
 
   return (
     <article className="mx-auto max-w-3xl px-5 py-12 md:py-16">
+      <PageBreadcrumbs
+        items={[
+          { name: "ホーム", path: "/" },
+          { name: "運営会社情報", path: "/company" },
+        ]}
+      />
       <header className="mb-10 border-b border-border pb-6">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
           運営会社情報

@@ -9,6 +9,7 @@ import { GoogleAuthButton } from "@/components/forms/GoogleAuthButton";
 import { createClient } from "@/lib/supabase/client";
 import { getSiteUrl } from "@/lib/site";
 import { resolveRoleDestination, setupPathForRole } from "@/lib/auth-flow";
+import { trackGaEvent } from "@/lib/ga";
 
 type AuthRegisterFormProps = {
   role: "maker" | "partner";
@@ -97,6 +98,8 @@ export function AuthRegisterForm({
       setError(`Auth error: ${signUpError.message}`);
       return;
     }
+
+    trackGaEvent("sign_up", { method: "email", role });
 
     // Email confirm must be required. If a session appears without confirm, sign out.
     if (data.session && !data.user?.email_confirmed_at) {

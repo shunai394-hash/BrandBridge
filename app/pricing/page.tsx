@@ -1,12 +1,13 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
-  title: "料金",
+  title: "料金プラン",
   description:
-    "BrandBridgeの料金表。販売パートナーは無料、商品提供企業はベータ期間中無料で利用できます。",
+    "販売パートナーの利用は無料です。商品提供企業はベータ期間中無料で商品掲載と商談ができます。",
   ...pairedLanguageAlternates("/pricing", "/en/pricing", "ja"),
 };
 
@@ -57,6 +58,17 @@ function FeatureList({ items }: { items: readonly string[] }) {
 export default function PricingPage() {
   return (
     <div>
+      <div className="border-b border-border bg-cream/80 px-5 py-3">
+        <div className="mx-auto max-w-6xl">
+          <PageBreadcrumbs
+            className="mb-0"
+            items={[
+              { name: "ホーム", path: "/" },
+              { name: "料金プラン", path: "/pricing" },
+            ]}
+          />
+        </div>
+      </div>
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_30%,rgba(26,138,138,0.35),transparent_55%),radial-gradient(ellipse_at_80%_70%,rgba(20,111,111,0.25),transparent_50%)]"

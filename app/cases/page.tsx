@@ -3,6 +3,7 @@ import { unstable_noStore as noStore } from "next/cache";
 
 import { CaseList, type CaseListItem } from "@/components/cases/CaseList";
 import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { listOpenCases } from "@/lib/cases";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getPlatformStats } from "@/lib/platform-stats";
@@ -33,11 +34,14 @@ function toListItem(
   };
 }
 
-export const metadata: Metadata = {
-  title: "事例一覧",
-  description: "BrandBridgeに掲載中の商品一覧です。",
-  ...pairedLanguageAlternates("/cases", "/en/cases", "ja"),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "海外ブランドの商品一覧",
+    description:
+      "日本の卸・小売・EC事業者が、海外ブランドの商品をカテゴリや取引条件から探せる一覧です。MOQや卸価格を確認してから商談に進めます。",
+    ...pairedLanguageAlternates("/cases", "/en/cases", "ja"),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -61,13 +65,19 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+      <PageBreadcrumbs
+        items={[
+          { name: "ホーム", path: "/" },
+          { name: "商品一覧", path: "/cases" },
+        ]}
+      />
       <header className="mb-8">
         <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
-          事例一覧
+          商品一覧
         </h1>
 
         <p className="mt-3 text-muted">
-          実際の導入事例・成果をご紹介します。
+          海外ブランドの商品を、カテゴリや取引条件から探せます。
         </p>
       </header>
 

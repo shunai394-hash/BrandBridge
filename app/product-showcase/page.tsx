@@ -5,9 +5,9 @@ import { getJapaneseProductShowcaseSample } from "@/lib/product-showcase-sample"
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
-  title: "商品掲載サンプル | BrandBridge",
+  title: "商品掲載サンプル",
   description:
-    "海外の商品提供企業が登録後の商品ページ完成イメージを確認できるサンプルです。商品画像・紹介動画・説明・特徴・取引条件を掲載しています。",
+    "商品画像・紹介動画・説明・取引条件が載った、海外ブランド向けの商品ページ完成イメージです。",
   ...pairedLanguageAlternates(
     "/product-showcase",
     "/en/product-showcase",

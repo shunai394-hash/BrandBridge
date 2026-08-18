@@ -1,15 +1,17 @@
 ﻿import type { Metadata } from "next";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { CasesRouteHardReload } from "@/components/layout/CasesRouteHardReload";
+import { DocumentLang } from "@/components/layout/DocumentLang";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { GA_MEASUREMENT_ID } from "@/lib/ga";
 import { getSiteUrl, siteConfig } from "@/lib/site";
 
 import "./globals.css";
-
-const GA_MEASUREMENT_ID = "G-Q6DFW7PY0N";
 
 const shippori = Shippori_Mincho({
   variable: "--font-shippori",
@@ -29,11 +31,14 @@ const zen = Zen_Kaku_Gothic_New({
 
 const siteUrl = getSiteUrl();
 
+const DEFAULT_TITLE =
+  "BrandBridge｜海外ブランドの日本進出・販売パートナーマッチング";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: `${siteConfig.name} | ${siteConfig.tagline}`,
+    default: DEFAULT_TITLE,
     template: `%s | ${siteConfig.name}`,
   },
 
@@ -70,22 +75,18 @@ export const metadata: Metadata = {
     telephone: false,
   },
 
-  alternates: {
-    canonical: "/",
-  },
-
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
     url: siteUrl,
     siteName: siteConfig.name,
-    title: `${siteConfig.name} | ${siteConfig.tagline}`,
+    title: DEFAULT_TITLE,
     description: siteConfig.description,
   },
 
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | ${siteConfig.tagline}`,
+    title: DEFAULT_TITLE,
     description: siteConfig.description,
   },
 
@@ -126,9 +127,14 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
+            gtag('config', '${GA_MEASUREMENT_ID}', { send_page_view: false });
           `}
         </Script>
+
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
+        <DocumentLang />
 
         <Header />
 

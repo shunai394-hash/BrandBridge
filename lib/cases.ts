@@ -1,4 +1,5 @@
-﻿import {
+﻿import { pickCanonicalPublicCases } from "@/lib/case-canonical";
+import {
   formatSupabaseError,
   normalizeCaseCreateInput,
   skuForDb,
@@ -242,7 +243,7 @@ export async function listOpenCases(): Promise<Case[]> {
       })),
   });
 
-  return withCounts.map((c) => ({
+  return pickCanonicalPublicCases(withCounts).map((c) => ({
     ...c,
     wholesalePrice: null,
     lotPricing: null,
@@ -252,6 +253,37 @@ export async function listOpenCases(): Promise<Case[]> {
     sampleAvailable: null,
     testSaleAvailable: null,
   }));
+}
+
+async function findOpenDuplicateSkuCaseId(input: {
+  makerId: string;
+  sku: string | null;
+  excludeCaseId?: string;
+}): Promise<string | null> {
+  const sku = input.sku?.trim();
+  if (!sku) return null;
+
+  const supabase = await createClient();
+  let query = supabase
+    .from("cases")
+    .select("id")
+    .eq("maker_id", input.makerId)
+    .eq("sku", sku)
+    .eq("status", "open")
+    .in("review_status", ["approved", "pending_review"]);
+
+  if (input.excludeCaseId) {
+    query = query.neq("id", input.excludeCaseId);
+  }
+
+  const { data, error } = await query.limit(1);
+  if (error) {
+    console.error("[findOpenDuplicateSkuCaseId]", error.message);
+    return null;
+  }
+
+  const id = data?.[0]?.id;
+  return typeof id === "string" ? id : null;
 }
 
 /** All cases for maker_id = auth.uid() (any status / review_status). */
@@ -402,14 +434,14 @@ export async function getLatestCases(limit = 6): Promise<Case[]> {
     .eq("status", "open")
     .eq("review_status", "approved")
     .order("created_at", { ascending: false })
-    .limit(limit);
+    .limit(Math.max(limit * 2, limit));
 
   if (error) {
     console.error("[getLatestCases]", error.message);
     return [];
   }
 
-  return ((data ?? []) as CaseWithMaker[]).map((row) => {
+  const mapped = ((data ?? []) as CaseWithMaker[]).map((row) => {
     const c = mapCase(row);
     return {
       ...c,
@@ -422,6 +454,8 @@ export async function getLatestCases(limit = 6): Promise<Case[]> {
       testSaleAvailable: null,
     };
   });
+
+  return pickCanonicalPublicCases(mapped).slice(0, limit);
 }
 
 /** @deprecated use getLatestCases / getPopularCases */
@@ -456,7 +490,7 @@ export async function getPopularCases(limit = 6): Promise<Case[]> {
 
   const mapped = ((data ?? []) as CaseWithMaker[]).map(mapCase);
   const order = new Map(idList.map((id, i) => [id, i]));
-  return mapped.sort(
+  return pickCanonicalPublicCases(mapped).sort(
     (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
   );
 }
@@ -509,6 +543,17 @@ if (user.id !== makerId) {
   });
   return { error: "maker_id 縺ｨ auth.uid() 縺御ｸ閾ｴ縺励∪縺帙ｓ" };
 }
+
+    const duplicateSkuId = await findOpenDuplicateSkuCaseId({
+      makerId,
+      sku: skuForDb(normalized.sku),
+    });
+    if (duplicateSkuId) {
+      return {
+        error:
+          "同じ商品コード（SKU）の公開中商品が既にあります。重複して登録することはできません。",
+      };
+    }
 
     const imageUrl = normalized.productImageUrl?.trim() || null;
     const videoUrl = normalized.productVideoUrl?.trim() || null;
@@ -787,6 +832,18 @@ export async function updateCase(
     } = await supabase.auth.getUser();
     if (!user) return { error: "ログインが必要です" };
 
+    const duplicateSkuId = await findOpenDuplicateSkuCaseId({
+      makerId: user.id,
+      sku: skuForDb(normalized.sku),
+      excludeCaseId: caseId,
+    });
+    if (duplicateSkuId) {
+      return {
+        error:
+          "同じ商品コード（SKU）の公開中商品が既にあります。重複して登録することはできません。",
+      };
+    }
+
     const payload = caseUpdatePayload(normalized);
     let { data, error } = await supabase
       .from("cases")
@@ -865,6 +922,29 @@ export async function adminUpdateCase(
 
     const supabase = await createClient();
     const payload = caseUpdatePayload(normalized);
+
+    const { data: existing } = await supabase
+      .from("cases")
+      .select("maker_id")
+      .eq("id", caseId)
+      .maybeSingle();
+    const makerId =
+      existing && typeof existing.maker_id === "string"
+        ? existing.maker_id
+        : null;
+    if (makerId) {
+      const duplicateSkuId = await findOpenDuplicateSkuCaseId({
+        makerId,
+        sku: skuForDb(normalized.sku),
+        excludeCaseId: caseId,
+      });
+      if (duplicateSkuId) {
+        return {
+          error:
+            "同じ商品コード（SKU）の公開中商品が既にあります。重複して登録することはできません。",
+        };
+      }
+    }
 
     let { data, error } = await supabase
       .from("cases")

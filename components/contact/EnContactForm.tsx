@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { submitContactAction } from "@/lib/actions";
 import { ENGLISH_INQUIRY_MARKER } from "@/lib/inquiry-language";
+import { trackGaEvent } from "@/lib/ga";
 import { Button } from "@/components/ui/Button";
 import { Input, TextArea } from "@/components/ui/Input";
 
@@ -96,6 +97,7 @@ export function EnContactForm({
       setError(mapContactError(result.error));
       return;
     }
+    trackGaEvent("generate_lead", { method: "contact_form_en" });
     setDone(true);
     e.currentTarget.reset();
   }

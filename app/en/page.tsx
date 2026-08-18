@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/Button";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
-  title: "Find Qualified Japanese Distributors for Your Brand",
+  title: {
+    absolute: "BrandBridge | Find Japanese Distributors for Your Brand",
+  },
   description:
     "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners with transparent commercial terms before contact.",
   ...pairedLanguageAlternates("/", "/en", "en"),

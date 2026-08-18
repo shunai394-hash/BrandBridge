@@ -1,10 +1,12 @@
 ﻿import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal/LegalPage";
+import { selfLanguageAlternates } from "@/lib/hreflang";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "利用規約",
-  description: `${siteConfig.name}の利用規約です。`,
+  description: "BrandBridgeの利用規約です。サービスの利用条件を定めています。",
+  ...selfLanguageAlternates("/terms", "ja"),
   robots: { index: true, follow: true },
 };
 

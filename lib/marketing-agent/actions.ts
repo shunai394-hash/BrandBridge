@@ -11,6 +11,7 @@ import {
   type PrVideoScript,
 } from "@/lib/marketing-agent/pr-script";
 import {
+  generateAutoBusinessPrVideoScript,
   generateBusinessPrVideoScript,
   parseBusinessPrBrief,
   type BusinessPrBrief,
@@ -360,10 +361,21 @@ export async function generateBusinessPrVideoScriptAction(
       videoPurpose: formData.get("videoPurpose"),
       japanMarketRelation: formData.get("japanMarketRelation"),
       mood: formData.get("mood"),
+      website: formData.get("website"),
+      businessType: formData.get("businessType"),
+      country: formData.get("country"),
+      services: formData.get("services"),
+      sellingPoints: formData.get("sellingPoints"),
       imageCount: formData.get("imageCount"),
       imageHints,
     });
-    const script = await generateBusinessPrVideoScript(brief);
+    const generationMode = String(formData.get("generationMode") ?? "")
+      .trim()
+      .toLowerCase();
+    const script =
+      generationMode === "auto"
+        ? await generateAutoBusinessPrVideoScript(brief)
+        : await generateBusinessPrVideoScript(brief);
     return { script, brief };
   } catch (error) {
     if (error instanceof MarketingAgentError && error.code === "AI_TIMEOUT") {

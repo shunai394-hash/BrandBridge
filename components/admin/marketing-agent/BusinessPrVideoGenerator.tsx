@@ -30,6 +30,9 @@ function formatBusinessPrScriptText(script: PrVideoScript): string {
         `トランジション: ${scene.transition}`,
         "映像:",
         scene.visual,
+        scene.searchKeywords && scene.searchKeywords.length > 0
+          ? `検索キーワード: ${scene.searchKeywords.join(", ")}`
+          : "",
         "ナレーション:",
         scene.narrationText,
       ].join("\n"),
@@ -95,6 +98,9 @@ async function compressBusinessPrImage(file: File): Promise<File> {
 }
 
 export function BusinessPrVideoGenerator() {
+  const [generationMode, setGenerationMode] = useState<"auto" | "manual">(
+    "auto",
+  );
   const [started, setStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [script, setScript] = useState<PrVideoScript | null>(null);
@@ -180,7 +186,7 @@ export function BusinessPrVideoGenerator() {
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted">
-          会社・事業の説明と複数の画像から、日本語ナレーション付きの縦型PR動画を作成します。
+          会社情報から自動で実写素材を集めて縦型PR動画を作るか、従来どおり画像を指定して生成できます。
         </p>
 
         <button
@@ -199,7 +205,7 @@ export function BusinessPrVideoGenerator() {
       <form
         className="space-y-3"
         action={async (formData) => {
-          if (images.length < 2) {
+          if (generationMode === "manual" && images.length < 2) {
             setError("画像を2枚以上追加してください。");
             return;
           }
@@ -217,6 +223,7 @@ export function BusinessPrVideoGenerator() {
             return null;
           });
 
+          formData.set("generationMode", generationMode);
           formData.set("imageCount", String(images.length));
           formData.set(
             "imageHints",
@@ -246,6 +253,51 @@ export function BusinessPrVideoGenerator() {
             name="companyName"
             required
             defaultValue="BrandBridge"
+            className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
+          />
+        </label>
+
+        <fieldset className="max-w-xl space-y-2">
+          <legend className="text-sm text-muted">生成方式</legend>
+          <label className="flex cursor-pointer items-start gap-2 text-sm text-navy">
+            <input
+              type="radio"
+              name="generationMode"
+              value="auto"
+              checked={generationMode === "auto"}
+              onChange={() => setGenerationMode("auto")}
+              className="mt-1"
+            />
+            <span>
+              自動生成
+              <span className="block text-xs text-muted">
+                会社情報のみ。画像を選ばず実写動画素材を検索します。
+              </span>
+            </span>
+          </label>
+          <label className="flex cursor-pointer items-start gap-2 text-sm text-navy">
+            <input
+              type="radio"
+              name="generationMode"
+              value="manual"
+              checked={generationMode === "manual"}
+              onChange={() => setGenerationMode("manual")}
+              className="mt-1"
+            />
+            <span>
+              素材を指定して生成
+              <span className="block text-xs text-muted">
+                従来どおり、画像を2枚以上選んで生成します。
+              </span>
+            </span>
+          </label>
+        </fieldset>
+
+        <label className="block text-sm text-muted">
+          ウェブサイト（任意）
+          <input
+            name="website"
+            defaultValue="https://www.brandbridge.jp"
             className="mt-1 block w-full max-w-xl rounded-md border border-border bg-surface px-3 py-2 text-navy"
           />
         </label>
@@ -302,6 +354,7 @@ export function BusinessPrVideoGenerator() {
           />
         </label>
 
+        {generationMode === "manual" ? (
         <div className="space-y-2">
           <p className="text-sm text-muted">
             使用する画像（2枚以上）
@@ -389,6 +442,11 @@ export function BusinessPrVideoGenerator() {
             </p>
           )}
         </div>
+        ) : (
+          <p className="text-xs text-muted">
+            自動生成では画像の選択は不要です。各シーンの英語キーワードから実写動画を検索します。
+          </p>
+        )}
 
         <SubmitButton pendingLabel="台本を生成中...">
           日本語で台本を作成
@@ -416,13 +474,13 @@ export function BusinessPrVideoGenerator() {
             disabled={
               videoStatus === "generating" ||
               !script ||
-              images.length < 2
+              (generationMode === "manual" && images.length < 2)
             }
             className="inline-flex cursor-pointer items-center justify-center rounded-md bg-teal px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-dark disabled:cursor-not-allowed disabled:opacity-60"
             onClick={async () => {
               if (
                 !script ||
-                images.length < 2 ||
+                (generationMode === "manual" && images.length < 2) ||
                 generatingLock.current
               ) {
                 return;
@@ -449,9 +507,23 @@ export function BusinessPrVideoGenerator() {
                     ) as HTMLInputElement | null
                   )?.value.trim() || "BrandBridge";
 
+                const field = (name: string) =>
+                  (
+                    document.querySelector(
+                      `[name="${name}"]`,
+                    ) as HTMLInputElement | HTMLTextAreaElement | null
+                  )?.value.trim() || "";
+
                 const body = new FormData();
 
                 body.set("companyName", companyName);
+                body.set("generationMode", generationMode);
+                body.set("website", field("website"));
+                body.set("businessDescription", field("businessDescription"));
+                body.set("targetAudience", field("targetAudience"));
+                body.set("videoPurpose", field("videoPurpose"));
+                body.set("japanMarketRelation", field("japanMarketRelation"));
+                body.set("mood", field("mood"));
                 body.set(
                   "script",
                   JSON.stringify(script),
@@ -465,9 +537,11 @@ export function BusinessPrVideoGenerator() {
                   String(subtitlesEnabled),
                 );
 
-                for (const item of images) {
-                  const file = await compressBusinessPrImage(item.file);
-                  body.append("images", file, file.name);
+                if (generationMode === "manual") {
+                  for (const item of images) {
+                    const file = await compressBusinessPrImage(item.file);
+                    body.append("images", file, file.name);
+                  }
                 }
 
                 const response = await fetch(
@@ -661,7 +735,7 @@ export function BusinessPrVideoGenerator() {
               : videoStatus === "failed"
                 ? "失敗"
                 : script
-                  ? images.length < 2
+                  ? generationMode === "manual" && images.length < 2
                     ? "画像を2枚以上追加してください"
                     : "内容を確認して動画を生成できます"
                   : "先に日本語で台本を作成してください"}
@@ -770,6 +844,17 @@ export function BusinessPrVideoGenerator() {
                 <p className="mt-1 text-navy">
                   {scene.visual}
                 </p>
+
+                {scene.searchKeywords && scene.searchKeywords.length > 0 ? (
+                  <>
+                    <p className="mt-2 text-xs text-muted">
+                      映像検索キーワード
+                    </p>
+                    <p className="mt-1 text-navy">
+                      {scene.searchKeywords.join(", ")}
+                    </p>
+                  </>
+                ) : null}
 
                 <p className="mt-2 text-xs text-muted">
                   場所 / 人物 / カメラ

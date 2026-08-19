@@ -354,6 +354,7 @@ export async function renderPrVideoMp4(input: {
   engine?: PrVideoEngine;
   product?: PrVideoProductContext;
   videoPaths?: string[];
+  materialMode?: "mixed" | "video-first";
 }): Promise<{
   width: number;
   height: number;
@@ -372,6 +373,7 @@ export async function renderPrVideoMp4(input: {
         subtitlesEnabled: input.subtitlesEnabled,
         product: input.product,
         videoPaths: input.videoPaths,
+        materialMode: input.materialMode,
       });
       if (mpt) {
         return mpt;
@@ -391,7 +393,7 @@ export async function renderPrVideoMp4(input: {
     }
   }
 
-  if (input.imagePaths.length === 0) {
+  if (input.imagePaths.length === 0 && (input.videoPaths?.length ?? 0) === 0) {
     throw new MarketingAgentError(
       "MISSING_IMAGE",
       "画像が指定されていません。",
@@ -409,6 +411,39 @@ export async function renderPrVideoMp4(input: {
     ? directCinematography(input.scenes, input.outFile)
     : input.scenes;
 
+  let kenBurnsImages = input.imagePaths;
+  if (
+    input.materialMode !== "video-first" &&
+    kenBurnsImages.length === 0 &&
+    (input.videoPaths?.length ?? 0) > 0
+  ) {
+    kenBurnsImages = [];
+    for (let index = 0; index < (input.videoPaths ?? []).length; index += 1) {
+      const videoPath = input.videoPaths?.[index];
+      if (!videoPath) continue;
+      const still = path.join(input.workDir, `fallback-still-${index}.jpg`);
+      try {
+        await runFfmpeg(
+          ["-y", "-i", videoPath, "-ss", "0.4", "-frames:v", "1", still],
+          20_000,
+        );
+        if (await fileExists(still)) kenBurnsImages.push(still);
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  if (
+    kenBurnsImages.length === 0 &&
+    (input.videoPaths?.length ?? 0) === 0
+  ) {
+    throw new MarketingAgentError(
+      "MISSING_IMAGE",
+      "画像が指定されていません。",
+    );
+  }
+
   const sceneFiles: string[] = [];
 
   for (
@@ -424,11 +459,17 @@ export async function renderPrVideoMp4(input: {
     }
 
     const imagePath =
-      input.imagePaths[
-        i % input.imagePaths.length
+      kenBurnsImages[
+        i % kenBurnsImages.length
       ];
 
-    if (!imagePath) {
+    const stockVideo =
+      input.materialMode === "video-first" &&
+      (input.videoPaths?.length ?? 0) > 0
+        ? input.videoPaths![i % input.videoPaths!.length]
+        : undefined;
+
+    if (!imagePath && !stockVideo) {
       continue;
     }
 
@@ -437,6 +478,47 @@ export async function renderPrVideoMp4(input: {
         scene.durationSeconds,
         1.2,
       );
+
+    const sceneFile =
+      path.join(
+        input.workDir,
+        `scene-${i}.mp4`,
+      );
+
+    if (stockVideo) {
+      await runFfmpeg(
+        [
+          "-y",
+          "-stream_loop",
+          "-1",
+          "-i",
+          stockVideo,
+          "-vf",
+          `scale=${VIDEO_WIDTH}:${VIDEO_HEIGHT}:force_original_aspect_ratio=increase,crop=${VIDEO_WIDTH}:${VIDEO_HEIGHT},fps=${VIDEO_FPS},format=yuv420p`,
+          "-t",
+          duration.toFixed(3),
+          "-an",
+          "-c:v",
+          "libx264",
+          "-preset",
+          "veryfast",
+          "-crf",
+          "26",
+          "-pix_fmt",
+          "yuv420p",
+          "-movflags",
+          "+faststart",
+          sceneFile,
+        ],
+        60_000,
+      );
+      sceneFiles.push(sceneFile);
+      continue;
+    }
+
+    if (!imagePath) {
+      continue;
+    }
 
     const frames =
       Math.max(
@@ -450,12 +532,6 @@ export async function renderPrVideoMp4(input: {
       cameraToKenBurns(
         scene.camera,
         frames,
-      );
-
-    const sceneFile =
-      path.join(
-        input.workDir,
-        `scene-${i}.mp4`,
       );
 
     const vf = [

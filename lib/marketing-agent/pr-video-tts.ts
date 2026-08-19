@@ -120,6 +120,36 @@ async function exportVoiceboxAudio(
   await writeFile(outFile, bytes);
 }
 
+async function synthesizeWithEspeak(input: {
+  text: string;
+  outFile: string;
+}): Promise<{ durationSeconds: number }> {
+  const voice = detectSpeechVoice(input.text) === "ja" ? "ja" : "en";
+  const bins = process.platform === "win32"
+    ? ["espeak-ng", "espeak"]
+    : ["espeak-ng", "espeak"];
+
+  let lastError = "espeak-ng is unavailable.";
+  for (const bin of bins) {
+    try {
+      await execFileAsync(
+        bin,
+        ["-v", voice, "-s", "145", "-w", input.outFile, input.text],
+        { timeout: 30_000 },
+      );
+      const durationSeconds = await probeAudioDuration(input.outFile);
+      if (Number.isFinite(durationSeconds) && durationSeconds >= 0.5) {
+        return { durationSeconds };
+      }
+      lastError = "espeak-ng produced invalid audio.";
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  throw new MarketingAgentError("TTS_FAILURE", lastError);
+}
+
 export async function synthesizeNarrationWav(input: {
   text: string;
   outFile: string;
@@ -137,6 +167,19 @@ export async function synthesizeNarrationWav(input: {
     );
   }
 
+  try {
+    return await synthesizeWithVoicebox({ text, outFile: input.outFile });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "Voicebox unavailable";
+    console.warn(`[pr-video] Voicebox TTS failed, falling back to espeak-ng: ${detail}`);
+    return synthesizeWithEspeak({ text, outFile: input.outFile });
+  }
+}
+
+async function synthesizeWithVoicebox(input: {
+  text: string;
+  outFile: string;
+}): Promise<{ durationSeconds: number }> {
   const language = "ja";
 
   const response = await voiceboxRequest(
@@ -147,7 +190,7 @@ export async function synthesizeNarrationWav(input: {
         "Content-Type": "application/json; charset=utf-8",
       },
       body: JSON.stringify({
-        text,
+        text: input.text,
         profile: VOICEBOX_PROFILE,
         engine: "kokoro",
         language,

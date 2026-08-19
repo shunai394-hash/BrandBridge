@@ -329,6 +329,47 @@ Create approximately 5-8 scenes totaling about 30 seconds.
 Do not pad the script with unnecessary scenes.
 `.trim();
 
+export const AUTO_BUSINESS_PR_VIDEO_SCRIPT_TASK = `
+Write a ~30 second Japanese vertical company PR video script for stock-footage editing (not a still-image slideshow).
+
+This path searches real stock video clips from English visual keywords. Product photos are optional and must not be required.
+
+Language:
+- title, hook, location, character, action, visual, narrationText, onScreenText, and cta MUST be natural Japanese.
+- narrationText: one short spoken sentence per scene (about 12–28 Japanese characters). Total spoken text about 90–120 characters so TTS fits 25–35 seconds.
+- onScreenText: a short caption (2–18 Japanese characters) that can be burned as a subtitle. Do not leave it empty.
+- visualPrompt: English description of the live-action shot we should find (office, Tokyo street, handshake, warehouse, etc.).
+- searchKeywords: 2–4 English stock-video search terms per scene. Concrete visual nouns, not slogans. Example: "Tokyo business district", "Japanese office meeting", "shipping containers".
+- Never invent users, sales numbers, awards, or partnerships.
+
+Scene count: 3 to 7 scenes, optimized for the company story. Typical arc: brand intro → service → use case / benefit → Japan or global market → CTA. Total durationSeconds about 30.
+
+Return JSON:
+{
+  "title": "",
+  "hook": "",
+  "scenes": [
+    {
+      "sceneNumber": 1,
+      "sceneId": "intro",
+      "durationSeconds": 5,
+      "location": "",
+      "character": "",
+      "action": "",
+      "camera": "wide|medium|close|zoom_in|zoom_out|pan_left|pan_right|tilt_up|tilt_down|dolly_in|dolly_out|tracking|orbit|parallax|focus_pull|over_shoulder|drift",
+      "transition": "cut|fade|dissolve|slide_left|slide_right|wipe|zoom|match_cut|motion_blur|continue",
+      "visual": "",
+      "visualPrompt": "Tokyo business district aerial",
+      "searchKeywords": ["Tokyo business district", "modern office Japan"],
+      "narrationText": "",
+      "onScreenText": ""
+    }
+  ],
+  "totalDurationSeconds": 30,
+  "cta": ""
+}
+`.trim();
+
 export const BUSINESS_PR_VIDEO_SCRIPT_TASK = `
 Write a ~30 second Japanese vertical-video script that makes a company / business / brand known, creates interest, and sends the viewer to BrandBridge (website, details, Japan-market consultation, partner matching, or inquiry).
 

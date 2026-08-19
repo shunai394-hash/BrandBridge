@@ -2,8 +2,9 @@
  * Company / business / brand awareness script. No Case / product required.
  */
 
-import { completeJson, MarketingAgentError } from "@/lib/marketing-agent/ai";
+import { completeJson, isAiConfigured, MarketingAgentError } from "@/lib/marketing-agent/ai";
 import {
+  AUTO_BUSINESS_PR_VIDEO_SCRIPT_TASK,
   BUSINESS_PR_VIDEO_SCRIPT_TASK,
   systemPrompt,
 } from "@/lib/marketing-agent/prompts";
@@ -22,6 +23,11 @@ export type BusinessPrBrief = {
   videoPurpose: string;
   japanMarketRelation?: string;
   mood?: string;
+  website?: string;
+  businessType?: string;
+  country?: string;
+  services?: string;
+  sellingPoints?: string;
   imageCount: number;
   imageHints?: string[];
 };
@@ -53,6 +59,11 @@ export function parseBusinessPrBrief(input: {
   videoPurpose?: unknown;
   japanMarketRelation?: unknown;
   mood?: unknown;
+  website?: unknown;
+  businessType?: unknown;
+  country?: unknown;
+  services?: unknown;
+  sellingPoints?: unknown;
   imageCount?: unknown;
   imageHints?: unknown;
 }): BusinessPrBrief {
@@ -83,6 +94,11 @@ export function parseBusinessPrBrief(input: {
     videoPurpose,
     japanMarketRelation: presentText(input.japanMarketRelation) ?? undefined,
     mood: presentText(input.mood) ?? undefined,
+    website: presentText(input.website) ?? undefined,
+    businessType: presentText(input.businessType) ?? undefined,
+    country: presentText(input.country) ?? undefined,
+    services: presentText(input.services) ?? undefined,
+    sellingPoints: presentText(input.sellingPoints) ?? undefined,
     imageCount,
     imageHints: hints.length > 0 ? hints : undefined,
   };
@@ -230,5 +246,200 @@ export function fallbackBusinessPrScript(brief: BusinessPrBrief): PrVideoScript 
     scenes: directCinematography(scenes, `${brief.companyName}|${brief.businessDescription}|${Date.now()}`),
     totalDurationSeconds: 30,
     cta: "日本市場への進出を考えているなら、BrandBridgeへ。",
+  };
+}
+
+function attachSearchKeywords(script: PrVideoScript): PrVideoScript {
+  return {
+    ...script,
+    scenes: script.scenes.map((scene, index) => ({
+      ...scene,
+      sceneId: scene.sceneId ?? `scene-${scene.sceneNumber}`,
+      visualPrompt: scene.visualPrompt ?? scene.visual,
+      searchKeywords:
+        scene.searchKeywords && scene.searchKeywords.length > 0
+          ? scene.searchKeywords
+          : defaultSearchKeywords(scene, index),
+      onScreenText:
+        scene.onScreenText.trim() ||
+        scene.narrationText.replace(/\s+/g, " ").trim().slice(0, 18),
+    })),
+  };
+}
+
+function defaultSearchKeywords(scene: PrVideoScene, index: number): string[] {
+  const text = [scene.location, scene.visual, scene.visualPrompt, scene.action]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  if (/cta|brandbridge|締め|closing/.test(text) || index >= 4) {
+    return ["Tokyo skyline", "business handshake", "partnership"];
+  }
+  if (/office|会議|オフィス|desk|商談/.test(text)) {
+    return ["business meeting", "Japanese professionals", "modern office"];
+  }
+  if (/retail|店|棚|shelf/.test(text)) {
+    return ["retail store", "Japanese retailer", "product shelves"];
+  }
+  if (/trade|出荷|港|container|物流/.test(text)) {
+    return ["shipping containers", "international trade", "global business"];
+  }
+  if (/街|tokyo|都市|night|夜/.test(text)) {
+    return ["Tokyo business district", "Japanese city street", "modern office"];
+  }
+  return ["Tokyo business district", "modern office", "business people"];
+}
+
+export async function generateAutoBusinessPrVideoScript(
+  brief: BusinessPrBrief,
+): Promise<PrVideoScript> {
+  if (!isAiConfigured()) {
+    return attachSearchKeywords(fallbackAutoBusinessPrScript(brief));
+  }
+
+  const payload = {
+    companyName: brief.companyName,
+    brandName: brief.brandName ?? null,
+    website: brief.website ?? null,
+    description: brief.businessDescription,
+    businessType: brief.businessType ?? null,
+    targetAudience: brief.targetAudience,
+    country: brief.country ?? brief.japanMarketRelation ?? null,
+    services: brief.services ?? brief.businessDescription,
+    sellingPoints: brief.sellingPoints ?? brief.mood ?? null,
+    cta: brief.videoPurpose,
+    language: "ja",
+    goal: "company-pr-stock-footage",
+  };
+
+  const messages = [
+    { role: "system" as const, content: systemPrompt(AUTO_BUSINESS_PR_VIDEO_SCRIPT_TASK) },
+    { role: "user" as const, content: JSON.stringify(payload) },
+  ];
+
+  try {
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      const raw =
+        attempt === 0
+          ? await completeJson(messages, { temperature: 0.3, maxTokens: 2800 })
+          : await completeJson(
+              [
+                ...messages,
+                {
+                  role: "user",
+                  content:
+                    "前回の出力は使えません。3〜7シーン、日本語の narrationText / onScreenText、各シーンに英語 searchKeywords を付けて JSON のみ返してください。",
+                },
+              ],
+              { temperature: 0.15, maxTokens: 2800 },
+            );
+      const script = normalizePrVideoScript(raw);
+      if (!script || !scriptIsJapanese(script)) continue;
+      const sceneCount = script.scenes.length;
+      if (sceneCount < 3 || sceneCount > 7) continue;
+      return attachSearchKeywords({
+        ...script,
+        scenes: directCinematography(
+          script.scenes,
+          `${brief.companyName}|auto|${Date.now()}`,
+        ),
+      });
+    }
+  } catch {
+    /* fall through to deterministic script */
+  }
+
+  return attachSearchKeywords(fallbackAutoBusinessPrScript(brief));
+}
+
+export function fallbackAutoBusinessPrScript(brief: BusinessPrBrief): PrVideoScript {
+  const name = brief.companyName;
+  const scenes: PrVideoScene[] = [
+    {
+      sceneNumber: 1,
+      sceneId: "intro",
+      durationSeconds: 6,
+      location: "東京のビジネス街",
+      character: "ナレーター",
+      action: "都市の風景を見せる",
+      camera: "parallax",
+      transition: "cut",
+      visual: "東京のオフィス街。会社の世界観。",
+      visualPrompt: "Tokyo business district aerial and street",
+      searchKeywords: ["Tokyo business district", "Japanese business people", "modern office"],
+      narrationText: `${name}は、日本市場への橋になります。`,
+      onScreenText: name.slice(0, 18),
+    },
+    {
+      sceneNumber: 2,
+      sceneId: "service",
+      durationSeconds: 6,
+      location: "会議室",
+      character: "ビジネスパーソン",
+      action: "打ち合わせをする",
+      camera: "orbit",
+      transition: "dissolve",
+      visual: "B2Bの商談。サービス内容。",
+      visualPrompt: "business meeting Japanese professionals",
+      searchKeywords: ["business meeting", "Japanese professionals", "B2B negotiation"],
+      narrationText:
+        brief.businessDescription.replace(/\s+/g, " ").slice(0, 28) ||
+        "事業の強みを、現場でつなぎます。",
+      onScreenText: "サービス",
+    },
+    {
+      sceneNumber: 3,
+      sceneId: "usecase",
+      durationSeconds: 6,
+      location: "店舗または現場",
+      character: "販売パートナー",
+      action: "現場を歩く",
+      camera: "tracking",
+      transition: "slide_left",
+      visual: "利用シーンとメリット。",
+      visualPrompt: "Japanese retail store product shelves",
+      searchKeywords: ["retail store", "Japanese retailer", "product shelves"],
+      narrationText: `${brief.targetAudience.replace(/\s+/g, " ").slice(0, 22)}へ。`,
+      onScreenText: "利用シーン",
+    },
+    {
+      sceneNumber: 4,
+      sceneId: "market",
+      durationSeconds: 6,
+      location: "港と物流",
+      character: "担当者",
+      action: "国際取引の流れを示す",
+      camera: "pan_right",
+      transition: "wipe",
+      visual: "日本市場と海外市場の接点。",
+      visualPrompt: "shipping containers international trade",
+      searchKeywords: ["international trade", "shipping containers", "global business"],
+      narrationText:
+        brief.japanMarketRelation?.replace(/\s+/g, " ").slice(0, 28) ||
+        "海外と日本をつなぐ現場です。",
+      onScreenText: "市場との接点",
+    },
+    {
+      sceneNumber: 5,
+      sceneId: "cta",
+      durationSeconds: 6,
+      location: "クロージング",
+      character: "ナレーター",
+      action: "BrandBridgeへ案内する",
+      camera: "dolly_in",
+      transition: "fade",
+      visual: "握手と都市の空。CTA。",
+      visualPrompt: "Tokyo skyline business handshake",
+      searchKeywords: ["Tokyo skyline", "business partnership", "handshake"],
+      narrationText: "詳しくはBrandBridgeをご覧ください。",
+      onScreenText: "BrandBridgeへ",
+    },
+  ];
+  return {
+    title: `${name}の会社紹介`,
+    hook: `${name}の事業を、30秒で紹介します。`,
+    scenes: directCinematography(scenes, `${name}|auto-fallback|${Date.now()}`),
+    totalDurationSeconds: 30,
+    cta: brief.videoPurpose || "日本市場への進出を考えているなら、BrandBridgeへ。",
   };
 }

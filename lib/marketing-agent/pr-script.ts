@@ -50,6 +50,9 @@ export type PrVideoScene = {
   visual: string;
   narrationText: string;
   onScreenText: string;
+  sceneId?: string;
+  visualPrompt?: string;
+  searchKeywords?: string[];
 };
 
 export type PrVideoScript = {
@@ -184,8 +187,15 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     return null;
   }
 
+  const sceneNumber = asPositiveInt(row.sceneNumber) ?? index + 1;
+  const visualPrompt =
+    presentText(row.visualPrompt) ?? presentText(row.visual_prompt) ?? undefined;
+  const searchKeywords = keywordList(
+    row.searchKeywords ?? row.search_keywords ?? row.keywords,
+  );
+
   return {
-    sceneNumber: asPositiveInt(row.sceneNumber) ?? index + 1,
+    sceneNumber,
     durationSeconds: Math.min(15, durationSeconds),
     location,
     character,
@@ -195,7 +205,25 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     visual,
     narrationText,
     onScreenText: presentText(row.onScreenText) ?? "",
+    sceneId: presentText(row.sceneId) ?? presentText(row.scene_id) ?? `scene-${sceneNumber}`,
+    visualPrompt,
+    searchKeywords: searchKeywords.length > 0 ? searchKeywords : undefined,
   };
+}
+
+function keywordList(value: unknown): string[] {
+  if (typeof value === "string") {
+    return value
+      .split(/[,|/\n]+/)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .slice(0, 6);
+  }
+  if (!Array.isArray(value)) return [];
+  return value
+    .flatMap((item) => keywordList(item))
+    .filter((item, index, all) => all.indexOf(item) === index)
+    .slice(0, 6);
 }
 
 export function normalizePrVideoScript(raw: unknown): PrVideoScript | null {

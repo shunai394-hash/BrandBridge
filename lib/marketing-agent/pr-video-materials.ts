@@ -92,34 +92,46 @@ async function prepareImageForEngine(
 /**
  * Map BrandBridge scenes onto stills and motion clips.
  * Video lookup is best-effort: missing or failed B-roll never fails the job.
+ * `video-first` assigns a real clip to every scene when stock footage exists.
  */
 export async function assignSceneMaterials(input: {
   workDir: string;
   scenes: PrVideoScene[];
   imagePaths: string[];
   videoPaths?: string[];
+  materialMode?: "mixed" | "video-first";
 }): Promise<MptSceneJob[]> {
-  if (input.imagePaths.length === 0) return [];
-
   const videos = (input.videoPaths ?? []).filter((file) => isVideoPath(file));
+  const images = input.imagePaths;
+  if (images.length === 0 && videos.length === 0) return [];
+
+  const videoFirst = input.materialMode === "video-first" && videos.length > 0;
   const jobs: MptSceneJob[] = [];
 
   for (let index = 0; index < input.scenes.length; index += 1) {
     const scene = input.scenes[index]!;
-    const imagePath = input.imagePaths[index % input.imagePaths.length]!;
-    const preparedImage = await prepareImageForEngine(imagePath, input.workDir, index);
-    const wantVideo = index % 2 === 1;
-    let materialType: MptMaterialType = "image";
+    const imagePath = images.length > 0 ? images[index % images.length]! : "";
+    const preparedImage = imagePath
+      ? await prepareImageForEngine(imagePath, input.workDir, index)
+      : "";
+    let materialType: MptMaterialType = preparedImage ? "image" : "video";
     let materialPath = preparedImage;
 
-    if (wantVideo) {
-      const existing = videos[Math.floor(index / 2) % Math.max(videos.length, 1)];
-      if (videos.length > 0 && existing) {
-        const dest = path.join(input.workDir, `scene-video-${index}${path.extname(existing)}`);
+    const wantVideo = videoFirst || index % 2 === 1;
+    if (wantVideo || !preparedImage) {
+      const existing =
+        videos.length > 0
+          ? videos[index % videos.length]
+          : undefined;
+      if (existing) {
+        const dest = path.join(
+          input.workDir,
+          `scene-video-${index}${path.extname(existing)}`,
+        );
         await copyFile(existing, dest);
         materialType = "video";
         materialPath = dest;
-      } else {
+      } else if (preparedImage) {
         const plate = path.join(input.workDir, `scene-broll-${index}.mp4`);
         const kind = index % 4 === 1 ? "track" : "drift";
         const made = await renderMotionPlate({
@@ -134,6 +146,8 @@ export async function assignSceneMaterials(input: {
         }
       }
     }
+
+    if (!materialPath) continue;
 
     jobs.push({
       sceneNumber: scene.sceneNumber,

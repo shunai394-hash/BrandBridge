@@ -6,8 +6,11 @@ import {
   generateBusinessPrVideoFromUploads,
   toBusinessPrWorkerImages,
 } from "@/lib/marketing-agent/business-pr-video";
+import { parseBusinessPrBrief } from "@/lib/marketing-agent/business-pr-script";
 import { parseJsonValue } from "@/lib/marketing-agent/json";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
+import { generateBusinessPrVideoAuto } from "@/lib/marketing-agent/pr-video-auto";
+import { parsePrVideoGenerationMode } from "@/lib/marketing-agent/pr-video-engine";
 import { prVideoWorkerConfig } from "@/lib/marketing-agent/pr-video-worker";
 import {
   describePrVideoStage,
@@ -169,6 +172,65 @@ export async function POST(request: Request) {
       String(
         form.get("subtitlesEnabled") ?? "true",
       ).toLowerCase() !== "false";
+    const generationMode = parsePrVideoGenerationMode(
+      form.get("generationMode"),
+    );
+
+    if (generationMode === "auto") {
+      if (process.env.VERCEL) {
+        return errorJson(
+          "会社情報からの自動生成は、MoneyPrinterTurbo が使えるローカル環境で実行してください。",
+          503,
+          { stage: "ffmpeg" },
+        );
+      }
+
+      const brief = parseBusinessPrBrief({
+        companyName,
+        brandName: form.get("brandName"),
+        businessDescription:
+          form.get("businessDescription") ||
+          `${companyName}の会社紹介`,
+        targetAudience:
+          form.get("targetAudience") ||
+          "日本市場に進出したい海外ブランド",
+        videoPurpose:
+          form.get("videoPurpose") ||
+          "BrandBridgeへアクセスしてもらう",
+        japanMarketRelation: form.get("japanMarketRelation"),
+        mood: form.get("mood"),
+        website: form.get("website"),
+        businessType: form.get("businessType"),
+        country: form.get("country"),
+        services: form.get("services"),
+        sellingPoints: form.get("sellingPoints"),
+        imageCount: 0,
+      });
+
+      const result = await generateBusinessPrVideoAuto({
+        brief,
+        script,
+        bgmEnabled,
+        subtitlesEnabled,
+      });
+
+      return new NextResponse(new Uint8Array(result.bytes), {
+        status: 200,
+        headers: {
+          "Content-Type": "video/mp4",
+          "Content-Disposition": `attachment; filename="${result.fileName}"`,
+          "X-Pr-Video-Duration": String(result.durationSeconds),
+          "X-Pr-Video-Width": String(result.width),
+          "X-Pr-Video-Height": String(result.height),
+          "X-Pr-Video-BGM": String(bgmEnabled),
+          "X-Pr-Video-Subtitles": String(subtitlesEnabled),
+          "X-Pr-Video-Mode": "auto",
+          "X-Pr-Video-Stock-Provider": result.stockProvider,
+          "X-Pr-Video-Stock-Count": String(result.stockVideoCount),
+          "Cache-Control": "no-store",
+        },
+      });
+    }
 
     const images =
       await collectBusinessPrImages(form);

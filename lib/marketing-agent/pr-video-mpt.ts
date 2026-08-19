@@ -175,12 +175,13 @@ export async function renderPrVideoWithMoneyPrinterTurbo(input: {
   subtitlesEnabled?: boolean;
   product?: PrVideoProductContext;
   videoPaths?: string[];
+  materialMode?: "mixed" | "video-first";
 }): Promise<{ width: number; height: number; durationSeconds: number } | null> {
   const probe = await probeMoneyPrinterTurbo();
   if (!probe.available) {
     return null;
   }
-  if (input.imagePaths.length === 0) {
+  if (input.imagePaths.length === 0 && (input.videoPaths?.length ?? 0) === 0) {
     throw new MarketingAgentError("MISSING_IMAGE", "画像が指定されていません。");
   }
   if (input.scenes.length === 0) {
@@ -196,6 +197,7 @@ export async function renderPrVideoWithMoneyPrinterTurbo(input: {
     scenes: input.scenes,
     imagePaths: input.imagePaths,
     videoPaths: input.videoPaths,
+    materialMode: input.materialMode,
   });
   if (sceneJobs.length === 0) {
     throw new MarketingAgentError("MISSING_IMAGE", "動画素材を準備できませんでした。");

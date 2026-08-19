@@ -110,6 +110,9 @@ export function relatedJaBlogLinks(caseCategory: string): CaseSeoLink[] {
     links.push(link);
     if (links.length >= 6) break;
   }
+  if (!seen.has("/ja/blog")) {
+    links.push({ href: "/ja/blog", label: "日本語ブログ" });
+  }
   return links;
 }
 
@@ -162,20 +165,103 @@ export function caseDetailFaqs(caseItem: Case): CaseFaqItem[] {
   return faqs;
 }
 
+const CATEGORY_INTENT: Record<string, string> = {
+  "食品・飲料":
+    "食品は、期限・温度帯・ケース入数が、店頭とECの扱いやすさを分けます。",
+  "美容・コスメ":
+    "コスメは、サンプルと成分の開示、日本での販売制限を先に見てください。",
+  "健康・サプリ":
+    "サプリ・ヘルスケアは、説明できる成分情報と期限が、公開の可否を左右します。",
+  ファッション:
+    "アパレルは、サイズ配分と初回SKUの絞り込みが、在庫リスクを決めます。",
+  "ホーム・インテリア":
+    "ホーム商品は、寸法・重量と送料が、卸価格以上に利益へ効くことがあります。",
+  "雑貨・ライフスタイル":
+    "雑貨は、割れ物や梱包単位を見てから、店頭向きかEC向きかを分けてください。",
+  バッグ: "バッグは、サイズ展開と季節需要を、初回数量と照らして見てください。",
+  キッチン:
+    "キッチン用品は、材質・耐熱と破損時の確認方法を、発注前に見てください。",
+  スポーツ:
+    "スポーツ用品は、サイズとシーズンの納期が合うかを先に確認してください。",
+  "ホーム・収納":
+    "収納用品は、外寸と保管スペースが、MOQより先に制約になることがあります。",
+  "家電・ガジェット":
+    "家電は、電圧・プラグ・認証の要否を、売り方とあわせて確認してください。",
+  "製造・産業":
+    "製造・産業向けは、図面・ロット・納期の確認が、価格表より先になります。",
+};
+
+function hasJapanese(text: string): boolean {
+  return /[\u3040-\u30ff\u4e00-\u9faf]/.test(text);
+}
+
+function shortenTitle(text: string, max: number): string {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+export function caseSeoTitle(caseItem: Case): string {
+  const product = caseItem.productName?.trim() || caseItem.title;
+  const category = caseItem.category?.trim();
+  const short = shortenTitle(product, 24);
+  if (category) return `${short}｜${category}の仕入れ`;
+  return `${short}｜卸・仕入れ`;
+}
+
 export function caseSeoDescription(caseItem: Case): string {
   const product = caseItem.productName?.trim() || caseItem.title;
   const category = caseItem.category?.trim();
-  const summary = caseItem.summary?.trim();
-  if (summary) {
-    return summary.slice(0, 180);
-  }
   const moq = displayMoqJa(caseItem.minOrder);
   const format = salesFormatLabel(caseItem.salesFormat);
-  const bits = [
-    `${product}の販売パートナー募集。`,
-    category ? `カテゴリーは${category}。` : "",
-    `販売形式は${format}、MOQは${moq}。`,
-    "取引条件を確認して商談できます。",
+  const wholesale = resolveWholesalePriceDisplay(caseItem.priceBand, "ja").primary;
+  const summary = caseItem.summary?.trim();
+  const lead =
+    summary && hasJapanese(summary)
+      ? summary.replace(/\s+/g, " ")
+      : `${product}の日本向け卸・仕入れ情報です。`;
+  const facts = [
+    category ? `カテゴリーは${category}` : "",
+    `販売形式は${format}`,
+    `MOQは${moq}`,
+    wholesale ? `参考卸価格帯は${wholesale}` : "",
+  ]
+    .filter(Boolean)
+    .join("、");
+  return `${lead} ${facts}。取引条件を確認して商談できます。`.slice(0, 180);
+}
+
+export function caseBuyerOverview(caseItem: Case): string[] {
+  const product = caseItem.productName?.trim() || caseItem.title;
+  const category = caseItem.category?.trim() || "海外商品";
+  const format = salesFormatLabel(caseItem.salesFormat);
+  const moq = displayMoqJa(caseItem.minOrder);
+  const wholesale = resolveWholesalePriceDisplay(caseItem.priceBand, "ja").primary;
+  const origin = caseItem.shipFrom?.trim();
+  const exclusive = displayExclusiveDealOption(caseItem.exclusiveDealOption);
+  const partner = caseItem.idealPartner?.trim();
+
+  const paragraphs = [
+    `${product}は、${category}の海外ブランド商品として、日本の卸・小売・EC事業者が仕入れを検討できます。販売形式は${format}、MOQは${moq}、参考の卸売価格帯は${wholesale}です。`,
   ];
-  return bits.filter(Boolean).join("").slice(0, 180);
+
+  if (origin) {
+    paragraphs.push(
+      `原産国・出荷元の記載は「${origin}」です。誰が輸入する想定か、Incotermsとあわせて確認してください。`,
+    );
+  }
+  if (exclusive !== "—") {
+    paragraphs.push(
+      `独占販売の扱いは「${exclusive}」です。地域やチャネルの範囲は、契約前に文書で確認してください。`,
+    );
+  }
+  const intent = CATEGORY_INTENT[caseItem.category];
+  if (intent) paragraphs.push(intent);
+  if (partner && hasJapanese(partner)) {
+    paragraphs.push(`想定している販売パートナー像の記載は、「${partner}」です。`);
+  }
+  paragraphs.push(
+    "BrandBridgeは輸入代行や在庫の買い取りは行いません。最終条件は商談で確定します。",
+  );
+  return paragraphs;
 }

@@ -12,7 +12,7 @@ import { getCaseById } from "@/lib/cases";
 import { isFavorite } from "@/lib/favorites";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { jaCategoryPath, getJaCategoryByCaseCategory } from "@/lib/ja-categories";
-import { caseDetailFaqs, caseSeoDescription } from "@/lib/case-detail-seo";
+import { caseDetailFaqs, caseSeoDescription, caseSeoTitle } from "@/lib/case-detail-seo";
 import { hasAppliedToCase } from "@/lib/negotiations";
 import { faqPageJsonLd, jsonLdString, productJsonLd } from "@/lib/seo-jsonld";
 
@@ -43,17 +43,17 @@ export async function generateMetadata({
     return { title: "商品が見つかりません", robots: { index: false } };
   }
 
-  const productName = caseItem.productName?.trim() || caseItem.title;
-  const brand = caseItem.brandName?.trim();
-  const title = brand ? `${productName}｜${brand}` : productName;
+  const title = caseSeoTitle(caseItem);
   const description = caseSeoDescription(caseItem);
+  const canIndex =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
   return {
     title,
     description,
     ...pairedLanguageAlternates(`/cases/${id}`, `/en/cases/${id}`, "ja"),
     robots: {
-      index: true,
+      index: canIndex,
       follow: true,
     },
     openGraph: {

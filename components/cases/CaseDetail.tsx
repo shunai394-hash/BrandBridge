@@ -23,9 +23,11 @@ import type { Case, SessionUser } from "@/lib/types";
 import { reviewStatusLabels, salesFormatLabel, targetCountryLabel } from "@/lib/types";
 import {
   getJaCategoryByCaseCategory,
+  jaCategoryCasesHref,
   jaCategoryPath,
 } from "@/lib/ja-categories";
 import {
+  caseBuyerOverview,
   caseDetailFaqs,
   relatedJaBlogLinks,
   relatedJaCategoryLinks,
@@ -95,9 +97,11 @@ export function CaseDetailView({
   const faqs = caseDetailFaqs(caseItem);
   const categoryLinks = relatedJaCategoryLinks(caseItem.category);
   const blogLinks = relatedJaBlogLinks(caseItem.category);
+  const overview = caseBuyerOverview(caseItem);
   const description = caseItem.description?.trim() || "";
   const summary = caseItem.summary?.trim();
   const showSummary = Boolean(summary && summary !== description);
+  const origin = caseItem.shipFrom?.trim();
 
   return (
     <article className="animate-fade-up" lang="ja">
@@ -148,12 +152,23 @@ export function CaseDetailView({
             label="カテゴリ"
             value={
               jaCategory ? (
-                <Link
-                  href={jaCategoryPath(jaCategory.slug)}
-                  className="text-teal hover:underline"
-                >
-                  {caseItem.category}
-                </Link>
+                <span>
+                  <Link
+                    href={jaCategoryPath(jaCategory.slug)}
+                    className="text-teal hover:underline"
+                  >
+                    {caseItem.category}
+                  </Link>
+                  <span className="text-border" aria-hidden>
+                    {" / "}
+                  </span>
+                  <Link
+                    href={jaCategoryCasesHref(jaCategory.caseCategory)}
+                    className="text-teal hover:underline"
+                  >
+                    {jaCategory.label}の商品一覧
+                  </Link>
+                </span>
               ) : (
                 caseItem.category
               )
@@ -184,6 +199,15 @@ export function CaseDetailView({
             value={displayMoqJa(caseItem.minOrder)}
           />
 
+          {origin ? (
+            <InfoRow label="原産国・出荷元" value={origin} />
+          ) : null}
+
+          <InfoRow
+            label="独占販売可否"
+            value={displayExclusiveDealOption(caseItem.exclusiveDealOption)}
+          />
+
           {showCompanyName ? (
             <InfoRow
               label="会社名"
@@ -192,6 +216,17 @@ export function CaseDetailView({
           ) : null}
         </dl>
       </header>
+
+      <section className="mt-8">
+        <h2 className="font-display-jp text-xl text-navy">
+          仕入れを検討するときに見ること
+        </h2>
+        <div className="mt-3 space-y-4 text-sm leading-relaxed text-muted md:text-base">
+          {overview.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </section>
 
       <ProductVideo
         url={caseItem.productVideoUrl}
@@ -339,13 +374,6 @@ export function CaseDetailView({
         <InfoRow
           label="対応言語"
           value={displayOptionalText(caseItem.supportLanguages)}
-        />
-      </DetailSection>
-
-      <DetailSection title="サンプル情報">
-        <InfoRow
-          label="サンプル提供可否"
-          value={displaySampleDealLabel(caseItem.sampleAvailable)}
         />
       </DetailSection>
 

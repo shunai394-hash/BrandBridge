@@ -1,7 +1,9 @@
 import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
 import {
   EXISTING_JA_BLOG,
+  JA_BLOG_HUB,
   JA_MOQ_GUIDE,
+  JA_SOURCING_CATEGORY_LINKS,
   JA_SUPPLIER_FINDER,
   JA_WHOLESALE_GUIDE,
 } from "@/lib/blog/ja-articles/types";
@@ -14,12 +16,18 @@ const partnerCta = {
 } as const;
 
 const partnerLinks = [
-  { href: "/ja/blog", label: "日本語ブログ" },
+  { href: JA_BLOG_HUB.path, label: JA_BLOG_HUB.label },
   { href: "/cases", label: "掲載商品を見る" },
+  { href: "/ja/categories", label: "カテゴリーから探す" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
   { href: "/register/partner", label: "販売パートナー登録" },
   { href: EXISTING_JA_BLOG.path, label: EXISTING_JA_BLOG.title },
 ] as const;
+
+const sourcingLinks = [
+  ...partnerLinks,
+  ...JA_SOURCING_CATEGORY_LINKS,
+];
 
 export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
   {
@@ -29,7 +37,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
       "海外商品の仕入れ先を探す方法｜日本の小売・卸事業者向けガイド",
     seoTitle: "海外商品の仕入れ先の探し方｜小売・卸向け",
     description:
-      "日本の小売・卸が海外商品の仕入れ先を探す方法。メーカー直、卸売プラットフォーム、展示会、ブランドへの直接問い合わせ、MOQ・サンプル・輸入条件・販売権の確認と注意点。",
+      "日本の小売・卸が海外商品の仕入れ先を探す実務手順。問い合わせの順、MOQ・サンプル・輸入条件・販売権の確認。メーカー・卸・展示会の比較は専用ガイド、ルート全体は仕入れ方法の記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "仕入れ先探しは、カタログ集めではありません。日本で売ってよいか、何個から、誰が輸入するかを、発注前に同じ粒度で比較する作業です。",
     intro: [
@@ -145,7 +153,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
     ],
     existingLinks: [
       { href: JA_SUPPLIER_FINDER.path, label: JA_SUPPLIER_FINDER.title },
-      ...partnerLinks,
+      ...sourcingLinks,
     ],
     cta: {
       ...partnerCta,
@@ -159,7 +167,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
     title: "海外ブランドの日本代理店になるには？販売パートナーになる方法",
     seoTitle: "海外ブランドの日本代理店になる方法｜販売パートナー",
     description:
-      "海外ブランドの日本代理店・販売パートナーになる方法。代理店の役割、必要な営業力、販売チャネル、既存顧客、商品選定、メーカーへの提案、契約前の確認、BrandBridgeとの接点。",
+      "海外ブランドの販売パートナーになる実務。提案内容、営業力の示し方、メーカーが見る材料を整理します。代理店・卸・販売パートナーの権限の違いは別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "日本代理店になるとは、肩書を得ることではなく、既存の顧客とチャネルに、海外ブランドの商品を載せる責任を引き受けることです。",
     intro: [
@@ -275,7 +283,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
     title: "海外メーカーと取引を始める前に確認すべき10項目",
     seoTitle: "海外メーカー取引前の確認10項目｜仕入れ条件",
     description:
-      "海外メーカーと取引を始める前の確認10項目。MOQ、卸価格、支払条件、Incoterms、リードタイム、サンプル、独占権、販売地域、ラベル/規制、契約を実務目線で解説します。",
+      "海外メーカーと取引を始める前の確認10項目。MOQ、卸価格、支払、Incoterms、納期、サンプル、独占、販売地域、表示、契約。条件の意味と順番は仕入れ前確認の記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "海外メーカーとの取引は、商品が好きかどうかより先に、10の条件が文書で揃っているかで成否が分かれます。",
     intro: [
@@ -383,7 +391,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
     ],
     existingLinks: [
       { href: JA_MOQ_GUIDE.path, label: JA_MOQ_GUIDE.title },
-      ...partnerLinks,
+      ...sourcingLinks,
     ],
     cta: {
       ...partnerCta,
@@ -511,7 +519,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
     ],
     existingLinks: [
       { href: JA_WHOLESALE_GUIDE.path, label: JA_WHOLESALE_GUIDE.title },
-      ...partnerLinks,
+      ...sourcingLinks,
     ],
     cta: {
       ...partnerCta,
@@ -526,7 +534,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
       "日本で売れる海外商品をどう探す？仕入れ担当者のための商品選定ガイド",
     seoTitle: "日本で売れる海外商品の探し方｜商品選定",
     description:
-      "仕入れ担当向けに、日本で売れる海外商品の選定視点を解説。市場との相性、価格帯、競合、ブランドストーリー、差別化、リピート、法規制、MOQ、販売チャネル、チェックリスト。",
+      "仕入れ担当向けのSKU選定チェック。価格帯、競合、リピート、規制、MOQ、販路適合。新商品の探索はバイヤーガイド、日本で扱えそうかの見極めは別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "日本で売れる海外商品は、海外で有名かどうかより、自社の棚と顧客が『今の価格と説明で買えるか』で決まります。",
     intro: [
@@ -641,7 +649,7 @@ export const PARTNER_GUIDE_ARTICLES: JaBlogArticle[] = [
       "how-to-find-overseas-product-suppliers",
       "how-to-sell-overseas-cosmetics-in-japan",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: {
       ...partnerCta,
       heading: "選定チェックに使える条件の商品を見る",

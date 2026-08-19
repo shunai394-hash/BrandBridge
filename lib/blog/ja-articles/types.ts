@@ -51,6 +51,23 @@ export const JA_BLOG_CLUSTER_LABEL: Record<JaBlogCluster, string> = {
   category: "カテゴリー別",
 };
 
+export const JA_BLOG_HUB = {
+  path: "/ja/blog",
+  label: "日本語ブログ",
+} as const;
+
+/** Category landings used from 仕入れ / 卸 search-intent articles. */
+export const JA_SOURCING_CATEGORY_LINKS: readonly {
+  href: string;
+  label: string;
+}[] = [
+  { href: "/ja/categories/food", label: "海外食品の仕入れ" },
+  { href: "/ja/categories/cosmetics", label: "海外コスメの仕入れ" },
+  { href: "/ja/categories/apparel", label: "海外アパレルの仕入れ" },
+  { href: "/ja/categories/home", label: "海外ホーム商品の仕入れ" },
+  { href: "/ja/categories/health", label: "海外サプリの仕入れ" },
+];
+
 export const EXISTING_JA_BLOG = {
   slug: "how-to-sell-overseas-brands-in-japan",
   path: "/ja/blog/how-to-sell-overseas-brands-in-japan",

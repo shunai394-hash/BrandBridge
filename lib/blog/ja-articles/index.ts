@@ -24,8 +24,13 @@ const RELATED_FROM_EXISTING: Record<string, readonly string[]> = {
   "japan-product-information-checklist": [
     "how-to-contact-japanese-sales-partners",
   ],
+  "japan-moq-for-overseas-brands": ["what-is-moq-for-overseas-products"],
+  "japan-logistics-import-basics": [
+    "logistics-lead-time-samples-for-import",
+  ],
   "how-to-source-overseas-brands": [
     "how-to-find-overseas-product-suppliers",
+    "how-to-start-overseas-brand-wholesale",
     "checklist-before-dealing-with-overseas-brands",
   ],
   "how-to-become-japan-agent-for-overseas-brands": [
@@ -39,6 +44,7 @@ const RELATED_FROM_EXISTING: Record<string, readonly string[]> = {
   ],
   "buyer-guide-to-finding-new-overseas-brands": [
     "how-to-find-overseas-products-to-sell-in-japan",
+    "how-to-find-overseas-brands-that-can-sell-in-japan",
   ],
   "common-problems-sourcing-overseas-products": [
     "common-mistakes-entering-japan-market",
@@ -54,6 +60,41 @@ const RELATED_FROM_EXISTING: Record<string, readonly string[]> = {
   "price-and-moq-negotiation-with-overseas-brands": [
     "how-to-set-wholesale-price-for-japan",
     "checklist-before-dealing-with-overseas-brands",
+  ],
+  "how-to-trade-directly-with-overseas-makers": [
+    "how-to-find-overseas-product-suppliers",
+    "how-to-find-overseas-wholesale-suppliers",
+  ],
+  "how-to-find-overseas-product-suppliers": [
+    "how-to-source-overseas-brands",
+    "how-to-find-overseas-wholesale-suppliers",
+  ],
+  "how-to-become-japanese-distributor": [
+    "how-to-become-japan-agent-for-overseas-brands",
+  ],
+  "checklist-before-dealing-with-overseas-brands": [
+    "conditions-to-check-before-sourcing-overseas-brands",
+  ],
+  "how-to-find-overseas-products-to-sell-in-japan": [
+    "buyer-guide-to-finding-new-overseas-brands",
+    "how-to-find-overseas-brands-that-can-sell-in-japan",
+  ],
+  "how-to-find-japanese-distributor": [
+    "how-to-find-japan-sales-agents",
+    "how-to-find-exclusive-distributor-in-japan",
+  ],
+  "how-to-set-wholesale-price-for-japan": [
+    "how-to-set-japan-wholesale-price",
+    "how-to-set-retail-price-in-japan",
+  ],
+  "how-to-find-wholesale-buyers-in-japan": [
+    "how-to-find-japan-wholesalers",
+  ],
+  "common-mistakes-entering-japan-market": [
+    "common-problems-sourcing-overseas-products",
+  ],
+  "how-to-find-exclusive-distributor-in-japan": [
+    "exclusive-distribution-rights-in-japan",
   ],
 };
 

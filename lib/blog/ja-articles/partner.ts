@@ -1,5 +1,9 @@
 import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
-import { EXISTING_JA_BLOG } from "@/lib/blog/ja-articles/types";
+import {
+  EXISTING_JA_BLOG,
+  JA_BLOG_HUB,
+  JA_SOURCING_CATEGORY_LINKS,
+} from "@/lib/blog/ja-articles/types";
 
 const partnerCta = {
   heading: "海外ブランドの商品を探している方へ",
@@ -9,6 +13,7 @@ const partnerCta = {
 } as const;
 
 const partnerLinks = [
+  { href: JA_BLOG_HUB.path, label: JA_BLOG_HUB.label },
   { href: "/cases", label: "掲載商品を見る" },
   { href: "/ja/categories", label: "カテゴリーから探す" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
@@ -16,13 +21,19 @@ const partnerLinks = [
   { href: EXISTING_JA_BLOG.path, label: EXISTING_JA_BLOG.title },
 ] as const;
 
+const sourcingLinks = [
+  ...partnerLinks,
+  ...JA_SOURCING_CATEGORY_LINKS,
+];
+
 export const PARTNER_ARTICLES: JaBlogArticle[] = [
   {
     slug: "how-to-source-overseas-brands",
     cluster: "partner",
     title: "海外ブランドの商品を仕入れる方法｜日本の事業者向けガイド",
+    seoTitle: "海外ブランドの仕入れ方法｜ルートの選び方",
     description:
-      "海外ブランドの商品を仕入れたい日本の卸・小売・EC事業者向けガイド。仕入れルート、MOQ、卸価格、サンプル、独占条件の確認ポイントを実務目線で整理します。",
+      "海外ブランドの仕入れルートの選び方。メーカー直、海外卸、現地ディストリビューター、展示会、マッチングの違いと、発注前に見る条件を整理します。",
     eyebrow: "販売パートナー向けガイド",
     lede: "海外ブランドの商品を仕入れたいときに、最初に整理すべきなのは「どこから買うか」と「どの条件なら在庫リスクを抱えられるか」です。",
     intro: [
@@ -171,15 +182,16 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "logistics-lead-time-samples-for-import",
       "common-problems-sourcing-overseas-products",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
   {
     slug: "how-to-become-japan-agent-for-overseas-brands",
     cluster: "partner",
     title: "海外ブランドの日本代理店になるには？仕組みと進め方を解説",
+    seoTitle: "日本代理店になる｜権限と契約の違い",
     description:
-      "海外ブランドの日本代理店・販売パートナーを検討する事業者向け。代理店と卸の違い、確認すべき権限、進め方を実務目線で解説します。",
+      "海外ブランドの日本代理店を検討する事業者向け。卸・販売代理店・販売パートナーの権限の違いと、契約前に確認する範囲を解説します。",
     eyebrow: "販売パートナー向けガイド",
     lede: "日本代理店になるとは、仕入れだけでなく、日本での販売範囲と責任を引き受けることです。",
     intro: [
@@ -257,8 +269,9 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "conditions-to-check-before-sourcing-overseas-brands",
     cluster: "partner",
     title: "海外ブランドを仕入れる前に確認すべき条件とは？",
+    seoTitle: "仕入れ前に確認する条件｜項目の意味",
     description:
-      "海外ブランド仕入れ前に確認すべき取引条件。MOQ、卸価格、独占、サンプル、納期、販売制限を、発注判断の順番で整理します。",
+      "海外ブランド仕入れ前に、MOQ・卸価格・独占・サンプル・納期・販売制限をどの順番で確認するかを解説します。チェックリスト形式の10項目は別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "仕入れ前の確認は、商品の好みより先に、売れる数量と売ってよい範囲を確定することです。",
     intro: [
@@ -310,15 +323,16 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "what-is-moq-for-overseas-products",
       "exclusive-distribution-rights-in-japan",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
   {
     slug: "exclusive-distribution-rights-in-japan",
     cluster: "partner",
     title: "海外ブランドの日本独占販売権とは？契約前に知るべきポイント",
+    seoTitle: "日本の独占販売権とは｜契約前の確認",
     description:
-      "海外ブランドの日本独占販売権を検討する前に確認すべき範囲、期間、義務。独占という言葉だけで判断しないための実務ガイドです。",
+      "日本側から見た独占販売権の中身。販売地域・チャネル・期間の範囲と、契約前に外してはいけない確認事項を解説します。総代理店の探し方は別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "独占は権利であると同時に、数量や活動の義務が付くことがあります。",
     intro: [
@@ -367,8 +381,9 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-trade-directly-with-overseas-makers",
     cluster: "partner",
     title: "海外メーカーと直接取引する方法｜日本の販売事業者向け",
+    seoTitle: "海外メーカーと直接取引する方法｜問い合わせ前の準備",
     description:
-      "海外メーカーと直接取引したい日本の販売事業者向け。問い合わせ前の準備、条件確認、文書化の進め方を解説します。",
+      "海外メーカーと直接取引したい日本の販売事業者向け。問い合わせ前の準備、条件確認、文書化の進め方を解説します。卸や展示会経由の探し方は別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "直接取引は、中間を省くことより、条件を自分で取りにいく覚悟が要ります。",
     intro: [
@@ -409,13 +424,14 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "price-and-moq-negotiation-with-overseas-brands",
       "logistics-lead-time-samples-for-import",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
   {
     slug: "how-to-sell-overseas-brands-on-japan-ec",
     cluster: "partner",
     title: "海外ブランドを日本のECで販売する方法｜最初の流れを解説",
+    seoTitle: "海外ブランドを日本のECで販売する方法",
     description:
       "海外ブランドを日本のECで販売したい事業者向け。仕入れ判断、ページ作成、在庫、初回数量の流れを解説します。",
     eyebrow: "販売パートナー向けガイド",
@@ -466,6 +482,7 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-products-in-japan-retail",
     cluster: "partner",
     title: "海外商品を日本の小売店で販売するには？販路の作り方",
+    seoTitle: "海外商品を日本の小売店で販売する方法",
     description:
       "海外商品を日本の小売店で販売したい事業者向け。店頭適合、価格、納品、初回数量の考え方を解説します。",
     eyebrow: "販売パートナー向けガイド",
@@ -513,8 +530,9 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "buyer-guide-to-finding-new-overseas-brands",
     cluster: "partner",
     title: "海外ブランドの新商品を探しているバイヤー向けガイド",
+    seoTitle: "海外ブランドの新商品の探し方｜バイヤー",
     description:
-      "海外ブランドの新商品を探すバイヤー向け。探索の切り口、条件の見方、商談前に揃える情報を解説します。",
+      "海外ブランドの新商品を探すバイヤー向け。探索の切り口と商談前に揃える情報を解説します。SKU選定のチェックは商品選定ガイド、日本で扱えそうかの見極めは別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "新商品探しは、新しさより、自社チャネルに載る条件があるかどうかで絞ります。",
     intro: [
@@ -554,15 +572,16 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "how-to-source-overseas-brands",
       "who-fits-as-japan-sales-partner",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
   {
     slug: "common-problems-sourcing-overseas-products",
     cluster: "partner",
     title: "海外商品の仕入れでよくあるトラブルと防ぎ方",
+    seoTitle: "海外商品の仕入れトラブル｜発注前の防ぎ方",
     description:
-      "海外商品の仕入れで起きやすい条件の食い違い、納期遅れ、不良対応の論点と、発注前に防ぐ確認手順を解説します。",
+      "海外商品の仕入れで起きやすい条件の食い違い、納期遅れ、不良対応と、発注前に防ぐ確認手順です。日本市場参入そのものの失敗例は別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "仕入れのトラブルは、商品の欠陥より先に、条件の未確認から起きることが多いです。",
     intro: [
@@ -618,13 +637,14 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "logistics-lead-time-samples-for-import",
       "conditions-to-check-before-sourcing-overseas-brands",
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
   {
     slug: "price-and-moq-negotiation-with-overseas-brands",
     cluster: "partner",
     title: "海外ブランドと取引するときの価格交渉・MOQ交渉の基本",
+    seoTitle: "海外ブランドとの価格・MOQ交渉",
     description:
       "海外ブランドとの価格交渉・MOQ交渉の基本。値下げだけでなく、数量、初回、継続、送料、支払を組み合わせて条件を整える考え方です。",
     eyebrow: "販売パートナー向けガイド",
@@ -693,6 +713,7 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "who-fits-as-japan-sales-partner",
     cluster: "partner",
     title: "海外ブランドの販売パートナーに向いている企業とは？",
+    seoTitle: "海外ブランドの販売パートナーに向く企業",
     description:
       "海外ブランドの販売パートナーに向いている日本企業の特徴。販路、数量、情報伝達、在庫の持ち方から、向き不向きを整理します。",
     eyebrow: "販売パートナー向けガイド",
@@ -742,8 +763,9 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-find-overseas-brands-that-can-sell-in-japan",
     cluster: "partner",
     title: "日本で売れそうな海外ブランド商品を見つけるには？",
+    seoTitle: "日本で扱えそうな海外ブランドの見極め",
     description:
-      "日本で売れそうな海外ブランド商品の見つけ方。新しさではなく、価格帯、説明可能性、条件、販路適合から候補を絞る方法を解説します。",
+      "日本の売場に載る海外ブランドかを、価格帯・説明可能性・条件・販路適合から絞り込む方法です。新商品探索とSKU選定のチェックリストは別記事です。",
     eyebrow: "販売パートナー向けガイド",
     lede: "売れそうかは、海外での話題より、日本の売場に載る条件が揃っているかで見ます。",
     intro: [
@@ -790,7 +812,7 @@ export const PARTNER_ARTICLES: JaBlogArticle[] = [
       "how-to-sell-overseas-cosmetics-in-japan",
       EXISTING_JA_BLOG.slug,
     ],
-    existingLinks: [...partnerLinks],
+    existingLinks: [...sourcingLinks],
     cta: partnerCta,
   },
 ];

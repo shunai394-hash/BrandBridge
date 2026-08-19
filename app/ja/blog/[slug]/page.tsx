@@ -25,7 +25,10 @@ export async function generateMetadata({
   const article = getJaBlogArticle(slug);
 
   if (!article) {
-    return { title: "記事が見つかりません" };
+    return {
+      title: "記事が見つかりません",
+      robots: { index: false, follow: false },
+    };
   }
 
   const path = `/ja/blog/${article.slug}`;

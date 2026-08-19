@@ -6,18 +6,21 @@ import {
 } from "@/lib/blog/ja-articles";
 import {
   JA_BLOG_CLUSTER_LABEL,
+  JA_BLOG_HUB,
   listDedicatedJaBlogsByCluster,
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
+import { listJaCategories, jaCategoryPath } from "@/lib/ja-categories";
+import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const dynamic = "force-static";
 
-const PATH = "/ja/blog";
-const TITLE = "日本語ブログ｜販売パートナー・海外ブランド・カテゴリー別";
+const PATH = JA_BLOG_HUB.path;
+const TITLE = "海外商品の仕入れ・卸｜日本語ブログ";
 const DESCRIPTION =
-  "日本の販売パートナー向け、海外ブランド向け、カテゴリー別の日本語ガイド。仕入れ条件、MOQ、日本市場への進め方など、BrandBridgeの実務と合わせて読めます。";
+  "海外商品・海外ブランドの仕入れ先の探し方、卸取引、代理店の進め方を日本語で解説。日本の販売パートナー向けと海外メーカー向けの実務ガイドです。";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -42,20 +45,21 @@ const CLUSTERS: {
 }[] = [
   {
     id: "partner",
-    lead: "卸・小売・EC・バイヤーが、海外ブランドの商品を仕入れるときに、条件を確認するためのガイドです。",
+    lead: "海外商品の仕入れ先、卸、代理店の権限、取引前の確認項目など、日本の卸・小売・EC・バイヤー向けのガイドです。",
   },
   {
     id: "maker",
-    lead: "海外ブランドが、日本の販売パートナーを探し、商品提供条件を整えるためのガイドです。",
+    lead: "日本の販売代理店・卸先の探し方、卸価格、独占、問い合わせ文面など、海外ブランド向けのガイドです。",
   },
   {
     id: "category",
-    lead: "コスメ、食品、サプリ、アパレル、ホームなど、カテゴリーごとの確認ポイントを整理したガイドです。",
+    lead: "コスメ、食品、サプリ、アパレル、ホームなど、カテゴリーごとの確認ポイントです。仕入れ候補はカテゴリーページから探せます。",
   },
 ];
 
 export default function JapaneseBlogHubPage() {
   const siteUrl = getSiteUrl();
+  const categories = listJaCategories();
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -71,7 +75,7 @@ export default function JapaneseBlogHubPage() {
           {
             "@type": "ListItem",
             position: 2,
-            name: "日本語ブログ",
+            name: JA_BLOG_HUB.label,
             item: `${siteUrl}${PATH}`,
           },
         ],
@@ -90,7 +94,7 @@ export default function JapaneseBlogHubPage() {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
 
       <section className="relative overflow-hidden bg-navy-deep text-white">
@@ -100,14 +104,28 @@ export default function JapaneseBlogHubPage() {
         />
         <div className="relative mx-auto max-w-3xl px-5 py-14 md:py-20">
           <p className="text-xs font-medium tracking-wider text-teal">
-            日本語ブログ
+            {JA_BLOG_HUB.label}
           </p>
-          <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
-            販売パートナーと海外ブランドのための実務ガイド
+          <h1 className="font-display-jp mt-5 text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
+            海外商品の仕入れ・卸の実務ガイド
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            仕入れ条件、価格、MOQ、日本市場への進め方など、海外商品を日本で取り扱うための実務情報をまとめています。商品一覧と登録ページへ進む前の確認にも使えます。
+            海外ブランドの仕入れルート、卸条件、日本の販売パートナーの探し方を、目的別・カテゴリー別にまとめています。
           </p>
+          <nav
+            aria-label="記事の分類"
+            className="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm"
+          >
+            {CLUSTERS.map((cluster) => (
+              <a
+                key={cluster.id}
+                href={`#${cluster.id}`}
+                className="text-teal hover:underline"
+              >
+                {JA_BLOG_CLUSTER_LABEL[cluster.id]}
+              </a>
+            ))}
+          </nav>
         </div>
       </section>
 
@@ -128,7 +146,7 @@ export default function JapaneseBlogHubPage() {
                 id={cluster.id}
                 className="mt-12 first:mt-0 border-t border-border pt-10 first:border-t-0 first:pt-0"
               >
-                <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+                <h2 className="font-display-jp text-2xl text-navy md:text-3xl">
                   {JA_BLOG_CLUSTER_LABEL[cluster.id]}
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
@@ -153,18 +171,50 @@ export default function JapaneseBlogHubPage() {
                     </li>
                   ))}
                 </ul>
+                {cluster.id === "category" ? (
+                  <div className="mt-8">
+                    <h3 className="font-display-jp text-lg text-navy">
+                      カテゴリーから商品を探す
+                    </h3>
+                    <ul className="mt-4 space-y-2.5">
+                      <li>
+                        <Link
+                          href="/ja/categories"
+                          className="text-teal hover:underline"
+                        >
+                          カテゴリー一覧
+                        </Link>
+                      </li>
+                      {categories.map((item) => (
+                        <li key={item.slug}>
+                          <Link
+                            href={jaCategoryPath(item.slug)}
+                            className="text-teal hover:underline"
+                          >
+                            {item.title.split("｜")[0]}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
               </section>
             );
           })}
 
           <section className="mt-12 border-t border-border pt-10">
-            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            <h2 className="font-display-jp text-2xl text-navy md:text-3xl">
               関連ページ
             </h2>
             <ul className="mt-6 space-y-2.5">
               <li>
                 <Link href="/cases" className="text-teal hover:underline">
                   商品一覧
+                </Link>
+              </li>
+              <li>
+                <Link href="/ja/categories" className="text-teal hover:underline">
+                  カテゴリーから探す
                 </Link>
               </li>
               <li>

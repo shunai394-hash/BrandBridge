@@ -4,15 +4,20 @@ import { Button } from "@/components/ui/Button";
 import {
   EXISTING_JA_BLOG,
   JA_BLOG_CLUSTER_LABEL,
+  JA_BLOG_HUB,
   getDedicatedJaBlog,
   type JaBlogArticle as JaBlogArticleData,
+  type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { getJaBlogArticle } from "@/lib/blog/ja-articles";
+import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 
 type JaBlogArticleProps = {
   article: JaBlogArticleData;
 };
+
+type ServiceLink = { href: string; label: string };
 
 function BulletList({ items }: { items: readonly string[] }) {
   return (
@@ -31,6 +36,42 @@ function BulletList({ items }: { items: readonly string[] }) {
       ))}
     </ul>
   );
+}
+
+function clusterServiceLinks(cluster: JaBlogCluster): ServiceLink[] {
+  const hub = { href: JA_BLOG_HUB.path, label: JA_BLOG_HUB.label };
+
+  if (cluster === "maker") {
+    return [
+      hub,
+      { href: "/for-makers", label: "商品提供企業の方へ" },
+      { href: "/how-to-sell-in-japan", label: "日本で販売する方法" },
+    ];
+  }
+
+  return [
+    hub,
+    { href: "/cases", label: "商品一覧" },
+    { href: "/ja/categories", label: "カテゴリーから探す" },
+    { href: "/for-partners", label: "販売パートナーの方へ" },
+  ];
+}
+
+function mergeServiceLinks(
+  existing: readonly ServiceLink[],
+  extras: readonly ServiceLink[],
+): ServiceLink[] {
+  const seen = new Set(existing.map((link) => link.href));
+  const merged = [...existing];
+
+  for (const link of extras) {
+    if (!seen.has(link.href)) {
+      seen.add(link.href);
+      merged.push(link);
+    }
+  }
+
+  return merged;
 }
 
 export function jaBlogPath(slug: string): string {
@@ -60,6 +101,13 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
     })
     .filter((item): item is { href: string; title: string } => item !== null);
 
+  const serviceLinks = mergeServiceLinks(
+    article.existingLinks,
+    clusterServiceLinks(article.cluster),
+  );
+  const serviceHrefs = new Set(serviceLinks.map((link) => link.href));
+  const relatedArticles = related.filter((link) => !serviceHrefs.has(link.href));
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -75,8 +123,8 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
           {
             "@type": "ListItem",
             position: 2,
-            name: "日本語ガイド",
-            item: `${siteUrl}/ja/blog`,
+            name: JA_BLOG_HUB.label,
+            item: `${siteUrl}${JA_BLOG_HUB.path}`,
           },
           {
             "@type": "ListItem",
@@ -101,7 +149,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
 
       <section className="relative overflow-hidden bg-navy-deep text-white">
@@ -113,7 +161,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
           <p className="text-xs font-medium tracking-wider text-teal">
             {article.eyebrow}
           </p>
-          <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
+          <h1 className="font-display-jp mt-5 text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
             {article.title}
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
@@ -134,8 +182,8 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
       <article className="border-b border-border bg-surface">
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
           <p className="text-xs text-muted">
-            <Link href="/ja/blog" className="text-teal hover:underline">
-              日本語ガイド
+            <Link href={JA_BLOG_HUB.path} className="text-teal hover:underline">
+              {JA_BLOG_HUB.label}
             </Link>
             <span aria-hidden> / </span>
             {JA_BLOG_CLUSTER_LABEL[article.cluster]}
@@ -152,7 +200,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
               key={section.heading}
               className="mt-12 border-t border-border pt-10"
             >
-              <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              <h2 className="font-display-jp text-2xl text-navy md:text-3xl">
                 {section.heading}
               </h2>
               {section.image ? (
@@ -173,7 +221,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
                       key={card.title}
                       className="rounded-xl border border-border bg-background px-5 py-5"
                     >
-                      <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                      <h3 className="font-display-jp text-lg text-navy">
                         {card.title}
                       </h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted md:text-base">
@@ -192,23 +240,33 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
             </section>
           ))}
 
-          {article.existingLinks.length > 0 || related.length > 0 ? (
+          {relatedArticles.length > 0 ? (
             <section className="mt-12 border-t border-border pt-10">
-              <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                関連ページ
+              <h2 className="font-display-jp text-2xl text-navy md:text-3xl">
+                関連記事
               </h2>
               <ul className="mt-6 space-y-2.5">
-                {article.existingLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="text-teal hover:underline">
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-                {related.map((link) => (
+                {relatedArticles.map((link) => (
                   <li key={link.href}>
                     <Link href={link.href} className="text-teal hover:underline">
                       {link.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {serviceLinks.length > 0 ? (
+            <section className="mt-12 border-t border-border pt-10">
+              <h2 className="font-display-jp text-2xl text-navy md:text-3xl">
+                関連ページ
+              </h2>
+              <ul className="mt-6 space-y-2.5">
+                {serviceLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="text-teal hover:underline">
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -228,7 +286,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
           aria-hidden
         />
         <div className="relative mx-auto max-w-3xl px-5 py-14 text-center md:py-16">
-          <h2 className="font-[family-name:var(--font-shippori)] text-2xl leading-snug md:text-3xl">
+          <h2 className="font-display-jp text-2xl leading-snug md:text-3xl">
             {article.cta.heading}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-base">

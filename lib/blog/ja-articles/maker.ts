@@ -1,4 +1,5 @@
 import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
+import { JA_BLOG_HUB } from "@/lib/blog/ja-articles/types";
 
 const makerCta = {
   heading: "日本の販売パートナーを探している方へ",
@@ -8,6 +9,7 @@ const makerCta = {
 } as const;
 
 const makerLinks = [
+  { href: JA_BLOG_HUB.path, label: JA_BLOG_HUB.label },
   { href: "/how-to-sell-in-japan", label: "日本で販売する方法" },
   { href: "/for-makers", label: "商品提供企業の方へ" },
   { href: "/register/maker", label: "メーカー登録" },
@@ -19,8 +21,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-find-japan-sales-agents",
     cluster: "maker",
     title: "日本の販売代理店を探す方法｜海外ブランド向け実務ガイド",
+    seoTitle: "日本の販売代理店｜役割の決め方",
     description:
-      "海外ブランドが日本の販売代理店を探す実務ガイド。代理店と卸の違い、提示する条件、探し方の順を解説します。",
+      "海外ブランドが日本の販売代理店を探す前に、役割を決める実務ガイド。代理店と卸の違い、先に出す条件。種類の見分けと失敗例は代理店の探し方記事です。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "代理店探しは、名簿集めより、日本側が判断できる条件を先に出すことです。",
     intro: [
@@ -69,8 +72,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-find-japan-wholesalers",
     cluster: "maker",
     title: "日本の卸売業者を探す方法｜海外メーカーが知るべき流れ",
+    seoTitle: "日本の卸売業者の探し方｜条件の出し方",
     description:
-      "海外メーカーが日本の卸売業者を探す流れ。卸が見る条件、初回数量、情報の出し方を実務目線で解説します。",
+      "海外メーカーが日本の卸売業者に出す条件の整え方。卸が見る情報、初回数量。卸と商社の違い、卸先の探し方は別記事です。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "日本の卸は、ブランドの知名度より、再販できる条件が揃っているかを見ます。",
     intro: [
@@ -112,6 +116,7 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-pitch-japan-retailers",
     cluster: "maker",
     title: "日本の小売店に商品を売り込む方法｜海外ブランド向け",
+    seoTitle: "日本の小売店への売り込み｜海外ブランド向け",
     description:
       "海外ブランドが日本の小売店に商品を売り込むときの実務。店頭適合、価格、納品、説明資料の揃え方を解説します。",
     eyebrow: "海外ブランド向け日本市場ガイド",
@@ -161,6 +166,7 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-find-japan-ec-partners",
     cluster: "maker",
     title: "日本のEC販売パートナーを探す方法｜海外D2Cブランド向け",
+    seoTitle: "日本のEC販売パートナーの探し方｜D2C向け",
     description:
       "海外D2Cブランドが日本のEC販売パートナーを探す方法。必要な商品情報、数量、ページ公開に必要なデータの揃え方を解説します。",
     eyebrow: "海外ブランド向け日本市場ガイド",
@@ -204,8 +210,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-set-japan-wholesale-price",
     cluster: "maker",
     title: "日本向け卸価格の決め方｜海外ブランドが押さえるべき考え方",
+    seoTitle: "日本向け卸価格｜小売からの逆算",
     description:
-      "海外ブランドの日本向け卸価格の考え方。希望小売価格からの逆算、送料、パートナーの粗利、通貨の扱いを解説します。",
+      "日本向け卸価格を、希望小売から逆算する考え方。パートナー粗利と通貨の扱い。FOB/CIFと流通コストの内訳は別記事、店頭の販売価格は小売価格の記事です。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "日本向け卸価格は、自国の卸値のコピーではなく、日本の小売価格から逆算します。",
     intro: [
@@ -254,8 +261,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "japan-moq-for-overseas-brands",
     cluster: "maker",
     title: "日本市場向けMOQの考え方｜海外ブランドの商品条件設計",
+    seoTitle: "日本向けMOQの考え方｜ブランド側の設計",
     description:
-      "海外ブランドの日本市場向けMOQの考え方。初回を小さくする理由と、生産ロットとの折り合いの付け方を解説します。",
+      "海外ブランドが日本向けMOQを設計する考え方。初回を小さくする理由と生産ロットとの折り合い。仕入れ側が見るMOQの意味は専用ガイドです。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "日本向けMOQは、自社の生産効率だけでなく、相手が試験販売できる単位で設計します。",
     intro: [
@@ -297,8 +305,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "cautions-when-contracting-japan-agents",
     cluster: "maker",
     title: "日本の販売代理店と契約するときの注意点",
+    seoTitle: "日本の代理店契約｜注意点",
     description:
-      "海外ブランドが日本の販売代理店と契約する前の注意点。範囲、期間、義務、終了条件を、法的断定を避けて整理します。",
+      "海外ブランドが日本の販売代理店と契約するときの注意点。範囲、期間、解除。総代理店の探し方と独占の付け方は別記事です。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "代理店契約で先に決めるのは、肩書ではなく、売ってよい範囲と、やめ方です。",
     intro: [
@@ -346,8 +355,9 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "japan-logistics-import-basics",
     cluster: "maker",
     title: "日本で海外商品を販売する際の物流・納期・輸入実務の基礎",
+    seoTitle: "日本販売の物流・納期｜ブランドが出す情報",
     description:
-      "海外ブランドが日本販売で押さえる物流・納期・輸入実務の基礎。誰が輸入者か、納期の伝え方、サンプルの扱いを解説します。",
+      "海外ブランドが日本のパートナーに伝える物流・納期・輸入者の基礎。仕入れ側が確認する費用と条件の詳細は輸入ガイドです。",
     eyebrow: "海外ブランド向け日本市場ガイド",
     lede: "日本側が発注できない理由の多くは、価格ではなく、着日と輸入者の不明です。",
     intro: [
@@ -389,6 +399,7 @@ export const MAKER_ARTICLES: JaBlogArticle[] = [
     slug: "japan-product-information-checklist",
     cluster: "maker",
     title: "日本市場向けの商品情報の作り方｜海外ブランド向けチェックリスト",
+    seoTitle: "日本向け商品情報のチェックリスト",
     description:
       "海外ブランドが日本の販売パートナーに渡す商品情報のチェックリスト。画像、仕様、価格、MOQ、販売制限の揃え方です。",
     eyebrow: "海外ブランド向け日本市場ガイド",

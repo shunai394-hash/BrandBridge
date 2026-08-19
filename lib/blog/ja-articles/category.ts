@@ -1,5 +1,8 @@
 import type { JaBlogArticle } from "@/lib/blog/ja-articles/types";
-import { EXISTING_JA_BLOG } from "@/lib/blog/ja-articles/types";
+import {
+  EXISTING_JA_BLOG,
+  JA_BLOG_HUB,
+} from "@/lib/blog/ja-articles/types";
 import { jaCategoryPath } from "@/lib/ja-categories";
 
 const categoryCtaPartner = {
@@ -10,6 +13,8 @@ const categoryCtaPartner = {
 } as const;
 
 const categoryLinks = [
+  { href: JA_BLOG_HUB.path, label: JA_BLOG_HUB.label },
+  { href: "/ja/categories", label: "カテゴリーから探す" },
   { href: "/cases", label: "掲載商品を見る" },
   { href: "/for-partners", label: "販売パートナーの方へ" },
   { href: "/for-makers", label: "商品提供企業の方へ" },
@@ -25,8 +30,9 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-cosmetics-in-japan",
     cluster: "category",
     title: "海外コスメブランドを日本で販売するには？",
+    seoTitle: "海外コスメを日本で販売する｜確認ポイント",
     description:
-      "海外コスメを日本で販売したい事業者・ブランド向け。成分・表示の確認視点、仕入れ条件、販路の選び方を実務目線で整理します。",
+      "海外コスメを日本で販売する前の確認視点。成分・表示、仕入れ条件、販路。掲載商品から探す場合は海外コスメの仕入れページを使います。",
     eyebrow: "カテゴリー別ガイド",
     lede: "海外コスメの取り扱いは、世界観の移植より、日本で説明できる成分と表示があるかが先です。",
     intro: [
@@ -85,8 +91,9 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-food-brands-in-japan",
     cluster: "category",
     title: "海外食品ブランドを日本で販売するには？",
+    seoTitle: "海外食品を日本で販売する｜期限と表示",
     description:
-      "海外食品を日本で販売したい事業者・ブランド向け。表示・期限・物流の確認視点と、仕入れ条件の見方を解説します。",
+      "海外食品を日本で販売する前の確認視点。期限、表示、温度帯、仕入れ条件。掲載商品から探す場合は海外食品の仕入れページを使います。",
     eyebrow: "カテゴリー別ガイド",
     lede: "海外食品は、味の評価より先に、期限、表示、温度帯が日本の販路に載るかを見ます。",
     intro: [
@@ -144,8 +151,9 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-supplements-in-japan",
     cluster: "category",
     title: "海外サプリ・ウェルネス商品を日本で販売するには？",
+    seoTitle: "海外サプリを日本で販売する｜表現と成分",
     description:
-      "海外サプリ・ウェルネス商品を日本で販売する前の確認視点。表現、成分、販路、仕入れ条件を実務目線で整理します。",
+      "海外サプリ・ウェルネスを日本で販売する前の確認視点。表現、成分、販路。掲載商品から探す場合は海外サプリの仕入れページを使います。",
     eyebrow: "カテゴリー別ガイド",
     lede: "サプリ・ウェルネスは、効果のうたい方と、食品なのか医薬品的なのかの整理が先です。",
     intro: [
@@ -203,8 +211,9 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-apparel-in-japan",
     cluster: "category",
     title: "海外アパレルブランドを日本で販売するには？",
+    seoTitle: "海外アパレルを日本で販売する｜サイズと価格",
     description:
-      "海外アパレルを日本で販売したい事業者・ブランド向け。サイズ、素材表示、価格、初回SKUの絞り方を解説します。",
+      "海外アパレルを日本で販売する前の確認視点。サイズ、素材表示、価格、初回SKU。掲載商品から探す場合は海外アパレルの仕入れページを使います。",
     eyebrow: "カテゴリー別ガイド",
     lede: "海外アパレルは、デザインの良さより、日本のサイズと価格帯に載るかが分かれ目です。",
     intro: [
@@ -261,8 +270,9 @@ export const CATEGORY_ARTICLES: JaBlogArticle[] = [
     slug: "how-to-sell-overseas-home-lifestyle-in-japan",
     cluster: "category",
     title: "海外ホーム・ライフスタイル商品を日本で販売するには？",
+    seoTitle: "海外ホーム商品を日本で販売する｜寸法と物流",
     description:
-      "海外のホーム・ライフスタイル商品を日本で販売する前の確認視点。サイズ、電圧、素材、物流、価格帯の見方を解説します。",
+      "海外ホーム・ライフスタイル商品を日本で販売する前の確認視点。サイズ、電圧、素材、物流。掲載商品から探す場合は海外ホーム商品の仕入れページを使います。",
     eyebrow: "カテゴリー別ガイド",
     lede: "ホーム・ライフスタイルは、見た目の好みより、日本の住空間と物流に載るサイズかが先です。",
     intro: [

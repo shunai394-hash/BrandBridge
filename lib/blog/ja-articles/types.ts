@@ -32,6 +32,8 @@ export type JaBlogArticle = {
   slug: string;
   cluster: JaBlogCluster;
   title: string;
+  /** Shorter SERP/OG title when the H1 would truncate in search results. */
+  seoTitle?: string;
   description: string;
   eyebrow: string;
   lede: string;

@@ -29,9 +29,10 @@ export async function generateMetadata({
   }
 
   const path = `/ja/blog/${article.slug}`;
+  const title = article.seoTitle ?? article.title;
 
   return {
-    title: article.title,
+    title,
     description: article.description,
     ...selfLanguageAlternates(path, "ja"),
     robots: {
@@ -39,7 +40,7 @@ export async function generateMetadata({
       follow: true,
     },
     openGraph: {
-      title: article.title,
+      title,
       description: article.description,
       url: path,
       locale: "ja_JP",

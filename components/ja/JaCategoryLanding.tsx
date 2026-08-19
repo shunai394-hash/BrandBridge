@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { Button } from "@/components/ui/Button";
 import { getJaBlogArticle } from "@/lib/blog/ja-articles";
 import { getDedicatedJaBlog } from "@/lib/blog/ja-articles/types";
@@ -6,8 +8,12 @@ import { selfLanguageAlternates } from "@/lib/hreflang";
 import {
   jaCategoryCasesHref,
   jaCategoryPath,
+  listJaCategories,
   type JaCategoryLanding,
+  type JaCategoryProductCard,
 } from "@/lib/ja-categories";
+import { displayMoqJa } from "@/lib/price-display";
+import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 
 function relatedCategoryLinks(slugs: readonly string[]) {
@@ -27,6 +33,7 @@ function relatedCategoryLinks(slugs: readonly string[]) {
 
 type JaCategoryLandingPageProps = {
   category: JaCategoryLanding;
+  products?: readonly JaCategoryProductCard[];
 };
 
 export function jaCategoryMetadata(category: JaCategoryLanding) {
@@ -49,37 +56,45 @@ export function jaCategoryMetadata(category: JaCategoryLanding) {
   };
 }
 
-export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) {
+export function JaCategoryLandingPage({
+  category,
+  products = [],
+}: JaCategoryLandingPageProps) {
   const siteUrl = getSiteUrl();
   const path = jaCategoryPath(category.slug);
   const casesHref = jaCategoryCasesHref(category.caseCategory);
   const relatedBlogs = relatedCategoryLinks(category.relatedBlogSlugs);
+  const siblingCategories = listJaCategories().filter(
+    (item) => item.slug !== category.slug,
+  );
   const footerCasesFirst = category.cta.footerPrimary === "cases";
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "ホーム",
-            item: siteUrl,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "カテゴリー",
-            item: `${siteUrl}/ja/categories`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: category.label,
-            item: `${siteUrl}${path}`,
-          },
-        ],
+        "@type": "CollectionPage",
+        name: category.title,
+        description: category.description,
+        inLanguage: "ja",
+        url: `${siteUrl}${path}`,
+        isPartOf: {
+          "@type": "CollectionPage",
+          name: "カテゴリー",
+          url: `${siteUrl}/ja/categories`,
+        },
+        mainEntity:
+          products.length > 0
+            ? {
+                "@type": "ItemList",
+                numberOfItems: products.length,
+                itemListElement: products.map((item, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  url: `${siteUrl}/cases/${item.id}`,
+                  name: item.productName,
+                })),
+              }
+            : undefined,
       },
     ],
   };
@@ -88,7 +103,7 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
 
       <section className="relative overflow-hidden bg-navy-deep text-white">
@@ -111,17 +126,14 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
 
       <article className="border-b border-border bg-surface">
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
-          <p className="text-xs text-muted">
-            <Link href="/" className="text-teal hover:underline">
-              ホーム
-            </Link>
-            <span aria-hidden> / </span>
-            <Link href="/ja/categories" className="text-teal hover:underline">
-              カテゴリー
-            </Link>
-            <span aria-hidden> / </span>
-            {category.label}
-          </p>
+          <PageBreadcrumbs
+            items={[
+              { name: "ホーム", path: "/" },
+              { name: "カテゴリー", path: "/ja/categories" },
+              { name: category.label },
+            ]}
+            className="mb-0"
+          />
 
           <div className="mt-6 space-y-5 text-sm leading-relaxed text-muted md:text-base">
             {category.intro.map((paragraph) => (
@@ -167,24 +179,72 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              BrandBridgeで商品を探す
+              {category.compareHeading}
             </h2>
-            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              掲載商品では、卸価格、MOQ、販売形式、独占の可否などの取引条件を確認できます。BrandBridgeは商品提供企業と日本の販売パートナーをつなぐ場であり、輸入代行や在庫の買い取りは行いません。最終条件はブランド側との商談で確認します。
-            </p>
+            <ul className="mt-6 space-y-2.5">
+              {category.compare.map((item) => (
+                <li
+                  key={item}
+                  className="flex gap-2.5 text-sm leading-relaxed text-muted md:text-base"
+                >
+                  <span
+                    className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal"
+                    aria-hidden
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              {category.label}の掲載商品を見る
+              {category.listingHeading}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-              カテゴリー「{category.caseCategory}」の
-              <Link href="/cases" className="text-teal hover:underline">
+              {category.listingLead}{" "}
+              全件は
+              <Link href={casesHref} className="text-teal hover:underline">
                 商品一覧
               </Link>
-              へ進めます。気になる商品があれば、各商品の詳細で条件を確認し、問い合わせできます。
+              からも探せます。
             </p>
+            {products.length > 0 ? (
+              <ul className="mt-6 divide-y divide-border rounded-xl border border-border bg-background">
+                {products.map((item) => (
+                  <li key={item.id} className="px-5 py-4">
+                    <Link
+                      href={`/cases/${item.id}`}
+                      className="font-[family-name:var(--font-shippori)] text-lg text-navy hover:text-teal"
+                    >
+                      {item.productName}
+                    </Link>
+                    {item.brandName ? (
+                      <p className="mt-1 text-xs text-teal">{item.brandName}</p>
+                    ) : null}
+                    <div className="mt-2 text-sm text-muted">
+                      <span className="block sm:inline">
+                        参考卸価格帯:{" "}
+                        <WholesalePriceRange
+                          priceBand={item.priceBand}
+                          locale="ja"
+                        />
+                      </span>
+                      <span className="mt-1 block sm:mt-0 sm:inline">
+                        <span className="mx-2 hidden text-border sm:inline" aria-hidden>
+                          /
+                        </span>
+                        MOQ: {displayMoqJa(item.minOrder)}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-6 text-sm leading-relaxed text-muted md:text-base">
+                このカテゴリーの公開商品は、現在商品一覧から確認できます。条件を見て問い合わせへ進めます。
+              </p>
+            )}
             <div className="mt-6">
               <Button href={casesHref} className="w-full sm:w-auto">
                 {category.cta.productListLabel}
@@ -192,13 +252,22 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
             </div>
           </section>
 
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              BrandBridgeで商品を探す
+            </h2>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              掲載商品では、卸価格、MOQ、販売形式、独占の可否などの取引条件を確認できます。BrandBridgeは商品提供企業と日本の販売パートナーをつなぐ場であり、輸入代行や在庫の買い取りは行いません。最終条件はブランド側との商談で確認します。
+            </p>
+          </section>
+
           {relatedBlogs.length > 0 ? (
             <section className="mt-12 border-t border-border pt-10">
               <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-                関連する日本語ブログ
+                関連する日本語ガイド
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
-                日本で販売するときの実務解説は、ブログ側で扱っています。仕入れ候補を探す場合はこのページの商品一覧を優先してください。
+                仕入れの進め方や注意点は、次のガイドでも確認できます。候補を探す場合はこのページの掲載商品を優先してください。
               </p>
               <ul className="mt-4 space-y-2">
                 {relatedBlogs.map((item) => (
@@ -208,6 +277,39 @@ export function JaCategoryLandingPage({ category }: JaCategoryLandingPageProps) 
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <Link href="/ja/blog" className="text-teal hover:underline">
+                    日本語ブログ
+                  </Link>
+                </li>
+              </ul>
+            </section>
+          ) : null}
+
+          {siblingCategories.length > 0 ? (
+            <section className="mt-12 border-t border-border pt-10">
+              <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+                他のカテゴリー
+              </h2>
+              <ul className="mt-4 space-y-2">
+                {siblingCategories.map((item) => (
+                  <li key={item.slug}>
+                    <Link
+                      href={jaCategoryPath(item.slug)}
+                      className="text-teal hover:underline"
+                    >
+                      {item.label}（{item.caseCategory}）
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link
+                    href="/ja/categories"
+                    className="text-teal hover:underline"
+                  >
+                    カテゴリー一覧
+                  </Link>
+                </li>
               </ul>
             </section>
           ) : null}

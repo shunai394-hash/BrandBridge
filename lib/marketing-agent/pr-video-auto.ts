@@ -22,7 +22,9 @@ import {
 import { assertFfmpegAvailable } from "@/lib/marketing-agent/pr-video-ffmpeg";
 import { renderPrVideoMp4 } from "@/lib/marketing-agent/pr-video-render";
 import {
+  downloadStockMaterialUrls,
   fetchStockClipsForScenes,
+  resolveStockMaterialUrls,
   type StockProvider,
 } from "@/lib/marketing-agent/pr-video-stock";
 import { synthesizeNarrationWav } from "@/lib/marketing-agent/pr-video-tts";
@@ -54,6 +56,59 @@ async function resolveFallbackStills(): Promise<string[]> {
   return found;
 }
 
+export type AutoPrVideoJob = {
+  generationMode: "auto";
+  companyName: string;
+  website?: string | null;
+  description: string;
+  businessType?: string | null;
+  targetAudience: string;
+  country?: string | null;
+  services?: string | null;
+  sellingPoints?: string | null;
+  cta?: string | null;
+  script: PrVideoScript;
+  bgmEnabled: boolean;
+  subtitlesEnabled: boolean;
+};
+
+export async function prepareAutoPrVideoJob(input: {
+  brief: BusinessPrBrief;
+  script?: PrVideoScript | null;
+  company?: CompanyPrContext;
+  bgmEnabled?: boolean;
+  subtitlesEnabled?: boolean;
+}): Promise<AutoPrVideoJob> {
+  const company = input.company ?? companyPrContextFromBrief(input.brief);
+  const script =
+    normalizePrVideoScript(input.script) ??
+    (await generateAutoBusinessPrVideoScript(input.brief));
+  const stock = await resolveStockMaterialUrls({ scenes: script.scenes });
+  const scenes = script.scenes.map((scene, index) => {
+    const material = stock.materials[index] ?? stock.materials[index % Math.max(stock.materials.length, 1)];
+    return {
+      ...scene,
+      materialUrl: material?.url,
+      materialType: material ? ("video" as const) : scene.materialType,
+    };
+  });
+  return {
+    generationMode: "auto",
+    companyName: company.companyName,
+    website: company.website,
+    description: company.description,
+    businessType: company.businessType,
+    targetAudience: company.targetAudience,
+    country: company.country,
+    services: company.services,
+    sellingPoints: company.sellingPoints,
+    cta: script.cta || company.cta,
+    script: { ...script, scenes },
+    bgmEnabled: input.bgmEnabled ?? true,
+    subtitlesEnabled: input.subtitlesEnabled ?? true,
+  };
+}
+
 export async function generateBusinessPrVideoAuto(input: {
   brief: BusinessPrBrief;
   script?: PrVideoScript | null;
@@ -61,6 +116,7 @@ export async function generateBusinessPrVideoAuto(input: {
   bgmEnabled?: boolean;
   subtitlesEnabled?: boolean;
   keepWorkDir?: string;
+  materialUrls?: string[];
 }): Promise<AutoPrVideoResult> {
   await assertFfmpegAvailable();
 
@@ -97,10 +153,33 @@ export async function generateBusinessPrVideoAuto(input: {
       scenes = scaleSceneDurations(scenes, narrationDuration);
     }
 
-    const stock = await fetchStockClipsForScenes({
-      workDir,
-      scenes,
-    });
+    const urlsFromInput = (input.materialUrls ?? []).filter(Boolean);
+    const urlsFromScenes = scenes
+      .map((scene) => scene.materialUrl?.trim())
+      .filter((url): url is string => Boolean(url));
+    const preferredUrls = urlsFromInput.length > 0 ? urlsFromInput : urlsFromScenes;
+
+    let stock = {
+      clips: [] as Awaited<ReturnType<typeof fetchStockClipsForScenes>>["clips"],
+      provider: "none" as StockProvider,
+      keywords: scenes.map((scene) => scene.searchKeywords ?? []),
+    };
+    if (preferredUrls.length > 0) {
+      stock = {
+        clips: await downloadStockMaterialUrls({
+          workDir,
+          urls: preferredUrls,
+        }),
+        provider: "pexels",
+        keywords: scenes.map((scene) => scene.searchKeywords ?? []),
+      };
+    }
+    if (stock.clips.length === 0) {
+      stock = await fetchStockClipsForScenes({
+        workDir,
+        scenes,
+      });
+    }
     const videoPaths = stock.clips.map((clip) => clip.path);
     let imagePaths: string[] = [];
     let usedImageFallback = videoPaths.length === 0;

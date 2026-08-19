@@ -48,7 +48,7 @@ gcloud run deploy "$SERVICE" \
   --allow-unauthenticated \
   --cpu=2 \
   --memory=4Gi \
-  --timeout=300 \
+  --timeout=540 \
   --concurrency=1 \
   --max-instances=3 \
   --env-vars-file="$ENV_FILE"

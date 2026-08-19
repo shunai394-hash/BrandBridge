@@ -9,7 +9,8 @@ import {
 import { parseBusinessPrBrief } from "@/lib/marketing-agent/business-pr-script";
 import { parseJsonValue } from "@/lib/marketing-agent/json";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
-import { generateBusinessPrVideoAuto } from "@/lib/marketing-agent/pr-video-auto";
+import { generateBusinessPrVideoAuto, prepareAutoPrVideoJob } from "@/lib/marketing-agent/pr-video-auto";
+import { companyPrContextFromBrief } from "@/lib/marketing-agent/company-pr-context";
 import { parsePrVideoGenerationMode } from "@/lib/marketing-agent/pr-video-engine";
 import { prVideoWorkerConfig } from "@/lib/marketing-agent/pr-video-worker";
 import {
@@ -117,6 +118,93 @@ function workerConfig(): { url: string; secret: string } | null {
   return prVideoWorkerConfig();
 }
 
+async function callWorker(
+  worker: { url: string; secret: string },
+  payload: Record<string, unknown>,
+): Promise<NextResponse> {
+  let response: Response;
+  try {
+    response = await fetch(`${worker.url}/render`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${worker.secret}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(WORKER_WAIT_MS),
+    });
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError")
+    ) {
+      return errorJson(
+        "Cloud Run / FFmpeg の応答がタイムアウトしました（HTTP 504）。数分かかることがあります。",
+        504,
+        { code: "AI_TIMEOUT", stage: "timeout" },
+      );
+    }
+    const detail = error instanceof Error ? error.message : "network error";
+    return errorJson(
+      `Cloud Run worker に接続できません（${redactSecrets(detail)}）。`,
+      502,
+      { stage: "cloud-run" },
+    );
+  }
+
+  const text = await response.text();
+  let body: Record<string, unknown> = {};
+  try {
+    body = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    body = {};
+  }
+  if (!response.ok) {
+    const rawMessage =
+      typeof body.error === "string"
+        ? body.error
+        : `Cloud Run worker error (HTTP ${response.status}).`;
+    const message = /caseId and imageUrl are required/i.test(rawMessage)
+      ? "Cloud Run worker が複数画像または自動生成に未対応です。pr-video-worker Service を再デプロイしてください。"
+      : rawMessage;
+    const code = typeof body.code === "string" ? body.code : undefined;
+    const stage =
+      (typeof body.stage === "string"
+        ? (body.stage as PrVideoStage)
+        : undefined) ||
+      stageFromErrorCode(code) ||
+      "cloud-run";
+    return errorJson(
+      `動画生成に失敗しました（HTTP ${response.status}）: ${message}`,
+      502,
+      { code, stage },
+    );
+  }
+  const url = typeof body.url === "string" ? body.url : "";
+  if (!url) {
+    return errorJson(
+      "Cloud Run は完了しましたが、R2 の署名付きURLが返りませんでした。",
+      502,
+      { stage: "r2" },
+    );
+  }
+  return NextResponse.json({
+    url,
+    key: typeof body.key === "string" ? body.key : undefined,
+    durationSeconds: Number(body.durationSeconds) || undefined,
+    width: Number(body.width) || 1080,
+    height: Number(body.height) || 1920,
+    renderMs: Number(body.renderMs) || undefined,
+    bgmEnabled: payload.bgmEnabled !== false,
+    subtitlesEnabled: payload.subtitlesEnabled !== false,
+    generationMode: payload.generationMode,
+    stockProvider: body.stockProvider,
+    stockVideoCount: body.stockVideoCount,
+    stage: "r2",
+    status: "completed",
+  });
+}
+
 export async function POST(request: Request) {
   try {
     await requireAdmin();
@@ -177,14 +265,6 @@ export async function POST(request: Request) {
     );
 
     if (generationMode === "auto") {
-      if (process.env.VERCEL) {
-        return errorJson(
-          "会社情報からの自動生成は、MoneyPrinterTurbo が使えるローカル環境で実行してください。",
-          503,
-          { stage: "ffmpeg" },
-        );
-      }
-
       const brief = parseBusinessPrBrief({
         companyName,
         brandName: form.get("brandName"),
@@ -206,14 +286,46 @@ export async function POST(request: Request) {
         sellingPoints: form.get("sellingPoints"),
         imageCount: 0,
       });
-
-      const result = await generateBusinessPrVideoAuto({
+      const company = companyPrContextFromBrief(brief);
+      const job = await prepareAutoPrVideoJob({
         brief,
         script,
+        company,
         bgmEnabled,
         subtitlesEnabled,
       });
-
+      const worker = workerConfig();
+      if (worker) {
+        return callWorker(worker, {
+          generationMode: "auto",
+          script: job.script,
+          companyName: job.companyName,
+          website: job.website,
+          description: job.description,
+          businessType: job.businessType,
+          targetAudience: job.targetAudience,
+          country: job.country,
+          services: job.services,
+          sellingPoints: job.sellingPoints,
+          cta: job.cta,
+          bgmEnabled: job.bgmEnabled,
+          subtitlesEnabled: job.subtitlesEnabled,
+        });
+      }
+      if (process.env.VERCEL) {
+        return errorJson(
+          "Cloud Run worker が設定されていません（PR_VIDEO_WORKER_URL または PR_VIDEO_WORKER_SECRET が未設定です）。自動生成は Worker 上の MoneyPrinterTurbo で実行します。",
+          503,
+          { stage: "cloud-run" },
+        );
+      }
+      const result = await generateBusinessPrVideoAuto({
+        brief,
+        script: job.script,
+        company,
+        bgmEnabled,
+        subtitlesEnabled,
+      });
       return new NextResponse(new Uint8Array(result.bytes), {
         status: 200,
         headers: {
@@ -237,90 +349,13 @@ export async function POST(request: Request) {
 
     const worker = workerConfig();
     if (worker) {
-      let response: Response;
-      try {
-        response = await fetch(`${worker.url}/render`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${worker.secret}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            script,
-            images: toBusinessPrWorkerImages(images),
-            companyName,
-            productName: companyName,
-            bgmEnabled,
-            subtitlesEnabled,
-          }),
-          signal: AbortSignal.timeout(WORKER_WAIT_MS),
-        });
-      } catch (error) {
-        if (
-          error instanceof Error &&
-          (error.name === "TimeoutError" || error.name === "AbortError")
-        ) {
-          return errorJson(
-            "Cloud Run / FFmpeg の応答がタイムアウトしました（HTTP 504）。数分かかることがあります。",
-            504,
-            { code: "AI_TIMEOUT", stage: "timeout" },
-          );
-        }
-        const detail = error instanceof Error ? error.message : "network error";
-        return errorJson(
-          `Cloud Run worker に接続できません（${redactSecrets(detail)}）。`,
-          502,
-          { stage: "cloud-run" },
-        );
-      }
-
-      const text = await response.text();
-      let payload: Record<string, unknown> = {};
-      try {
-        payload = JSON.parse(text) as Record<string, unknown>;
-      } catch {
-        payload = {};
-      }
-      if (!response.ok) {
-        const rawMessage =
-          typeof payload.error === "string"
-            ? payload.error
-            : `Cloud Run worker error (HTTP ${response.status}).`;
-        const message = /caseId and imageUrl are required/i.test(rawMessage)
-          ? "Cloud Run worker が複数画像に未対応です。pr-video-worker Service を再デプロイしてください。"
-          : rawMessage;
-        const code = typeof payload.code === "string" ? payload.code : undefined;
-        const stage =
-          (typeof payload.stage === "string"
-            ? (payload.stage as PrVideoStage)
-            : undefined) ||
-          stageFromErrorCode(code) ||
-          "cloud-run";
-        return errorJson(
-          `動画生成に失敗しました（HTTP ${response.status}）: ${message}`,
-          502,
-          { code, stage },
-        );
-      }
-      const url = typeof payload.url === "string" ? payload.url : "";
-      if (!url) {
-        return errorJson(
-          "Cloud Run は完了しましたが、R2 の署名付きURLが返りませんでした。",
-          502,
-          { stage: "r2" },
-        );
-      }
-      return NextResponse.json({
-        url,
-        key: typeof payload.key === "string" ? payload.key : undefined,
-        durationSeconds: Number(payload.durationSeconds) || undefined,
-        width: Number(payload.width) || 1080,
-        height: Number(payload.height) || 1920,
-        renderMs: Number(payload.renderMs) || undefined,
+      return callWorker(worker, {
+        script,
+        images: toBusinessPrWorkerImages(images),
+        companyName,
+        productName: companyName,
         bgmEnabled,
         subtitlesEnabled,
-        stage: "r2",
-        status: "completed",
       });
     }
 

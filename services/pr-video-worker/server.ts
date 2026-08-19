@@ -8,7 +8,10 @@ import {
   MIN_BUSINESS_PR_IMAGES,
   parseBusinessPrWorkerImages,
 } from "@/lib/marketing-agent/business-pr-video";
+import { parseBusinessPrBrief } from "@/lib/marketing-agent/business-pr-script";
 import { generatePrVideoFromRemote } from "@/lib/marketing-agent/pr-video-core";
+import { generateBusinessPrVideoAuto } from "@/lib/marketing-agent/pr-video-auto";
+import { parsePrVideoGenerationMode } from "@/lib/marketing-agent/pr-video-engine";
 import { normalizePrVideoScript } from "@/lib/marketing-agent/pr-script";
 import {
   redactSecrets,
@@ -92,8 +95,17 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     images?: unknown;
     productName?: string;
     companyName?: string;
+    website?: string;
+    description?: string;
+    businessType?: string;
+    targetAudience?: string;
+    country?: string;
+    services?: string;
+    sellingPoints?: string;
+    cta?: string;
     bgmEnabled?: boolean;
     subtitlesEnabled?: boolean;
+    generationMode?: string;
   };
   const images = parseBusinessPrWorkerImages(body.images);
   const companyName =
@@ -102,8 +114,13 @@ async function handleRender(req: import("node:http").IncomingMessage) {
   const subtitlesEnabled = body.subtitlesEnabled !== false;
   const caseId = String(body.caseId ?? "").trim();
   const imageUrl = String(body.imageUrl ?? "").trim();
+  const generationMode = parsePrVideoGenerationMode(body.generationMode);
 
-  if (images.length < MIN_BUSINESS_PR_IMAGES && (!caseId || !imageUrl)) {
+  if (
+    generationMode !== "auto" &&
+    images.length < MIN_BUSINESS_PR_IMAGES &&
+    (!caseId || !imageUrl)
+  ) {
     throw new MarketingAgentError(
       "INVALID_CASE",
       "images (2 or more) or caseId and imageUrl are required.",
@@ -118,10 +135,38 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     );
   }
 
-  let rendered: Awaited<ReturnType<typeof generatePrVideoFromRemote>>;
+  let rendered: Awaited<ReturnType<typeof generatePrVideoFromRemote>> & {
+    stockProvider?: string;
+    stockVideoCount?: number;
+  };
   let key: string;
 
-  if (images.length >= MIN_BUSINESS_PR_IMAGES) {
+  if (generationMode === "auto") {
+    const brief = parseBusinessPrBrief({
+      companyName,
+      website: body.website,
+      businessDescription:
+        body.description || `${companyName}の会社紹介`,
+      businessType: body.businessType,
+      targetAudience:
+        body.targetAudience || "日本市場に進出したい海外ブランド",
+      country: body.country,
+      services: body.services,
+      sellingPoints: body.sellingPoints,
+      videoPurpose: body.cta || "BrandBridgeへアクセスしてもらう",
+      imageCount: 0,
+    });
+    rendered = await generateBusinessPrVideoAuto({
+      brief,
+      script,
+      bgmEnabled,
+      subtitlesEnabled,
+      materialUrls: script.scenes
+        .map((scene) => scene.materialUrl?.trim())
+        .filter((url): url is string => Boolean(url)),
+    });
+    key = `pr-videos/business-auto/${randomUUID()}.mp4`;
+  } else if (images.length >= MIN_BUSINESS_PR_IMAGES) {
     rendered = await generateBusinessPrVideoFromUploads({
       script,
       images,
@@ -202,6 +247,10 @@ async function handleRender(req: import("node:http").IncomingMessage) {
     width: rendered.width,
     height: rendered.height,
     renderMs: Date.now() - started,
+    stockProvider:
+      "stockProvider" in rendered ? rendered.stockProvider : undefined,
+    stockVideoCount:
+      "stockVideoCount" in rendered ? rendered.stockVideoCount : undefined,
     stage: "r2" as const,
     status: "completed" as const,
   };
@@ -216,6 +265,7 @@ const server = createServer((req, res) => {
           ok: true,
           service: "pr-video-worker",
           images: true,
+          auto: true,
           bgm: true,
           subtitles: true,
         });

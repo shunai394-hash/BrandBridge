@@ -53,6 +53,8 @@ export type PrVideoScene = {
   sceneId?: string;
   visualPrompt?: string;
   searchKeywords?: string[];
+  materialUrl?: string;
+  materialType?: "image" | "video";
 };
 
 export type PrVideoScript = {
@@ -208,6 +210,14 @@ function asScene(value: unknown, index: number): PrVideoScene | null {
     sceneId: presentText(row.sceneId) ?? presentText(row.scene_id) ?? `scene-${sceneNumber}`,
     visualPrompt,
     searchKeywords: searchKeywords.length > 0 ? searchKeywords : undefined,
+    materialUrl: presentText(row.materialUrl) ?? presentText(row.material_url) ?? undefined,
+    materialType:
+      presentText(row.materialType)?.toLowerCase() === "video" ||
+      presentText(row.material_type)?.toLowerCase() === "video"
+        ? "video"
+        : presentText(row.materialType)?.toLowerCase() === "image"
+          ? "image"
+          : undefined,
   };
 }
 

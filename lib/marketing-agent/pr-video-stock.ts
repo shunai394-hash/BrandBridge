@@ -24,12 +24,35 @@ export type StockClip = {
   sourceUrl?: string;
 };
 
+export type StockMaterialRef = {
+  url: string;
+  provider: Exclude<StockProvider, "none">;
+  searchTerm: string;
+  materialType: "video";
+};
+
 export type StockFetchResult = {
   clips: StockClip[];
   provider: StockProvider;
   keywords: string[][];
   reason?: string;
 };
+
+export type StockUrlResult = {
+  materials: StockMaterialRef[];
+  provider: StockProvider;
+  keywords: string[][];
+  reason?: string;
+};
+
+const STOCK_VIDEO_HOSTS = new Set([
+  "videos.pexels.com",
+  "images.pexels.com",
+  "cdn.pixabay.com",
+  "pixabay.com",
+  "cdn.coverr.co",
+  "coverr.co",
+]);
 
 const HELPER_RELATIVE = path.join(
   "services",
@@ -114,6 +137,190 @@ export function sceneSearchTerms(scene: PrVideoScene): string[] {
   return prompt ? [prompt] : ["modern office business"];
 }
 
+export function assertSafeStockVideoUrl(raw: string): string {
+  let parsed: URL;
+  try {
+    parsed = new URL(raw.trim());
+  } catch {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "動画素材URLが不正です。");
+  }
+  if (parsed.protocol !== "https:") {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "動画素材はHTTPSのみ利用できます。");
+  }
+  if (parsed.username || parsed.password) {
+    throw new MarketingAgentError("INVALID_IMAGE_URL", "認証付き動画URLは利用できません。");
+  }
+  const host = parsed.hostname.toLowerCase();
+  const allowed =
+    STOCK_VIDEO_HOSTS.has(host) ||
+    [...STOCK_VIDEO_HOSTS].some((allowedHost) => host.endsWith(`.${allowedHost}`));
+  if (!allowed) {
+    throw new MarketingAgentError(
+      "INVALID_IMAGE_URL",
+      "許可されていない動画素材ホストです。",
+    );
+  }
+  return parsed.toString();
+}
+
+function pickCatalogUrl(
+  terms: string[],
+  usedUrls: Set<string>,
+): StockMaterialRef | null {
+  const ranked = [...PUBLIC_STOCK_CATALOG].sort(
+    (a, b) => scoreCatalog(b, terms) - scoreCatalog(a, terms),
+  );
+  for (const entry of ranked) {
+    for (const url of entry.urls) {
+      if (usedUrls.has(url)) continue;
+      usedUrls.add(url);
+      return {
+        url,
+        provider: "pexels",
+        searchTerm: terms[0] || entry.keywords[0] || "stock",
+        materialType: "video",
+      };
+    }
+  }
+  return null;
+}
+
+function pickPexelsFileUrl(video: Record<string, unknown>): string | null {
+  const files = Array.isArray(video.video_files) ? video.video_files : [];
+  const ranked = files
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const row = item as Record<string, unknown>;
+      const link = String(row.link ?? "").trim();
+      const width = Number(row.width) || 0;
+      const height = Number(row.height) || 0;
+      if (!link.startsWith("https://")) return null;
+      return { link, width, height, portrait: height > width };
+    })
+    .filter((item): item is { link: string; width: number; height: number; portrait: boolean } => item != null)
+    .sort((a, b) => {
+      if (a.portrait !== b.portrait) return a.portrait ? -1 : 1;
+      return b.height - a.height;
+    });
+  const picked = ranked.find((item) => item.height >= 360);
+  return picked?.link.split("?")[0] ?? null;
+}
+
+async function searchPexelsVideoUrl(
+  term: string,
+  usedIds: Set<string>,
+): Promise<StockMaterialRef | null> {
+  const key = stockApiKeys().pexels;
+  if (!key) return null;
+  try {
+    const params = new URLSearchParams({
+      query: term,
+      per_page: "15",
+    });
+    const response = await fetch(
+      `https://api.pexels.com/videos/search?${params.toString()}`,
+      {
+        headers: { Authorization: key },
+        signal: AbortSignal.timeout(15_000),
+      },
+    );
+    if (!response.ok) return null;
+    const payload = (await response.json()) as { videos?: unknown };
+    const videos = Array.isArray(payload.videos) ? payload.videos : [];
+    for (const item of videos) {
+      if (!item || typeof item !== "object") continue;
+      const video = item as Record<string, unknown>;
+      const id = String(video.id ?? "");
+      if (id && usedIds.has(id)) continue;
+      const url = pickPexelsFileUrl(video);
+      if (!url) continue;
+      try {
+        const safe = assertSafeStockVideoUrl(url);
+        if (id) usedIds.add(id);
+        return {
+          url: safe,
+          provider: "pexels",
+          searchTerm: term,
+          materialType: "video",
+        };
+      } catch {
+        continue;
+      }
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export async function resolveStockMaterialUrls(input: {
+  scenes: PrVideoScene[];
+}): Promise<StockUrlResult> {
+  const keywords = input.scenes.map((scene) => sceneSearchTerms(scene));
+  const usedIds = new Set<string>();
+  const usedUrls = new Set<string>();
+  const materials: StockMaterialRef[] = [];
+
+  for (let index = 0; index < keywords.length; index += 1) {
+    const terms = keywords[index] ?? ["modern office"];
+    let found: StockMaterialRef | null = null;
+    for (const term of terms) {
+      found = await searchPexelsVideoUrl(term, usedIds);
+      if (found) break;
+    }
+    if (!found) {
+      found = pickCatalogUrl(terms, usedUrls);
+    } else {
+      usedUrls.add(found.url);
+    }
+    if (found) materials.push(found);
+  }
+
+  if (materials.length === 0) {
+    return {
+      materials: [],
+      provider: "none",
+      keywords,
+      reason: "No Pexels results or catalog clips were available.",
+    };
+  }
+
+  return {
+    materials,
+    provider: materials[0]?.provider ?? "pexels",
+    keywords,
+  };
+}
+
+export async function downloadStockMaterialUrls(input: {
+  workDir: string;
+  urls: string[];
+}): Promise<StockClip[]> {
+  const destDir = path.join(input.workDir, "stock-urls");
+  await mkdir(destDir, { recursive: true });
+  const clips: StockClip[] = [];
+  for (let index = 0; index < input.urls.length; index += 1) {
+    const raw = input.urls[index];
+    if (!raw) continue;
+    let safe: string;
+    try {
+      safe = assertSafeStockVideoUrl(raw);
+    } catch {
+      continue;
+    }
+    const dest = path.join(destDir, `scene-${index}.mp4`);
+    const ok = await downloadUrlToFile(safe, dest);
+    if (!ok) continue;
+    clips.push({
+      path: dest,
+      provider: "pexels",
+      searchTerm: `scene-${index}`,
+      sourceUrl: safe,
+    });
+  }
+  return clips;
+}
+
 function parseHelperResult(stdout: string, stderr: string): Record<string, unknown> {
   const lines = `${stdout}\n${stderr}`
     .split(/\r?\n/)
@@ -159,44 +366,6 @@ function scoreCatalog(entry: PublicCatalogEntry, terms: string[]): number {
     (score, keyword) => (hay.includes(keyword) ? score + 2 : score),
     0,
   );
-}
-
-async function fetchPublicCatalog(input: {
-  workDir: string;
-  termsPerScene: string[][];
-}): Promise<StockClip[]> {
-  const destDir = path.join(input.workDir, "stock-public");
-  await mkdir(destDir, { recursive: true });
-  const usedUrls = new Set<string>();
-  const clips: StockClip[] = [];
-
-  for (let index = 0; index < input.termsPerScene.length; index += 1) {
-    const terms = input.termsPerScene[index] ?? [];
-    const ranked = [...PUBLIC_STOCK_CATALOG].sort(
-      (a, b) => scoreCatalog(b, terms) - scoreCatalog(a, terms),
-    );
-    let saved: StockClip | null = null;
-    for (const entry of ranked) {
-      for (const url of entry.urls) {
-        if (usedUrls.has(url)) continue;
-        const dest = path.join(destDir, `scene-${index}.mp4`);
-        const ok = await downloadUrlToFile(url, dest);
-        if (!ok) continue;
-        usedUrls.add(url);
-        saved = {
-          path: dest,
-          provider: url.includes("pexels.com") ? "pexels" : "mixkit",
-          searchTerm: terms[0] || entry.keywords[0] || "stock",
-          sourceUrl: url,
-        };
-        break;
-      }
-      if (saved) break;
-    }
-    if (saved) clips.push(saved);
-  }
-
-  return clips;
 }
 
 async function fetchViaMoneyPrinterTurbo(input: {
@@ -325,17 +494,20 @@ export async function fetchStockClipsForScenes(input: {
     return mpt;
   }
 
-  const publicClips = await fetchPublicCatalog({
-    workDir: destDir,
-    termsPerScene,
-  });
-  if (publicClips.length > 0) {
-    return {
-      clips: publicClips,
-      provider: publicClips[0]?.provider ?? "pexels",
-      keywords: termsPerScene,
-      reason: mpt?.reason,
-    };
+  const resolved = await resolveStockMaterialUrls({ scenes: input.scenes });
+  if (resolved.materials.length > 0) {
+    const clips = await downloadStockMaterialUrls({
+      workDir: destDir,
+      urls: resolved.materials.map((item) => item.url),
+    });
+    if (clips.length > 0) {
+      return {
+        clips,
+        provider: resolved.provider,
+        keywords: resolved.keywords,
+        reason: resolved.reason,
+      };
+    }
   }
 
   const local = await fetchLocalStock(destDir);
@@ -351,6 +523,6 @@ export async function fetchStockClipsForScenes(input: {
     clips: [],
     provider: "none",
     keywords: termsPerScene,
-    reason: "No stock API keys and public/local stock clips were unavailable.",
+    reason: resolved.reason || mpt?.reason || "No stock clips were available.",
   };
 }

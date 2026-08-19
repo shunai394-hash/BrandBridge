@@ -8,7 +8,7 @@ import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { getCaseById } from "@/lib/cases";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { hasAppliedToCase } from "@/lib/negotiations";
-import { productJsonLd } from "@/lib/seo-jsonld";
+import { jsonLdString, productJsonLd } from "@/lib/seo-jsonld";
 
 type EnglishCaseDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -102,7 +102,7 @@ export default async function EnglishCaseDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productJsonLd(caseItem, "en")),
+          __html: jsonLdString(productJsonLd(caseItem, "en")),
         }}
       />
       <EnCaseDetail

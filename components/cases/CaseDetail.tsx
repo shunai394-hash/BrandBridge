@@ -1,4 +1,5 @@
 ﻿import type { ReactNode } from "react";
+import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
 import { ProductVideo } from "@/components/cases/ProductVideo";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
@@ -15,15 +16,20 @@ import { canViewMakerCompanyName } from "@/lib/case-company-visibility";
 import { canViewPartnerPricing } from "@/lib/case-pricing-access";
 import {
   displayAvailability,
-  displayMoq,
+  displayMoqJa,
   displayPriceCondition,
 } from "@/lib/price-display";
 import type { Case, SessionUser } from "@/lib/types";
-import { reviewStatusLabels, targetCountryLabel } from "@/lib/types";
+import { reviewStatusLabels, salesFormatLabel, targetCountryLabel } from "@/lib/types";
 import {
   getJaCategoryByCaseCategory,
   jaCategoryPath,
 } from "@/lib/ja-categories";
+import {
+  caseDetailFaqs,
+  relatedJaBlogLinks,
+  relatedJaCategoryLinks,
+} from "@/lib/case-detail-seo";
 
 type CaseDetailProps = {
   caseItem: Case;
@@ -54,7 +60,7 @@ function DetailSection({
 }) {
   return (
     <section className="mt-8">
-      <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+      <h2 className="font-display-jp text-xl text-navy">
         {title}
       </h2>
       <dl className="mt-2">{children}</dl>
@@ -86,9 +92,15 @@ export function CaseDetailView({
 
   const showCompanyName = canViewMakerCompanyName(user, alreadyApplied);
   const brandName = caseItem.brandName?.trim() || "";
+  const faqs = caseDetailFaqs(caseItem);
+  const categoryLinks = relatedJaCategoryLinks(caseItem.category);
+  const blogLinks = relatedJaBlogLinks(caseItem.category);
+  const description = caseItem.description?.trim() || "";
+  const summary = caseItem.summary?.trim();
+  const showSummary = Boolean(summary && summary !== description);
 
   return (
-    <article className="animate-fade-up">
+    <article className="animate-fade-up" lang="ja">
       <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
         <FavoriteButton
           caseId={caseItem.id}
@@ -127,16 +139,35 @@ export function CaseDetailView({
           </p>
         ) : null}
 
-        <h1 className="font-[family-name:var(--font-shippori)] text-3xl text-navy md:text-4xl">
+        <h1 className="font-display-jp text-3xl text-navy md:text-4xl">
           {caseItem.productName}
         </h1>
 
         <dl>
-          <InfoRow label="カテゴリ" value={caseItem.category} />
+          <InfoRow
+            label="カテゴリ"
+            value={
+              jaCategory ? (
+                <Link
+                  href={jaCategoryPath(jaCategory.slug)}
+                  className="text-teal hover:underline"
+                >
+                  {caseItem.category}
+                </Link>
+              ) : (
+                caseItem.category
+              )
+            }
+          />
 
           {caseItem.sku?.trim() ? (
             <InfoRow label="商品コード（SKU）" value={caseItem.sku.trim()} />
           ) : null}
+
+          <InfoRow
+            label="販売形式"
+            value={salesFormatLabel(caseItem.salesFormat)}
+          />
 
           <InfoRow
             label="卸売価格帯"
@@ -150,7 +181,7 @@ export function CaseDetailView({
 
           <InfoRow
             label="MOQ・最低注文数量"
-            value={displayMoq(caseItem.minOrder)}
+            value={displayMoqJa(caseItem.minOrder)}
           />
 
           {showCompanyName ? (
@@ -169,13 +200,18 @@ export function CaseDetailView({
       />
 
       <section className="mt-8">
-        <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+        <h2 className="font-display-jp text-xl text-navy">
           商品説明
         </h2>
 
+        {showSummary ? (
+          <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
+            {summary}
+          </p>
+        ) : null}
+
         <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
-          {caseItem.description?.trim() ||
-            "商品説明はまだ登録されていません。"}
+          {description || "商品説明はまだ登録されていません。"}
         </p>
 
         {caseItem.productFeatures?.trim() ? (
@@ -248,7 +284,7 @@ export function CaseDetailView({
 
         <InfoRow
           label="MOQ・最低注文数量"
-          value={displayMoq(caseItem.minOrder)}
+            value={displayMoqJa(caseItem.minOrder)}
         />
 
         <InfoRow
@@ -274,7 +310,7 @@ export function CaseDetailView({
         />
       </DetailSection>
 
-      <DetailSection title="海外展開用情報">
+      <DetailSection title="輸入・出荷条件">
         <InfoRow
           label="原産国・出荷元"
           value={displayOptionalText(caseItem.shipFrom)}
@@ -315,7 +351,7 @@ export function CaseDetailView({
 
       {partnerUnlocked ? (
         <section className="mt-8">
-          <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy">
+          <h2 className="font-display-jp text-xl text-navy">
             取引条件（ログイン限定）
           </h2>
 
@@ -422,6 +458,57 @@ export function CaseDetailView({
           ) : null}
         </div>
       )}
+
+      {faqs.length > 0 ? (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="font-display-jp text-xl text-navy">よくある質問</h2>
+          <dl className="mt-6 space-y-6">
+            {faqs.map((item) => (
+              <div key={item.q} className="border-b border-border pb-6 last:border-b-0 last:pb-0">
+                <dt className="font-medium text-navy">Q：{item.q}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted">
+                  A：{item.a}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
+
+      {categoryLinks.length > 0 ? (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="font-display-jp text-xl text-navy">関連カテゴリー</h2>
+          <ul className="mt-4 space-y-2.5">
+            {categoryLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-teal hover:underline">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {blogLinks.length > 0 ? (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="font-display-jp text-xl text-navy">
+            関連する日本語ガイド
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            仕入れ条件や注意点は、商品詳細とあわせて次のガイドも参照できます。
+          </p>
+          <ul className="mt-4 space-y-2.5">
+            {blogLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="text-teal hover:underline">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
         {partnerUnlocked && isPartner && canStartNegotiation ? (

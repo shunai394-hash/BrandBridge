@@ -151,6 +151,15 @@ function isQuoteRequired(value: string | null | undefined): boolean {
   );
 }
 
+/** JA listings: English "quote on request" text should not appear as-is. */
+function isEnglishQuotePhrase(value: string): boolean {
+  return (
+    /quote/i.test(value) ||
+    /on request/i.test(value) ||
+    /on demand/i.test(value)
+  );
+}
+
 function quoteLabelEn(value: string): string {
   if (/図面見積/.test(value)) return "Quotation based on drawings";
   if (/取引ごと/.test(value)) return "Negotiated per transaction";
@@ -197,6 +206,18 @@ export function resolveWholesalePriceDisplay(
       kind: "single",
       primary:
         locale === "en" ? quoteLabelEn(rawBand) : PRICE_BAND_QUOTE_REQUIRED,
+    };
+  }
+
+  if (
+    locale === "ja" &&
+    isEnglishQuotePhrase(rawBand) &&
+    !parseYenPriceBand(rawBand) &&
+    !isForeignCurrencyPriceBand(rawBand)
+  ) {
+    return {
+      kind: "single",
+      primary: PRICE_BAND_QUOTE_REQUIRED,
     };
   }
 

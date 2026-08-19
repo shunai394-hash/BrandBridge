@@ -63,6 +63,22 @@ export function displayMoq(value: string | null | undefined): string {
   return trimmed;
 }
 
+/** Japanese product pages: map common English MOQ phrases without changing stored data. */
+export function displayMoqJa(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  if (!trimmed) return "応相談";
+  if (/^(negotiable|tbd|n\/?a|on request)$/i.test(trimmed)) return "応相談";
+  if (/negotiable/i.test(trimmed) && !/\d/.test(trimmed)) return "応相談";
+  const units = trimmed.match(/^(\d+(?:,\d+)*)\s*units?$/i);
+  if (units) {
+    const n = Number(units[1].replace(/,/g, ""));
+    if (Number.isFinite(n)) return `${n.toLocaleString("ja-JP")}個`;
+  }
+  return trimmed
+    .replace(/\bunits?\b/gi, "個")
+    .replace(/\bNegotiable\b/gi, "応相談");
+}
+
 export function displayAvailability(
   value: string | null | undefined,
 ): string {

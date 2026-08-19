@@ -12,8 +12,9 @@ import { getCaseById } from "@/lib/cases";
 import { isFavorite } from "@/lib/favorites";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { jaCategoryPath, getJaCategoryByCaseCategory } from "@/lib/ja-categories";
+import { caseDetailFaqs, caseSeoDescription } from "@/lib/case-detail-seo";
 import { hasAppliedToCase } from "@/lib/negotiations";
-import { productJsonLd } from "@/lib/seo-jsonld";
+import { faqPageJsonLd, jsonLdString, productJsonLd } from "@/lib/seo-jsonld";
 
 type CaseDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -45,19 +46,21 @@ export async function generateMetadata({
   const productName = caseItem.productName?.trim() || caseItem.title;
   const brand = caseItem.brandName?.trim();
   const title = brand ? `${productName}｜${brand}` : productName;
-  const description = (
-    caseItem.summary?.trim() ||
-    `${productName}の販売パートナー募集。取引条件を確認して商談できます。`
-  ).slice(0, 180);
+  const description = caseSeoDescription(caseItem);
 
   return {
     title,
     description,
     ...pairedLanguageAlternates(`/cases/${id}`, `/en/cases/${id}`, "ja"),
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       title,
       description,
       url: `/cases/${id}`,
+      locale: "ja_JP",
       type: "website",
       images: caseItem.productImageUrl
         ? [{ url: caseItem.productImageUrl }]
@@ -111,7 +114,13 @@ export default async function CaseDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productJsonLd(caseItem, "ja")),
+          __html: jsonLdString(productJsonLd(caseItem, "ja")),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(faqPageJsonLd(caseDetailFaqs(caseItem))),
         }}
       />
       <CaseDetailView

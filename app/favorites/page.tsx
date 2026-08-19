@@ -1,10 +1,12 @@
-﻿import type { Metadata } from "next";
+﻿
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CaseCard } from "@/components/cases/CaseCard";
 import { getSessionUser } from "@/lib/auth";
 import { listFavoriteCases } from "@/lib/favorites";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "お気に入り",
 };
 
@@ -42,4 +44,6 @@ export default async function FavoritesPage() {
     </div>
   );
 }
+
+
 

@@ -4,6 +4,7 @@ import { ForgotPasswordForm } from "@/components/forms/ForgotPasswordForm";
 export const metadata: Metadata = {
   title: "パスワード再設定",
   description: "BrandBridgeのパスワード再設定メールを送信します。",
+  robots: { index: false, follow: false },
 };
 
 type ForgotPageProps = {
@@ -41,4 +42,6 @@ export default async function ForgotPasswordPage({
     </div>
   );
 }
+
+
 

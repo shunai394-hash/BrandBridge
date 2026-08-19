@@ -1,4 +1,5 @@
 ﻿import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -6,6 +7,10 @@ import { StaleAdminUiGuard } from "@/components/admin/StaleAdminUiGuard";
 import { diagnoseAdminAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 const adminNav = [
   { href: "/admin", label: "ダッシュボード" },
@@ -99,3 +104,6 @@ export default async function AdminLayout({
     </div>
   );
 }
+
+
+

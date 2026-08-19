@@ -4,6 +4,10 @@ import { UpdatePasswordForm } from "@/components/forms/UpdatePasswordForm";
 export const metadata: Metadata = {
   title: "新しいパスワード",
   description: "BrandBridgeの新しいパスワードを設定します。",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function UpdatePasswordPage() {
@@ -21,4 +25,3 @@ export default function UpdatePasswordPage() {
     </div>
   );
 }
-

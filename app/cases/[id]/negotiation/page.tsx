@@ -23,8 +23,8 @@ export async function generateMetadata({
   const caseItem = await getCaseById(id);
 
   return {
-    title: caseItem
-      ? `交渉を開始 - ${caseItem.productName}`
+    robots: { index: false, follow: false },
+    title: caseItem ? `交渉を開始 - ${caseItem.productName}`
       : "交渉を開始",
   };
 }
@@ -97,3 +97,5 @@ export default async function CaseNegotiationPage({ params }: PageProps) {
     </div>
   );
 }
+
+

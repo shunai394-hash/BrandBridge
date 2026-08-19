@@ -3,6 +3,7 @@ import { getSiteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl();
+
   return {
     rules: [
       {
@@ -11,6 +12,8 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           "/admin",
           "/admin/",
+          "/login",
+          "/login/",
           "/profile/edit",
           "/negotiations",
           "/negotiations/",
@@ -18,6 +21,8 @@ export default function robots(): MetadataRoute.Robots {
           "/partner/",
           "/favorites",
           "/deals",
+          "/en/login",
+          "/en/login/",
           "/en/negotiations",
           "/en/negotiations/",
           "/en/favorites",

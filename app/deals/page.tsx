@@ -1,10 +1,12 @@
-﻿import type { Metadata } from "next";
+﻿
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/lib/auth";
 import { getDefaultCommissionRate, listDeals } from "@/lib/deals";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "成約一覧",
 };
 
@@ -139,4 +141,6 @@ export default async function DealsPage() {
     </div>
   );
 }
+
+
 

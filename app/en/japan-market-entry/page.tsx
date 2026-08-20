@@ -8,23 +8,26 @@ import {
 } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
-import {
-  EN_BLOG_BUSINESS_PARTNER,
-  EN_BLOG_DISTRIBUTOR_VS_DIRECT,
-  EN_BLOG_ENTER_JAPAN,
-  EN_BLOG_ENTRY_COST,
-  EN_BLOG_FIND_DISTRIBUTOR,
-  EN_BLOG_FIND_RETAILERS,
-  EN_BLOG_IMPORT_REQUIREMENTS,
-  EN_BLOG_MOQ,
-  EN_BLOG_SELL_PRODUCTS,
-} from "@/lib/blog/en-articles/types";
+import { getEnBlogArticle } from "@/lib/blog/en-articles";
+import { EN_BLOG_INTENT_GROUPS, enBlogPath } from "@/lib/blog/en-articles/types";
 
 export const metadata: Metadata = {
-  title: "How to Enter the Japanese Market",
+  title: "Japan Market Entry for Overseas Brands",
   description:
-    "A practical guide for overseas brands entering Japan, covering Japanese distributors, importers, retailers, e-commerce partners, wholesale terms, and market entry considerations.",
+    "English hub for overseas brands entering Japan: Japanese distributors, retailers, import requirements, market-entry cost, and MOQ—plus how to find sales partners.",
   ...selfLanguageAlternates("/en/japan-market-entry", "en"),
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "Japan Market Entry for Overseas Brands",
+    description:
+      "English hub for overseas brands entering Japan: Japanese distributors, retailers, import requirements, market-entry cost, and MOQ—plus how to find sales partners.",
+    url: "/en/japan-market-entry",
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 const whyJapan = [
@@ -295,12 +298,11 @@ export default function JapanMarketEntryPage() {
             BrandBridge
           </p>
           <h1 className="mt-6 max-w-3xl font-[family-name:var(--font-shippori)] text-[1.45rem] leading-[1.35] text-white sm:text-3xl md:mt-8 md:text-4xl">
-            How to Enter the Japanese Market
+            Japan Market Entry for Overseas Brands
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            A practical guide for overseas brands looking to find Japanese
-            distributors, importers, retailers, wholesalers, and e-commerce
-            partners.
+            A hub for overseas brands researching Japan market entry: Japanese
+            distributors, retailers, import requirements, costs, and MOQ.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
@@ -317,6 +319,12 @@ export default function JapanMarketEntryPage() {
               List Your Brand
             </Button>
           </div>
+          <p className="mt-5 text-sm text-white/75">
+            Prefer to read first?{" "}
+            <Link href="/en/blog" className="text-teal hover:underline">
+              Browse English Japan market entry guides
+            </Link>
+          </p>
           <BlogImage
             id="citySkyline"
             alt="Tokyo business district skyline — Japan as a structured wholesale market"
@@ -517,95 +525,32 @@ export default function JapanMarketEntryPage() {
             Complete English Guides
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Longer walkthroughs for overseas brands, grouped by search intent:
-            market entry, partners, retail and sales, import checks, and cost.
+            Longer walkthroughs grouped by search intent: Market Entry,
+            Distributors, Retailers, Import Requirements, Costs, and MOQ.
           </p>
 
           <div className="mt-10 space-y-10">
-            <div>
-              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                Market entry basics
-              </h3>
-              <ul className="mt-4 list-none space-y-3">
-                <EnglishGuideCard
-                  href={EN_BLOG_ENTER_JAPAN.path}
-                  title={EN_BLOG_ENTER_JAPAN.title}
-                  summary="The full sequence for foreign brands: market fit, requirements, partners, wholesale terms, localization, and launch."
-                />
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                Distributors &amp; business partners
-              </h3>
-              <ul className="mt-4 list-none space-y-3">
-                <EnglishGuideCard
-                  href={EN_BLOG_BUSINESS_PARTNER.path}
-                  title={EN_BLOG_BUSINESS_PARTNER.title}
-                  summary="Importer, distributor, wholesaler, retailer, or sales partner—how to choose the role, then approach a Japanese company."
-                />
-                <EnglishGuideCard
-                  href={EN_BLOG_FIND_DISTRIBUTOR.path}
-                  title={EN_BLOG_FIND_DISTRIBUTOR.title}
-                  summary="Where to search, what to send, and how to judge a Japanese distribution partner before exclusivity."
-                />
-                <EnglishGuideCard
-                  href={EN_BLOG_DISTRIBUTOR_VS_DIRECT.path}
-                  title={EN_BLOG_DISTRIBUTOR_VS_DIRECT.title}
-                  summary="When a Japanese sales partner fits, when direct selling fits, and how to test before you scale."
-                />
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                Retail &amp; sales
-              </h3>
-              <ul className="mt-4 list-none space-y-3">
-                <EnglishGuideCard
-                  href={EN_BLOG_FIND_RETAILERS.path}
-                  title={EN_BLOG_FIND_RETAILERS.title}
-                  summary="How Japanese retail buyers look at a first SKU, and how retail differs from wholesale coverage."
-                />
-                <EnglishGuideCard
-                  href={EN_BLOG_SELL_PRODUCTS.path}
-                  title={EN_BLOG_SELL_PRODUCTS.title}
-                  summary="Selling models, first SKU, Japan-ready pricing, and a test with a retail or e-commerce partner."
-                />
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                Import requirements
-              </h3>
-              <ul className="mt-4 list-none space-y-3">
-                <EnglishGuideCard
-                  href={EN_BLOG_IMPORT_REQUIREMENTS.path}
-                  title={EN_BLOG_IMPORT_REQUIREMENTS.title}
-                  summary="What to confirm before a first shipment: category checks, labeling, and working with a Japanese importer or sales partner."
-                />
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
-                Costs &amp; MOQ
-              </h3>
-              <ul className="mt-4 list-none space-y-3">
-                <EnglishGuideCard
-                  href={EN_BLOG_ENTRY_COST.path}
-                  title={EN_BLOG_ENTRY_COST.title}
-                  summary="Import, labeling, samples, first inventory, and partner-related expenses—without a fake fixed price."
-                />
-                <EnglishGuideCard
-                  href={EN_BLOG_MOQ.path}
-                  title={EN_BLOG_MOQ.title}
-                  summary="Why first-order quantity matters, how a test differs from replenishment, and how to discuss MOQ with a Japanese partner."
-                />
-              </ul>
-            </div>
+            {EN_BLOG_INTENT_GROUPS.map((group) => (
+              <div key={group.heading}>
+                <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                  {group.heading}
+                </h3>
+                <ul className="mt-4 list-none space-y-3">
+                  {group.slugs.map((slug) => {
+                    const article = getEnBlogArticle(slug);
+                    if (!article) return null;
+                    return (
+                      <EnglishGuideCard
+                        key={article.slug}
+                        href={enBlogPath(article.slug)}
+                        title={article.title}
+                        summary={article.description}
+                      />
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
       </section>

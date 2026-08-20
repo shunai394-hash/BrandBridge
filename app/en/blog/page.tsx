@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { listEnBlogArticles } from "@/lib/blog/en-articles";
-import { EN_BLOG_HUB, enBlogPath } from "@/lib/blog/en-articles/types";
+import { getEnBlogArticle } from "@/lib/blog/en-articles";
+import {
+  EN_BLOG_HUB,
+  EN_BLOG_INTENT_GROUPS,
+  enBlogPath,
+} from "@/lib/blog/en-articles/types";
 import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
@@ -11,7 +15,7 @@ export const dynamic = "force-static";
 const PATH = EN_BLOG_HUB.path;
 const TITLE = "Japan Market Entry Blog for Overseas Brands";
 const DESCRIPTION =
-  "English guides for foreign brands entering Japan: market entry, finding a Japanese distributor, and selling products in Japan through retail and wholesale partners.";
+  "English guides for overseas brands: Japan market entry, Japanese distributors, retail partners, import requirements, costs, and MOQ.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -32,7 +36,14 @@ export const metadata: Metadata = {
 
 export default function EnglishBlogHubPage() {
   const siteUrl = getSiteUrl();
-  const articles = listEnBlogArticles();
+  const groups = EN_BLOG_INTENT_GROUPS.map((group) => ({
+    heading: group.heading,
+    articles: group.slugs
+      .map((slug) => getEnBlogArticle(slug))
+      .filter((article): article is NonNullable<typeof article> =>
+        Boolean(article),
+      ),
+  }));
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -83,32 +94,38 @@ export default function EnglishBlogHubPage() {
             Japan market entry guides for overseas brands
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            Practical English articles on entering Japan, finding a Japanese
-            distributor, and selling products through retail and wholesale
-            partners.
+            Practical English articles on Japan market entry, Japanese
+            distributors, retail partners, import requirements, costs, and MOQ.
           </p>
         </div>
       </section>
 
       <div className="border-b border-border bg-surface">
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
-          <ul className="space-y-3">
-            {articles.map((article) => (
-              <li key={article.slug}>
-                <Link
-                  href={enBlogPath(article.slug)}
-                  className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40"
-                >
-                  <span className="font-[family-name:var(--font-shippori)] text-lg text-navy group-hover:text-teal">
-                    {article.title}
-                  </span>
-                  <span className="mt-2 text-sm leading-relaxed text-muted">
-                    {article.description}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {groups.map((group) => (
+            <section key={group.heading} className="mb-10 last:mb-0">
+              <h2 className="font-[family-name:var(--font-shippori)] text-xl text-navy md:text-2xl">
+                {group.heading}
+              </h2>
+              <ul className="mt-4 space-y-3">
+                {group.articles.map((article) => (
+                  <li key={article.slug}>
+                    <Link
+                      href={enBlogPath(article.slug)}
+                      className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40"
+                    >
+                      <span className="font-[family-name:var(--font-shippori)] text-lg text-navy group-hover:text-teal">
+                        {article.title}
+                      </span>
+                      <span className="mt-2 text-sm leading-relaxed text-muted">
+                        {article.description}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">

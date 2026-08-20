@@ -10,6 +10,18 @@ export const metadata: Metadata = {
   description:
     "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners with transparent commercial terms before contact.",
   ...pairedLanguageAlternates("/", "/en", "en"),
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "BrandBridge | Find Japanese Distributors for Your Brand",
+    description:
+      "BrandBridge helps overseas manufacturers find qualified Japanese distributors, retailers, wholesalers, and e-commerce partners with transparent commercial terms before contact.",
+    url: "/en",
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 const heroBenefits = [
@@ -155,7 +167,19 @@ export default function EnglishHomePage() {
               See How BrandBridge Works
             </Button>
           </div>
-
+          <p className="mt-5 max-w-2xl text-sm text-white/75">
+            Researching Japan first?{" "}
+            <Link
+              href="/en/japan-market-entry"
+              className="text-teal hover:underline"
+            >
+              Open the Japan Market Entry hub
+            </Link>
+            {" · "}
+            <Link href="/en/blog" className="text-teal hover:underline">
+              English guides
+            </Link>
+          </p>
           <ul className="mt-10 grid gap-3 sm:grid-cols-3 sm:gap-4">
             {heroBenefits.map((item) => (
               <li
@@ -448,22 +472,60 @@ export default function EnglishHomePage() {
             Learn More About Entering the Japanese Market
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Practical guides for overseas brands researching how Japan market
-            entry works, and how to find Japanese distributors and retailers.
+            Start with the Japan market entry hub, then open the English guide
+            that matches your question—distributors, selling, or retail partners.
           </p>
           <ul className="mt-8 list-none space-y-3">
             <li>
               <Link
-                href="/en/blog/how-to-enter-the-japanese-market"
+                href="/en/japan-market-entry"
                 className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium text-navy group-hover:text-teal">
-                    How to Enter the Japanese Market
+                    Japan Market Entry hub
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Complete guide for foreign brands: market fit, Japanese
-                    distributors, wholesale terms, localization, and launch.
+                    Overview for overseas brands: Japanese distributors,
+                    retailers, import requirements, costs, and MOQ.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  View hub →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/en/blog"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    English Japan market entry blog
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Nine practical guides covering entry steps, partners,
+                    import checks, cost, and first-order quantity.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read articles →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/en/blog/how-to-find-a-distributor-in-japan"
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="font-medium text-navy group-hover:text-teal">
+                    How to Find a Distributor in Japan
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Search and qualification for a Japanese distributor—not
+                    the full market-entry sequence.
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
@@ -473,77 +535,20 @@ export default function EnglishHomePage() {
             </li>
             <li>
               <Link
-                href="/en/japan-market-entry/how-to-enter-the-japanese-market"
+                href="/en/blog/how-to-sell-products-in-japan"
                 className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium text-navy group-hover:text-teal">
-                    Japan Market Entry Guide
+                    How to Sell Products in Japan
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Main steps to consider before entering Japan: market fit,
-                    sales channels, and partner selection.
+                    Selling models, first SKU, and a test with a Japanese
+                    retail or e-commerce partner.
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read guide {"\u2192"}
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/en/japan-market-entry/how-to-find-japanese-distributors"
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-navy group-hover:text-teal">
-                    How to Find Japanese Distributors
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    How overseas brands can identify, evaluate, and approach
-                    potential Japanese distributors.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read guide {"\u2192"}
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/en/japan-market-entry/how-to-find-a-japanese-distributor"
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-navy group-hover:text-teal">
-                    How to Find a Japanese Distributor for Your Brand
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Research, commercial preparation, exclusivity, and how to
-                    evaluate a Japanese distributor for Japan market entry.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read guide {"\u2192"}
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/en/japan-market-entry/how-to-find-japanese-retailers"
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="font-medium text-navy group-hover:text-teal">
-                    How to Find Japanese Retailers
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    A practical guide for overseas brands looking for Japanese
-                    retail partners.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read guide {"\u2192"}
+                  Read article →
                 </span>
               </Link>
             </li>
@@ -568,7 +573,7 @@ export default function EnglishHomePage() {
               >
                 <div>
                   <p className="font-medium text-navy group-hover:text-teal">
-                    How to Enter the Japanese Market
+                    Japan Market Entry hub
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
                     A practical hub for overseas brands exploring Japanese

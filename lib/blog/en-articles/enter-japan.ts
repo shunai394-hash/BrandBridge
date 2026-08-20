@@ -31,7 +31,7 @@ export const ENTER_JAPAN_ARTICLE: EnBlogArticle = {
     "How to Enter the Japanese Market: A Complete Guide for Foreign Brands",
   seoTitle: "How to Enter the Japanese Market | Guide for Foreign Brands",
   description:
-    "A complete Japan market entry guide for foreign brands. Cover market fit, product requirements, Japanese distributors and retail partners, wholesale terms, localization, launch, and common mistakes.",
+    "A step-by-step Japan market entry sequence for foreign brands: market fit, product checks, partners, wholesale terms, localization, and a first launch.",
   eyebrow: "JAPAN MARKET ENTRY GUIDE",
   lede: "Entering Japan is less about a single contact and more about a sequence: market fit, commercial terms, the right Japanese partner, and a first order you can actually fulfill.",
   intro: [

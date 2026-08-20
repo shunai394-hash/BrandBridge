@@ -112,3 +112,35 @@ export const EN_BLOG_MOQ = {
 export function enBlogPath(slug: string): string {
   return `/en/blog/${slug}`;
 }
+
+/** Search-intent groups for the English hub and blog index. */
+export const EN_BLOG_INTENT_GROUPS = [
+  {
+    heading: "Market Entry",
+    slugs: [EN_BLOG_ENTER_JAPAN.slug],
+  },
+  {
+    heading: "Distributors",
+    slugs: [
+      EN_BLOG_FIND_DISTRIBUTOR.slug,
+      EN_BLOG_BUSINESS_PARTNER.slug,
+      EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
+    ],
+  },
+  {
+    heading: "Retailers",
+    slugs: [EN_BLOG_FIND_RETAILERS.slug, EN_BLOG_SELL_PRODUCTS.slug],
+  },
+  {
+    heading: "Import Requirements",
+    slugs: [EN_BLOG_IMPORT_REQUIREMENTS.slug],
+  },
+  {
+    heading: "Costs",
+    slugs: [EN_BLOG_ENTRY_COST.slug],
+  },
+  {
+    heading: "MOQ",
+    slugs: [EN_BLOG_MOQ.slug],
+  },
+] as const;

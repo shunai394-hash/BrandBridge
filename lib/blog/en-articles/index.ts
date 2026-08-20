@@ -7,7 +7,10 @@ import { FIND_RETAILERS_ARTICLE } from "@/lib/blog/en-articles/find-retailers";
 import { IMPORT_REQUIREMENTS_ARTICLE } from "@/lib/blog/en-articles/import-requirements";
 import { MOQ_JAPAN_ARTICLE } from "@/lib/blog/en-articles/moq-japan";
 import { SELL_PRODUCTS_ARTICLE } from "@/lib/blog/en-articles/sell-products";
-import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
+import {
+  EN_BLOG_INTENT_GROUPS,
+  type EnBlogArticle,
+} from "@/lib/blog/en-articles/types";
 
 const ARTICLES: EnBlogArticle[] = [
   ENTER_JAPAN_ARTICLE,
@@ -20,6 +23,17 @@ const ARTICLES: EnBlogArticle[] = [
   BUSINESS_PARTNER_ARTICLE,
   MOQ_JAPAN_ARTICLE,
 ];
+
+const groupedSlugs = EN_BLOG_INTENT_GROUPS.flatMap((group) => [...group.slugs]);
+const articleSlugs = new Set(ARTICLES.map((article) => article.slug));
+if (
+  groupedSlugs.length !== articleSlugs.size ||
+  groupedSlugs.some((slug) => !articleSlugs.has(slug))
+) {
+  throw new Error(
+    "EN_BLOG_INTENT_GROUPS must include every English blog article once",
+  );
+}
 
 const BY_SLUG = new Map(ARTICLES.map((article) => [article.slug, article]));
 

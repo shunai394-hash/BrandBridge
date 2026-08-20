@@ -6,7 +6,6 @@ import {
   EN_BLOG_FIND_RETAILERS,
   EN_BLOG_HUB,
   EN_BLOG_IMPORT_REQUIREMENTS,
-  EN_BLOG_MOQ,
 } from "@/lib/blog/en-articles/types";
 
 const cta = {
@@ -36,7 +35,13 @@ export const BUSINESS_PARTNER_ARTICLE: EnBlogArticle = {
   intro: [
     "Searches for a business partner in Japan, a Japanese business partner, or a Japan sales partner often mix several jobs into one email. That is why replies are slow. The company on the other side cannot tell whether you want them to import, to wholesale, to put you on a shelf, or to represent the brand to accounts they already call on.",
     "This article is a selection guide. It is not a hunt for one distributor, and it is not a hunt for one retailer. Those searches have their own playbooks. Here the question is broader: which type of Japanese partner your brand actually needs, how the roles differ, what to confirm, and how to open the first conversation without wasting a buying team’s time.",
-    "If you already know you need distribution coverage, use the distributor guide. If you want a specific banner or e-commerce operator, use the retailers guide. If you are still choosing a model, start here, then read distributor versus direct sales.",
+    "If you already know you need distribution coverage, use [how to find a distributor in Japan](" +
+      EN_BLOG_FIND_DISTRIBUTOR.path +
+      "). If you want a specific banner or e-commerce operator, use [how to find Japanese retailers](" +
+      EN_BLOG_FIND_RETAILERS.path +
+      "). If you are still choosing a model, start here, then read [distributor versus direct sales](" +
+      EN_BLOG_DISTRIBUTOR_VS_DIRECT.path +
+      ").",
   ],
   hero: {
     id: "goldenPavilion",
@@ -111,7 +116,9 @@ export const BUSINESS_PARTNER_ARTICLE: EnBlogArticle = {
       heading: "What to prepare before you inquire",
       paragraphs: [
         "Japanese companies route a first email to a person who needs a file, not a vision deck. Prepare a short pack: first SKU, suggested price band, MOQ for a test and for a reorder, ship-from location, sample policy, and the partner role you are asking for.",
-        "If import checks still sit with specialists, say so. Japan import requirements is the checklist article. Do not hide missing documents behind a partnership request. A clear “we need an importer who already handles this category” is easier to accept than a polished brand film with no specs.",
+        "If import checks still sit with specialists, say so. [Japan import requirements](" +
+          EN_BLOG_IMPORT_REQUIREMENTS.path +
+          ") is the checklist article. Do not hide missing documents behind a partnership request. A clear “we need an importer who already handles this category” is easier to accept than a polished brand film with no specs.",
       ],
     },
     {
@@ -149,7 +156,6 @@ export const BUSINESS_PARTNER_ARTICLE: EnBlogArticle = {
     EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
     EN_BLOG_ENTER_JAPAN.slug,
     EN_BLOG_IMPORT_REQUIREMENTS.slug,
-    EN_BLOG_MOQ.slug,
   ],
   existingLinks: [...links],
   cta,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
 import {
@@ -17,6 +18,37 @@ type EnBlogArticleProps = {
   article: EnBlogArticleData;
 };
 
+const INTERNAL_MD_LINK = /\[([^\]]+)\]\((\/en\/[^)\s]+)\)/g;
+
+function LinkedCopy({ text }: { text: string }) {
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  const pattern = new RegExp(INTERNAL_MD_LINK.source, "g");
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index));
+    }
+    nodes.push(
+      <Link
+        key={`${match[2]}-${match.index}`}
+        href={match[2]}
+        className="text-teal hover:underline"
+      >
+        {match[1]}
+      </Link>,
+    );
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex));
+  }
+
+  return nodes.length > 0 ? nodes : text;
+}
+
 function BulletList({ items }: { items: readonly string[] }) {
   return (
     <ul className="mt-4 list-none space-y-2.5">
@@ -29,7 +61,9 @@ function BulletList({ items }: { items: readonly string[] }) {
             className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-teal"
             aria-hidden
           />
-          <span>{item}</span>
+          <span>
+            <LinkedCopy text={item} />
+          </span>
         </li>
       ))}
     </ul>
@@ -144,7 +178,9 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
 
           <div className="mt-6 space-y-5 text-sm leading-relaxed text-muted md:text-base">
             {article.intro.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+              <p key={paragraph}>
+                <LinkedCopy text={paragraph} />
+              </p>
             ))}
           </div>
 
@@ -164,7 +200,7 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
                   key={paragraph}
                   className="mt-4 text-sm leading-relaxed text-muted md:text-base"
                 >
-                  {paragraph}
+                  <LinkedCopy text={paragraph} />
                 </p>
               ))}
               {section.cards ? (
@@ -187,7 +223,7 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
               {section.bullets ? <BulletList items={section.bullets} /> : null}
               {section.callout ? (
                 <p className="mt-5 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
-                  {section.callout}
+                  <LinkedCopy text={section.callout} />
                 </p>
               ) : null}
             </section>
@@ -205,7 +241,7 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
                       {item.q}
                     </dt>
                     <dd className="mt-2 text-sm leading-relaxed text-muted md:text-base">
-                      {item.a}
+                      <LinkedCopy text={item.a} />
                     </dd>
                   </div>
                 ))}

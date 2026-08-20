@@ -2,10 +2,9 @@ import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
   EN_BLOG_DISTRIBUTOR_VS_DIRECT,
   EN_BLOG_ENTER_JAPAN,
-  EN_BLOG_FIND_DISTRIBUTOR,
-  EN_BLOG_FIND_RETAILERS,
   EN_BLOG_HUB,
-  EN_BLOG_SELL_PRODUCTS,
+  EN_BLOG_IMPORT_REQUIREMENTS,
+  EN_BLOG_MOQ,
 } from "@/lib/blog/en-articles/types";
 
 const cta = {
@@ -35,7 +34,9 @@ export const ENTRY_COST_ARTICLE: EnBlogArticle = {
   intro: [
     "Searches for Japan market entry cost, Japan import costs, or Japan distributor fees often hope for a number. There is no honest single figure. Freight, duty, labeling, first inventory, and how you sell all move independently. A food SKU, a cosmetic, and a piece of home goods do not share a budget.",
     "This article maps the cost buckets foreign brands actually meet. It does not quote tariffs, warehouse rates, or “typical distributor commissions.” Those depend on the product, Incoterms, volume, and the partner. Treat every yen amount you see online as a prompt to get a quote for your SKU, not as a plan.",
-    "The complete Japan market entry guide covers the sequence. This page stays on money: what you may pay, what you can defer, and why a small test is usually the cheaper way to learn.",
+    "The [complete Japan market entry guide](" +
+      EN_BLOG_ENTER_JAPAN.path +
+      ") covers the sequence. This page stays on money: what you may pay, what you can defer, and why a small test is usually the cheaper way to learn.",
   ],
   hero: {
     id: "zenGarden",
@@ -75,7 +76,9 @@ export const ENTRY_COST_ARTICLE: EnBlogArticle = {
         alt: "A road toward a Japanese village. Distance, mode, and Incoterms change landed cost",
       },
       paragraphs: [
-        "Japan import costs include more than ocean freight. Origin charges, fuel, insurance, customs clearance, duty, consumption-tax handling, and last-mile delivery inside Japan can each appear on a different invoice. Air is faster for samples and short-dated goods. Sea is usually cheaper per unit once volume exists.",
+        "Japan import costs include more than ocean freight. Origin charges, fuel, insurance, customs clearance, duty, consumption-tax handling, and last-mile delivery inside Japan can each appear on a different invoice. Air is faster for samples and short-dated goods. Sea is usually cheaper per unit once volume exists. Before you treat freight as the whole budget, review the [key import requirements for overseas brands](" +
+          EN_BLOG_IMPORT_REQUIREMENTS.path +
+          ").",
         "Who pays depends on Incoterms. FOB, CIF, and DDP-style arrangements allocate different risks. A Japanese partner may import. You may ship to their warehouse. Or a third-party importer may sit in the middle. Until that role is named, a “cost to enter the Japanese market” spreadsheet is incomplete.",
       ],
       bullets: [
@@ -103,14 +106,18 @@ export const ENTRY_COST_ARTICLE: EnBlogArticle = {
       heading: "Samples, marketing, and first stock",
       paragraphs: [
         "Samples are a Japan market entry expense even when the “price” is zero. You still pay production, export packing, and inbound freight. Marketing for a first test is usually local and modest: in-store explanation tools, a page, or a small digital burst run with the partner—not a national campaign.",
-        "First inventory should match the test, not your global forecast. Over-shipping to look committed is how brands fund unsold stock in a bonded warehouse. Under-shipping so far that a re-order cannot arrive in season is the opposite mistake. Agree a quantity with the partner, then stop.",
+        "First inventory should match the test, not your global forecast. Over-shipping to look committed is how brands fund unsold stock in a bonded warehouse. Under-shipping so far that a re-order cannot arrive in season is the opposite mistake. Agree a quantity with the partner, then stop. [MOQ for Japan market entry](" +
+          EN_BLOG_MOQ.path +
+          ") explains how a first order differs from a reorder.",
       ],
     },
     {
       heading: "Start small, then spend where demand shows",
       paragraphs: [
         "A full Japan launch—local entity, warehouse, national sales team, complete pack refresh—belongs after a signal, not before. Many overseas brands first sell through a Japanese sales partner, learn landed cost and sell-through, then decide whether to widen the channel or change the SKU.",
-        "That is also how to think about Japan market entry expenses: fund the file, the sample, and a first order you can read. Defer exclusive contracts, large marketing, and extra SKUs until the test has a date and a metric. The distributor-versus-direct article covers which selling model tends to carry which cost profile.",
+        "That is also how to think about Japan market entry expenses: fund the file, the sample, and a first order you can read. Defer exclusive contracts, large marketing, and extra SKUs until the test has a date and a metric. The [distributor-versus-direct](" +
+          EN_BLOG_DISTRIBUTOR_VS_DIRECT.path +
+          ") article covers which selling model tends to carry which cost profile.",
       ],
     },
     {
@@ -141,10 +148,9 @@ export const ENTRY_COST_ARTICLE: EnBlogArticle = {
   ],
   relatedSlugs: [
     EN_BLOG_ENTER_JAPAN.slug,
-    EN_BLOG_SELL_PRODUCTS.slug,
+    EN_BLOG_IMPORT_REQUIREMENTS.slug,
+    EN_BLOG_MOQ.slug,
     EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
-    EN_BLOG_FIND_DISTRIBUTOR.slug,
-    EN_BLOG_FIND_RETAILERS.slug,
   ],
   existingLinks: [...links],
   cta,

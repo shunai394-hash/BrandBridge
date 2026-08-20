@@ -10,8 +10,11 @@ import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 import {
   EN_BLOG_BUSINESS_PARTNER,
+  EN_BLOG_DISTRIBUTOR_VS_DIRECT,
   EN_BLOG_ENTER_JAPAN,
+  EN_BLOG_ENTRY_COST,
   EN_BLOG_FIND_DISTRIBUTOR,
+  EN_BLOG_FIND_RETAILERS,
   EN_BLOG_IMPORT_REQUIREMENTS,
   EN_BLOG_MOQ,
   EN_BLOG_SELL_PRODUCTS,
@@ -212,6 +215,38 @@ const faq = [
     a: "Yes. On BrandBridge, brands can publish MOQ, wholesale pricing, exclusivity, and shipping conditions so Japanese partners can review commercial fit before starting a discussion.",
   },
 ] as const;
+
+function EnglishGuideCard({
+  href,
+  title,
+  summary,
+}: {
+  href: string;
+  title: string;
+  summary: string;
+}) {
+  return (
+    <li>
+      <Link
+        href={href}
+        className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+            BLOG
+          </p>
+          <p className="mt-2 font-medium text-navy group-hover:text-teal">
+            {title}
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">{summary}</p>
+        </div>
+        <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+          Read article →
+        </span>
+      </Link>
+    </li>
+  );
+}
 
 export default function JapanMarketEntryPage() {
   const siteUrl = getSiteUrl();
@@ -482,148 +517,96 @@ export default function JapanMarketEntryPage() {
             Complete English Guides
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Longer walkthroughs for overseas brands: Japan market entry, import
-            checks, finding a business partner, MOQ, and selling through
-            Japanese companies.
+            Longer walkthroughs for overseas brands, grouped by search intent:
+            market entry, partners, retail and sales, import checks, and cost.
           </p>
-          <ul className="mt-8 list-none space-y-3">
-            <li>
-              <Link
-                href={EN_BLOG_ENTER_JAPAN.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_ENTER_JAPAN.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    The full sequence for foreign brands: market fit,
-                    requirements, partners, wholesale terms, localization, and
-                    launch.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={EN_BLOG_FIND_DISTRIBUTOR.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_FIND_DISTRIBUTOR.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Where to search, what to send, and how to judge a Japanese
-                    distribution partner before exclusivity.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={EN_BLOG_SELL_PRODUCTS.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_SELL_PRODUCTS.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Selling models, first SKU, Japan-ready pricing, and a test
-                    with a retail or e-commerce partner.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={EN_BLOG_IMPORT_REQUIREMENTS.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_IMPORT_REQUIREMENTS.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    What to confirm before a first shipment: category checks,
-                    labeling, and working with a Japanese importer or sales
-                    partner.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={EN_BLOG_BUSINESS_PARTNER.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_BUSINESS_PARTNER.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Importer, distributor, wholesaler, retailer, or sales
-                    partner—how to choose the role, then approach a Japanese
-                    company.
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={EN_BLOG_MOQ.path}
-                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
-                    BLOG
-                  </p>
-                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    {EN_BLOG_MOQ.title}
-                  </p>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    Why first-order quantity matters, how a test differs from
-                    replenishment, and how to discuss MOQ without a fake
-                    “Japan standard.”
-                  </p>
-                </div>
-                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
-                  Read article →
-                </span>
-              </Link>
-            </li>
-          </ul>
+
+          <div className="mt-10 space-y-10">
+            <div>
+              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                Market entry basics
+              </h3>
+              <ul className="mt-4 list-none space-y-3">
+                <EnglishGuideCard
+                  href={EN_BLOG_ENTER_JAPAN.path}
+                  title={EN_BLOG_ENTER_JAPAN.title}
+                  summary="The full sequence for foreign brands: market fit, requirements, partners, wholesale terms, localization, and launch."
+                />
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                Distributors &amp; business partners
+              </h3>
+              <ul className="mt-4 list-none space-y-3">
+                <EnglishGuideCard
+                  href={EN_BLOG_BUSINESS_PARTNER.path}
+                  title={EN_BLOG_BUSINESS_PARTNER.title}
+                  summary="Importer, distributor, wholesaler, retailer, or sales partner—how to choose the role, then approach a Japanese company."
+                />
+                <EnglishGuideCard
+                  href={EN_BLOG_FIND_DISTRIBUTOR.path}
+                  title={EN_BLOG_FIND_DISTRIBUTOR.title}
+                  summary="Where to search, what to send, and how to judge a Japanese distribution partner before exclusivity."
+                />
+                <EnglishGuideCard
+                  href={EN_BLOG_DISTRIBUTOR_VS_DIRECT.path}
+                  title={EN_BLOG_DISTRIBUTOR_VS_DIRECT.title}
+                  summary="When a Japanese sales partner fits, when direct selling fits, and how to test before you scale."
+                />
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                Retail &amp; sales
+              </h3>
+              <ul className="mt-4 list-none space-y-3">
+                <EnglishGuideCard
+                  href={EN_BLOG_FIND_RETAILERS.path}
+                  title={EN_BLOG_FIND_RETAILERS.title}
+                  summary="How Japanese retail buyers look at a first SKU, and how retail differs from wholesale coverage."
+                />
+                <EnglishGuideCard
+                  href={EN_BLOG_SELL_PRODUCTS.path}
+                  title={EN_BLOG_SELL_PRODUCTS.title}
+                  summary="Selling models, first SKU, Japan-ready pricing, and a test with a retail or e-commerce partner."
+                />
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                Import requirements
+              </h3>
+              <ul className="mt-4 list-none space-y-3">
+                <EnglishGuideCard
+                  href={EN_BLOG_IMPORT_REQUIREMENTS.path}
+                  title={EN_BLOG_IMPORT_REQUIREMENTS.title}
+                  summary="What to confirm before a first shipment: category checks, labeling, and working with a Japanese importer or sales partner."
+                />
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                Costs &amp; MOQ
+              </h3>
+              <ul className="mt-4 list-none space-y-3">
+                <EnglishGuideCard
+                  href={EN_BLOG_ENTRY_COST.path}
+                  title={EN_BLOG_ENTRY_COST.title}
+                  summary="Import, labeling, samples, first inventory, and partner-related expenses—without a fake fixed price."
+                />
+                <EnglishGuideCard
+                  href={EN_BLOG_MOQ.path}
+                  title={EN_BLOG_MOQ.title}
+                  summary="Why first-order quantity matters, how a test differs from replenishment, and how to discuss MOQ with a Japanese partner."
+                />
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 

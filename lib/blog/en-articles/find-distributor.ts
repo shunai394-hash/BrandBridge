@@ -1,6 +1,9 @@
 import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
+  EN_BLOG_BUSINESS_PARTNER,
+  EN_BLOG_DISTRIBUTOR_VS_DIRECT,
   EN_BLOG_ENTER_JAPAN,
+  EN_BLOG_FIND_RETAILERS,
   EN_BLOG_HUB,
   EN_BLOG_SELL_PRODUCTS,
 } from "@/lib/blog/en-articles/types";
@@ -30,8 +33,14 @@ export const FIND_DISTRIBUTOR_ARTICLE: EnBlogArticle = {
   eyebrow: "JAPAN DISTRIBUTOR GUIDE",
   lede: "Finding a Japanese distributor is a search-and-qualification job: name the role, show commercial terms, and talk to partners who already sell into the channel you need.",
   intro: [
-    "Searches for “Japan distributor” and “Japanese distributor” usually mean one of three things: an importer who can clear goods, a wholesaler who supplies retail, or a sales company that will represent the brand to accounts. Japanese companies mix these words. Your first task is to say which job you are hiring for.",
-    "This article is the search playbook. It does not repeat the full Japan market entry sequence, and it does not cover how to run a first retail test. Use those companion guides for process and selling models. Here the focus is how to find a distribution partner, how to approach them, and how to avoid locking the brand into the wrong exclusive.",
+    "Searches for “Japan distributor” and “Japanese distributor” usually mean one of three things: an importer who can clear goods, a wholesaler who supplies retail, or a sales company that will represent the brand to accounts. Japanese companies mix these words. Your first task is to say which job you are hiring for. If the question is still which type of Japanese company you need, start with [how to find a business partner in Japan](" +
+      EN_BLOG_BUSINESS_PARTNER.path +
+      ").",
+    "This article is the search playbook. It does not repeat the [full Japan market entry sequence](" +
+      EN_BLOG_ENTER_JAPAN.path +
+      "), and it does not cover how to run a first retail test. Use those companion guides for process and [selling models](" +
+      EN_BLOG_SELL_PRODUCTS.path +
+      "). Here the focus is how to find a distribution partner, how to approach them, and how to avoid locking the brand into the wrong exclusive.",
   ],
   hero: {
     id: "handshake",
@@ -41,7 +50,9 @@ export const FIND_DISTRIBUTOR_ARTICLE: EnBlogArticle = {
     {
       heading: "What a Japan distributor actually does",
       paragraphs: [
-        "A working Japanese distributor typically buys or commits to volume, holds or programs inventory, and sells into accounts it already calls on. Some also import. Some only sell after another company imports. If you need both import and retail placement, say so. If you only need someone to introduce the brand, you may be describing an agent, not a distributor.",
+        "A working Japanese distributor typically buys or commits to volume, holds or programs inventory, and sells into accounts it already calls on. Some also import. Some only sell after another company imports. If you need both import and retail placement, say so. If you only need someone to introduce the brand, you may be describing an agent, not a distributor. If you need one banner rather than wholesale coverage, see [how to find Japanese retailers](" +
+          EN_BLOG_FIND_RETAILERS.path +
+          ").",
       ],
       cards: [
         {
@@ -101,7 +112,9 @@ export const FIND_DISTRIBUTOR_ARTICLE: EnBlogArticle = {
     {
       heading: "Exclusive rights can wait",
       paragraphs: [
-        "Foreign brands often offer Japan-wide exclusivity to sound serious. Japanese companies sometimes ask for it equally early. Both sides should wait until a trial quantity, a channel list, and a review date exist.",
+        "Foreign brands often offer Japan-wide exclusivity to sound serious. Japanese companies sometimes ask for it equally early. Both sides should wait until a trial quantity, a channel list, and a review date exist. Before you treat a distributor as the only path, you may also want to understand the [difference between using a Japanese distributor and selling directly](" +
+          EN_BLOG_DISTRIBUTOR_VS_DIRECT.path +
+          ").",
         "If you do discuss exclusivity, define territory, channel, minimum purchase, and what happens if those minimums are missed. The longer Japan market entry guide covers when exclusivity belongs in the overall sequence. This page only needs the search rule: do not use exclusive rights as the opening bid.",
       ],
     },
@@ -131,7 +144,13 @@ export const FIND_DISTRIBUTOR_ARTICLE: EnBlogArticle = {
       a: "A clear first SKU, a price that can survive Japanese margins, a realistic MOQ, and someone who answers specification questions in writing.",
     },
   ],
-  relatedSlugs: [EN_BLOG_ENTER_JAPAN.slug, EN_BLOG_SELL_PRODUCTS.slug],
+  relatedSlugs: [
+    EN_BLOG_BUSINESS_PARTNER.slug,
+    EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
+    EN_BLOG_ENTER_JAPAN.slug,
+    EN_BLOG_SELL_PRODUCTS.slug,
+    EN_BLOG_FIND_RETAILERS.slug,
+  ],
   existingLinks: [
     ...links,
     {

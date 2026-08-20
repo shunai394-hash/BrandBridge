@@ -1,7 +1,11 @@
 import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
+  EN_BLOG_BUSINESS_PARTNER,
+  EN_BLOG_ENTRY_COST,
   EN_BLOG_FIND_DISTRIBUTOR,
   EN_BLOG_HUB,
+  EN_BLOG_IMPORT_REQUIREMENTS,
+  EN_BLOG_MOQ,
   EN_BLOG_SELL_PRODUCTS,
 } from "@/lib/blog/en-articles/types";
 
@@ -33,7 +37,11 @@ export const ENTER_JAPAN_ARTICLE: EnBlogArticle = {
   intro: [
     "Foreign brands often start with a search for a Japan distributor or a Japanese retail partner. Those searches are useful, but they skip the work that makes a first conversation productive: who the product is for, which channel it can enter, and what wholesale terms a Japanese buyer can take to an internal meeting.",
     "This guide walks through Japan market entry in practical order. It is written for overseas manufacturers and brand owners who want to sell products in Japan without opening a local office first. It is orientation, not legal or tax advice. Category rules still need a specialist when food, cosmetics, supplements, or electrical goods are involved.",
-    "If you already know you need a partner rather than a full process map, use the companion guides on finding a distributor in Japan and selling products in Japan after you finish the steps below.",
+    "If you already know you need a partner rather than a full process map, use the companion guides on [finding a distributor in Japan](" +
+      EN_BLOG_FIND_DISTRIBUTOR.path +
+      ") and [selling products in Japan](" +
+      EN_BLOG_SELL_PRODUCTS.path +
+      ") after you finish the steps below.",
   ],
   hero: {
     id: "mtFuji",
@@ -83,7 +91,9 @@ export const ENTER_JAPAN_ARTICLE: EnBlogArticle = {
     {
       heading: "3. Check Product Regulations and Requirements",
       paragraphs: [
-        "Japan does not use one import rule for every category. Food, cosmetics, quasi-drugs, supplements, toys, and electrical goods each have their own labeling, safety, and sometimes notification steps. BrandBridge does not determine legal fitness. Your Japanese partner, a licensed importer, or a qualified advisor should confirm what applies to your SKU.",
+        "Japan does not use one import rule for every category. Food, cosmetics, quasi-drugs, supplements, toys, and electrical goods each have their own labeling, safety, and sometimes notification steps. BrandBridge does not determine legal fitness. Your Japanese partner, a licensed importer, or a qualified advisor should confirm what applies to your SKU. Before shipping products to Japan, review the [key import requirements for overseas brands](" +
+          EN_BLOG_IMPORT_REQUIREMENTS.path +
+          ").",
         "What you can prepare early is the file a partner will ask for: ingredients or materials, net content, country of origin, shelf life, storage, voltage or plug type if relevant, and any certificates you already hold. Missing files delay Japan market entry more often than a missing exclusive contract.",
       ],
       bullets: [
@@ -104,8 +114,12 @@ export const ENTER_JAPAN_ARTICLE: EnBlogArticle = {
     {
       heading: "5. Set Pricing and Wholesale Terms",
       paragraphs: [
-        "Japanese partners reverse-engineer from a realistic retail or e-commerce price. A wholesale number copied from your home market often leaves no room for freight, duty, domestic delivery, and the partner’s margin.",
-        "State Incoterms, currency, MOQ, sample policy, and lead time in the same sheet as the price. If the first MOQ is a full production run, many Japanese retail partners will wait. A smaller first SKU set is usually easier to test.",
+        "Japanese partners reverse-engineer from a realistic retail or e-commerce price. A wholesale number copied from your home market often leaves no room for freight, duty, domestic delivery, and the partner’s margin. If you are comparing different ways to enter Japan, see our guide to [Japan market entry costs](" +
+          EN_BLOG_ENTRY_COST.path +
+          ").",
+        "State Incoterms, currency, MOQ, sample policy, and lead time in the same sheet as the price. If the first MOQ is a full production run, many Japanese retail partners will wait. A smaller first SKU set is usually easier to test. [MOQ for Japan market entry](" +
+          EN_BLOG_MOQ.path +
+          ") explains how a first order differs from a reorder.",
       ],
       bullets: [
         "FOB, CIF, or DDP-style responsibility, written clearly",
@@ -189,6 +203,9 @@ export const ENTER_JAPAN_ARTICLE: EnBlogArticle = {
     },
   ],
   relatedSlugs: [
+    EN_BLOG_ENTRY_COST.slug,
+    EN_BLOG_IMPORT_REQUIREMENTS.slug,
+    EN_BLOG_BUSINESS_PARTNER.slug,
     EN_BLOG_FIND_DISTRIBUTOR.slug,
     EN_BLOG_SELL_PRODUCTS.slug,
   ],

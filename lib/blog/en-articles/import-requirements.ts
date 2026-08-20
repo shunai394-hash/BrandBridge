@@ -5,7 +5,6 @@ import {
   EN_BLOG_ENTRY_COST,
   EN_BLOG_HUB,
   EN_BLOG_MOQ,
-  EN_BLOG_SELL_PRODUCTS,
 } from "@/lib/blog/en-articles/types";
 
 const cta = {
@@ -35,7 +34,11 @@ export const IMPORT_REQUIREMENTS_ARTICLE: EnBlogArticle = {
   intro: [
     "Searches for Japan import requirements, importing products into Japan, or Japan market entry requirements usually mean the same practical question: what must be true before a first shipment can be sold, not how to fill every customs form yourself.",
     "This article is a planning guide for overseas brands. It is not legal, medical, or regulatory advice, and it is not a substitute for a licensed customs broker, a Japanese importer, or a specialist for your category. Food, cosmetics, supplements, electrical goods, and other regulated items do not share one rulebook.",
-    "The complete Japan market entry guide covers sequence and partners. Japan market entry cost covers money. This page stays on checks: import flow, category differences, labeling and product facts, and why most brands confirm those items with a Japanese partner rather than trying to process everything from abroad.",
+    "The [complete Japan market entry guide](" +
+      EN_BLOG_ENTER_JAPAN.path +
+      ") covers sequence and partners. [Japan market entry cost](" +
+      EN_BLOG_ENTRY_COST.path +
+      ") covers money. This page stays on checks: import flow, category differences, labeling and product facts, and why most brands confirm those items with a Japanese partner rather than trying to process everything from abroad.",
   ],
   hero: {
     id: "consultant",
@@ -106,13 +109,17 @@ export const IMPORT_REQUIREMENTS_ARTICLE: EnBlogArticle = {
       heading: "What to confirm before you start selling",
       paragraphs: [
         "Importing products into Japan and listing them for sale are related, but not identical. Goods can arrive and still not be ready for a shelf or a product page. Before you treat a first order as a launch, agree who imports, who labels, who holds inventory, and what happens if a fact on the pack is wrong.",
-        "Also confirm Incoterms, insurance, and who pays if goods cannot be sold as planned. Japan market entry cost explains why those lines move independently. MOQ for Japan market entry explains why a small first quantity is often the safer way to learn. Neither replaces a specialist review of the SKU.",
+        "Also confirm Incoterms, insurance, and who pays if goods cannot be sold as planned. Japan market entry cost explains why those lines move independently. [MOQ for Japan market entry](" +
+          EN_BLOG_MOQ.path +
+          ") explains why a small first quantity is often the safer way to learn. Neither replaces a specialist review of the SKU.",
       ],
     },
     {
       heading: "Confirm with a Japanese partner instead of doing every step yourself",
       paragraphs: [
-        "Overseas brands rarely need to become their own customs broker on day one. A Japanese importer, distributor, or retailer that already handles similar goods can say which checks are real for that channel. You still own product truth: composition, claims, and whether you can supply the documents they ask for.",
+        "Overseas brands rarely need to become their own customs broker on day one. A Japanese importer, distributor, or retailer that already handles similar goods can say which checks are real for that channel. You still own product truth: composition, claims, and whether you can supply the documents they ask for. [How to find a business partner in Japan](" +
+          EN_BLOG_BUSINESS_PARTNER.path +
+          ") covers how those roles differ.",
         "That split is the practical reading of Japan market entry requirements. You prepare a clean commercial and technical file. The local partner helps map that file onto how Japan actually clears and sells the category. Direct-to-consumer shipping does not remove importer-of-record or labeling questions; it only changes who the customer sees.",
       ],
     },
@@ -141,9 +148,8 @@ export const IMPORT_REQUIREMENTS_ARTICLE: EnBlogArticle = {
   relatedSlugs: [
     EN_BLOG_ENTER_JAPAN.slug,
     EN_BLOG_ENTRY_COST.slug,
-    EN_BLOG_SELL_PRODUCTS.slug,
-    EN_BLOG_BUSINESS_PARTNER.slug,
     EN_BLOG_MOQ.slug,
+    EN_BLOG_BUSINESS_PARTNER.slug,
   ],
   existingLinks: [...links],
   cta,

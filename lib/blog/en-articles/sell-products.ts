@@ -1,7 +1,9 @@
 import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
+  EN_BLOG_DISTRIBUTOR_VS_DIRECT,
   EN_BLOG_ENTER_JAPAN,
   EN_BLOG_FIND_DISTRIBUTOR,
+  EN_BLOG_FIND_RETAILERS,
   EN_BLOG_HUB,
 } from "@/lib/blog/en-articles/types";
 
@@ -30,7 +32,11 @@ export const SELL_PRODUCTS_ARTICLE: EnBlogArticle = {
   eyebrow: "SELLING PRODUCTS IN JAPAN",
   lede: "Selling products in Japan is a channel and assortment decision: who sells, which SKU goes first, and how you will know the test worked.",
   intro: [
-    "“Sell products in Japan” is a different question from “enter the Japanese market” and from “find a distributor.” Entry is the sequence. A distributor is one partner type. Selling is how the product actually reaches a Japanese customer: through wholesale, a Japanese retail partner, e-commerce, or a mix.",
+    "“Sell products in Japan” is a different question from “[enter the Japanese market](" +
+      EN_BLOG_ENTER_JAPAN.path +
+      ")” and from “[find a distributor](" +
+      EN_BLOG_FIND_DISTRIBUTOR.path +
+      ").” Entry is the sequence. A distributor is one partner type. Selling is how the product actually reaches a Japanese customer: through wholesale, a Japanese retail partner, e-commerce, or a mix.",
     "This guide is for overseas brands that already believe Japan is worth a trial and need a selling plan. It does not replace the complete market-entry walkthrough or the distributor search playbook. It focuses on models, first assortment, pricing for Japanese shelves, and a test you can read.",
   ],
   hero: {
@@ -41,7 +47,9 @@ export const SELL_PRODUCTS_ARTICLE: EnBlogArticle = {
     {
       heading: "Choose how you will sell, not only who you will meet",
       paragraphs: [
-        "Foreign brands often jump to a partner name before they choose a selling model. Japanese retail partners, distributors, and e-commerce operators evaluate different things. A specialty shop cares about story and pack. A wholesaler cares about case pack and reorder. An online partner cares about images, returns, and shipping size.",
+        "Foreign brands often jump to a partner name before they choose a selling model. Japanese retail partners, distributors, and e-commerce operators evaluate different things. A specialty shop cares about story and pack. A wholesaler cares about case pack and reorder. An online partner cares about images, returns, and shipping size. Before choosing a distributor, you may also want to understand the [difference between using a Japanese distributor and selling directly](" +
+          EN_BLOG_DISTRIBUTOR_VS_DIRECT.path +
+          ").",
       ],
       cards: [
         {
@@ -95,7 +103,9 @@ export const SELL_PRODUCTS_ARTICLE: EnBlogArticle = {
       heading: "Working with a Japanese retail partner",
       paragraphs: [
         "Retail buyers will ask how the product is used, who it sits next to, and what happens if it does not move. Have a photo of the pack, a suggested retail range, and a restock lead time. If you cannot replenish inside a season, say so. Japanese retail partners plan around that honesty.",
-        "Department stores, drugstores, and independent specialty shops do not share one buying calendar. If your first partner is specialty, do not promise department-store coverage in the same sentence. Channel-specific retailer search is covered on the existing Japanese retailers guide. This page stays on how selling actually works once a partner is in talks.",
+        "Department stores, drugstores, and independent specialty shops do not share one buying calendar. If your first partner is specialty, do not promise department-store coverage in the same sentence. Channel-specific retailer search is covered in [how to find Japanese retailers](" +
+          EN_BLOG_FIND_RETAILERS.path +
+          "). This page stays on how selling actually works once a partner is in talks.",
       ],
     },
     {
@@ -124,7 +134,12 @@ export const SELL_PRODUCTS_ARTICLE: EnBlogArticle = {
       a: "Read the complete Japan market entry guide first, then return here for the selling model. If the missing piece is a distributor, use the distributor search guide.",
     },
   ],
-  relatedSlugs: [EN_BLOG_ENTER_JAPAN.slug, EN_BLOG_FIND_DISTRIBUTOR.slug],
+  relatedSlugs: [
+    EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
+    EN_BLOG_FIND_RETAILERS.slug,
+    EN_BLOG_FIND_DISTRIBUTOR.slug,
+    EN_BLOG_ENTER_JAPAN.slug,
+  ],
   existingLinks: [
     ...links,
     {

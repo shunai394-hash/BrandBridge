@@ -1,5 +1,6 @@
 import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
+  EN_BLOG_BUSINESS_PARTNER,
   EN_BLOG_ENTER_JAPAN,
   EN_BLOG_ENTRY_COST,
   EN_BLOG_FIND_DISTRIBUTOR,
@@ -35,7 +36,11 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
   lede: "A Japan distributor and direct sales are different operating systems. Most foreign brands should pick the model that matches their team, not the one that sounds more ambitious.",
   intro: [
     "“Japan distributor vs direct sales” is a structure question. A Japanese distribution partner buys or programs goods and sells into accounts. Direct sales means your company owns the customer relationship in Japan: your own e-commerce, your own sales hire, or your own retail. Both can work. They fail for different reasons.",
-    "This article is for overseas brands choosing a first path to sell in Japan. It does not repeat how to search for a distributor, how to find Japanese retailers, or the full market-entry sequence. Those guides sit next to this one. Here the comparison is operational: who talks to the buyer, who holds stock, who answers Japanese customers, and who funds the first mistakes.",
+    "This article is for overseas brands choosing a first path to sell in Japan. It does not repeat [how to search for a distributor](" +
+      EN_BLOG_FIND_DISTRIBUTOR.path +
+      "), how to find Japanese retailers, or the [full market-entry sequence](" +
+      EN_BLOG_ENTER_JAPAN.path +
+      "). Those guides sit next to this one. Here the comparison is operational: who talks to the buyer, who holds stock, who answers Japanese customers, and who funds the first mistakes.",
   ],
   hero: {
     id: "waterTorii",
@@ -45,7 +50,9 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
     {
       heading: "The main ways foreign brands sell in Japan",
       paragraphs: [
-        "In practice you will hear more than two labels. Importers, wholesalers, retailers, and e-commerce operators can sit between you and the shopper. For this comparison, “Japan distributor” means a local sales partner that takes the trade relationship. “Direct” means you keep that relationship and build the local machine yourself.",
+        "In practice you will hear more than two labels. Importers, wholesalers, retailers, and e-commerce operators can sit between you and the shopper. For this comparison, “Japan distributor” means a local sales partner that takes the trade relationship. “Direct” means you keep that relationship and build the local machine yourself. [How to sell products in Japan](" +
+          EN_BLOG_SELL_PRODUCTS.path +
+          ") covers first SKU and channel once you have chosen a model.",
       ],
       cards: [
         {
@@ -70,7 +77,9 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
       },
       paragraphs: [
         "The advantage is speed of access. A good Japanese distributor already knows which buyers will look at your category, how to raise an internal discussion, and what a first order looks like. You do not need Japanese-language customer service on day one. You do need a clean file: SKU, MOQ, Incoterms, and an honest story about exclusivity.",
-        "The trade-off is control. The partner sets much of the account list, the pace, and often the local service standard. If they are weak, your brand is quiet in Japan even though you “have a distributor.” Exclusive rights make that risk larger. How to find a distributor in Japan covers search and qualification. This page only needs the model: you are hiring local commercial capacity.",
+        "The trade-off is control. The partner sets much of the account list, the pace, and often the local service standard. If they are weak, your brand is quiet in Japan even though you “have a distributor.” Exclusive rights make that risk larger. How to find a distributor in Japan covers search and qualification. If you are still choosing the partner type, see [how to find a business partner in Japan](" +
+          EN_BLOG_BUSINESS_PARTNER.path +
+          "). This page only needs the model: you are hiring local commercial capacity.",
       ],
       bullets: [
         "Plus: existing accounts, local language, import path if they offer it",
@@ -103,7 +112,9 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
       heading: "Which brands tend to fit which model",
       paragraphs: [
         "A Japan distributor or other sales partner tends to fit brands that need trade placement, have a physical product with real landed-cost math, or lack a Japanese-speaking commercial team. Direct tends to fit brands whose first Japan customer is already online, whose parcel economics work, and who can staff service.",
-        "Retail-only tests sit in between: you may sell to a Japanese retail partner without appointing a national distributor. That is still a partner model, not direct-to-consumer. See the retailers guide if that is the door you want.",
+        "Retail-only tests sit in between: you may sell to a Japanese retail partner without appointing a national distributor. That is still a partner model, not direct-to-consumer. See [how to find Japanese retailers](" +
+          EN_BLOG_FIND_RETAILERS.path +
+          ") if that is the door you want.",
       ],
       callout:
         "If you cannot name who answers a quality complaint in Japanese next week, you are not ready for a fully direct launch—even if your website already ships worldwide.",
@@ -111,7 +122,9 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
     {
       heading: "Test with a partner, then widen the system",
       paragraphs: [
-        "A practical sequence for many overseas brands is: list clear terms, talk to a Japanese sales partner, ship a bounded first order, read sell-through and landed cost, then decide whether to add doors, add a direct channel, or change the SKU. Japan market entry cost is easier to control in that order.",
+        "A practical sequence for many overseas brands is: list clear terms, talk to a Japanese sales partner, ship a bounded first order, read sell-through and landed cost, then decide whether to add doors, add a direct channel, or change the SKU. [Japan market entry cost](" +
+          EN_BLOG_ENTRY_COST.path +
+          ") is easier to control in that order.",
         "You can still choose direct later. What you should not do is sign a wide exclusive and also build a competing direct shop into the same accounts without a written plan. The complete entry guide is the process map. This article is only the fork: partner-led versus self-led commerce.",
       ],
     },
@@ -139,10 +152,9 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
   ],
   relatedSlugs: [
     EN_BLOG_FIND_DISTRIBUTOR.slug,
-    EN_BLOG_ENTER_JAPAN.slug,
+    EN_BLOG_BUSINESS_PARTNER.slug,
     EN_BLOG_FIND_RETAILERS.slug,
     EN_BLOG_SELL_PRODUCTS.slug,
-    EN_BLOG_ENTRY_COST.slug,
   ],
   existingLinks: [...links],
   cta,

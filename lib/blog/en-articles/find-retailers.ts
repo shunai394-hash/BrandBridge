@@ -1,8 +1,8 @@
 import type { EnBlogArticle } from "@/lib/blog/en-articles/types";
 import {
+  EN_BLOG_BUSINESS_PARTNER,
   EN_BLOG_DISTRIBUTOR_VS_DIRECT,
   EN_BLOG_ENTER_JAPAN,
-  EN_BLOG_ENTRY_COST,
   EN_BLOG_FIND_DISTRIBUTOR,
   EN_BLOG_HUB,
   EN_BLOG_SELL_PRODUCTS,
@@ -38,7 +38,11 @@ export const FIND_RETAILERS_ARTICLE: EnBlogArticle = {
   lede: "Finding Japanese retailers is a buyer conversation: category fit, pack, price band, and a first quantity a store or e-commerce team can actually stock.",
   intro: [
     "Searches for Japanese retailers, Japan retail buyers, or a Japanese retail partner usually mean one thing: you want a company that sells to Japanese consumers under its own banner, not a wholesaler that supplies many banners.",
-    "This article is written for overseas brands that want to sell to Japanese retailers. It is not a translation of a Japanese sourcing guide, and it is not the same job as finding a Japan distributor. Retail buyers judge shelf or page fit. Distributors judge whether they can place you into accounts they already call on.",
+    "This article is written for overseas brands that want to sell to Japanese retailers. It is not a translation of a Japanese sourcing guide, and it is not the same job as [finding a Japan distributor](" +
+      EN_BLOG_FIND_DISTRIBUTOR.path +
+      "). Retail buyers judge shelf or page fit. Distributors judge whether they can place you into accounts they already call on. If you are still choosing among importer, retailer, and sales partner, start with [how to find a business partner in Japan](" +
+      EN_BLOG_BUSINESS_PARTNER.path +
+      ").",
     "You do not need a Japan office to start. You do need a file a buyer can take to an internal meeting: first SKU, suggested retail range, MOQ, ship-from terms, and who would import.",
   ],
   hero: {
@@ -88,7 +92,9 @@ export const FIND_RETAILERS_ARTICLE: EnBlogArticle = {
     {
       heading: "Retailer, distributor, and wholesaler are different jobs",
       paragraphs: [
-        "A Japanese retail partner buys for its own stores or site. A distributor usually supplies multiple accounts. A wholesaler focuses on volume into trade. Mixing the words in the first email forces the other side to guess which meeting they should book.",
+        "A Japanese retail partner buys for its own stores or site. A distributor usually supplies multiple accounts. A wholesaler focuses on volume into trade. Mixing the words in the first email forces the other side to guess which meeting they should book. Before choosing a distributor, you may also want to understand the [difference between using a Japanese distributor and selling directly](" +
+          EN_BLOG_DISTRIBUTOR_VS_DIRECT.path +
+          ").",
         "If you need national wholesale coverage, you are probably looking for a distributor. If you want one banner to test a shelf story, you are looking for retailers. Some companies do both. Ask who invoices the store, who holds stock, and who is the importer of record.",
       ],
       callout:
@@ -112,7 +118,11 @@ export const FIND_RETAILERS_ARTICLE: EnBlogArticle = {
       heading: "A typical path from first contact to a first order",
       paragraphs: [
         "Most overseas brands do not go from a cold email to a national listing. A common path is a sample, a small first quantity, a review of sell-through, then a second SKU or a second door. Chains may need longer internal reviews than independents.",
-        "Agree what “good” looks like for the test: a reorder window, a sell-through range, or a decision date. Keep price, MOQ, and quality-claim handling in writing. How to sell products in Japan covers assortment and test design in more detail. How to find a distributor in Japan covers the wholesale search if retail-only is not the right first step.",
+        "Agree what “good” looks like for the test: a reorder window, a sell-through range, or a decision date. Keep price, MOQ, and quality-claim handling in writing. [How to sell products in Japan](" +
+          EN_BLOG_SELL_PRODUCTS.path +
+          ") covers assortment and test design in more detail. [How to find a distributor in Japan](" +
+          EN_BLOG_FIND_DISTRIBUTOR.path +
+          ") covers the wholesale search if retail-only is not the right first step.",
       ],
     },
     {
@@ -138,11 +148,10 @@ export const FIND_RETAILERS_ARTICLE: EnBlogArticle = {
     },
   ],
   relatedSlugs: [
+    EN_BLOG_BUSINESS_PARTNER.slug,
     EN_BLOG_SELL_PRODUCTS.slug,
     EN_BLOG_FIND_DISTRIBUTOR.slug,
     EN_BLOG_DISTRIBUTOR_VS_DIRECT.slug,
-    EN_BLOG_ENTRY_COST.slug,
-    EN_BLOG_ENTER_JAPAN.slug,
   ],
   existingLinks: [...links],
   cta,

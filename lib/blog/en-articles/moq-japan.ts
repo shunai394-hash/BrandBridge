@@ -36,7 +36,13 @@ export const MOQ_JAPAN_ARTICLE: EnBlogArticle = {
   intro: [
     "Searches for MOQ Japan, Japan wholesale MOQ, or Japan market entry MOQ often hope for a number. There is no honest single figure. Minimum order quantity depends on how you produce, how you pack, how the goods move, how long they last, and how a Japanese partner can actually sell the first lot.",
     "This article is for overseas brands planning a first Japan shipment. It does not quote a required carton count, pallet size, or yen total. Those belong in a quote for your SKU. It explains why MOQ matters, how a test differs from a standing wholesale order, and what to look at when you talk with a Japanese company.",
-    "Japan market entry cost covers the money around a first order. How to sell products in Japan covers assortment and test design. How to find a business partner in Japan covers who you are talking to. This page stays on quantity: first order versus reorder, and how not to let factory MOQ silently become a Japan strategy.",
+    "[Japan market entry cost](" +
+      EN_BLOG_ENTRY_COST.path +
+      ") covers the money around a first order. [How to sell products in Japan](" +
+      EN_BLOG_SELL_PRODUCTS.path +
+      ") covers assortment and test design. [How to find a business partner in Japan](" +
+      EN_BLOG_BUSINESS_PARTNER.path +
+      ") covers who you are talking to. This page stays on quantity: first order versus reorder, and how not to let factory MOQ silently become a Japan strategy.",
   ],
   hero: {
     id: "analytics",
@@ -47,7 +53,9 @@ export const MOQ_JAPAN_ARTICLE: EnBlogArticle = {
       heading: "What MOQ means",
       paragraphs: [
         "MOQ—minimum order quantity—is the smallest amount a seller will accept for a production run, a shipment, or a wholesale invoice. Factories, brands, and Japanese partners can each have a different MOQ. They are not automatically the same number.",
-        "For Japan market entry, you usually need two figures, not one: the smallest first order you can produce and ship as a test, and the smallest reorder you can support if that test sells. Mixing them in the first email makes a Japanese buyer guess whether you want a trial or a warehouse fill.",
+        "For [Japan market entry](" +
+          EN_BLOG_ENTER_JAPAN.path +
+          "), you usually need two figures, not one: the smallest first order you can produce and ship as a test, and the smallest reorder you can support if that test sells. Mixing them in the first email makes a Japanese buyer guess whether you want a trial or a warehouse fill.",
       ],
     },
     {
@@ -105,7 +113,9 @@ export const MOQ_JAPAN_ARTICLE: EnBlogArticle = {
       heading: "Price, logistics, packing, lots, and shelf life",
       paragraphs: [
         "Unit cost often falls as quantity rises. Freight per unit usually does too—until you pay to store what did not sell. Packing and labeling in Japanese can have their own minimums if a printer or a sticker run is involved.",
-        "Lot codes and expiry or best-before dates matter for food and some cosmetics. A quantity that looks efficient at the factory can be too large if the goods will not be sold while they are still in date after ocean transit and domestic distribution. Confirm that math with the partner and, where needed, with people who handle your category. Japan import requirements covers those checks without turning this page into a labeling manual.",
+        "Lot codes and expiry or best-before dates matter for food and some cosmetics. A quantity that looks efficient at the factory can be too large if the goods will not be sold while they are still in date after ocean transit and domestic distribution. Confirm that math with the partner and, where needed, with people who handle your category. [Japan import requirements](" +
+          EN_BLOG_IMPORT_REQUIREMENTS.path +
+          ") covers those checks without turning this page into a labeling manual.",
       ],
       callout:
         "There is no universal “Japan MOQ” in pieces or yen. Factory, pack, freight, shelf life, and selling method all move the number. Anyone quoting one quantity for every brand is guessing.",

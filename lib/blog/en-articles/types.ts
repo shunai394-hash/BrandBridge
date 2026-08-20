@@ -71,6 +71,25 @@ export const EN_BLOG_SELL_PRODUCTS = {
   title: "How to Sell Products in Japan: A Guide for Foreign Brands",
 } as const;
 
+export const EN_BLOG_FIND_RETAILERS = {
+  slug: "how-to-find-japanese-retailers",
+  path: "/en/blog/how-to-find-japanese-retailers",
+  title: "How to Find Japanese Retailers for Your Brand",
+} as const;
+
+export const EN_BLOG_ENTRY_COST = {
+  slug: "japan-market-entry-cost",
+  path: "/en/blog/japan-market-entry-cost",
+  title: "How Much Does It Cost to Enter the Japanese Market?",
+} as const;
+
+export const EN_BLOG_DISTRIBUTOR_VS_DIRECT = {
+  slug: "japan-distributor-vs-direct-sales",
+  path: "/en/blog/japan-distributor-vs-direct-sales",
+  title:
+    "Japan Distributor vs. Direct Sales: Which Is Better for Your Brand?",
+} as const;
+
 export function enBlogPath(slug: string): string {
   return `/en/blog/${slug}`;
 }

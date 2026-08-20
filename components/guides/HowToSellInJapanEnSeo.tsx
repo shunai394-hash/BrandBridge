@@ -299,6 +299,30 @@ export function HowToSellInJapanEnSeoLate() {
           <ul className="mt-6 space-y-3">
             <li>
               <Link
+                href="/en/blog/how-to-enter-the-japanese-market"
+                className="font-medium text-[#C4A35A] hover:underline"
+              >
+                How to Enter the Japanese Market
+              </Link>
+              <span className="text-black/50">
+                {" "}
+                - complete guide for foreign brands
+              </span>
+            </li>
+            <li>
+              <Link
+                href="/en/blog/how-to-sell-products-in-japan"
+                className="font-medium text-[#C4A35A] hover:underline"
+              >
+                How to Sell Products in Japan
+              </Link>
+              <span className="text-black/50">
+                {" "}
+                - selling models, first SKU, and retail tests
+              </span>
+            </li>
+            <li>
+              <Link
                 href="/en/japan-market-entry"
                 className="font-medium text-[#C4A35A] hover:underline"
               >

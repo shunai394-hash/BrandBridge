@@ -465,6 +465,16 @@ export default function HowToFindAJapaneseDistributorArticlePage() {
               upfront.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
+              For outreach, search paths, and what to send in a first pack, see{" "}
+              <Link
+                href="/en/blog/how-to-find-a-distributor-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Find a Distributor in Japan
+              </Link>
+              .
+            </p>
+            <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               If you are still mapping the wider process, start with{" "}
               <Link
                 href="/en/how-to-sell-in-japan"

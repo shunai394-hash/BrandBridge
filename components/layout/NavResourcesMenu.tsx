@@ -20,6 +20,10 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
           label: "Japan Market Entry",
         },
         {
+          href: "/en/blog",
+          label: "English Blog",
+        },
+        {
           href: "/en/how-to-sell-in-japan",
           label: "How to Sell in Japan",
         },

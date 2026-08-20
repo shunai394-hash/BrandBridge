@@ -371,6 +371,18 @@ export default function HowToEnterTheJapaneseMarketArticlePage() {
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
+              For the complete process, including regulations, localization, and
+              common mistakes, see{" "}
+              <Link
+                href="/en/blog/how-to-enter-the-japanese-market"
+                className="text-teal hover:underline"
+              >
+                How to Enter the Japanese Market: A Complete Guide for Foreign
+                Brands
+              </Link>
+              .
+            </p>
+            <p>
               For more Japan market entry resources, return to the{" "}
               <Link
                 href="/en/japan-market-entry"

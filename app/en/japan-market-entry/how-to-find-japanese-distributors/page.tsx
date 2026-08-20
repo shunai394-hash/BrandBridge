@@ -448,6 +448,17 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
+              For a search playbook—where to look, what to send, and when
+              exclusivity can wait—see{" "}
+              <Link
+                href="/en/blog/how-to-find-a-distributor-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Find a Distributor in Japan
+              </Link>
+              .
+            </p>
+            <p>
               For the overall selling process, see{" "}
               <Link
                 href="/en/how-to-sell-in-japan"

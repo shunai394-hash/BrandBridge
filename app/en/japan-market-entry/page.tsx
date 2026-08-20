@@ -8,6 +8,11 @@ import {
 } from "@/lib/model-cases";
 import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
+import {
+  EN_BLOG_ENTER_JAPAN,
+  EN_BLOG_FIND_DISTRIBUTOR,
+  EN_BLOG_SELL_PRODUCTS,
+} from "@/lib/blog/en-articles/types";
 
 export const metadata: Metadata = {
   title: "How to Enter the Japanese Market",
@@ -467,7 +472,90 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 8. Japan Market Entry Resources */}
+      {/* 8. English blog guides */}
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Complete English Guides
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Longer walkthroughs for overseas brands: Japan market entry, finding
+            a distributor in Japan, and selling products through Japanese
+            partners.
+          </p>
+          <ul className="mt-8 list-none space-y-3">
+            <li>
+              <Link
+                href={EN_BLOG_ENTER_JAPAN.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_ENTER_JAPAN.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    The full sequence for foreign brands: market fit,
+                    requirements, partners, wholesale terms, localization, and
+                    launch.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EN_BLOG_FIND_DISTRIBUTOR.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_FIND_DISTRIBUTOR.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Where to search, what to send, and how to judge a Japanese
+                    distribution partner before exclusivity.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EN_BLOG_SELL_PRODUCTS.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_SELL_PRODUCTS.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Selling models, first SKU, Japan-ready pricing, and a test
+                    with a retail or e-commerce partner.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* 9. Japan Market Entry Resources */}
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
@@ -572,7 +660,7 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 9. Existing Resources */}
+      {/* 10. Existing Resources */}
       <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">

@@ -445,6 +445,16 @@ export default function HowToFindJapaneseRetailersArticlePage() {
 
           <div className="mt-12 space-y-4 border-t border-border pt-10 text-sm leading-relaxed text-muted md:text-base">
             <p>
+              For selling models, first SKU, and a retail test, see{" "}
+              <Link
+                href="/en/blog/how-to-sell-products-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell Products in Japan
+              </Link>
+              .
+            </p>
+            <p>
               For a broader overview, see our{" "}
               <Link
                 href="/en/japan-market-entry"

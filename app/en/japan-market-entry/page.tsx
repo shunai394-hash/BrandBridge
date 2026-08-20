@@ -9,8 +9,11 @@ import {
 import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 import {
+  EN_BLOG_BUSINESS_PARTNER,
   EN_BLOG_ENTER_JAPAN,
   EN_BLOG_FIND_DISTRIBUTOR,
+  EN_BLOG_IMPORT_REQUIREMENTS,
+  EN_BLOG_MOQ,
   EN_BLOG_SELL_PRODUCTS,
 } from "@/lib/blog/en-articles/types";
 
@@ -479,9 +482,9 @@ export default function JapanMarketEntryPage() {
             Complete English Guides
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
-            Longer walkthroughs for overseas brands: Japan market entry, finding
-            a distributor in Japan, and selling products through Japanese
-            partners.
+            Longer walkthroughs for overseas brands: Japan market entry, import
+            checks, finding a business partner, MOQ, and selling through
+            Japanese companies.
           </p>
           <ul className="mt-8 list-none space-y-3">
             <li>
@@ -544,6 +547,75 @@ export default function JapanMarketEntryPage() {
                   <p className="mt-2 text-sm leading-relaxed text-muted">
                     Selling models, first SKU, Japan-ready pricing, and a test
                     with a retail or e-commerce partner.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EN_BLOG_IMPORT_REQUIREMENTS.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_IMPORT_REQUIREMENTS.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    What to confirm before a first shipment: category checks,
+                    labeling, and working with a Japanese importer or sales
+                    partner.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EN_BLOG_BUSINESS_PARTNER.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_BUSINESS_PARTNER.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Importer, distributor, wholesaler, retailer, or sales
+                    partner—how to choose the role, then approach a Japanese
+                    company.
+                  </p>
+                </div>
+                <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">
+                  Read article →
+                </span>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={EN_BLOG_MOQ.path}
+                className="group flex flex-col rounded-lg border border-border bg-white px-5 py-6 transition hover:border-teal/40 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-xs font-semibold tracking-[0.12em] text-teal">
+                    BLOG
+                  </p>
+                  <p className="mt-2 font-medium text-navy group-hover:text-teal">
+                    {EN_BLOG_MOQ.title}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Why first-order quantity matters, how a test differs from
+                    replenishment, and how to discuss MOQ without a fake
+                    “Japan standard.”
                   </p>
                 </div>
                 <span className="mt-4 text-sm font-medium text-teal sm:mt-0 sm:ml-6">

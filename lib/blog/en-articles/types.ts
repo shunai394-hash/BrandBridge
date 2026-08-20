@@ -90,6 +90,25 @@ export const EN_BLOG_DISTRIBUTOR_VS_DIRECT = {
     "Japan Distributor vs. Direct Sales: Which Is Better for Your Brand?",
 } as const;
 
+export const EN_BLOG_IMPORT_REQUIREMENTS = {
+  slug: "japan-import-requirements",
+  path: "/en/blog/japan-import-requirements",
+  title: "Japan Import Requirements for Overseas Brands",
+} as const;
+
+export const EN_BLOG_BUSINESS_PARTNER = {
+  slug: "how-to-find-a-business-partner-in-japan",
+  path: "/en/blog/how-to-find-a-business-partner-in-japan",
+  title: "How to Find a Business Partner in Japan",
+} as const;
+
+export const EN_BLOG_MOQ = {
+  slug: "moq-japan-market-entry",
+  path: "/en/blog/moq-japan-market-entry",
+  title:
+    "MOQ for Entering the Japanese Market: What Overseas Brands Should Know",
+} as const;
+
 export function enBlogPath(slug: string): string {
   return `/en/blog/${slug}`;
 }

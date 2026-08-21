@@ -1,10 +1,14 @@
 import type { CaseFaqItem } from "@/lib/case-detail-seo";
 import { enCategoryLabel, resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
-import { PRICE_BAND_QUOTE_REQUIRED, displayMoqJa } from "@/lib/price-display";
+import { googleProductCategoryJsonLd } from "@/lib/google-product-category";
+import { displayMoqJa } from "@/lib/price-display";
 import { getSiteUrl, toOfficialPublicUrl } from "@/lib/site";
 import type { Case } from "@/lib/types";
 import { salesFormatLabel } from "@/lib/types";
-import { parseYenPriceBand } from "@/lib/wholesale-price-display";
+import {
+  parseListedOfferPrice,
+  type ListedOfferPrice,
+} from "@/lib/wholesale-price-display";
 
 export type BreadcrumbItem = {
   name: string;
@@ -58,11 +62,38 @@ function absoluteImageUrl(url: string | null | undefined): string | undefined {
   return toOfficialPublicUrl(trimmed);
 }
 
-function isQuoteOnlyPrice(priceBand: string | null | undefined): boolean {
-  const t = priceBand?.trim() || "";
-  if (!t) return true;
-  if (t === PRICE_BAND_QUOTE_REQUIRED) return true;
-  return /見積|quote|on request|on demand/i.test(t);
+function jsonLdSku(sku: string | null | undefined): string | undefined {
+  const t = sku?.trim();
+  if (!t || /\s/.test(t)) return undefined;
+  return t;
+}
+
+function schemaPrice(amount: number): string {
+  return String(amount);
+}
+
+function listedOfferFields(listed: ListedOfferPrice): Record<string, unknown> {
+  const price = schemaPrice(listed.min);
+  const priceSpecification: Record<string, unknown> = {
+    "@type": "UnitPriceSpecification",
+    price,
+    priceCurrency: listed.currency,
+  };
+  if (listed.max !== listed.min) {
+    priceSpecification.minPrice = schemaPrice(listed.min);
+    priceSpecification.maxPrice = schemaPrice(listed.max);
+  }
+  if (listed.valueAddedTaxIncluded === true) {
+    priceSpecification.valueAddedTaxIncluded = true;
+  } else if (listed.valueAddedTaxIncluded === false) {
+    priceSpecification.valueAddedTaxIncluded = false;
+  }
+
+  return {
+    price,
+    priceCurrency: listed.currency,
+    priceSpecification,
+  };
 }
 
 function propertyValue(name: string, value: string | null | undefined) {
@@ -76,9 +107,9 @@ function propertyValue(name: string, value: string | null | undefined) {
 }
 
 /**
- * Product JSON-LD from fields that are shown on the public case page.
- * Numeric price is included only when a yen band can be parsed; quote-only
- * listings omit price instead of inventing one.
+ * Product JSON-LD from fields shown on the public case page.
+ * One Offer is generated for merchant listings and product snippets.
+ * Price / priceSpecification are omitted when the listing is quote-only.
  */
 export function productJsonLd(
   caseItem: Case,
@@ -108,36 +139,33 @@ export function productJsonLd(
     ""
   ).slice(0, 5000);
   const image = absoluteImageUrl(caseItem.productImageUrl);
-  const sku = caseItem.sku?.trim();
+  const sku = jsonLdSku(caseItem.sku);
   const brand = caseItem.brandName?.trim();
-  const category =
+  const catalogCategory =
     locale === "en"
       ? enCategoryLabel(caseItem.category)
       : caseItem.category?.trim();
   const inStock =
     caseItem.status === "open" && caseItem.reviewStatus === "approved";
 
-  const offer: Record<string, unknown> = {
-    "@type": "Offer",
-    url,
-    availability: inStock
-      ? "https://schema.org/InStock"
-      : "https://schema.org/OutOfStock",
-  };
-
-  const yen = parseYenPriceBand(caseItem.priceBand);
-  if (yen && !isQuoteOnlyPrice(caseItem.priceBand)) {
-    offer.priceCurrency = "JPY";
-    if (yen.type === "range") {
-      offer["@type"] = "AggregateOffer";
-      offer.lowPrice = String(yen.min);
-      offer.highPrice = String(yen.max);
-    } else {
-      offer.price = String(yen.min);
-    }
-  }
+  const listed = parseListedOfferPrice(caseItem.priceBand);
+  const offer: Record<string, unknown> | undefined = listed
+    ? {
+        "@type": "Offer",
+        url,
+        availability: inStock
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+        itemCondition: "https://schema.org/NewCondition",
+        ...listedOfferFields(listed),
+      }
+    : undefined;
 
   const additionalProperty = [
+    propertyValue(
+      locale === "en" ? "Category" : "カテゴリ",
+      catalogCategory && catalogCategory !== "—" ? catalogCategory : null,
+    ),
     propertyValue(
       locale === "en" ? "MOQ" : "MOQ",
       locale === "en" ? caseItem.minOrder : displayMoqJa(caseItem.minOrder),
@@ -166,9 +194,9 @@ export function productJsonLd(
     url,
     description: description || undefined,
     image: image ? [image] : undefined,
-    sku: sku || undefined,
-    mpn: sku || undefined,
-    category: category || undefined,
+    sku,
+    mpn: sku,
+    category: googleProductCategoryJsonLd(caseItem.category),
     countryOfOrigin: caseItem.shipFrom?.trim() || undefined,
     brand: brand
       ? {

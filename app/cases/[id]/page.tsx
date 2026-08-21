@@ -93,6 +93,8 @@ export default async function CaseDetailPage({
   const favorited = user ? await isFavorite(user.id, caseItem.id) : false;
   const productName = caseItem.productName?.trim() || caseItem.title;
   const jaCategory = getJaCategoryByCaseCategory(caseItem.category);
+  const canIndex =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 md:py-16">
@@ -111,12 +113,14 @@ export default async function CaseDetailPage({
           { name: productName },
         ]}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdString(productJsonLd(caseItem, "ja")),
-        }}
-      />
+      {canIndex ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLdString(productJsonLd(caseItem, "ja")),
+          }}
+        />
+      ) : null}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

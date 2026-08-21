@@ -48,11 +48,17 @@ export async function generateMetadata({
     en.summary ||
     `${en.productName} is seeking a Japanese sales partner on BrandBridge.`
   ).slice(0, 180);
+  const canIndex =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
   return {
     title,
     description,
     ...pairedLanguageAlternates(`/cases/${id}`, `/en/cases/${id}`, "en"),
+    robots: {
+      index: canIndex,
+      follow: true,
+    },
     openGraph: {
       title,
       description,
@@ -89,6 +95,8 @@ export default async function EnglishCaseDetailPage({
     summary: caseItem.summary,
     description: caseItem.description,
   });
+  const canIndex =
+    caseItem.reviewStatus === "approved" && caseItem.status === "open";
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 md:py-16">
@@ -99,12 +107,14 @@ export default async function EnglishCaseDetailPage({
           { name: en.productName },
         ]}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdString(productJsonLd(caseItem, "en")),
-        }}
-      />
+      {canIndex ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLdString(productJsonLd(caseItem, "en")),
+          }}
+        />
+      ) : null}
       <EnCaseDetail
         caseItem={caseItem}
         user={user}

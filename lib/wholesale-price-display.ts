@@ -87,6 +87,153 @@ export function parseYenPriceBand(
   return null;
 }
 
+const ISO_CURRENCY_RE = "USD|EUR|GBP|AUD|CAD|SGD|CNY|KRW|CHF|HKD";
+const RANGE_SEP = "[〜～\\-–—~]";
+
+export type ListedOfferPrice = {
+  currency: string;
+  min: number;
+  max: number;
+  valueAddedTaxIncluded: boolean | null;
+};
+
+function parseDecimalAmount(raw: string): number | null {
+  const n = Number(raw.replace(/,/g, ""));
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+function currencyFromToken(token: string): string | null {
+  const t = token.trim();
+  if (t === "€") return "EUR";
+  if (t === "$") return "USD";
+  if (t === "£") return "GBP";
+  const upper = t.toUpperCase();
+  if (new RegExp(`^(?:${ISO_CURRENCY_RE})$`).test(upper)) return upper;
+  return null;
+}
+
+function vatIncludedFromBand(value: string): boolean | null {
+  if (/税込/.test(value)) return true;
+  if (/税別|税抜|excluding tax/i.test(value)) return false;
+  return null;
+}
+
+function listedPrice(
+  currency: string,
+  min: number,
+  max: number,
+  source: string,
+): ListedOfferPrice {
+  return {
+    currency,
+    min,
+    max: max >= min ? max : min,
+    valueAddedTaxIncluded: vatIncludedFromBand(source),
+  };
+}
+
+function parseForeignListedOfferPrice(
+  value: string,
+): ListedOfferPrice | null {
+  const codeFirstRange = value.match(
+    new RegExp(
+      `\\b(${ISO_CURRENCY_RE})\\b\\s*([\\d.,]+)\\s*${RANGE_SEP}\\s*([\\d.,]+)`,
+      "i",
+    ),
+  );
+  if (codeFirstRange) {
+    const min = parseDecimalAmount(codeFirstRange[2]);
+    const max = parseDecimalAmount(codeFirstRange[3]);
+    const currency = currencyFromToken(codeFirstRange[1]);
+    if (min != null && max != null && currency) {
+      return listedPrice(currency, min, max, value);
+    }
+  }
+
+  const amountThenCodeRange = value.match(
+    new RegExp(
+      `([\\d.,]+)\\s*(${ISO_CURRENCY_RE}|€|\\$|£)\\s*${RANGE_SEP}\\s*([\\d.,]+)\\s*(?:${ISO_CURRENCY_RE}|€|\\$|£)?`,
+      "i",
+    ),
+  );
+  if (amountThenCodeRange) {
+    const min = parseDecimalAmount(amountThenCodeRange[1]);
+    const max = parseDecimalAmount(amountThenCodeRange[3]);
+    const currency = currencyFromToken(amountThenCodeRange[2]);
+    if (min != null && max != null && currency) {
+      return listedPrice(currency, min, max, value);
+    }
+  }
+
+  const symbolRange = value.match(
+    new RegExp(`(€|\\$|£)\\s*([\\d.,]+)\\s*${RANGE_SEP}\\s*(?:€|\\$|£)?\\s*([\\d.,]+)`),
+  );
+  if (symbolRange) {
+    const min = parseDecimalAmount(symbolRange[2]);
+    const max = parseDecimalAmount(symbolRange[3]);
+    const currency = currencyFromToken(symbolRange[1]);
+    if (min != null && max != null && currency) {
+      return listedPrice(currency, min, max, value);
+    }
+  }
+
+  const amountThenCode = value.match(
+    new RegExp(`([\\d.,]+)\\s*(${ISO_CURRENCY_RE}|€)`, "i"),
+  );
+  if (amountThenCode) {
+    const amount = parseDecimalAmount(amountThenCode[1]);
+    const currency = currencyFromToken(amountThenCode[2]);
+    if (amount != null && currency) {
+      return listedPrice(currency, amount, amount, value);
+    }
+  }
+
+  const codeThenAmount = value.match(
+    new RegExp(`\\b(${ISO_CURRENCY_RE})\\b\\s*([\\d.,]+)`, "i"),
+  );
+  if (codeThenAmount) {
+    const amount = parseDecimalAmount(codeThenAmount[2]);
+    const currency = currencyFromToken(codeThenAmount[1]);
+    if (amount != null && currency) {
+      return listedPrice(currency, amount, amount, value);
+    }
+  }
+
+  const symbolThenAmount = value.match(/(€|\$|£)\s*([\d.,]+)/);
+  if (symbolThenAmount) {
+    const amount = parseDecimalAmount(symbolThenAmount[2]);
+    const currency = currencyFromToken(symbolThenAmount[1]);
+    if (amount != null && currency) {
+      return listedPrice(currency, amount, amount, value);
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Numeric offer price + ISO currency from the public priceBand.
+ * Returns null for quote-only or unparseable values (do not invent a price).
+ */
+export function parseListedOfferPrice(
+  value: string | null | undefined,
+): ListedOfferPrice | null {
+  const t = value?.trim();
+  if (!t) return null;
+
+  const yen = parseYenPriceBand(t);
+  if (yen) {
+    const max = yen.type === "range" ? yen.max : yen.min;
+    return listedPrice("JPY", yen.min, max, t);
+  }
+
+  if (isForeignCurrencyPriceBand(t)) {
+    return parseForeignListedOfferPrice(t);
+  }
+
+  return null;
+}
+
 function formatYen(n: number): string {
   return `¥${n.toLocaleString("en-US")}`;
 }

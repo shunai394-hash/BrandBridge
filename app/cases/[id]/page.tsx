@@ -8,7 +8,7 @@ import {
   applyPricingVisibility,
   canViewPartnerPricing,
 } from "@/lib/case-pricing-access";
-import { getCaseById } from "@/lib/cases";
+import { getCaseById, listRelatedOpenCases } from "@/lib/cases";
 import { isFavorite } from "@/lib/favorites";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { jaCategoryPath, getJaCategoryByCaseCategory } from "@/lib/ja-categories";
@@ -95,6 +95,9 @@ export default async function CaseDetailPage({
   const jaCategory = getJaCategoryByCaseCategory(caseItem.category);
   const canIndex =
     caseItem.reviewStatus === "approved" && caseItem.status === "open";
+  const relatedCases = canIndex
+    ? await listRelatedOpenCases(caseItem, 4)
+    : [];
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-12 md:py-16">
@@ -121,12 +124,14 @@ export default async function CaseDetailPage({
           }}
         />
       ) : null}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdString(faqPageJsonLd(caseDetailFaqs(caseItem))),
-        }}
-      />
+      {canIndex ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLdString(faqPageJsonLd(caseDetailFaqs(caseItem))),
+          }}
+        />
+      ) : null}
       <CaseDetailView
         caseItem={caseItem}
         user={user}
@@ -134,6 +139,7 @@ export default async function CaseDetailPage({
         isFavorited={favorited}
         showPendingBanner={pending === "1"}
         showPartnerPricing={showPartnerPricing}
+        relatedCases={relatedCases}
       />
     </div>
   );

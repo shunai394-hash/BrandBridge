@@ -6,6 +6,7 @@ import { CaseFilter } from "@/components/cases/CaseFilter";
 import { EmptyCasesState } from "@/components/cases/EmptyCasesState";
 import { Button } from "@/components/ui/Button";
 import { casePublicStatusLabel } from "@/lib/case-display";
+import { stripInternalLangMarkers } from "@/lib/public-case-text";
 import {
   displayMoq,
   displayPriceBand,
@@ -111,7 +112,7 @@ function toDisplayRow(item: Case | CaseListItem): DisplayRow {
     title: item.title,
     productName: item.productName,
     sku: item.sku ?? null,
-    summary: item.summary,
+    summary: stripInternalLangMarkers(item.summary ?? ""),
     makerName: item.makerName,
     category: item.category,
     targetCountry: item.targetCountry,

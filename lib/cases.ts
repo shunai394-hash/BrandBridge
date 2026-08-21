@@ -458,6 +458,25 @@ export async function getLatestCases(limit = 6): Promise<Case[]> {
   return pickCanonicalPublicCases(mapped).slice(0, limit);
 }
 
+export async function listRelatedOpenCases(
+  caseItem: Pick<Case, "id" | "category">,
+  limit = 4,
+): Promise<Case[]> {
+  try {
+    const all = await listOpenCases();
+    const sameCategory = all.filter(
+      (item) => item.id !== caseItem.id && item.category === caseItem.category,
+    );
+    if (sameCategory.length >= limit) return sameCategory.slice(0, limit);
+    const rest = all.filter(
+      (item) => item.id !== caseItem.id && item.category !== caseItem.category,
+    );
+    return [...sameCategory, ...rest].slice(0, limit);
+  } catch {
+    return [];
+  }
+}
+
 /** @deprecated use getLatestCases / getPopularCases */
 export async function getFeaturedCases(limit = 3): Promise<Case[]> {
   return getLatestCases(limit);

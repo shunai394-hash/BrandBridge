@@ -1,8 +1,10 @@
 ﻿import Link from "next/link";
 import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
-import { displayMoq, displayPriceBand } from "@/lib/price-display";
+import { displayMoqJa } from "@/lib/price-display";
+import { publicJaText } from "@/lib/public-case-text";
 import type { Case } from "@/lib/types";
 import { salesFormatLabel, targetCountryLabel } from "@/lib/types";
+import { resolveWholesalePriceDisplay } from "@/lib/wholesale-price-display";
 
 type CaseCardProps = {
   caseItem: Case;
@@ -20,6 +22,10 @@ function formatDate(value: string) {
 export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
   const delayClass = index < 3 ? `delay-${index + 1}` : "";
   const sku = caseItem.sku?.trim() || "";
+  const summary =
+    publicJaText(caseItem.summary) ||
+    `${caseItem.category}の海外ブランド商品。取引条件を確認できます。`;
+  const wholesale = resolveWholesalePriceDisplay(caseItem.priceBand, "ja").primary;
 
   return (
     <article
@@ -63,15 +69,15 @@ export function CaseCard({ caseItem, index = 0 }: CaseCardProps) {
         </h3>
       </Link>
 
-      <p className="mt-2 text-xs text-muted">
-        参考卸価格帯: {displayPriceBand(caseItem.priceBand)}
-        {" ／ "}
-        MOQ: {displayMoq(caseItem.minOrder)}
-      </p>
+        <p className="mt-2 text-xs text-muted">
+          参考卸価格帯: {wholesale}
+          {" ／ "}
+          MOQ: {displayMoqJa(caseItem.minOrder)}
+        </p>
 
       <Link href={`/cases/${caseItem.id}`} className="group mt-3 block">
         <p className="line-clamp-2 text-sm leading-relaxed text-foreground/85">
-          {caseItem.summary}
+          {summary}
         </p>
         <div className="mt-4 flex items-center justify-between gap-3">
           <span className="text-sm font-medium text-teal group-hover:underline">

@@ -7,6 +7,11 @@ import {
   HowToSellInJapanEnSeoEarly,
   HowToSellInJapanEnSeoLate,
 } from "@/components/guides/HowToSellInJapanEnSeo";
+import {
+  HowToSellInJapanJaSeoEarly,
+  HowToSellInJapanJaSeoLate,
+} from "@/components/guides/HowToSellInJapanJaSeo";
+import { HOW_TO_SELL_JA_FAQS } from "@/lib/guides/how-to-sell-ja-faq";
 
 type Locale = "en" | "ja";
 
@@ -298,11 +303,12 @@ const copy = {
     ctaHref: "/en/register/maker",
   },
   ja: {
-    eyebrow: "USA → 日本 輸入ガイド",
-    title: "日本で販売する方法",
-    lead: "海外の商品提供企業が商品登録から、日本の販売パートナーとの出荷・販売までを把握できるガイドです。初心者でも約5分で流れがわかります。",
+    eyebrow: "日本で販売する方法",
+    title: "海外ブランドが日本で販売する方法",
+    lead: "代理店・卸売・小売・EC・インポーターの違いから、MOQ・卸価格・輸入・契約まで。日本法人がなくても、販売パートナーと取引を始める流れを実務ベースで解説します。",
     introTitle: "日本販売は初めてですか？",
-    introBody: "大丈夫です。このガイドで流れをかんたんに説明します。",
+    introBody:
+      "チャネルの選び方、取引条件の揃え方、輸入と表示の確認順を、このページで一通り追えます。詳細は下の関連ガイドへ進んでください。",
     step1Title: "全体の流れ",
     step1Nodes: [
       "海外の商品提供企業",
@@ -389,28 +395,7 @@ const copy = {
       "独占流通の相談",
     ],
     faqTitle: "よくある質問",
-    faqs: [
-      {
-        q: "日本に会社は必要ですか？",
-        a: "いいえ、不要です。",
-      },
-      {
-        q: "アメリカから直接送れますか？",
-        a: "はい、可能です。",
-      },
-      {
-        q: "通関は誰が行いますか？",
-        a: "多くの場合、日本の販売パートナーが対応します。",
-      },
-      {
-        q: "費用はいくらかかりますか？",
-        a: "登録は無料です。",
-      },
-      {
-        q: "BrandBridgeは輸入や商品の買い取りをしますか？",
-        a: "いいえ。BrandBridgeは海外ブランドと日本の販売パートナーをつなぐ場です。取引契約は両社の間で直接行われます。",
-      },
-    ],
+    faqs: HOW_TO_SELL_JA_FAQS,
     ctaBadges: ["登録無料", "約5分", "日本法人は不要"],
     finalTitle: "日本で売り始めませんか？",
     ctaButton: "商品を登録する",
@@ -538,7 +523,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
         </div>
       </section>
 
-      {locale === "en" ? <HowToSellInJapanEnSeoEarly /> : null}
+      {locale === "en" ? <HowToSellInJapanEnSeoEarly /> : <HowToSellInJapanJaSeoEarly />}
 
       {/* STEP 3 — Roles */}
       <section className="border-b border-black/8 py-16 md:py-20">
@@ -690,7 +675,7 @@ export function HowToSellInJapan({ locale }: HowToSellInJapanProps) {
         </div>
       </section>
 
-      {locale === "en" ? <HowToSellInJapanEnSeoLate /> : null}
+      {locale === "en" ? <HowToSellInJapanEnSeoLate /> : <HowToSellInJapanJaSeoLate />}
 
       {/* Comparison */}
       <section className="border-b border-black/8 py-16 md:py-20">

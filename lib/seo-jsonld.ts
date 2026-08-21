@@ -1,6 +1,7 @@
 import type { CaseFaqItem } from "@/lib/case-detail-seo";
 import { enCategoryLabel, resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { googleProductCategoryJsonLd } from "@/lib/google-product-category";
+import { publicJaText } from "@/lib/public-case-text";
 import { displayMoqJa } from "@/lib/price-display";
 import { getSiteUrl, toOfficialPublicUrl } from "@/lib/site";
 import type { Case } from "@/lib/types";
@@ -133,10 +134,11 @@ export function productJsonLd(
   const name =
     en?.productName || caseItem.productName?.trim() || caseItem.title;
   const description = (
-    (locale === "en" ? en?.description : null) ||
-    caseItem.summary?.trim() ||
-    caseItem.description?.trim() ||
-    ""
+    locale === "en"
+      ? en?.description || ""
+      : publicJaText(caseItem.summary) ||
+        publicJaText(caseItem.description) ||
+        ""
   ).slice(0, 5000);
   const image = absoluteImageUrl(caseItem.productImageUrl);
   const sku = jsonLdSku(caseItem.sku);

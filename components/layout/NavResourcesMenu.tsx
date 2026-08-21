@@ -54,6 +54,14 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
           label: "海外ブランドを日本で販売するには",
         },
         {
+          href: "/ja/blog/what-is-moq-for-overseas-products",
+          label: "MOQとは",
+        },
+        {
+          href: "/ja/categories",
+          label: "業界別ガイド",
+        },
+        {
           href: "/product-showcase",
           label: "商品掲載サンプル",
         },

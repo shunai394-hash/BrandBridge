@@ -1,6 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { CaseImageGallery } from "@/components/cases/CaseImageGallery";
+import { ProductCaseImage } from "@/components/cases/ProductCaseImage";
 import { ProductVideo } from "@/components/cases/ProductVideo";
 import { FavoriteButton } from "@/components/cases/FavoriteButton";
 import { WholesalePriceRange } from "@/components/cases/WholesalePriceRange";
@@ -29,9 +30,12 @@ import {
 import {
   caseBuyerOverview,
   caseDetailFaqs,
+  caseJapanMarketNotes,
+  casePartnerFitNotes,
   relatedJaBlogLinks,
   relatedJaCategoryLinks,
 } from "@/lib/case-detail-seo";
+import { publicJaText } from "@/lib/public-case-text";
 
 type CaseDetailProps = {
   caseItem: Case;
@@ -40,6 +44,7 @@ type CaseDetailProps = {
   isFavorited: boolean;
   showPendingBanner?: boolean;
   showPartnerPricing: boolean;
+  relatedCases?: Case[];
 };
 
 function InfoRow({ label, value }: { label: string; value: ReactNode }) {
@@ -77,6 +82,7 @@ export function CaseDetailView({
   isFavorited,
   showPendingBanner = false,
   showPartnerPricing,
+  relatedCases = [],
 }: CaseDetailProps) {
   const negotiateHref = `/cases/${caseItem.id}/negotiation`;
   const jaCategory = getJaCategoryByCaseCategory(caseItem.category);
@@ -98,10 +104,15 @@ export function CaseDetailView({
   const categoryLinks = relatedJaCategoryLinks(caseItem.category);
   const blogLinks = relatedJaBlogLinks(caseItem.category);
   const overview = caseBuyerOverview(caseItem);
-  const description = caseItem.description?.trim() || "";
-  const summary = caseItem.summary?.trim();
+  const marketNotes = caseJapanMarketNotes(caseItem);
+  const partnerFit = casePartnerFitNotes(caseItem);
+  const description = publicJaText(caseItem.description);
+  const summary = publicJaText(caseItem.summary);
+  const features = publicJaText(caseItem.productFeatures);
   const showSummary = Boolean(summary && summary !== description);
-  const origin = caseItem.shipFrom?.trim();
+  const origin = publicJaText(caseItem.shipFrom);
+  const jaOptional = (value: string | null | undefined) =>
+    displayOptionalText(publicJaText(value) || null);
 
   return (
     <article className="animate-fade-up" lang="ja">
@@ -180,11 +191,6 @@ export function CaseDetailView({
           ) : null}
 
           <InfoRow
-            label="販売形式"
-            value={salesFormatLabel(caseItem.salesFormat)}
-          />
-
-          <InfoRow
             label="卸売価格帯"
             value={
               <WholesalePriceRange
@@ -198,28 +204,12 @@ export function CaseDetailView({
             label="MOQ・最低注文数量"
             value={displayMoqJa(caseItem.minOrder)}
           />
-
-          {origin ? (
-            <InfoRow label="原産国・出荷元" value={origin} />
-          ) : null}
-
-          <InfoRow
-            label="独占販売可否"
-            value={displayExclusiveDealOption(caseItem.exclusiveDealOption)}
-          />
-
-          {showCompanyName ? (
-            <InfoRow
-              label="会社名"
-              value={caseItem.makerName?.trim() || "未設定"}
-            />
-          ) : null}
         </dl>
       </header>
 
       <section className="mt-8">
         <h2 className="font-display-jp text-xl text-navy">
-          仕入れを検討するときに見ること
+          概要
         </h2>
         <div className="mt-3 space-y-4 text-sm leading-relaxed text-muted md:text-base">
           {overview.map((paragraph) => (
@@ -236,7 +226,7 @@ export function CaseDetailView({
 
       <section className="mt-8">
         <h2 className="font-display-jp text-xl text-navy">
-          商品説明
+          商品の特徴
         </h2>
 
         {showSummary ? (
@@ -245,49 +235,75 @@ export function CaseDetailView({
           </p>
         ) : null}
 
-        <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
-          {description || "商品説明はまだ登録されていません。"}
-        </p>
+        {description ? (
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+            {description}
+          </p>
+        ) : !showSummary ? (
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            日本語の商品説明は未登録です。取引条件とカテゴリーから判断できます。
+          </p>
+        ) : null}
 
-        {caseItem.productFeatures?.trim() ? (
-          <>
-            <h3 className="mt-6 text-sm font-medium text-muted">
-              商品の特徴
-            </h3>
-
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-navy">
-              {caseItem.productFeatures.trim()}
-            </p>
-          </>
+        {features ? (
+          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-navy">
+            {features}
+          </p>
         ) : null}
       </section>
 
-      <DetailSection title="ブランド情報">
+      <DetailSection title="ブランドについて">
         <InfoRow
           label="ブランド名"
-          value={displayOptionalText(caseItem.brandName)}
+          value={jaOptional(caseItem.brandName)}
+        />
+
+        <InfoRow
+          label="原産国・出荷元"
+          value={origin || "—"}
         />
 
         <InfoRow
           label="ブランド概要"
-          value={displayOptionalText(caseItem.brandOverview)}
+          value={jaOptional(caseItem.brandOverview)}
         />
 
         <InfoRow
           label="商品の強み"
-          value={displayOptionalText(caseItem.productStrengths)}
+          value={jaOptional(caseItem.productStrengths)}
         />
+
+        {showCompanyName ? (
+          <InfoRow
+            label="会社名"
+            value={caseItem.makerName?.trim() || "未設定"}
+          />
+        ) : null}
       </DetailSection>
+
+      <section className="mt-8">
+        <h2 className="font-display-jp text-xl text-navy">
+          日本市場での販売可能性
+        </h2>
+        <p className="mt-2 text-xs text-muted">
+          以下は掲載データに基づく整理です。未登録の販路適性は断定しません。
+        </p>
+        <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted md:text-base">
+          {marketNotes.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </section>
 
       <DetailSection title="販売情報">
         <InfoRow
           label="既存販売実績"
-          value={displayOptionalText(caseItem.salesTrackRecord)}
+          value={jaOptional(caseItem.salesTrackRecord)}
         />
 
         <InfoRow
           label="日本・米国の販売可否"
-          value={displayOptionalText(caseItem.marketAvailabilityJpUs)}
+          value={jaOptional(caseItem.marketAvailabilityJpUs)}
         />
 
         <InfoRow
@@ -297,14 +313,19 @@ export function CaseDetailView({
 
         <InfoRow
           label="リードタイム"
-          value={displayOptionalText(caseItem.leadTime)}
+          value={jaOptional(caseItem.leadTime)}
         />
       </DetailSection>
 
       <DetailSection title="取引条件">
         <InfoRow
+          label="販売形式"
+          value={salesFormatLabel(caseItem.salesFormat)}
+        />
+
+        <InfoRow
           label="初回発注条件"
-          value={displayOptionalText(caseItem.initialOrderTerms)}
+          value={jaOptional(caseItem.initialOrderTerms)}
         />
 
         <InfoRow
@@ -324,7 +345,7 @@ export function CaseDetailView({
 
         <InfoRow
           label="販売条件"
-          value={displayOptionalText(caseItem.salesTerms)}
+          value={jaOptional(caseItem.salesTerms)}
         />
 
         <InfoRow
@@ -348,7 +369,7 @@ export function CaseDetailView({
       <DetailSection title="輸入・出荷条件">
         <InfoRow
           label="原産国・出荷元"
-          value={displayOptionalText(caseItem.shipFrom)}
+          value={origin || "—"}
         />
 
         <InfoRow
@@ -363,19 +384,33 @@ export function CaseDetailView({
 
         <InfoRow
           label="取引条件（Incoterms）"
-          value={displayOptionalText(caseItem.incoterms)}
+          value={jaOptional(caseItem.incoterms)}
         />
 
         <InfoRow
           label="必要認証"
-          value={displayOptionalText(caseItem.certifications)}
+          value={jaOptional(caseItem.certifications)}
         />
 
         <InfoRow
           label="対応言語"
-          value={displayOptionalText(caseItem.supportLanguages)}
+          value={jaOptional(caseItem.supportLanguages)}
         />
       </DetailSection>
+
+      <section className="mt-8">
+        <h2 className="font-display-jp text-xl text-navy">
+          こんな販売パートナーに向いている
+        </h2>
+        <p className="mt-2 text-xs text-muted">
+          掲載のカテゴリーと取引条件からの整理です。未登録の適性は推測しません。
+        </p>
+        <div className="mt-3 space-y-3 text-sm leading-relaxed text-muted md:text-base">
+          {partnerFit.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </section>
 
       {partnerUnlocked ? (
         <section className="mt-8">
@@ -524,7 +559,7 @@ export function CaseDetailView({
             関連する日本語ガイド
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-muted">
-            仕入れ条件や注意点は、商品詳細とあわせて次のガイドも参照できます。
+            仕入れ条件や日本進出の実務は、商品詳細とあわせて次のガイドも参照できます。
           </p>
           <ul className="mt-4 space-y-2.5">
             {blogLinks.map((link) => (
@@ -538,13 +573,50 @@ export function CaseDetailView({
         </section>
       ) : null}
 
+      {relatedCases.length > 0 ? (
+        <section className="mt-10 border-t border-border pt-8">
+          <h2 className="font-display-jp text-xl text-navy">関連商品</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            同じカテゴリーを中心に、公開中の他の商品です。
+          </p>
+          <ul className="mt-5 grid gap-4 sm:grid-cols-2">
+            {relatedCases.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`/cases/${item.id}`}
+                  className="flex gap-3 rounded-lg border border-border p-3 transition hover:border-teal"
+                >
+                  <div className="w-20 shrink-0">
+                    <ProductCaseImage
+                      src={item.productImageUrl}
+                      alt={item.productName}
+                      size="tiny"
+                      usePlaceholder
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted">{item.category}</p>
+                    <p className="mt-1 font-medium leading-snug text-navy">
+                      {item.productName}
+                    </p>
+                    <p className="mt-1 text-xs text-muted">
+                      MOQ {displayMoqJa(item.minOrder)}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <div className="mt-10 flex flex-wrap gap-3 border-t border-border pt-8">
         {partnerUnlocked && isPartner && canStartNegotiation ? (
           <>
             <Button href={negotiateHref}>
               {alreadyApplied
                 ? "新しいメッセージで交渉"
-                : "商品について交渉・問い合わせ"}
+                : "この商品について販売パートナーとして問い合わせる"}
             </Button>
 
             {alreadyApplied ? (

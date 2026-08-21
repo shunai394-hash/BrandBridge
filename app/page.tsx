@@ -302,11 +302,43 @@ export default async function HomePage() {
             <p className="mt-3 leading-relaxed text-muted">
               バイヤー、卸、小売、EC事業者が海外ブランドを扱うときの進め方を図解しています。
             </p>
-            <div className="mt-6">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button href="/how-to-sell-in-japan" className="w-full sm:w-auto">
                 日本で販売する方法を見る
               </Button>
+              <Button href="/ja/blog" variant="outline" className="w-full sm:w-auto">
+                日本語ガイド一覧
+              </Button>
             </div>
+            <ul className="mt-6 grid gap-2 sm:grid-cols-2">
+              {[
+                {
+                  href: "/ja/blog/how-overseas-brands-enter-japan",
+                  label: "日本進出ガイド",
+                },
+                {
+                  href: "/ja/blog/how-to-find-japanese-distributor",
+                  label: "日本の販売パートナー",
+                },
+                {
+                  href: "/ja/blog/what-is-moq-for-overseas-products",
+                  label: "MOQ・卸価格ガイド",
+                },
+                {
+                  href: "/ja/categories",
+                  label: "業界別日本進出ガイド",
+                },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-teal hover:underline"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>

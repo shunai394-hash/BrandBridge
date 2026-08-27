@@ -18,9 +18,9 @@ import { selfLanguageAlternates } from "@/lib/hreflang";
 export const dynamic = "force-static";
 
 const PATH = JA_BLOG_HUB.path;
-const TITLE = "海外商品の仕入れ・卸｜日本語ブログ";
+const TITLE = "海外ブランドを仕入れたい日本企業向けガイド";
 const DESCRIPTION =
-  "海外商品・海外ブランドの仕入れ先の探し方、卸取引、代理店の進め方を日本語で解説。日本の販売パートナー向けと海外メーカー向けの実務ガイドです。";
+  "海外ブランド・海外商品を仕入れたい日本の卸・小売・EC向けガイド。仕入れ先の探し方、卸取引、代理店の進め方と、海外メーカー向けの日本進出記事をまとめます。";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -107,10 +107,10 @@ export default function JapaneseBlogHubPage() {
             {JA_BLOG_HUB.label}
           </p>
           <h1 className="font-display-jp mt-5 text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
-            海外商品の仕入れ・卸の実務ガイド
+            海外ブランドを仕入れたい日本企業向けガイド
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            海外ブランドの仕入れルート、卸条件、日本の販売パートナーの探し方を、目的別・カテゴリー別にまとめています。
+            海外ブランドの仕入れルート、卸条件、カテゴリー別の確認ポイントをまとめました。海外ブランド側の日本進出記事は日本市場ガイドからも探せます。
           </p>
           <nav
             aria-label="記事の分類"
@@ -207,6 +207,14 @@ export default function JapaneseBlogHubPage() {
               関連ページ
             </h2>
             <ul className="mt-6 space-y-2.5">
+              <li>
+                <Link
+                  href="/ja/japan-market-guide"
+                  className="text-teal hover:underline"
+                >
+                  日本市場ガイド（海外ブランド向け）
+                </Link>
+              </li>
               <li>
                 <Link href="/cases" className="text-teal hover:underline">
                   商品一覧

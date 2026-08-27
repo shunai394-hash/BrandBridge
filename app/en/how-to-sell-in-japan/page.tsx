@@ -4,9 +4,9 @@ import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { getSiteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "How to Sell in Japan",
+  title: "How to Sell in Japan | Products & Online Channels",
   description:
-    "Learn how to sell in Japan and sell products to Japanese partners. Compare Japanese distributor, agent, retailer, and ecommerce models, then prepare MOQ, wholesale price, shipping, and exclusivity terms on BrandBridge.",
+    "How to sell products in Japan and sell online with Japanese distributors, retailers, and ecommerce partners. Prepare MOQ, wholesale price, shipping, and a controlled first order on BrandBridge.",
   ...pairedLanguageAlternates(
     "/how-to-sell-in-japan",
     "/en/how-to-sell-in-japan",
@@ -40,6 +40,14 @@ const faqJsonLd = {
       acceptedAnswer: {
         "@type": "Answer",
         text: "In many cases, your Japanese sales partner handles import procedures. Confirm responsibility and Incoterms before the first shipment. Requirements vary by product and category.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How do I sell products online in Japan?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Many overseas brands sell online in Japan through a Japanese ecommerce partner or online retailer first. Prepare wholesale price, MOQ, and shipping terms, then use sell-through data before wider retail or distributor expansion.",
       },
     },
     {

@@ -21,6 +21,10 @@ export function pairedLanguageAlternates(
   };
 }
 
+/**
+ * Monolingual pages: self canonical + self hreflang.
+ * x-default points to this page (no invented language counterpart).
+ */
 export function selfLanguageAlternates(
   path: string,
   lang: "ja" | "en",
@@ -30,6 +34,7 @@ export function selfLanguageAlternates(
       canonical: path,
       languages: {
         [lang]: path,
+        "x-default": path,
       },
     },
   };

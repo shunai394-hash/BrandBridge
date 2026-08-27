@@ -10,7 +10,7 @@ import {
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { getJaBlogArticle } from "@/lib/blog/ja-articles";
-import { jsonLdString } from "@/lib/seo-jsonld";
+import { blogPostingJsonLd, jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 
 type JaBlogArticleProps = {
@@ -44,6 +44,7 @@ function clusterServiceLinks(cluster: JaBlogCluster): ServiceLink[] {
   if (cluster === "maker") {
     return [
       hub,
+      { href: "/ja/japan-market-guide", label: "日本市場ガイド" },
       { href: "/for-makers", label: "商品提供企業の方へ" },
       { href: "/how-to-sell-in-japan", label: "日本で販売する方法" },
     ];
@@ -108,6 +109,15 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
   const serviceHrefs = new Set(serviceLinks.map((link) => link.href));
   const relatedArticles = related.filter((link) => !serviceHrefs.has(link.href));
 
+  const posting = blogPostingJsonLd({
+    headline: article.title,
+    description: article.description,
+    path,
+    inLanguage: "ja",
+  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strip @context for @graph
+  const { "@context": _ctx, ...blogPosting } = posting;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -134,14 +144,7 @@ export function JaBlogArticle({ article }: JaBlogArticleProps) {
           },
         ],
       },
-      {
-        "@type": "Article",
-        headline: article.title,
-        description: article.description,
-        inLanguage: "ja",
-        mainEntityOfPage: pageUrl,
-        url: pageUrl,
-      },
+      blogPosting,
     ],
   };
 

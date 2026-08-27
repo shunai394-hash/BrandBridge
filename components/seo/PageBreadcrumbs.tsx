@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   breadcrumbJsonLd,
+  jsonLdString,
   type BreadcrumbItem,
 } from "@/lib/seo-jsonld";
 
@@ -17,7 +18,7 @@ export function PageBreadcrumbs({ items, className }: PageBreadcrumbsProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd(items)),
+          __html: jsonLdString(breadcrumbJsonLd(items)),
         }}
       />
       <nav aria-label="パンくずリスト" className={className ?? "mb-6"}>

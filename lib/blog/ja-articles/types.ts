@@ -53,7 +53,7 @@ export const JA_BLOG_CLUSTER_LABEL: Record<JaBlogCluster, string> = {
 
 export const JA_BLOG_HUB = {
   path: "/ja/blog",
-  label: "日本語ブログ",
+  label: "仕入れガイド",
 } as const;
 
 /** Category landings used from 仕入れ / 卸 search-intent articles. */

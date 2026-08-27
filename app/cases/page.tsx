@@ -1,11 +1,16 @@
 ﻿import type { Metadata } from "next";
 import { unstable_noStore as noStore } from "next/cache";
+import Link from "next/link";
 
 import { CaseList, type CaseListItem } from "@/components/cases/CaseList";
 import { PlatformStatsCard } from "@/components/cases/PlatformStatsCard";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 import { listOpenCases } from "@/lib/cases";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
+import {
+  itemListJsonLd,
+  jsonLdString,
+} from "@/lib/seo-jsonld";
 import { getPlatformStats } from "@/lib/platform-stats";
 import { caseCategories } from "@/lib/types";
 
@@ -65,6 +70,23 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(
+            itemListJsonLd({
+              name: "海外ブランドの商品一覧",
+              description:
+                "日本の卸・小売・EC事業者が海外ブランドの商品を探せる一覧",
+              path: "/cases",
+              items: listItems.slice(0, 30).map((item) => ({
+                name: item.productName || item.title,
+                path: `/cases/${item.id}`,
+              })),
+            }),
+          ),
+        }}
+      />
       <PageBreadcrumbs
         items={[
           { name: "ホーム", path: "/" },
@@ -78,6 +100,22 @@ export default async function CasesPage({ searchParams }: CasesPageProps) {
 
         <p className="mt-3 text-muted">
           海外ブランドの商品を、カテゴリや取引条件から探せます。
+        </p>
+        <p className="mt-3 text-sm text-muted">
+          <Link href="/ja/categories" className="text-teal hover:underline">
+            カテゴリから商品を探す
+          </Link>
+          {" · "}
+          <Link
+            href="/ja/japan-market-guide"
+            className="text-teal hover:underline"
+          >
+            日本市場ガイド
+          </Link>
+          {" · "}
+          <Link href="/ja/blog" className="text-teal hover:underline">
+            仕入れガイド
+          </Link>
         </p>
       </header>
 

@@ -12,6 +12,7 @@ import { resolveEnCatalogDisplay } from "@/lib/en-case-catalog";
 import { brandDisplayName } from "@/lib/en-japan-opportunity";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { listPublishedModelCases } from "@/lib/model-cases";
+import { itemListJsonLd, jsonLdString } from "@/lib/seo-jsonld";
 import type { Case } from "@/lib/types";
 
 function toListItem(item: Case): EnCaseListItem {
@@ -94,6 +95,27 @@ export default async function EnglishCasesPage({
 
   return (
     <div className="mx-auto max-w-7xl px-5 py-12 md:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(
+            itemListJsonLd({
+              name: "Japan Expansion Opportunities",
+              description:
+                "Overseas brands seeking Japanese distributors, retailers, and e-commerce partners",
+              path: "/en/cases",
+              items: listItems.slice(0, 30).map((item) => ({
+                name: brandDisplayName({
+                  brandName: item.brandName,
+                  productName: item.productName,
+                  makerName: item.makerName,
+                }),
+                path: `/en/cases/${item.id}`,
+              })),
+            }),
+          ),
+        }}
+      />
       <PageBreadcrumbs
         items={[
           { name: "Home", path: "/en" },

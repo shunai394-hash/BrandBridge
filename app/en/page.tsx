@@ -2,6 +2,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
+import {
+  jsonLdString,
+  organizationJsonLd,
+  websiteJsonLd,
+} from "@/lib/seo-jsonld";
 
 export const metadata: Metadata = {
   title: {
@@ -129,6 +134,18 @@ const faqs = [
 export default function EnglishHomePage() {
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(organizationJsonLd()),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(websiteJsonLd("en")),
+        }}
+      />
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_30%,rgba(26,138,138,0.35),transparent_55%),radial-gradient(ellipse_at_80%_70%,rgba(20,111,111,0.25),transparent_50%)]"

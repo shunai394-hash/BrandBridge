@@ -5,13 +5,18 @@ import {
   jaCategoryPath,
   listJaCategories,
 } from "@/lib/ja-categories";
-import { getSiteUrl } from "@/lib/site";
+import {
+  collectionPageJsonLd,
+  itemListJsonLd,
+  jsonLdString,
+} from "@/lib/seo-jsonld";
+import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
 
 const PATH = "/ja/categories";
-const TITLE = "海外商品のカテゴリー｜日本の販売パートナー向け";
+const TITLE = "海外ブランドの商品カテゴリ一覧";
 const DESCRIPTION =
-  "食品、コスメ、アパレル、ホーム、ヘルスケアなど、海外商品をカテゴリー別に探す入口です。取引条件を確認しながら掲載商品へ進めます。";
-const H1 = "海外商品を探している日本の事業者へ";
+  "食品、コスメ、ヘルスケア、ホーム、アパレルなど、海外ブランドの商品をカテゴリー別に探す入口です。取引条件を確認しながら掲載商品へ進めます。";
+const H1 = "海外ブランドの商品カテゴリ一覧";
 
 export const dynamic = "force-static";
 
@@ -33,28 +38,51 @@ export const metadata: Metadata = {
 };
 
 export default function JapaneseCategoriesHubPage() {
-  const siteUrl = getSiteUrl();
   const categories = listJaCategories();
+  const extraCategoryLinks = [
+    {
+      label: "アウトドア",
+      note: "スポーツ",
+      path: `/cases?category=${encodeURIComponent("スポーツ")}`,
+      lede: "スポーツ・アウトドア関連の海外ブランドを商品一覧から探せます。",
+    },
+    {
+      label: "家電・ガジェット",
+      note: "家電・ガジェット",
+      path: `/cases?category=${encodeURIComponent("家電・ガジェット")}`,
+      lede: "家電・ガジェットの掲載商品をカテゴリーフィルタで確認できます。",
+    },
+    {
+      label: "雑貨・ライフスタイル",
+      note: "雑貨・ライフスタイル",
+      path: `/cases?category=${encodeURIComponent("雑貨・ライフスタイル")}`,
+      lede: "雑貨・ライフスタイルの海外ブランド候補を商品一覧から探せます。",
+    },
+  ] as const;
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "ホーム",
-            item: siteUrl,
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: "カテゴリー",
-            item: `${siteUrl}${PATH}`,
-          },
+      collectionPageJsonLd({
+        name: TITLE,
+        description: DESCRIPTION,
+        path: PATH,
+        inLanguage: "ja",
+      }),
+      itemListJsonLd({
+        name: TITLE,
+        description: DESCRIPTION,
+        path: PATH,
+        items: [
+          ...categories.map((item) => ({
+            name: item.label,
+            path: jaCategoryPath(item.slug),
+          })),
+          ...extraCategoryLinks.map((item) => ({
+            name: item.label,
+            path: item.path,
+          })),
         ],
-      },
+      }),
     ],
   };
 
@@ -62,8 +90,19 @@ export default function JapaneseCategoriesHubPage() {
     <div>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
+
+      <div className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-3xl px-5 pt-8">
+          <PageBreadcrumbs
+            items={[
+              { name: "ホーム", path: "/" },
+              { name: "カテゴリー", path: PATH },
+            ]}
+          />
+        </div>
+      </div>
 
       <section className="relative overflow-hidden bg-navy-deep text-white">
         <div
@@ -78,7 +117,7 @@ export default function JapaneseCategoriesHubPage() {
             {H1}
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            バイヤー、卸売業者、小売店、EC事業者が、海外商品をカテゴリーから探せます。各ページから該当の商品一覧へ進めます。
+            バイヤー、卸売業者、小売店、EC事業者が、海外ブランドの商品をカテゴリーから探せます。各ページから該当の商品一覧へ進めます。
           </p>
         </div>
       </section>
@@ -95,7 +134,25 @@ export default function JapaneseCategoriesHubPage() {
                   <span className="font-[family-name:var(--font-shippori)] text-lg text-navy">
                     {item.label}
                   </span>
-                  <span className="mt-1 text-xs text-muted">{item.caseCategory}</span>
+                  <span className="mt-1 text-xs text-muted">
+                    {item.caseCategory}
+                  </span>
+                  <span className="mt-3 text-sm leading-relaxed text-muted">
+                    {item.lede}
+                  </span>
+                </Link>
+              </li>
+            ))}
+            {extraCategoryLinks.map((item) => (
+              <li key={item.path}>
+                <Link
+                  href={item.path}
+                  className="flex h-full flex-col rounded-xl border border-border bg-background px-5 py-5 transition hover:border-teal"
+                >
+                  <span className="font-[family-name:var(--font-shippori)] text-lg text-navy">
+                    {item.label}
+                  </span>
+                  <span className="mt-1 text-xs text-muted">{item.note}</span>
                   <span className="mt-3 text-sm leading-relaxed text-muted">
                     {item.lede}
                   </span>
@@ -103,6 +160,40 @@ export default function JapaneseCategoriesHubPage() {
               </li>
             ))}
           </ul>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy">
+              関連ハブ
+            </h2>
+            <ul className="mt-6 space-y-2.5">
+              <li>
+                <Link href="/cases" className="text-teal hover:underline">
+                  海外ブランドを探す（商品一覧）
+                </Link>
+              </li>
+              <li>
+                <Link href="/ja/blog" className="text-teal hover:underline">
+                  海外ブランドを仕入れたい日本企業向けガイド
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/ja/japan-market-guide"
+                  className="text-teal hover:underline"
+                >
+                  日本市場ガイド
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/register/partner"
+                  className="text-teal hover:underline"
+                >
+                  販売パートナー登録
+                </Link>
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
     </div>

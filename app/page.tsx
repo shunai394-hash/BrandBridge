@@ -4,6 +4,11 @@ import { Button } from "@/components/ui/Button";
 import { getLatestCases, getPopularCases } from "@/lib/cases";
 import { pairedLanguageAlternates } from "@/lib/hreflang";
 import { jaCategoryPath, listJaCategories } from "@/lib/ja-categories";
+import {
+  jsonLdString,
+  organizationJsonLd,
+  websiteJsonLd,
+} from "@/lib/seo-jsonld";
 import { caseCategories } from "@/lib/types";
 import Link from "next/link";
 
@@ -185,6 +190,19 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(organizationJsonLd()),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdString(websiteJsonLd("ja")),
+        }}
+      />
+
       {/* 1. Hero — value first */}
       <section className="relative min-h-[min(100svh,880px)] overflow-hidden bg-navy-deep text-white">
         <div
@@ -295,7 +313,50 @@ export default async function HomePage() {
 
       <section className="border-b border-border bg-surface">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
-          <div className="max-w-2xl rounded-xl border border-border bg-cream/40 p-6 md:p-8">
+          <div className="max-w-3xl">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              目的から探す
+            </h2>
+            <p className="mt-3 leading-relaxed text-muted">
+              検索意図に合わせて、ガイド・カテゴリー・商品・登録へ進めます。
+            </p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {[
+                { href: "/cases", label: "海外ブランドを探す" },
+                {
+                  href: "/ja/categories",
+                  label: "カテゴリから商品を探す",
+                },
+                {
+                  href: "/ja/japan-market-guide",
+                  label: "日本で販売したい海外ブランドへ",
+                },
+                {
+                  href: "/ja/japan-market-guide",
+                  label: "日本市場ガイド",
+                },
+                {
+                  href: "/register/maker",
+                  label: "海外ブランドを掲載する",
+                },
+                {
+                  href: "/ja/blog",
+                  label: "海外ブランドを仕入れたい日本企業向けガイド",
+                },
+              ].map((item) => (
+                <li key={`${item.href}-${item.label}`}>
+                  <Link
+                    href={item.href}
+                    className="text-sm font-medium text-teal hover:underline"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-10 max-w-2xl rounded-xl border border-border bg-cream/40 p-6 md:p-8">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
               はじめて海外商品を仕入れる方へ
             </h2>
@@ -313,6 +374,10 @@ export default async function HomePage() {
             <ul className="mt-6 grid gap-2 sm:grid-cols-2">
               {[
                 {
+                  href: "/ja/japan-market-guide",
+                  label: "日本市場ガイド",
+                },
+                {
                   href: "/ja/blog/how-overseas-brands-enter-japan",
                   label: "日本進出ガイド",
                 },
@@ -326,7 +391,7 @@ export default async function HomePage() {
                 },
                 {
                   href: "/ja/categories",
-                  label: "業界別日本進出ガイド",
+                  label: "業界別カテゴリー",
                 },
               ].map((item) => (
                 <li key={item.href}>

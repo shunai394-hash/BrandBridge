@@ -6,9 +6,9 @@ import { getSiteUrl } from "@/lib/site";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 
 export const metadata: Metadata = {
-  title: "How to Find Japanese Distributors for Your Brand",
+  title: "How to Find Japanese Distributors & Sales Partners",
   description:
-    "A practical guide for overseas and DTC brands on how to identify, evaluate, and approach Japanese distributors, importers, wholesalers, retailers, and ecommerce partners.",
+    "How overseas brands find Japanese distributors, wholesalers, retailers, and ecommerce partners—define the right supplier profile, research candidates, prepare outreach, and start discussions.",
   ...selfLanguageAlternates(
     "/en/japan-market-entry/how-to-find-japanese-distributors",
     "en",
@@ -171,9 +171,9 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             How to Find Japanese Distributors for Your Brand
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            How overseas brands can identify potential Japanese distributors,
-            research candidates, prepare outreach, and start the first
-            conversation.
+            A practical guide for overseas brands looking for Japanese
+            distributors and related sales partners—how to research candidates,
+            prepare commercial information, and start the first conversation.
           </p>
           <p className="mt-6">
             <Link
@@ -198,7 +198,11 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
           <div className="space-y-5 text-sm leading-relaxed text-muted md:text-base">
             <p>
               Finding a Japanese distributor is often one of the first challenges
-              overseas brands face when entering Japan.
+              overseas brands face when entering Japan. In practice, “finding
+              suppliers in Japan” for a foreign brand usually means finding
+              Japanese companies that can buy, import, and resell—distributors,
+              wholesalers, retailers, and ecommerce partners—not factories that
+              manufacture for you.
             </p>
             <p>
               Japan has a large and sophisticated consumer market, but business
@@ -266,7 +270,31 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               Not every Japanese business partner is a traditional distributor.
+              When brands search for a “distributor Japan” or Japanese supplier
+              for sales, they usually compare these roles:
             </p>
+            <ul className="mt-5 space-y-3 text-sm leading-relaxed text-muted md:text-base">
+              <li>
+                <span className="font-medium text-navy">Distributor</span> —
+                places products with retail, wholesale, or regional accounts and
+                often manages ongoing sales relationships.
+              </li>
+              <li>
+                <span className="font-medium text-navy">Wholesaler</span> —
+                supplies volume to trade buyers; often needs clear MOQ and
+                wholesale pricing early.
+              </li>
+              <li>
+                <span className="font-medium text-navy">Retailer</span> —
+                evaluates shelf or concept fit and sell-through for a store or
+                multi-brand format.
+              </li>
+              <li>
+                <span className="font-medium text-navy">Ecommerce partner</span> —
+                sells online and can support a controlled market test before wider
+                distribution.
+              </li>
+            </ul>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               Depending on your product and strategy, you may want to work with:
             </p>
@@ -278,7 +306,15 @@ export default function HowToFindJapaneseDistributorsArticlePage() {
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted md:text-base">
               The right partner depends on your product, target customer,
-              pricing, sales channel, and market-entry strategy.
+              pricing, sales channel, and market-entry strategy. For the overall
+              selling path, see{" "}
+              <Link
+                href="/en/how-to-sell-in-japan"
+                className="text-teal hover:underline"
+              >
+                How to Sell in Japan
+              </Link>
+              .
             </p>
           </section>
 

@@ -40,6 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/en/blog",
     ...listEnBlogSlugs().map((slug) => `/en/blog/${slug}`),
     "/how-to-sell-in-japan",
+    "/ja/japan-market-guide",
     "/ja/blog",
     ...JA_DEDICATED_GUIDES.map((item) => item.path),
     ...listJaBlogSlugs().map((slug) => `/ja/blog/${slug}`),
@@ -52,7 +53,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${base}${path}`,
     lastModified: now,
     changeFrequency: path === "" || path === "/cases" ? "daily" : "monthly",
-    priority: path === "" ? 1 : path === "/cases" ? 0.9 : 0.6,
+    priority:
+      path === ""
+        ? 1
+        : path === "/cases" || path === "/ja/japan-market-guide"
+          ? 0.9
+          : path === "/ja/blog" || path === "/ja/categories"
+            ? 0.85
+            : 0.6,
   }));
 
   const modelCaseRoutes: MetadataRoute.Sitemap = listModelCaseSlugs().map(

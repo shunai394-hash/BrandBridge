@@ -42,24 +42,24 @@ export function NavResourcesMenu({ locale }: NavResourcesMenuProps) {
       ]
     : [
         {
+          href: "/ja/japan-market-guide",
+          label: "日本市場ガイド",
+        },
+        {
+          href: "/ja/blog",
+          label: "仕入れガイド（日本企業向け）",
+        },
+        {
+          href: "/ja/categories",
+          label: "商品カテゴリ一覧",
+        },
+        {
           href: "/how-to-sell-in-japan",
           label: "日本で販売する方法",
         },
         {
-          href: "/ja/blog",
-          label: "日本語ガイド",
-        },
-        {
           href: "/ja/blog/how-to-sell-overseas-brands-in-japan",
           label: "海外ブランドを日本で販売するには",
-        },
-        {
-          href: "/ja/blog/what-is-moq-for-overseas-products",
-          label: "MOQとは",
-        },
-        {
-          href: "/ja/categories",
-          label: "業界別ガイド",
         },
         {
           href: "/product-showcase",

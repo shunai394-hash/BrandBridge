@@ -12,18 +12,18 @@ import { getEnBlogArticle } from "@/lib/blog/en-articles";
 import { EN_BLOG_INTENT_GROUPS, enBlogPath } from "@/lib/blog/en-articles/types";
 
 export const metadata: Metadata = {
-  title: "Japan Market Entry for Overseas Brands",
+  title: "Japan Market Entry for Overseas Brands | Distributors & Ecommerce",
   description:
-    "English hub for overseas brands entering Japan: Japanese distributors, retailers, import requirements, market-entry cost, and MOQ—plus how to find sales partners.",
+    "Practical Japan market entry guide for overseas brands: how to enter Japan, sell online, work with distributors and retailers, test products, and prepare wholesale terms.",
   ...selfLanguageAlternates("/en/japan-market-entry", "en"),
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: "Japan Market Entry for Overseas Brands",
+    title: "Japan Market Entry for Overseas Brands | Distributors & Ecommerce",
     description:
-      "English hub for overseas brands entering Japan: Japanese distributors, retailers, import requirements, market-entry cost, and MOQ—plus how to find sales partners.",
+      "Practical Japan market entry guide for overseas brands: how to enter Japan, sell online, work with distributors and retailers, test products, and prepare wholesale terms.",
     url: "/en/japan-market-entry",
     locale: "en_US",
     type: "website",
@@ -196,6 +196,63 @@ const resources = [
   },
 ] as const;
 
+const entrySteps = [
+  {
+    title: "1. Clarify Japan fit",
+    body: "Confirm category demand, competitive shelf, and whether your product needs localization before you spend on outreach.",
+  },
+  {
+    title: "2. Choose an entry path",
+    body: "Decide whether a distributor, wholesaler, retailer, ecommerce partner, or a staged mix is the first step—not every brand needs nationwide distribution on day one.",
+  },
+  {
+    title: "3. Prepare commercial terms",
+    body: "Wholesale price, MOQ, Incoterms, exclusivity options, and shipping readiness are what Japanese partners review before a serious conversation.",
+  },
+  {
+    title: "4. Run a controlled test",
+    body: "Start with a limited SKU set, a first order MOQ, and a clear channel (often ecommerce or specialty retail) before scaling.",
+  },
+  {
+    title: "5. Select and qualify partners",
+    body: "Shortlist partners by category coverage and channel strength, then compare terms—not only company size.",
+  },
+  {
+    title: "6. Move into commercial discussion",
+    body: "Once fit is clear, discuss first order, exclusivity scope, and go-to-market responsibilities with shared product information.",
+  },
+] as const;
+
+const ecommerceEntry = [
+  {
+    title: "Start with a Japan ecommerce partner",
+    body: "An online retailer or operator can help you sell products in Japan with clearer first-order economics than a nationwide retail rollout.",
+  },
+  {
+    title: "Use ecommerce as a market test",
+    body: "Online sell-through, reviews, and replenishment data help you judge demand before committing to broader distributor or retail coverage.",
+  },
+  {
+    title: "Keep retail options open",
+    body: "Many brands enter Japan ecommerce first, then add a distributor or retailer once pricing, MOQ, and packaging are proven.",
+  },
+] as const;
+
+const productReadiness = [
+  {
+    title: "Product and assortment",
+    body: "Lead with SKUs that travel well: clear differentiation, stable specs, and a first assortment Japanese partners can explain quickly.",
+  },
+  {
+    title: "Pricing for Japan channels",
+    body: "Wholesale pricing should leave room for import, domestic logistics, and partner margin—not only a home-market conversion.",
+  },
+  {
+    title: "Labeling and documentation",
+    body: "Partners ask early about ingredients, certifications, shelf life, and Japanese labeling readiness. Exact rules vary by category—confirm case by case.",
+  },
+] as const;
+
 const faq = [
   {
     q: "How can an overseas brand find a distributor in Japan?",
@@ -204,6 +261,10 @@ const faq = [
   {
     q: "Does an overseas brand need a Japanese office?",
     a: "Not always. Many brands explore Japan through importers, distributors, retailers, wholesalers, or e-commerce partners without opening a local entity first. The right structure depends on channel, compliance needs, and commercial goals.",
+  },
+  {
+    q: "What is the best way to enter the Japan ecommerce market?",
+    a: "Many overseas brands start with a Japanese ecommerce partner or online retailer for a controlled test: clear MOQ, wholesale terms, and sell-through data before wider distribution. Ecommerce can sit alongside a distributor or retailer later.",
   },
   {
     q: "What information do Japanese distributors need?",
@@ -275,12 +336,31 @@ export default function JapanMarketEntryPage() {
     ],
   };
 
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
+      },
+    })),
+  };
+
   return (
     <div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd),
         }}
       />
 
@@ -301,8 +381,9 @@ export default function JapanMarketEntryPage() {
             Japan Market Entry for Overseas Brands
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
-            A hub for overseas brands researching Japan market entry: Japanese
-            distributors, retailers, import requirements, costs, and MOQ.
+            A practical hub for entering the Japanese market: distributors,
+            retailers, ecommerce partners, product testing, and the commercial
+            terms Japanese buyers expect before a first conversation.
           </p>
           <div className="mt-9 flex w-full max-w-md flex-col gap-3 sm:max-w-none sm:flex-row sm:flex-wrap sm:items-center">
             <Button
@@ -393,8 +474,115 @@ export default function JapanMarketEntryPage() {
         </div>
       </section>
 
-      {/* 4. Common Challenges */}
+      {/* Practical entry steps */}
       <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Practical Steps for Japan Market Entry
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Entering the Japanese market is less about a single “best” channel and
+            more about sequencing: fit, partner type, commercial readiness, a
+            controlled test, then scale. For the BrandBridge workflow after you
+            choose a path, see{" "}
+            <Link
+              href="/en/how-to-sell-in-japan"
+              className="text-teal hover:underline"
+            >
+              How to Sell in Japan
+            </Link>
+            .
+          </p>
+          <ol className="mt-10 grid list-none gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {entrySteps.map((item) => (
+              <li
+                key={item.title}
+                className="rounded-lg border border-border bg-white px-5 py-6"
+              >
+                <h3 className="font-medium text-navy">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {item.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* Ecommerce entry */}
+      <section className="border-b border-border bg-cream">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Entering the Japan Ecommerce Market
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            If your search intent is the best way to enter Japan ecommerce,
+            treat online as a first sales channel—not always as the final
+            structure. Ecommerce partners help you sell online in Japan while you
+            learn pricing, MOQ, and demand before wider retail distribution.
+          </p>
+          <ul className="mt-10 grid list-none gap-5 md:grid-cols-3">
+            {ecommerceEntry.map((item) => (
+              <li
+                key={item.title}
+                className="rounded-lg border border-border bg-white px-5 py-6"
+              >
+                <h3 className="font-medium text-navy">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {item.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 text-sm leading-relaxed text-muted">
+            Looking for distributors or retail partners instead? Start with{" "}
+            <Link
+              href="/en/japan-market-entry/how-to-find-japanese-distributors"
+              className="text-teal hover:underline"
+            >
+              How to Find Japanese Distributors
+            </Link>{" "}
+            or{" "}
+            <Link
+              href="/en/japan-market-entry/how-to-find-japanese-retailers"
+              className="text-teal hover:underline"
+            >
+              How to Find Japanese Retailers
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* Product readiness */}
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
+          <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+            Product, Pricing, and Labeling Readiness
+          </h2>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted md:text-base">
+            Japanese partners evaluate whether they can sell your product—not only
+            whether they like the brand story. Prepare these points before
+            outreach.
+          </p>
+          <ul className="mt-10 grid list-none gap-5 md:grid-cols-3">
+            {productReadiness.map((item) => (
+              <li
+                key={item.title}
+                className="rounded-lg border border-border bg-white px-5 py-6"
+              >
+                <h3 className="font-medium text-navy">{item.title}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {item.body}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* 4. Common Challenges */}
+      <section className="border-b border-border bg-cream">
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-16">
           <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
             Common Challenges

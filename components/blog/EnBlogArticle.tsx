@@ -11,7 +11,7 @@ import {
   type EnBlogArticle as EnBlogArticleData,
 } from "@/lib/blog/en-articles/types";
 import type { CaseFaqItem } from "@/lib/case-detail-seo";
-import { faqPageJsonLd, jsonLdString } from "@/lib/seo-jsonld";
+import { blogPostingJsonLd, faqPageJsonLd, jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
 
 type EnBlogArticleProps = {
@@ -87,6 +87,15 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
   const relatedArticles = related.filter((link) => !serviceHrefs.has(link.href));
   const faqs = (article.faqs ?? []) as CaseFaqItem[];
 
+  const posting = blogPostingJsonLd({
+    headline: article.title,
+    description: article.description,
+    path,
+    inLanguage: "en",
+  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strip @context for @graph
+  const { "@context": _ctx, ...blogPosting } = posting;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -113,14 +122,7 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
           },
         ],
       },
-      {
-        "@type": "Article",
-        headline: article.title,
-        description: article.description,
-        inLanguage: "en",
-        mainEntityOfPage: pageUrl,
-        url: pageUrl,
-      },
+      blogPosting,
     ],
   };
 

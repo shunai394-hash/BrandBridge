@@ -56,6 +56,127 @@ export function faqPageJsonLd(faqs: CaseFaqItem[]) {
   };
 }
 
+/** Sitewide entity for the home page (and optional reuse). */
+export function organizationJsonLd() {
+  const origin = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "BrandBridge",
+    url: origin,
+    logo: `${origin}/icon`,
+    description:
+      "Overseas brands seeking Japan sales partners and Japanese distributors, retailers, and e-commerce operators.",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "恵比寿1-23-9",
+      addressLocality: "渋谷区",
+      addressRegion: "東京都",
+      postalCode: "150-0013",
+      addressCountry: "JP",
+    },
+  };
+}
+
+export function websiteJsonLd(locale: "ja" | "en") {
+  const origin = getSiteUrl();
+  const url = locale === "en" ? `${origin}/en` : origin;
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "BrandBridge",
+    url,
+    inLanguage: locale === "en" ? "en" : "ja",
+    publisher: {
+      "@type": "Organization",
+      name: "BrandBridge",
+      url: origin,
+    },
+  };
+}
+
+export function itemListJsonLd(input: {
+  name: string;
+  description?: string;
+  path: string;
+  items: { name: string; path: string }[];
+}) {
+  const origin = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: input.name,
+    description: input.description,
+    url: `${origin}${input.path}`,
+    numberOfItems: input.items.length,
+    itemListElement: input.items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: `${origin}${item.path}`,
+    })),
+  };
+}
+
+export function collectionPageJsonLd(input: {
+  name: string;
+  description: string;
+  path: string;
+  inLanguage: "ja" | "en";
+}) {
+  const origin = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    description: input.description,
+    inLanguage: input.inLanguage,
+    url: `${origin}${input.path}`,
+  };
+}
+
+export function blogPostingJsonLd(input: {
+  headline: string;
+  description: string;
+  path: string;
+  inLanguage: "ja" | "en";
+  image?: string | null;
+  datePublished?: string | null;
+  dateModified?: string | null;
+}) {
+  const origin = getSiteUrl();
+  const url = `${origin}${input.path}`;
+  const posting: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: input.headline,
+    description: input.description,
+    inLanguage: input.inLanguage,
+    mainEntityOfPage: url,
+    url,
+    author: {
+      "@type": "Organization",
+      name: "BrandBridge",
+      url: origin,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "BrandBridge",
+      url: origin,
+    },
+  };
+  if (input.image) {
+    posting.image = [input.image];
+  }
+  if (input.datePublished) {
+    posting.datePublished = input.datePublished;
+  }
+  if (input.dateModified) {
+    posting.dateModified = input.dateModified;
+  }
+  return posting;
+}
+
 function absoluteImageUrl(url: string | null | undefined): string | undefined {
   const trimmed = url?.trim();
   if (!trimmed) return undefined;

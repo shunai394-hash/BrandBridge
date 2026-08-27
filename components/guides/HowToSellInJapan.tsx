@@ -165,10 +165,10 @@ const copy = {
   en: {
     eyebrow: "How to Sell in Japan",
     title: "How to Sell in Japan",
-    lead: "A practical guide to selling products in Japan for overseas manufacturers—from choosing a Japanese sales partner model to listing, negotiating, shipping, and getting started without a local company.",
+    lead: "A practical guide to selling products in Japan—and selling online—for overseas manufacturers: choose a Japanese sales partner model, prepare commercial terms, run a first test order, and get started without a local company.",
     introTitle: "New to selling in Japan?",
     introBody:
-      "This page explains the full path for how to sell in Japan, including when a Japanese distributor or another partner type may fit.",
+      "This page explains the full path for how to sell products in Japan, including online channels and when a Japanese distributor or another partner type may fit.",
     step1Title: "The journey",
     step1Nodes: [
       "Overseas Manufacturer",
@@ -275,6 +275,10 @@ const copy = {
       {
         q: "Who usually handles customs and import procedures?",
         a: "In many cases, your Japanese sales partner handles import procedures. Confirm responsibility and Incoterms before the first shipment. Requirements vary by product and category.",
+      },
+      {
+        q: "How do I sell products online in Japan?",
+        a: "Many overseas brands sell online in Japan through a Japanese ecommerce partner or online retailer first. Prepare wholesale price, MOQ, and shipping terms, then use sell-through data before wider retail or distributor expansion.",
       },
       {
         q: "Do I always need a Japanese distributor?",

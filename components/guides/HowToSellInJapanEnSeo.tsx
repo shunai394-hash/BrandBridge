@@ -128,7 +128,7 @@ export function HowToSellInJapanEnSeoEarly() {
             ))}
           </div>
 
-          <p className="mt-8 text-sm leading-relaxed text-black/60 md:text-base">
+          <p className="mt-4 text-sm leading-relaxed text-black/60 md:text-base">
             When you select Japanese sales partners, also review what buyers
             typically look for. The{" "}
             <Link
@@ -153,7 +153,59 @@ export function HowToSellInJapanEnSeoEarly() {
             </Link>
             .
           </p>
+        </div>
+      </section>
 
+      <section className="border-b border-black/8 bg-white py-16 md:py-20">
+        <div className="mx-auto max-w-3xl px-5">
+          <p className="text-center text-[11px] font-medium tracking-[0.22em] text-[#C4A35A] uppercase">
+            SELLING ONLINE IN JAPAN
+          </p>
+          <h2 className="mt-3 text-center font-[family-name:var(--font-shippori)] text-3xl text-black md:text-4xl">
+            Selling Online in Japan: Ecommerce as a First Channel
+          </h2>
+          <div className="mt-8 space-y-4 text-sm leading-relaxed text-black/65 md:text-base">
+            <p>
+              Selling online in Japan is often the most practical first step for
+              overseas brands that want sell-through data before a wider retail
+              or distributor rollout. A Japanese ecommerce partner can evaluate
+              your wholesale price, MOQ, and shipping terms the same way a
+              retailer would—then place a controlled first order.
+            </p>
+            <p>
+              Online is still a sales channel with Japanese partner expectations:
+              clear product information, realistic first-order quantities, and
+              packaging that can support customer service. It is not only a
+              marketing website launch from overseas.
+            </p>
+            <p>
+              Many brands combine ecommerce with specialty retail later. For the
+              wider entry map—including distributors and retailers—see{" "}
+              <Link
+                href="/en/japan-market-entry"
+                className="font-medium text-[#C4A35A] hover:underline"
+              >
+                Japan Market Entry
+              </Link>
+              .
+            </p>
+          </div>
+          <ul className="mt-8 space-y-3 rounded-2xl border border-black/8 bg-[#FAFAF8] p-5 md:p-6">
+            {[
+              "Use ecommerce to test demand with a limited SKU set",
+              "Confirm who handles import, warehousing, and customer returns",
+              "Align online price presentation with any future retail partners",
+              "Review sell-through before expanding territory or exclusivity",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-start gap-2.5 text-sm text-black/70 md:text-base"
+              >
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C4A35A]" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <Link
               href="/en/register/maker"

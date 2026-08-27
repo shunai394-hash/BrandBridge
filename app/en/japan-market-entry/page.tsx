@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { BlogImage } from "@/components/blog/BlogImage";
 import { Button } from "@/components/ui/Button";
@@ -810,7 +810,7 @@ export default function JapanMarketEntryPage() {
                     GUIDE
                   </p>
                   <p className="mt-2 font-medium text-navy group-hover:text-teal">
-                    How to Find a Japanese Distributor for Your Brand
+                    How to Evaluate a Japanese Distributor for Your Brand
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted">
                     Practical steps for researching, evaluating, and managing a

@@ -1,13 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { PageBreadcrumbs } from "@/components/seo/PageBreadcrumbs";
-import {
-  EXISTING_JA_BLOG,
-  JA_JAPAN_ENTRY,
-  JA_SALES_CAUTIONS,
-  JA_BLOG_HUB,
-} from "@/lib/blog/ja-articles/types";
+import { JA_BLOG_HUB } from "@/lib/blog/ja-articles/types";
 import { selfLanguageAlternates } from "@/lib/hreflang";
 import { jaCategoryPath, listJaCategories } from "@/lib/ja-categories";
 import {
@@ -18,9 +13,9 @@ import {
 export const dynamic = "force-static";
 
 const PATH = "/ja/japan-market-guide";
-const TITLE = "日本市場ガイド｜海外ブランドの日本進出";
+const TITLE = "海外ブランド仕入れガイド｜海外商品を探す日本の事業者へ";
 const DESCRIPTION =
-  "海外ブランドが日本市場へ参入するための総合ガイド。販売パートナーの探し方、進出の進め方、カテゴリー別の入口、登録までの流れをまとめます。";
+  "海外ブランドの商品を仕入れたい日本の卸・小売・EC事業者向けガイド。海外ブランドの探し方、仕入れ先、卸取引、MOQ、取引条件、カテゴリー別の商品探しまで解説します。";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -36,46 +31,36 @@ export const metadata: Metadata = {
   },
 };
 
-const guideArticles = [
-  {
-    href: JA_JAPAN_ENTRY.path,
-    label: "海外ブランドの日本進出｜販売パートナーを探す方法",
-    note: "進出の全体像とパートナー探しの順",
-  },
-  {
-    href: EXISTING_JA_BLOG.path,
-    label: EXISTING_JA_BLOG.title,
-    note: "チャネル・契約・輸入の基本",
-  },
-  {
-    href: JA_SALES_CAUTIONS.path,
-    label: JA_SALES_CAUTIONS.title,
-    note: "食品・化粧品・雑貨で先に確認したい実務",
-  },
-  {
-    href: "/how-to-sell-in-japan",
-    label: "日本で販売する方法（BrandBridgeの使い方）",
-    note: "掲載から商談までの流れ",
-  },
-  {
-    href: "/ja/blog/how-to-find-japanese-distributor",
-    label: "日本の販売パートナー・代理店の探し方",
-    note: "卸・小売・ECとの出会い方",
-  },
-] as const;
-
-const forJapaneseBuyers = [
-  {
-    href: JA_BLOG_HUB.path,
-    label: "海外ブランドを仕入れる日本語ガイド",
-  },
+const buyerGuides = [
   {
     href: "/ja/blog/how-to-find-overseas-wholesale-suppliers",
     label: "海外商品の仕入れ先を探す方法",
+    note: "海外ブランド・商品の仕入れ先を探す基本的な方法",
   },
   {
     href: "/ja/blog/how-to-start-overseas-brand-wholesale",
     label: "海外ブランドの仕入れ・卸取引を始める方法",
+    note: "海外ブランドとの卸取引を始める際の基本と進め方",
+  },
+  {
+    href: JA_BLOG_HUB.path,
+    label: "海外ブランドを仕入れる日本語ガイド",
+    note: "海外商品の仕入れに関する関連記事をまとめて確認",
+  },
+] as const;
+
+const buyingPoints = [
+  {
+    title: "ブランドを探す",
+    body: "日本ではまだ流通していない海外ブランドや、取り扱いたいカテゴリーの商品を探します。",
+  },
+  {
+    title: "取引条件を確認する",
+    body: "MOQ、卸価格、納期、配送条件、サンプル対応など、商談前に確認したい条件を整理します。",
+  },
+  {
+    title: "ブランドへ問い合わせる",
+    body: "気になる商品を見つけたら、販売エリアや希望数量などを伝えて具体的な商談につなげます。",
   },
 ] as const;
 
@@ -103,7 +88,7 @@ export default function JapanMarketGuideHubPage() {
           <PageBreadcrumbs
             items={[
               { name: "ホーム", path: "/" },
-              { name: "日本市場ガイド", path: PATH },
+              { name: "海外ブランド仕入れガイド", path: PATH },
             ]}
           />
         </div>
@@ -116,24 +101,24 @@ export default function JapanMarketGuideHubPage() {
         />
         <div className="relative mx-auto max-w-3xl px-5 py-14 md:py-20">
           <p className="text-xs font-medium tracking-wider text-teal">
-            日本市場ガイド
+            海外ブランド仕入れガイド
           </p>
           <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-[1.55rem] leading-[1.3] text-white sm:text-3xl md:text-4xl">
-            海外ブランドの日本市場進出ガイド
+            海外ブランドを仕入れたい日本の事業者へ
           </h1>
           <p className="mt-5 text-sm leading-relaxed text-white/80 md:text-base">
-            日本で販売パートナーを探している海外ブランド向けの総合ハブです。進出の進め方、関連記事、カテゴリー、掲載・登録への導線をまとめています。
+            海外ブランドの商品を探している卸・小売・EC事業者向けの総合ガイドです。仕入れ先の探し方、卸取引の進め方、取引条件の確認、カテゴリー別の商品探しまでまとめています。
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Button href="/register/maker" className="w-full sm:w-auto">
-              海外ブランドを掲載する
+            <Button href="/cases" className="w-full sm:w-auto">
+              海外ブランドの商品を探す
             </Button>
             <Button
-              href="/for-makers"
+              href="/ja/blog"
               variant="outline"
               className="w-full border-white/30 bg-transparent text-white hover:bg-white/10 sm:w-auto"
             >
-              商品提供企業の方へ
+              仕入れガイドを読む
             </Button>
           </div>
         </div>
@@ -143,13 +128,66 @@ export default function JapanMarketGuideHubPage() {
         <div className="mx-auto max-w-3xl px-5 py-12 md:py-16">
           <section>
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              日本進出の実務ガイド
+              海外ブランドの仕入れはここから
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
-              法人設立の前に、販売パートナー候補と取引条件を揃える流れを記事で整理しています。
+              海外の商品を仕入れたいときは、まずブランドを探し、取引条件を確認して、具体的な商談へ進みます。
+            </p>
+
+            <div className="mt-8 grid gap-5 md:grid-cols-3">
+              {buyingPoints.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-xl border border-border bg-background p-5"
+                >
+                  <h3 className="font-medium text-navy">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    {item.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              海外ブランド・商品の探し方
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
+              取り扱いたいカテゴリーから商品を探したり、海外ブランドの仕入れに関する記事から候補を見つけたりできます。
             </p>
             <ul className="mt-6 space-y-4">
-              {guideArticles.map((item) => (
+              <li>
+                <Link href="/cases" className="font-medium text-teal hover:underline">
+                  海外ブランドの商品一覧を見る
+                </Link>
+                <p className="mt-1 text-sm text-muted">
+                  日本で取り扱える海外ブランドの商品を探します。
+                </p>
+              </li>
+              <li>
+                <Link
+                  href="/ja/categories"
+                  className="font-medium text-teal hover:underline"
+                >
+                  商品カテゴリーから探す
+                </Link>
+                <p className="mt-1 text-sm text-muted">
+                  食品、コスメ、アパレル、ホーム、ヘルスケアなどから商品を探せます。
+                </p>
+              </li>
+            </ul>
+          </section>
+
+          <section className="mt-12 border-t border-border pt-10">
+            <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
+              海外ブランド仕入れの実務ガイド
+            </h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
+              仕入れ先探しから卸取引まで、海外ブランドを取り扱う前に確認したいポイントを整理しています。
+            </p>
+            <ul className="mt-6 space-y-4">
+              {buyerGuides.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
@@ -165,10 +203,10 @@ export default function JapanMarketGuideHubPage() {
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              カテゴリーから日本市場を見る
+              カテゴリーから海外商品を探す
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
-              食品、コスメ、ヘルスケアなど、カテゴリー別の入口です。掲載商品の確認にも進めます。
+              取り扱いたいカテゴリーから、日本で販売できる海外ブランドの商品を探せます。
             </p>
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               <li>
@@ -194,25 +232,19 @@ export default function JapanMarketGuideHubPage() {
 
           <section className="mt-12 border-t border-border pt-10">
             <h2 className="font-[family-name:var(--font-shippori)] text-2xl text-navy md:text-3xl">
-              日本の事業者向けガイド
+              BrandBridgeで海外ブランドを探す
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted md:text-base">
-              海外ブランドを仕入れたい卸・小売・EC事業者向けのハブです。
+              BrandBridgeでは、海外ブランドの商品や取引条件を確認し、気になる商品について問い合わせることができます。
             </p>
-            <ul className="mt-6 space-y-2.5">
-              {forJapaneseBuyers.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="text-teal hover:underline">
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link href="/cases" className="text-teal hover:underline">
-                  海外ブランドを探す（商品一覧）
-                </Link>
-              </li>
-            </ul>
+            <div className="mt-6">
+              <Link
+                href="/cases"
+                className="font-medium text-teal hover:underline"
+              >
+                海外ブランドの商品一覧を見る →
+              </Link>
+            </div>
           </section>
 
           <section className="mt-12 border-t border-border pt-10">
@@ -221,21 +253,18 @@ export default function JapanMarketGuideHubPage() {
             </h2>
             <ul className="mt-6 space-y-2.5">
               <li>
-                <Link
-                  href="/register/maker"
-                  className="text-teal hover:underline"
-                >
-                  海外ブランドを掲載する
+                <Link href="/cases" className="text-teal hover:underline">
+                  海外ブランドの商品を探す
+                </Link>
+              </li>
+              <li>
+                <Link href="/ja/blog" className="text-teal hover:underline">
+                  海外ブランド仕入れの記事を読む
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-teal hover:underline">
                   お問い合わせ
-                </Link>
-              </li>
-              <li>
-                <Link href="/for-makers" className="text-teal hover:underline">
-                  商品提供企業の方へ
                 </Link>
               </li>
             </ul>

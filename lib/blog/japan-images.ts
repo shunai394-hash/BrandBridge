@@ -25,6 +25,11 @@ export const BLOG_JAPAN_IMAGE_FILES = {
   souvenirShop: "pexels-shtefutsa-38944339.jpg",
   tokouNobuhiro: "pexels-tokuo-nobuhiro-79378678-17844153.jpg",
   akihabara: "sofi5t-japan-4141581.jpg",
+  gusbellsstudioTokyoTower: "gusbellsstudio-tokyo-tower-825196.jpg",
+  mirkostoedterTea: "mirkostoedter-tea-6568547.jpg",
+  watappoJapan: "watappo-japan-2531766.jpg",
+  djedjKimono: "djedj-kimono-5507132.jpg",
+  derwegGoldenTemple: "derweg-golden-temple-7658947.jpg",
   lapisbleueWomen: "lapisbleue-women-6670092.jpg",
   cristobagarciaModern: "cristobagarcia-modern-3107019_1920.jpg",
   fernandozBusinessMeeting: "fernandoz-business-meeting-10409773_1920.jpg",
@@ -40,6 +45,7 @@ export function blogJapanSrc(id: BlogJapanImageId): string {
   // Pass the real filename. next/image encodes the optimizer URL itself.
   return `/images/blog/japan/${BLOG_JAPAN_IMAGE_FILES[id]}`;
 }
+
 
 
 

@@ -11,9 +11,10 @@ import {
   type JaBlogCluster,
 } from "@/lib/blog/ja-articles/types";
 import { listJaCategories, jaCategoryPath } from "@/lib/ja-categories";
+import { EN_BLOG_HUB } from "@/lib/blog/en-articles/types";
 import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
-import { selfLanguageAlternates } from "@/lib/hreflang";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const dynamic = "force-static";
 
@@ -25,7 +26,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  ...selfLanguageAlternates(PATH, "ja"),
+  ...pairedLanguageAlternates(PATH, EN_BLOG_HUB.path, "ja"),
   robots: {
     index: true,
     follow: true,

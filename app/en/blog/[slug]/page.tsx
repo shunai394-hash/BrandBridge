@@ -5,8 +5,12 @@ import {
   getEnBlogArticle,
   listEnBlogSlugs,
 } from "@/lib/blog/en-articles";
-import { selfLanguageAlternates } from "@/lib/hreflang";
 import { enBlogPath } from "@/lib/blog/en-articles/types";
+import { getJaBlogArticle } from "@/lib/blog/ja-articles";
+import {
+  pairedLanguageAlternates,
+  selfLanguageAlternates,
+} from "@/lib/hreflang";
 
 type EnBlogSlugPageProps = {
   params: Promise<{ slug: string }>;
@@ -34,11 +38,15 @@ export async function generateMetadata({
 
   const path = enBlogPath(article.slug);
   const title = article.seoTitle ?? article.title;
+  const jaArticle = getJaBlogArticle(article.slug);
+  const languageAlternates = jaArticle
+    ? pairedLanguageAlternates(`/ja/blog/${jaArticle.slug}`, path, "en")
+    : selfLanguageAlternates(path, "en");
 
   return {
     title,
     description: article.description,
-    ...selfLanguageAlternates(path, "en"),
+    ...languageAlternates,
     robots: {
       index: true,
       follow: true,

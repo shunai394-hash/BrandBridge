@@ -30,7 +30,7 @@ export const MOQ_JAPAN_ARTICLE: EnBlogArticle = {
     "MOQ for Entering the Japanese Market: What Overseas Brands Should Know",
   seoTitle: "MOQ for Japan Market Entry | What Brands Should Know",
   description:
-    "MOQ for Japan market entry: why minimum order quantity matters for a first shipment, how test orders differ from replenishment, and how to discuss wholesale MOQ with a Japanese partner.",
+    "MOQ for Japan market entry: why minimum order quantity matters, how test orders differ from replenishment, and how to discuss MOQ with a Japanese partner.",
   eyebrow: "JAPAN MARKET ENTRY MOQ",
   lede: "MOQ for Japan is a commercial design choice. A first test should be small enough to learn and large enough to ship, pack, and sell without pretending there is one national minimum.",
   intro: [

@@ -31,7 +31,7 @@ export const DISTRIBUTOR_VS_DIRECT_ARTICLE: EnBlogArticle = {
     "Japan Distributor vs. Direct Sales: Which Is Better for Your Brand?",
   seoTitle: "Japan Distributor vs Direct Sales | Which Fits Your Brand",
   description:
-    "Japan distributor vs direct sales for overseas brands. Compare a Japanese sales partner with selling yourself: operations, logistics, language, and when to test before you scale.",
+    "Japan distributor vs direct sales for overseas brands. Compare operations, logistics, language, and when to test before scaling.",
   eyebrow: "JAPAN SALES MODEL",
   lede: "A Japan distributor and direct sales are different operating systems. Most foreign brands should pick the model that matches their team, not the one that sounds more ambitious.",
   intro: [

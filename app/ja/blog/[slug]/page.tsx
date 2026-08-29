@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { JaBlogArticle } from "@/components/blog/JaBlogArticle";
+import { getEnBlogArticle } from "@/lib/blog/en-articles";
+import { enBlogPath } from "@/lib/blog/en-articles/types";
 import {
   getJaBlogArticle,
   listJaBlogSlugs,
 } from "@/lib/blog/ja-articles";
-import { selfLanguageAlternates } from "@/lib/hreflang";
+import {
+  pairedLanguageAlternates,
+  selfLanguageAlternates,
+} from "@/lib/hreflang";
 
 type JaBlogSlugPageProps = {
   params: Promise<{ slug: string }>;
@@ -33,11 +38,15 @@ export async function generateMetadata({
 
   const path = `/ja/blog/${article.slug}`;
   const title = article.seoTitle ?? article.title;
+  const enArticle = getEnBlogArticle(article.slug);
+  const languageAlternates = enArticle
+    ? pairedLanguageAlternates(path, enBlogPath(enArticle.slug), "ja")
+    : selfLanguageAlternates(path, "ja");
 
   return {
     title,
     description: article.description,
-    ...selfLanguageAlternates(path, "ja"),
+    ...languageAlternates,
     robots: {
       index: true,
       follow: true,

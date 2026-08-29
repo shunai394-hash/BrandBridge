@@ -28,7 +28,7 @@ export const IMPORT_REQUIREMENTS_ARTICLE: EnBlogArticle = {
   title: "Japan Import Requirements for Overseas Brands",
   seoTitle: "Japan Import Requirements | Overseas Brand Checklist",
   description:
-    "Japan import requirements for overseas brands: the basic import flow, category checks for food and cosmetics, labeling, and what to confirm with a Japanese partner before you sell.",
+    "Japan import requirements for overseas brands: import flow, food and cosmetics checks, labeling, and what to confirm with a Japanese partner.",
   eyebrow: "JAPAN IMPORT REQUIREMENTS",
   lede: "Japan import requirements are a checklist, not a single license. What you must confirm depends on the product, how it will be sold, and who in Japan will act as importer.",
   intro: [

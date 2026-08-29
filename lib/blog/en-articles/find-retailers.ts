@@ -33,7 +33,7 @@ export const FIND_RETAILERS_ARTICLE: EnBlogArticle = {
   title: "How to Find Japanese Retailers for Your Brand",
   seoTitle: "How to Find Japanese Retailers | Guide for Foreign Brands",
   description:
-    "How to find Japanese retailers and retail buyers for an overseas brand. How Japan’s retail market works, where to look, what to prepare, and how retail differs from a distributor or wholesaler.",
+    "How to find Japanese retailers and retail buyers for an overseas brand. Where to look, what to prepare, and how retail differs from distributors.",
   eyebrow: "JAPANESE RETAIL PARTNERS",
   lede: "Finding Japanese retailers is a buyer conversation: category fit, pack, price band, and a first quantity a store or e-commerce team can actually stock.",
   intro: [

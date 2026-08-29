@@ -182,63 +182,63 @@ export default function USBrandsEnteringJapanPage() {
 
                 {index === 0 && (
                   <BlogImage
-                    src={blogJapanSrc("citySkyline")}
+                    src={blogJapanSrc("consultant")}
                     alt="Tokyo skyline and the Japanese market"
                   />
                 )}
 
                 {index === 1 && (
                   <BlogImage
-                    src={blogJapanSrc("consultant")}
+                    src={blogJapanSrc("goldenPavilion")}
                     alt="Business consultation for entering the Japanese market"
                   />
                 )}
 
                 {index === 2 && (
                   <BlogImage
-                    src={blogJapanSrc("shoppingStreet")}
+                    src={blogJapanSrc("waterTorii")}
                     alt="Japanese shopping street and local consumer market"
                   />
                 )}
 
                 {index === 3 && (
                   <BlogImage
-                    src={blogJapanSrc("handshake")}
+                    src={blogJapanSrc("gardenTsukubai")}
                     alt="Business partnership with a Japanese company"
                   />
                 )}
 
                 {index === 4 && (
                   <BlogImage
-                    src={blogJapanSrc("kimono")}
+                    src={blogJapanSrc("zenGarden")}
                     alt="Japanese culture and local market adaptation"
                   />
                 )}
 
                 {index === 5 && (
                   <BlogImage
-                    src={blogJapanSrc("analytics")}
+                    src={blogJapanSrc("mtFuji")}
                     alt="Market analysis and pricing research"
                   />
                 )}
 
                 {index === 6 && (
                   <BlogImage
-                    src={blogJapanSrc("akihabara")}
+                    src={blogJapanSrc("fushimiTorii")}
                     alt="Japanese retail and ecommerce channels"
                   />
                 )}
 
                 {index === 7 && (
                   <BlogImage
-                    src={blogJapanSrc("souvenirShop")}
+                    src={blogJapanSrc("villageRoad")}
                     alt="Testing products through Japanese retail channels"
                   />
                 )}
 
                 {index === 8 && (
                   <BlogImage
-                    src={blogJapanSrc("templeLantern")}
+                    src={blogJapanSrc("newYear")}
                     alt="Building long-term business relationships in Japan"
                   />
                 )}
@@ -323,5 +323,4 @@ export default function USBrandsEnteringJapanPage() {
     </main>
   );
 }
-
 

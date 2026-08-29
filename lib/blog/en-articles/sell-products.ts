@@ -28,7 +28,7 @@ export const SELL_PRODUCTS_ARTICLE: EnBlogArticle = {
   title: "How to Sell Products in Japan: A Guide for Foreign Brands",
   seoTitle: "How to Sell Products in Japan | Guide for Foreign Brands",
   description:
-    "How to sell products in Japan as a foreign brand. Choose a selling model, pick a first SKU, set a Japan-ready price, test with a retail or e-commerce partner, then widen the channel.",
+    "How to sell products in Japan as a foreign brand. Choose a selling model, first SKU, Japan-ready price, and test with a retail or e-commerce partner.",
   eyebrow: "SELLING PRODUCTS IN JAPAN",
   lede: "Selling products in Japan is a channel and assortment decision: who sells, which SKU goes first, and how you will know the test worked.",
   intro: [

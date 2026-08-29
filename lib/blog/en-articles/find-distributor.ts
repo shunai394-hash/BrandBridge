@@ -29,7 +29,7 @@ export const FIND_DISTRIBUTOR_ARTICLE: EnBlogArticle = {
   title: "How to Find a Distributor in Japan",
   seoTitle: "How to Find a Distributor in Japan | Foreign Brands",
   description:
-    "How to find a Japan distributor or Japanese distribution partner. Where to search, what to send in the first outreach, how to judge fit, and when exclusivity can wait.",
+    "How to find a Japan distributor or distribution partner. Where to search, what to send, how to judge fit, and when exclusivity can wait.",
   eyebrow: "JAPAN DISTRIBUTOR GUIDE",
   lede: "Finding a Japanese distributor is a search-and-qualification job: name the role, show commercial terms, and talk to partners who already sell into the channel you need.",
   intro: [

@@ -29,7 +29,7 @@ export const BUSINESS_PARTNER_ARTICLE: EnBlogArticle = {
   title: "How to Find a Business Partner in Japan",
   seoTitle: "How to Find a Business Partner in Japan",
   description:
-    "How to find a business partner in Japan for an overseas brand. Compare importer, distributor, wholesaler, retailer, and sales partner roles, then choose and approach the right Japanese company.",
+    "How to find a business partner in Japan for an overseas brand. Compare importer, distributor, wholesaler, retailer, and sales partner roles.",
   eyebrow: "JAPAN BUSINESS PARTNER",
   lede: "A Japan business partner is a role, not a title on a business card. Name the job you need—import, wholesale, retail doors, or local selling—before you start searching.",
   intro: [

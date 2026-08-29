@@ -6,9 +6,10 @@ import {
   EN_BLOG_INTENT_GROUPS,
   enBlogPath,
 } from "@/lib/blog/en-articles/types";
+import { JA_BLOG_HUB } from "@/lib/blog/ja-articles/types";
 import { jsonLdString } from "@/lib/seo-jsonld";
 import { getSiteUrl } from "@/lib/site";
-import { selfLanguageAlternates } from "@/lib/hreflang";
+import { pairedLanguageAlternates } from "@/lib/hreflang";
 
 export const dynamic = "force-static";
 
@@ -20,7 +21,7 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  ...selfLanguageAlternates(PATH, "en"),
+  ...pairedLanguageAlternates(JA_BLOG_HUB.path, PATH, "en"),
   robots: {
     index: true,
     follow: true,

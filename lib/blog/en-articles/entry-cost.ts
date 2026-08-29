@@ -28,7 +28,7 @@ export const ENTRY_COST_ARTICLE: EnBlogArticle = {
   title: "How Much Does It Cost to Enter the Japanese Market?",
   seoTitle: "Japan Market Entry Cost | What Foreign Brands Should Budget",
   description:
-    "What Japan market entry can cost for a foreign brand: import and logistics, labeling, samples, first inventory, and partner-related expenses. Costs vary by category, quantity, and selling model—no fixed price.",
+    "Japan market entry costs for foreign brands, including import, logistics, labeling, samples, inventory, and partner expenses. Costs vary by category and model.",
   eyebrow: "JAPAN MARKET ENTRY COST",
   lede: "Japan market entry cost is a stack of line items, not a single fee. Most overseas brands spend less by testing a first SKU with a Japanese sales partner than by funding a full local launch on day one.",
   intro: [

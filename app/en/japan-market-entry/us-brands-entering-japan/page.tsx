@@ -1,5 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Link from "next/link";
+import { blogJapanSrc } from "@/lib/blog/japan-images";
 
 export const metadata: Metadata = {
   title: "How US Brands Can Enter the Japanese Market",
@@ -83,6 +84,19 @@ const sections = [
   },
 ];
 
+function BlogImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="mt-8 overflow-hidden rounded-xl border border-border">
+      <img
+        src={src}
+        alt={alt}
+        className="h-auto w-full object-cover"
+        loading="lazy"
+      />
+    </div>
+  );
+}
+
 export default function USBrandsEnteringJapanPage() {
   const siteUrl = "https://www.brandbridge.jp";
   const pageUrl =
@@ -165,6 +179,69 @@ export default function USBrandsEnteringJapanPage() {
                     <p key={paragraph}>{paragraph}</p>
                   ))}
                 </div>
+
+                {index === 0 && (
+                  <BlogImage
+                    src={blogJapanSrc("citySkyline")}
+                    alt="Tokyo skyline and the Japanese market"
+                  />
+                )}
+
+                {index === 1 && (
+                  <BlogImage
+                    src={blogJapanSrc("consultant")}
+                    alt="Business consultation for entering the Japanese market"
+                  />
+                )}
+
+                {index === 2 && (
+                  <BlogImage
+                    src={blogJapanSrc("shoppingStreet")}
+                    alt="Japanese shopping street and local consumer market"
+                  />
+                )}
+
+                {index === 3 && (
+                  <BlogImage
+                    src={blogJapanSrc("handshake")}
+                    alt="Business partnership with a Japanese company"
+                  />
+                )}
+
+                {index === 4 && (
+                  <BlogImage
+                    src={blogJapanSrc("kimono")}
+                    alt="Japanese culture and local market adaptation"
+                  />
+                )}
+
+                {index === 5 && (
+                  <BlogImage
+                    src={blogJapanSrc("analytics")}
+                    alt="Market analysis and pricing research"
+                  />
+                )}
+
+                {index === 6 && (
+                  <BlogImage
+                    src={blogJapanSrc("akihabara")}
+                    alt="Japanese retail and ecommerce channels"
+                  />
+                )}
+
+                {index === 7 && (
+                  <BlogImage
+                    src={blogJapanSrc("souvenirShop")}
+                    alt="Testing products through Japanese retail channels"
+                  />
+                )}
+
+                {index === 8 && (
+                  <BlogImage
+                    src={blogJapanSrc("templeLantern")}
+                    alt="Building long-term business relationships in Japan"
+                  />
+                )}
               </section>
             ))}
 
@@ -246,3 +323,4 @@ export default function USBrandsEnteringJapanPage() {
     </main>
   );
 }
+

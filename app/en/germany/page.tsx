@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "A practical guide for German brands entering Japan: quality positioning, pricing, localisation, distributors, retailers, import requirements, and market testing.",
   alternates: {
     canonical:
-      "https://www.brandbridge.jp/en/japan-market-entry/german-brands-entering-japan",
+      "https://www.brandbridge.jp/en/germany",
   },
 };
 
@@ -102,7 +102,7 @@ function BlogImage({ src, alt }: { src: string; alt: string }) {
 export default function GermanBrandsEnteringJapanPage() {
   const siteUrl = "https://www.brandbridge.jp";
   const pageUrl =
-    `${siteUrl}/en/japan-market-entry/german-brands-entering-japan`;
+    `${siteUrl}/en/germany`;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -326,4 +326,5 @@ export default function GermanBrandsEnteringJapanPage() {
     </main>
   );
 }
+
 

@@ -3,90 +3,96 @@ import Link from "next/link";
 import { blogJapanSrc } from "@/lib/blog/japan-images";
 
 export const metadata: Metadata = {
-  title: "How US Brands Can Enter the Japanese Market",
+  title: "How UK Brands Can Enter the Japanese Market",
   description:
-    "A practical guide for US brands entering Japan: pricing, localization, import requirements, Japanese distributors, retailers, and small market tests.",
+    "A practical guide for UK brands entering Japan: pricing, localisation, import requirements, Japanese distributors, retailers, and market testing.",
   alternates: {
     canonical:
-      "https://www.brandbridge.jp/en/japan-market-entry/us-brands-entering-japan",
+      "https://www.brandbridge.jp/en/uk",
   },
 };
 
 const sections = [
   {
-    title: "Why US Brands Are Looking at Japan",
+    title: "Why UK Brands Are Looking at Japan",
     paragraphs: [
-      "Japan offers US brands a sophisticated consumer market with strong demand for distinctive products, quality, design, wellness, food, beauty, lifestyle, and specialty goods.",
-      "For many US brands, the opportunity is not simply to export products. The larger opportunity is to find the right Japanese business partners who understand the local customer, retail structure, and sales channels.",
+      "Japan offers UK brands a sophisticated consumer market with strong interest in quality, design, heritage, food, beauty, wellness, fashion, lifestyle, and specialist products.",
+      "For many UK brands, entering Japan is not simply an export exercise. The key is finding Japanese business partners who understand the local customer, retail environment, pricing structure, and sales channels.",
     ],
   },
   {
-    title: "Use Your US Market Track Record",
+    title: "Use Your UK Market Track Record",
     paragraphs: [
-      "Japanese distributors and retailers need to understand why a US brand is commercially credible.",
-      "Show evidence that is easy to evaluate: current sales performance, customer reviews, repeat purchases, retail presence, awards, media coverage, social traction, and performance in relevant US channels.",
-      "Do not assume that a successful US product will automatically succeed in Japan. Explain which parts of the US success story can translate to Japanese customers.",
+      "Japanese distributors and retailers need clear evidence that a UK brand has commercial potential.",
+      "Present information that is easy to evaluate, such as sales performance, customer reviews, repeat purchases, retail presence, awards, press coverage, social media traction, and performance across relevant UK channels.",
+      "A successful UK product will not automatically succeed in Japan. Explain which parts of your UK brand story, customer appeal, and product positioning can translate to Japanese consumers.",
     ],
   },
   {
     title: "Understand Japanese Buyer Expectations",
     paragraphs: [
-      "Japanese business buyers often need clear product information before discussing distribution.",
-      "Prepare concise information about the product, target customer, retail price, wholesale price, minimum order quantity, packaging, certifications, shipping conditions, and existing sales markets.",
-      "US marketing language may also need to be adapted. Claims, product descriptions, packaging, and promotional messages should be reviewed for the Japanese market rather than translated word-for-word.",
+      "Japanese business buyers generally need concise and reliable product information before considering a new overseas brand.",
+      "Prepare information covering the product, target customer, recommended retail price, wholesale price, minimum order quantity, packaging, certifications, shipping conditions, and existing markets.",
+      "UK terminology, claims, packaging, and promotional messages may also need adjustment for Japan. Localisation should go beyond translating English copy word-for-word.",
     ],
   },
   {
     title: "Choose the Right Japanese Business Partner",
     paragraphs: [
-      "A US brand may need an importer, distributor, wholesaler, retailer, ecommerce partner, or sales agency depending on its market-entry strategy.",
-      "The largest company is not necessarily the best partner. A smaller company with strong relationships in your category may create more value than a large company with little interest in your product.",
+      "A UK brand may need an importer, distributor, wholesaler, retailer, ecommerce partner, or sales agency depending on its product and market-entry strategy.",
+      "A large Japanese company is not automatically the best choice. A smaller partner with strong relationships in your product category may provide better access to the customers and channels that matter.",
     ],
   },
   {
     title: "Prepare Your Product for Japan",
     paragraphs: [
-      "Before approaching Japanese companies, review product information, packaging, labeling, instructions, certifications, and other market-specific requirements.",
-      "The Japanese partner may help with some local requirements, but the US brand should understand what needs to be confirmed before commercial discussions begin.",
+      "Before approaching Japanese companies, review product information, packaging, labelling, instructions, certifications, and other requirements that may apply to your category.",
+      "The Japanese partner may support some local procedures, but the UK brand should understand the key requirements before commercial discussions begin.",
       "For the broader process, see our guide to how to sell in Japan.",
     ],
   },
   {
     title: "Build a Realistic Japan Price",
     paragraphs: [
-      "A product that sells successfully in the United States may need a different price structure in Japan.",
-      "Work backward from the expected Japanese retail price and account for import costs, logistics, distributor margins, wholesaler margins, retailer margins, taxes, marketing costs, and other market-entry expenses.",
-      "Do not quote a US wholesale price without checking whether the resulting Japanese retail price is commercially realistic.",
+      "A product that performs well in the UK may require a different price structure in Japan.",
+      "Work backward from a realistic Japanese retail price and consider import costs, logistics, distributor margins, wholesaler margins, retailer margins, taxes, marketing expenses, and other market-entry costs.",
+      "Do not simply use your UK wholesale price. Check whether the resulting Japanese retail price is competitive and commercially realistic.",
     ],
   },
   {
     title: "Find Japanese Distributors and Retailers",
     paragraphs: [
-      "Avoid sending the same generic message to hundreds of companies.",
-      "First define the ideal partner: product category, target customer, preferred channels, geographic coverage, retailer relationships, ecommerce capabilities, import experience, and experience with overseas brands.",
+      "Avoid sending the same generic introduction to large numbers of Japanese companies.",
+      "First define the ideal partner by product category, target customer, preferred channels, geographic coverage, retailer relationships, ecommerce capabilities, import experience, and experience working with UK or other overseas brands.",
       "Then research companies whose existing portfolio and sales channels make commercial sense for your product.",
     ],
   },
   {
     title: "Start With a Small Market Test",
     paragraphs: [
-      "A US brand does not necessarily need a nationwide launch on day one.",
-      "A controlled initial order can help both sides evaluate demand, customer response, sell-through, repeat purchases, and operational requirements before committing to a larger rollout.",
-      "A practical sequence can be: US brand → Japanese partner → initial order → market test → sales data → expansion.",
+      "A UK brand does not necessarily need a nationwide Japanese launch immediately.",
+      "A controlled initial order can help both sides evaluate customer response, sell-through, repeat purchases, operational requirements, and the economics of the market before expanding.",
+      "A practical sequence can be: UK brand → Japanese partner → initial order → market test → sales data → expansion.",
     ],
   },
   {
     title: "Build the Relationship Before Expanding",
     paragraphs: [
-      "Once a Japanese partner shows interest, discuss wholesale pricing, minimum order quantities, territory, sales channels, marketing responsibilities, shipping, payment terms, exclusivity, contract period, and sales targets.",
-      "Be especially careful with broad exclusivity. Understand the partner's expected investment and sales responsibilities before granting exclusive rights.",
+      "Once a Japanese partner shows genuine interest, discuss wholesale pricing, minimum order quantities, territory, sales channels, marketing responsibilities, shipping, payment terms, exclusivity, contract period, and sales targets.",
+      "Be particularly careful with broad exclusivity. Understand the partner's expected investment and sales responsibilities before granting exclusive rights for Japan.",
     ],
   },
 ];
 
-function BlogImage({ src, alt }: { src: string; alt: string }) {
+function BlogImage({
+  src,
+  alt,
+}: {
+  src: string;
+  alt: string;
+}) {
   return (
-    <div className="mt-8 overflow-hidden rounded-xl border border-border">
+    <div className="mt-6 overflow-hidden rounded-xl">
       <img
         src={src}
         alt={alt}
@@ -97,10 +103,10 @@ function BlogImage({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export default function USBrandsEnteringJapanPage() {
+export default function UKBrandsEnteringJapanPage() {
   const siteUrl = "https://www.brandbridge.jp";
   const pageUrl =
-    `${siteUrl}/en/japan-market-entry/us-brands-entering-japan`;
+    `${siteUrl}/en/uk`;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -121,7 +127,7 @@ export default function USBrandsEnteringJapanPage() {
       {
         "@type": "ListItem",
         position: 3,
-        name: "How US Brands Can Enter the Japanese Market",
+        name: "How UK Brands Can Enter the Japanese Market",
         item: pageUrl,
       },
     ],
@@ -139,15 +145,15 @@ export default function USBrandsEnteringJapanPage() {
       <section className="bg-navy-deep text-white">
         <div className="mx-auto max-w-3xl px-5 py-16 md:py-20">
           <p className="text-xs font-medium tracking-wider text-teal">
-            US BRANDS → JAPAN
+            UK BRANDS → JAPAN
           </p>
 
           <h1 className="mt-5 font-[family-name:var(--font-shippori)] text-3xl leading-tight md:text-5xl">
-            How US Brands Can Enter the Japanese Market
+            How UK Brands Can Enter the Japanese Market
           </h1>
 
           <p className="mt-6 text-sm leading-relaxed text-white/80 md:text-base">
-            A practical guide for US brands looking for Japanese distributors,
+            A practical guide for UK brands looking for Japanese distributors,
             retailers, wholesalers, importers, and ecommerce partners.
           </p>
 
@@ -323,4 +329,8 @@ export default function USBrandsEnteringJapanPage() {
     </main>
   );
 }
+
+
+
+
 

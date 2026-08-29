@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+﻿import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // localhost and 127.0.0.1 are different origins (cookies + HMR + Router Cache).
@@ -6,6 +6,21 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   async redirects() {
     return [
+      {
+        source: "/en/japan-market-entry/us-brands-entering-japan",
+        destination: "/en/us",
+        permanent: true,
+      },
+      {
+        source: "/en/japan-market-entry/uk-brands-entering-japan",
+        destination: "/en/uk",
+        permanent: true,
+      },
+      {
+        source: "/en/japan-market-entry/german-brands-entering-japan",
+        destination: "/en/germany",
+        permanent: true,
+      },
       {
         source: "/cases/7c990b6e-6dc8-49ea-99b8-11da060a4327",
         destination: "/cases/3774182c-a581-4c03-8f6a-c60b9034820c",
@@ -43,3 +58,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

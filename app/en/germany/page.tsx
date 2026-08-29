@@ -185,63 +185,63 @@ export default function GermanBrandsEnteringJapanPage() {
 
                 {index === 0 && (
                   <BlogImage
-                    src={blogJapanSrc("citySkyline")}
+                    src={blogJapanSrc("tokouNobuhiro")}
                     alt="Tokyo skyline and the Japanese market"
                   />
                 )}
 
                 {index === 1 && (
                   <BlogImage
-                    src={blogJapanSrc("consultant")}
+                    src={blogJapanSrc("cristobagarciaModern")}
                     alt="Business consultation for entering the Japanese market"
                   />
                 )}
 
                 {index === 2 && (
                   <BlogImage
-                    src={blogJapanSrc("shoppingStreet")}
+                    src={blogJapanSrc("lapisbleueWomen")}
                     alt="Japanese shopping street and local consumer market"
                   />
                 )}
 
                 {index === 3 && (
                   <BlogImage
-                    src={blogJapanSrc("handshake")}
+                    src={blogJapanSrc("fernandozBusinessMeeting")}
                     alt="Business partnership with a Japanese company"
                   />
                 )}
 
                 {index === 4 && (
                   <BlogImage
-                    src={blogJapanSrc("kimono")}
+                    src={blogJapanSrc("mromerortaSkyscraper")}
                     alt="Product presentation and Japanese market adaptation"
                   />
                 )}
 
                 {index === 5 && (
                   <BlogImage
-                    src={blogJapanSrc("analytics")}
+                    src={blogJapanSrc("asPhotographyDigitalMarketing")}
                     alt="Market analysis and pricing research"
                   />
                 )}
 
                 {index === 6 && (
                   <BlogImage
-                    src={blogJapanSrc("akihabara")}
+                    src={blogJapanSrc("tungart7Ecommerce")}
                     alt="Japanese retail and ecommerce channels"
                   />
                 )}
 
                 {index === 7 && (
                   <BlogImage
-                    src={blogJapanSrc("souvenirShop")}
+                    src={blogJapanSrc("shioDesignJpFood")}
                     alt="Testing products through Japanese retail channels"
                   />
                 )}
 
                 {index === 8 && (
                   <BlogImage
-                    src={blogJapanSrc("templeLantern")}
+                    src={blogJapanSrc("binmassamMemory")}
                     alt="Building long-term business relationships in Japan"
                   />
                 )}
@@ -326,5 +326,10 @@ export default function GermanBrandsEnteringJapanPage() {
     </main>
   );
 }
+
+
+
+
+
 
 

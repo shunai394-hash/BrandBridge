@@ -205,6 +205,21 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
                   <LinkedCopy text={paragraph} />
                 </p>
               ))}
+              {section.subsections?.map((subsection) => (
+                <div key={subsection.heading} className="mt-8">
+                  <h3 className="font-[family-name:var(--font-shippori)] text-lg text-navy md:text-xl">
+                    {subsection.heading}
+                  </h3>
+                  {subsection.paragraphs.map((paragraph) => (
+                    <p
+                      key={paragraph}
+                      className="mt-3 text-sm leading-relaxed text-muted md:text-base"
+                    >
+                      <LinkedCopy text={paragraph} />
+                    </p>
+                  ))}
+                </div>
+              ))}
               {section.cards ? (
                 <ul className="mt-8 grid gap-4">
                   {section.cards.map((card) => (
@@ -216,7 +231,7 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
                         {card.title}
                       </h3>
                       <p className="mt-2 text-sm leading-relaxed text-muted md:text-base">
-                        {card.body}
+                        <LinkedCopy text={card.body} />
                       </p>
                     </li>
                   ))}
@@ -227,6 +242,33 @@ export function EnBlogArticle({ article }: EnBlogArticleProps) {
                 <p className="mt-5 rounded-lg border border-border bg-cream/60 px-5 py-4 text-sm font-medium leading-relaxed text-navy md:text-base">
                   <LinkedCopy text={section.callout} />
                 </p>
+              ) : null}
+              {section.cta ? (
+                <div className="mt-8 rounded-xl border border-border bg-cream/60 px-5 py-6 md:px-6">
+                  <p className="font-[family-name:var(--font-shippori)] text-lg text-navy md:text-xl">
+                    {section.cta.heading}
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted md:text-base">
+                    <LinkedCopy text={section.cta.body} />
+                  </p>
+                  <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row">
+                    <Button
+                      href={section.cta.primary.href}
+                      className="w-full py-3.5 text-base sm:w-auto sm:min-w-[200px]"
+                    >
+                      {section.cta.primary.label}
+                    </Button>
+                    {section.cta.secondary ? (
+                      <Button
+                        href={section.cta.secondary.href}
+                        variant="outline"
+                        className="w-full py-3.5 text-base sm:w-auto sm:min-w-[180px]"
+                      >
+                        {section.cta.secondary.label}
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
               ) : null}
             </section>
           ))}

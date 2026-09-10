@@ -10,13 +10,20 @@ export type EnBlogCard = {
   body: string;
 };
 
+export type EnBlogSubsection = {
+  heading: string;
+  paragraphs: string[];
+};
+
 export type EnBlogSection = {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
   cards?: EnBlogCard[];
+  subsections?: EnBlogSubsection[];
   callout?: string;
   image?: EnBlogImage;
+  cta?: EnBlogCta;
 };
 
 export type EnBlogFaq = {
@@ -68,7 +75,7 @@ export const EN_BLOG_FIND_DISTRIBUTOR = {
 export const EN_BLOG_SELL_PRODUCTS = {
   slug: "how-to-sell-products-in-japan",
   path: "/en/blog/how-to-sell-products-in-japan",
-  title: "How to Sell Products in Japan: A Guide for Foreign Brands",
+  title: "How to Sell Products in Japan: A Practical Guide for Foreign Brands",
 } as const;
 
 export const EN_BLOG_FIND_RETAILERS = {

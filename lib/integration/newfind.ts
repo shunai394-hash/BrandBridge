@@ -153,18 +153,25 @@ export async function syncApprovedCasesToNewfind(limit = 50) {
 
   if (error) throw new Error(`BrandBridge case sync query failed: ${error.message}`);
 
-  const results = [];
-  for (const row of data ?? []) {
-    try {
-      results.push(await sendCaseToNewfind(String(row.id)));
-    } catch (error) {
-      results.push({
-        ok: false,
-        skipped: false,
-        caseId: String(row.id),
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
+  const results: Array<Record<string, unknown>> = [];
+  const rows = data ?? [];
+  for (let offset = 0; offset < rows.length; offset += 5) {
+    const batch = rows.slice(offset, offset + 5);
+    const batchResults = await Promise.all(
+      batch.map(async (row) => {
+        try {
+          return await sendCaseToNewfind(String(row.id));
+        } catch (error) {
+          return {
+            ok: false,
+            skipped: false,
+            caseId: String(row.id),
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+      }),
+    );
+    results.push(...batchResults);
   }
 
   return {

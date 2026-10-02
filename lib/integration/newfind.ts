@@ -153,7 +153,7 @@ export async function syncApprovedCasesToNewfind(limit = 50) {
 
   if (error) throw new Error(`BrandBridge case sync query failed: ${error.message}`);
 
-  const results: Array<Record<string, unknown>> = [];
+  const results = [];
   const rows = data ?? [];
   for (let offset = 0; offset < rows.length; offset += 5) {
     const batch = rows.slice(offset, offset + 5);

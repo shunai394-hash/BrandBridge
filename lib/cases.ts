@@ -1,4 +1,5 @@
-﻿import { pickCanonicalPublicCases } from "@/lib/case-canonical";
+﻿import { after } from "next/server";
+import { pickCanonicalPublicCases } from "@/lib/case-canonical";
 import {
   formatSupabaseError,
   normalizeCaseCreateInput,
@@ -8,6 +9,7 @@ import {
 import { listCaseImages } from "@/lib/case-images";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/admin";
+import { sendCaseToNewfind } from "@/lib/integration/newfind";
 import type {
   Case,
   CaseCreateInput,
@@ -764,6 +766,23 @@ if (user.id !== makerId) {
           error: "画像URLが登録されませんでした。管理画面から画像を設定してください。",
         };
       }
+    }
+
+    if (data.review_status === "approved") {
+      after(async () => {
+        try {
+          const result = await sendCaseToNewfind(String(data.id));
+          console.info("[BrandBridge→NEWFIND] case sync", {
+            caseId: data.id,
+            ...result,
+          });
+        } catch (error) {
+          console.error("[BrandBridge→NEWFIND] case sync failed", {
+            caseId: data.id,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      });
     }
 
     console.info("[createCase] insert ok", {

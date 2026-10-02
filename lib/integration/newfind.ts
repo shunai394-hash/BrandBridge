@@ -14,7 +14,7 @@ function integrationConfig() {
       "",
     key:
       process.env.NEWFIND_INTEGRATION_KEY?.trim() ||
-      "brandbridge-newfind",
+      "newfind-tracer",
   };
 }
 
@@ -91,7 +91,6 @@ export async function sendCaseToNewfind(caseId: string) {
     category: item.category,
     country: item.ship_from || item.region,
     product_url: absoluteCaseUrl(item.id),
-    official_url: absoluteCaseUrl(item.id),
     image_url: item.product_image_url,
     product_image_url: item.product_image_url,
     description: item.description || item.summary || "",
